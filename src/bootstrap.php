@@ -1,0 +1,390 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Autoloader and small helpers for the front controller.
+ */
+
+spl_autoload_register(static function (string $class): void {
+    $prefix = 'Songwunsch\\';
+    if (!str_starts_with($class, $prefix)) {
+        return;
+    }
+
+    $file = __DIR__ . '/' . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+    if (is_file($file)) {
+        require $file;
+    }
+});
+
+/**
+ * The translator for this request. index.php sets it once the language is
+ * known; until then t() returns the English source text unchanged.
+ */
+function translator(?\Songwunsch\Translator $set = null): ?\Songwunsch\Translator
+{
+    /** @var \Songwunsch\Translator|null $instance */
+    static $instance = null;
+
+    if ($set !== null) {
+        $instance = $set;
+    }
+
+    return $instance;
+}
+
+/**
+ * Translate a UI string. The English text is the message id; {placeholders}
+ * are filled from $args. Escape the result for HTML at the point of output.
+ *
+ * @param array<string,scalar|null> $args
+ */
+function t(string $message, array $args = [], ?string $context = null): string
+{
+    $tr = translator();
+    if ($tr === null) {
+        return $args === [] ? $message : strtr($message, array_combine(
+            array_map(static fn ($k): string => '{' . $k . '}', array_keys($args)),
+            array_map('strval', $args),
+        ));
+    }
+
+    return $tr->t($message, $args, $context);
+}
+
+/**
+ * Translate a string with a count; {n} is filled automatically.
+ *
+ * @param array<string,scalar|null> $args
+ */
+function tn(string $singular, string $plural, int $count, array $args = [], ?string $context = null): string
+{
+    $tr = translator();
+    if ($tr === null) {
+        return t(abs($count) === 1 ? $singular : $plural, $args + ['n' => $count]);
+    }
+
+    return $tr->n($singular, $plural, $count, $args, $context);
+}
+
+/**
+ * Base path the application is mounted under: '' for the domain root,
+ * otherwise with a leading and without a trailing slash, e.g. '/songliste'.
+ *
+ * Without an argument the value is read, with an argument it is set (done by
+ * index.php once config.php is loaded). Until something is set, the BASE_PATH
+ * environment variable applies -- so render_fatal(), which runs before the
+ * configuration, works too.
+ */
+function base_path(?string $value = null): string
+{
+    /** @var string|null $base */
+    static $base = null;
+
+    if ($value !== null) {
+        $base = normalize_base_path($value);
+    }
+
+    return $base ??= normalize_base_path((string) getenv('BASE_PATH'));
+}
+
+/**
+ * '/songliste/', 'songliste', '//songliste' -> '/songliste';
+ * '', '/' -> '' (domain root). Characters outside the whitelist are dropped,
+ * so a typo in the configuration never ends up in a Location header.
+ */
+function normalize_base_path(string $value): string
+{
+    $value = preg_replace('#[^A-Za-z0-9/_.-]#', '', trim($value)) ?? '';
+    $value = '/' . trim($value, '/');
+
+    return $value === '/' ? '' : $value;
+}
+
+/**
+ * The room of this request. index.php sets it once the route is known; url()
+ * then keeps room-bound pages (songs, wishes, room_songs) inside that room.
+ * The default room has no slug and lives at the base path itself.
+ *
+ * @param array<string,mixed>|null $set
+ * @return array<string,mixed>
+ */
+function current_room(?array $set = null): array
+{
+    /** @var array<string,mixed>|null $room */
+    static $room = null;
+
+    if ($set !== null) {
+        $room = $set;
+    }
+
+    return $room ?? \Songwunsch\RoomRepository::defaultRoom();
+}
+
+/**
+ * Build an address, including the base path. 'p' names the page and becomes
+ * the path: '/wishes', '/login', ... The start page (songs) is the base path
+ * itself, so url() without 'p' is also the target of every form. All other
+ * parameters go into the query string.
+ *
+ * Pages that belong to a room (songs, wishes, room_songs) are placed in the
+ * current room: /rooms/<slug>, /rooms/<slug>/wishes, /rooms/<slug>/manage.
+ * 'room' overrides that -- a slug for another room, '' for the default room.
+ */
+function url(array $params = []): string
+{
+    $page = (string) ($params['p'] ?? 'songs');
+    $slug = array_key_exists('room', $params)
+        ? (string) $params['room']
+        : (string) (current_room()['slug'] ?? '');
+    unset($params['p'], $params['room']);
+
+    $params = array_filter($params, static fn ($v): bool => $v !== null && $v !== '');
+
+    $target = base_path();
+    if (in_array($page, ['songs', 'wishes', 'room_songs'], true)) {
+        $prefix  = $slug !== '' ? '/rooms/' . $slug : '';
+        // A room's song list is the room itself: /rooms/<slug> without a
+        // trailing slash; only the default room is the bare base path '/'.
+        $target .= match ($page) {
+            'songs'      => $prefix !== '' ? $prefix : '/',
+            'wishes'     => $prefix . '/wishes',
+            'room_songs' => $prefix . '/manage',
+        };
+    } else {
+        $target .= '/' . $page;
+    }
+
+    return $params === [] ? $target : $target . '?' . http_build_query($params);
+}
+
+/**
+ * Version of the bundled files, from config.php ('version'). index.php sets
+ * it; asset() appends it as a cache buster.
+ */
+function asset_version(?string $set = null): string
+{
+    /** @var string $version */
+    static $version = '';
+
+    if ($set !== null) {
+        $version = trim($set);
+    }
+
+    return $version;
+}
+
+/**
+ * Inline SVG icon in front of a button label -- decorative, hidden from
+ * assistive technology; the label carries the meaning. One place for the
+ * paths so every button draws the same glyph. Unknown names yield nothing.
+ */
+function icon(string $name, int $size = 16): string
+{
+    // Every glyph fills the same optical box, roughly 2..14 of the 16-unit
+    // grid: outlines reach 2/14 with their stroke, filled shapes stop a little
+    // earlier because solid ink reads larger than lines.
+    $paths = [
+        'plus'   => '<path d="M8 3.3v9.4M3.3 8h9.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>',
+        'pause'  => '<rect x="2.8" y="2.5" width="3.8" height="11" rx="1.2" fill="currentColor"/><rect x="9.4" y="2.5" width="3.8" height="11" rx="1.2" fill="currentColor"/>',
+        'play'   => '<path d="M3.5 3.2v9.6a.8.8 0 0 0 1.2.7l8.4-4.8a.8.8 0 0 0 0-1.4L4.7 2.5a.8.8 0 0 0-1.2.7z" fill="currentColor"/>',
+        'trash'  => '<path d="M5.8 1.2h4.4l.5 1.3h4v2H1.3v-2h4z" fill="currentColor"/><path fill-rule="evenodd" d="M2.3 5.7h11.4l-.9 8.2a1 1 0 0 1-1 .9H4.2a1 1 0 0 1-1-.9zM5.4 7.5h1.5v5.3H5.4zm3.7 0h1.5v5.3H9.1z" fill="currentColor"/>',
+        'list'   => '<path d="M3.1 3.6h9.8M3.1 8h9.8M3.1 12.4h9.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+        'key'    => '<circle cx="5.4" cy="10.6" r="2.8" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M7.4 8.6 13.4 2.6M10.8 5.2l2 2M12.6 3.4l1.4 1.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+        'note'   => '<path d="M6.3 11.8V2.9l7.4-1.6v9.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="3.8" cy="12.3" r="2.7" fill="currentColor"/><circle cx="12" cy="10.6" r="2.7" fill="currentColor"/>',
+        'enter'  => '<path d="M2.6 8h10.2M8.6 3.6 13 8l-4.4 4.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+        'pencil' => '<path d="M1.2 14.8v-3.8l9.4-9.4 3.8 3.8-9.4 9.4z" fill="currentColor"/><path d="M9.8 2.4l3.8 3.8" fill="none" stroke="var(--panel, #1b1e2a)" stroke-width="1.3"/>',
+        'star'   => '<path d="M8 1 9.95 5.95 15.2 6.3 11.1 9.65 12.45 14.8 8 12 3.55 14.8 4.9 9.65.8 6.3 6.05 5.95z" fill="currentColor" stroke="currentColor" stroke-width=".8" stroke-linejoin="round"/>',
+        'check'  => '<path d="M3.3 8.4 6.7 11.8 12.7 4.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+        'cross'  => '<path d="M3.6 3.6l8.8 8.8M12.4 3.6l-8.8 8.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
+    ];
+
+    if (!isset($paths[$name])) {
+        return '';
+    }
+
+    return '<svg class="button__glyph" viewBox="0 0 16 16" width="' . $size . '" height="' . $size . '"'
+        . ' aria-hidden="true" focusable="false">' . $paths[$name] . '</svg>';
+}
+
+/**
+ * Address of a bundled file (CSS, JavaScript), including the base path and,
+ * when configured, ?v=<version> so a release invalidates the browser cache.
+ */
+function asset(string $file): string
+{
+    $url = base_path() . '/' . ltrim($file, '/');
+
+    return asset_version() === '' ? $url : $url . '?v=' . rawurlencode(asset_version());
+}
+
+/**
+ * Check a return address: only the application's own addresses below the
+ * base path are accepted, otherwise null. '//host' and '/\\host' would be
+ * read as protocol-relative by browsers and are rejected as well.
+ */
+function safe_target(?string $candidate): ?string
+{
+    $candidate = (string) $candidate;
+    $base      = base_path() . '/';
+
+    if ($candidate !== ''
+        && str_starts_with($candidate, $base)
+        && !str_starts_with($candidate, $base . '/')
+        && !str_starts_with($candidate, $base . '\\')
+        && !str_contains($candidate, "\n")
+        && !str_contains($candidate, "\r")) {
+        return $candidate;
+    }
+
+    return null;
+}
+
+/** Target address after a POST action (post/redirect/get). */
+function back(?string $fallback = null): string
+{
+    return safe_target($_POST['back'] ?? null) ?? $fallback ?? url(['p' => 'songs']);
+}
+
+/**
+ * Carry input and errors across the redirect. After post/redirect/get the
+ * form is rebuilt and should show both again instead of making the user type
+ * everything once more.
+ *
+ * @param array<string,string> $values
+ * @param array<string,string> $errors
+ */
+function remember_input(array $values, array $errors): void
+{
+    $_SESSION['input'] = ['values' => $values, 'errors' => $errors];
+}
+
+/** @return array{values:array<string,string>,errors:array<string,string>}|null */
+function remembered_input(): ?array
+{
+    $kept = $_SESSION['input'] ?? null;
+    unset($_SESSION['input']);
+
+    return is_array($kept) ? $kept : null;
+}
+
+/** Does the caller expect JSON (drag & drop via fetch)? */
+function wants_json(): bool
+{
+    return ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch'
+        || str_contains((string) ($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json');
+}
+
+/** @param array<string,mixed> $payload */
+function send_json(array $payload, int $status = 200): never
+{
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    exit;
+}
+
+function redirect(string $target, int $status = 303): never
+{
+    header('Location: ' . $target, true, $status);
+    exit;
+}
+
+function flash(string $type, string $message): void
+{
+    $_SESSION['flash'] = ['type' => $type, 'message' => $message];
+}
+
+/** @return array{type:string,message:string}|null */
+function flash_take(): ?array
+{
+    $flash = $_SESSION['flash'] ?? null;
+    unset($_SESSION['flash']);
+
+    return is_array($flash) ? $flash : null;
+}
+
+function require_login(\Songwunsch\Security $security): void
+{
+    if (!$security->isLoggedIn()) {
+        if (wants_json()) {
+            send_json(['ok' => false, 'error' => t('Please log in first.')], 401);
+        }
+        flash('info', t('Please log in first.'));
+        redirect(url(['p' => 'login']));
+    }
+}
+
+/**
+ * Login plus role for an area ('wishes', 'songs', 'users'). Without the role
+ * the user is sent back to the song list with a notice.
+ */
+function require_role(\Songwunsch\Security $security, string $area): void
+{
+    require_login($security);
+
+    if (!$security->can($area)) {
+        if (wants_json()) {
+            send_json(['ok' => false, 'error' => t('You do not have permission for that.')], 403);
+        }
+        flash('error', t('You do not have permission for that.'));
+        redirect(url(['p' => 'songs']));
+    }
+}
+
+/** Start page after logging in: the wish list for moderators, otherwise the song list. */
+function home_for(\Songwunsch\Security $security): string
+{
+    return url(['p' => $security->can('wishes') ? 'wishes' : 'songs']);
+}
+
+/**
+ * Error text for display. Details (table and column names) only for
+ * logged-in users or while show_errors is on.
+ *
+ * @param array<string,mixed> $config
+ */
+function error_detail(\Throwable $e, array $config, \Songwunsch\Security $security): string
+{
+    if (($config['show_errors'] ?? false) === true || $security->isLoggedIn()) {
+        return $e->getMessage();
+    }
+
+    error_log('[songwunsch] ' . $e::class . ': ' . $e->getMessage());
+
+    return t('The song list is not available right now. Please try again later.');
+}
+
+/** Emergency exit when not even the configuration can be loaded. */
+function render_fatal(string $title, string $html): never
+{
+    render_bare(500, $title, $html);
+}
+
+/**
+ * 404 for an address below the base path that is not the front controller.
+ * The web server routes everything to index.php (.htaccess); this is the
+ * answer for the rest.
+ */
+function not_found(): never
+{
+    $link = '<a href="' . htmlspecialchars(url(), ENT_QUOTES, 'UTF-8') . '">'
+        . htmlspecialchars(t('To the song list'), ENT_QUOTES, 'UTF-8') . '</a>';
+
+    render_bare(404, t('Page not found'), htmlspecialchars(t('There is nothing at this address.'), ENT_QUOTES, 'UTF-8') . ' ' . $link);
+}
+
+/** Minimal page without layout, database or session -- for the cases above. */
+function render_bare(int $status, string $title, string $html): never
+{
+    http_response_code($status);
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        . '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        . '<title>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</title>'
+        . '<link rel="stylesheet" href="' . htmlspecialchars(asset('assets/style.css'), ENT_QUOTES, 'UTF-8') . '"></head>'
+        . '<body class="is-fatal"><main class="fatal"><h1>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</h1>'
+        . '<p>' . $html . '</p></main></body></html>';
+    exit;
+}

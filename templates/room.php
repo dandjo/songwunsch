@@ -1,0 +1,83 @@
+<?php
+
+declare(strict_types=1);
+
+use Songwunsch\Format;
+use Songwunsch\RoomRepository;
+
+/** @var int $id                    0 = new room */
+/** @var array<string,string> $values */
+/** @var array<string,string> $errors */
+/** @var string $csrf */
+
+$e       = static fn (?string $v): string => Format::e($v);
+$isNew   = $id === 0;
+$backUrl = url(['p' => 'rooms']);
+
+$fieldError = static function (string $field) use ($errors, $e): string {
+    if (!isset($errors[$field])) {
+        return '';
+    }
+
+    return '<p class="field__error" id="err-' . $e($field) . '">' . $e($errors[$field]) . '</p>';
+};
+
+$invalid = static fn (string $field): string => isset($errors[$field])
+    ? ' aria-invalid="true" aria-describedby="err-' . $field . ' hint-' . $field . '"'
+    : ' aria-describedby="hint-' . $field . '"';
+?>
+
+<div class="panel__head">
+    <div>
+        <h1><?= $e($isNew ? t('Add room') : t('Edit room')) ?></h1>
+        <p class="muted">
+            <?php if ($isNew): ?>
+                <?= $e(t('A room gets its own address, its own song list picked from the master list and its own wish list.')) ?>
+            <?php else: ?>
+                <?= $e(t('Changing the machine name changes the address – links already handed out stop working.')) ?>
+            <?php endif; ?>
+        </p>
+    </div>
+</div>
+
+<div class="login login--wide">
+    <form method="post" action="<?= $e(url()) ?>" class="login__form">
+        <input type="hidden" name="a" value="room_save">
+        <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+        <input type="hidden" name="id" value="<?= (int) $id ?>">
+
+        <div class="field">
+            <label for="name"><?= $e(t('Name')) ?></label>
+            <input type="text" id="name" name="name" value="<?= $e($values['name'] ?? '') ?>"
+                   required autofocus maxlength="<?= RoomRepository::MAX_NAME ?>"<?= $invalid('name') ?>>
+            <p class="field__hint" id="hint-name"><?= $e(t('Shown in the header and the list of rooms, e.g. “Summer party 2026”.')) ?></p>
+            <?= $fieldError('name') ?>
+        </div>
+
+        <div class="field">
+            <label for="slug"><?= $e(t('Machine name')) ?></label>
+            <input type="text" id="slug" name="slug" value="<?= $e($values['slug'] ?? '') ?>"
+                   required autocomplete="off" autocapitalize="none" spellcheck="false"
+                   minlength="<?= RoomRepository::MIN_SLUG ?>" maxlength="<?= RoomRepository::MAX_SLUG ?>"
+                   pattern="[a-z0-9]+(-[a-z0-9]+)*"<?= $invalid('slug') ?>>
+            <p class="field__hint" id="hint-slug">
+                <?= $e(t('Part of the address: lower-case letters a–z, digits and hyphens.')) ?>
+                <code><?= $e(url(['p' => 'songs', 'room' => ($values['slug'] ?? '') !== '' ? $values['slug'] : 'sommerfest-2026'])) ?></code>
+            </p>
+            <?= $fieldError('slug') ?>
+        </div>
+
+        <fieldset class="field field--group">
+            <legend><?= $e(t('Status')) ?></legend>
+            <label class="check">
+                <input type="checkbox" name="active" value="1"<?= ($values['active'] ?? '1') === '1' ? ' checked' : '' ?>>
+                <span><strong><?= $e(t('Active')) ?></strong> – <?= $e(t('archived rooms leave the room switcher and the guests’ list but stay reachable through their address')) ?></span>
+            </label>
+        </fieldset>
+
+        <div class="panel__actions">
+            <button type="submit" class="wish-button"><?= icon($isNew ? 'plus' : 'check') ?><?= $e($isNew ? t('Create') : t('Save')) ?></button>
+            <a class="link-button" href="<?= $e($backUrl) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
+        </div>
+    </form>
+</div>

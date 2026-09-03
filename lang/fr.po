@@ -1,0 +1,839 @@
+# Songwunsch -- French translation.
+msgid ""
+msgstr ""
+"Project-Id-Version: Songwunsch\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Native-Name: Français\n"
+
+# ---- Formatting -----------------------------------------------------------------
+
+msgctxt "thousands separator"
+msgid ","
+msgstr " "
+
+msgctxt "time format, PHP date()"
+msgid "H:i:s"
+msgstr "H:i:s"
+
+msgctxt "date format, PHP date()"
+msgid "M j, H:i"
+msgstr "d/m H:i"
+
+msgid "just now"
+msgstr "à l’instant"
+
+msgid "{n} min ago"
+msgstr "il y a {n} min"
+
+msgid "{n} h ago"
+msgstr "il y a {n} h"
+
+msgid "{n} day ago"
+msgid_plural "{n} days ago"
+msgstr[0] "il y a {n} jour"
+msgstr[1] "il y a {n} jours"
+
+# ---- Roles ----------------------------------------------------------------------
+
+msgctxt "role"
+msgid "Admin"
+msgstr "Admin"
+
+msgctxt "role"
+msgid "Editor"
+msgstr "Rédaction"
+
+msgctxt "role"
+msgid "Moderator"
+msgstr "Modération"
+
+# ---- Layout ---------------------------------------------------------------------
+
+msgid "Skip to content"
+msgstr "Aller au contenu"
+
+msgid "Pick your song – we will play it"
+msgstr "Choisis ton morceau – on le joue"
+
+msgid "Main navigation"
+msgstr "Navigation principale"
+
+msgid "Songs"
+msgstr "Morceaux"
+
+msgid "Wish list"
+msgstr "Liste de souhaits"
+
+msgid "wish list"
+msgstr "liste de souhaits"
+
+msgid "{n} open wish"
+msgid_plural "{n} open wishes"
+msgstr[0] "{n} souhait en attente"
+msgstr[1] "{n} souhaits en attente"
+
+msgid "Users"
+msgstr "Utilisateurs"
+
+msgid "Log out"
+msgstr "Se déconnecter"
+
+msgid "Log in"
+msgstr "Se connecter"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "You can resume it on the room’s {wishlist}."
+msgstr "Vous pouvez les réactiver depuis la {wishlist} de la salle."
+
+msgid "The song list stays open – wishing will be back later."
+msgstr "La liste des morceaux reste ouverte – les souhaits reviendront plus tard."
+
+msgid "Error"
+msgstr "Erreur"
+
+# ---- Song list --------------------------------------------------------------------
+
+msgid "Song list"
+msgstr "Liste des morceaux"
+
+msgid "{n} song"
+msgid_plural "{n} songs"
+msgstr[0] "{n} morceau"
+msgstr[1] "{n} morceaux"
+
+msgid "found for “{q}”."
+msgstr "pour « {q} »."
+
+msgid "in the repertoire."
+msgstr "au répertoire."
+
+msgid "A click on {wish} drops the song into the list."
+msgstr "Un clic sur {wish} ajoute le morceau à la liste."
+
+msgid "Wish"
+msgstr "Souhaiter"
+
+msgid "Add song"
+msgstr "Ajouter un morceau"
+
+msgid "Edit song"
+msgstr "Modifier le morceau"
+
+msgid "Search songs"
+msgstr "Rechercher des morceaux"
+
+msgid "Artist, title, genre …"
+msgstr "Artiste, titre, genre…"
+
+msgid "Search"
+msgstr "Rechercher"
+
+msgid "reset"
+msgstr "effacer"
+
+msgid "No song found. Try a different spelling?"
+msgstr "Aucun morceau trouvé. Essayer une autre orthographe ?"
+
+msgid "Songs, sortable by artist, title, length and genre"
+msgstr "Morceaux, triables par artiste, titre, durée et genre"
+
+msgid "; with columns to edit and delete"
+msgstr " ; avec des colonnes pour modifier et supprimer"
+
+msgid "Artist"
+msgstr "Artiste"
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "Length"
+msgstr "Durée"
+
+msgid "Genre"
+msgstr "Genre"
+
+msgid ", sort ascending"
+msgstr ", trier par ordre croissant"
+
+msgid ", sort descending"
+msgstr ", trier par ordre décroissant"
+
+msgid "{title} by {artist}"
+msgstr "{title} de {artist}"
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Permanently delete “{title}” from the song list?"
+msgstr "Supprimer définitivement « {title} » de la liste des morceaux ?"
+
+msgid "Pages"
+msgstr "Pages"
+
+msgid "back"
+msgstr "précédent"
+
+msgid "next"
+msgstr "suivant"
+
+msgid "Page {page} of {pages}"
+msgstr "Page {page} sur {pages}"
+
+msgid "Sorting"
+msgstr "Tri"
+
+msgid "Sort:"
+msgstr "Trier :"
+
+msgid ", currently ascending, reverse"
+msgstr ", actuellement croissant, inverser"
+
+msgid ", currently descending, reverse"
+msgstr ", actuellement décroissant, inverser"
+
+# ---- Wish list ---------------------------------------------------------------------
+
+msgid "{n} wish in the queue."
+msgid_plural "{n} wishes in the queue."
+msgstr[0] "{n} souhait dans la file."
+msgstr[1] "{n} souhaits dans la file."
+
+msgid "The wishes in the order they will be played."
+msgstr "Les souhaits dans l’ordre où ils seront joués."
+
+msgid "Position"
+msgstr "Position"
+
+msgid "Wishing is paused"
+msgstr "Les souhaits sont en pause"
+
+msgid "– the audience cannot submit anything right now."
+msgstr "– le public ne peut rien envoyer pour le moment."
+
+msgid "Change the order with the arrows – on a desktop also by drag & drop. Sorting only changes the view."
+msgstr "Changez l’ordre avec les flèches – sur ordinateur aussi par glisser-déposer. Le tri ne change que l’affichage."
+
+msgid "To reorder, switch to the {manual}."
+msgstr "Pour réorganiser, passez à l’{manual}."
+
+msgid "manual order"
+msgstr "ordre manuel"
+
+msgid "Manual order"
+msgstr "Ordre manuel"
+
+msgid "Pause wishing"
+msgstr "Mettre les souhaits en pause"
+
+msgid "Resume wishing"
+msgstr "Reprendre les souhaits"
+
+msgid "Really delete all wishes?"
+msgstr "Vraiment supprimer tous les souhaits ?"
+
+msgid "Clear list"
+msgstr "Vider la liste"
+
+msgid "No wishes yet. The start page is waiting for an audience."
+msgstr "Aucun souhait pour l’instant. La page d’accueil attend son public."
+
+msgid "Order"
+msgstr "Ordre"
+
+msgid "Received"
+msgstr "Reçu"
+
+msgid "Order saved."
+msgstr "Ordre enregistré."
+
+msgid "The order could not be saved."
+msgstr "L’ordre n’a pas pu être enregistré."
+
+msgid "The order could not be saved – please reload the page."
+msgstr "L’ordre n’a pas pu être enregistré – veuillez recharger la page."
+
+msgid "Received wishes"
+msgstr "Souhaits reçus"
+
+msgid " in manual order, changeable by drag & drop or arrow buttons"
+msgstr " en ordre manuel, modifiable par glisser-déposer ou avec les flèches"
+
+msgid ", sorted"
+msgstr ", triés"
+
+msgid "Position, restore manual order"
+msgstr "Position, rétablir l’ordre manuel"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Move {label} up"
+msgstr "Monter {label}"
+
+msgid "Move {label} down"
+msgstr "Descendre {label}"
+
+msgid "Remove “{title}” from the list?"
+msgstr "Retirer « {title} » de la liste ?"
+
+msgid "Wish deleted."
+msgstr "Souhait supprimé."
+
+msgid "Wish not found."
+msgstr "Souhait introuvable."
+
+msgid "{n} wish deleted."
+msgid_plural "{n} wishes deleted."
+msgstr[0] "{n} souhait supprimé."
+msgstr[1] "{n} souhaits supprimés."
+
+msgid "Wishing is paused. The audience can see the song list but cannot submit anything."
+msgstr "Les souhaits sont en pause. Le public voit la liste des morceaux mais ne peut rien envoyer."
+
+msgid "Wishing is open again."
+msgstr "Les souhaits sont de nouveau ouverts."
+
+# ---- Wishing (public) ----------------------------------------------------------------
+
+msgid "The wish list is closed right now."
+msgstr "La liste de souhaits est fermée pour le moment."
+
+msgid "Thanks, your wish is in."
+msgstr "Merci, votre souhait est enregistré."
+
+msgid "That was very quick – please click “Wish” once more."
+msgstr "C’était très rapide – veuillez cliquer encore une fois sur « Souhaiter »."
+
+msgid "The page has been open for a long time – please reload it and wish again."
+msgstr "La page est ouverte depuis longtemps – veuillez la recharger et souhaiter de nouveau."
+
+msgid "One moment – please do not wish that quickly in a row."
+msgstr "Un instant – merci de ne pas enchaîner les souhaits aussi vite."
+
+msgid "“{title}” is already on the wish list."
+msgstr "« {title} » est déjà sur la liste de souhaits."
+
+msgid "“{title}” by {artist} is in."
+msgstr "« {title} » de {artist} est enregistré."
+
+msgid "The wish list is full – please try again later."
+msgstr "La liste de souhaits est pleine – veuillez réessayer plus tard."
+
+msgid "A lot of wishes are coming in right now – please try again in a moment."
+msgstr "Beaucoup de souhaits arrivent en ce moment – veuillez réessayer dans un instant."
+
+msgid "Enough wishes for the moment – please wait a little."
+msgstr "Assez de souhaits pour le moment – veuillez patienter un peu."
+
+msgid "Quite a few wishes have come from you this hour – please come back later."
+msgstr "Vous avez déjà envoyé beaucoup de souhaits cette heure-ci – revenez plus tard."
+
+# ---- Song form -----------------------------------------------------------------------
+
+msgid "The audience can pick the song right away."
+msgstr "Le public peut choisir le morceau immédiatement."
+
+msgid "Wishes already received keep their previous wording."
+msgstr "Les souhaits déjà reçus gardent leur libellé d’origine."
+
+msgid "(optional)"
+msgstr "(facultatif)"
+
+msgid "As m:ss (3:45) or in seconds (225). Stored in seconds."
+msgstr "Au format m:ss (3:45) ou en secondes (225). Enregistré en secondes."
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "{field} is required."
+msgstr "{field} est obligatoire."
+
+msgid "{field} is too long: at most {max} characters."
+msgstr "{field} est trop long : {max} caractères au maximum."
+
+msgid "Length not understood. Examples: 3:45 or 225 (seconds)."
+msgstr "Durée incomprise. Exemples : 3:45 ou 225 (secondes)."
+
+msgid "Length is unrealistic – at most 23:59:59."
+msgstr "Durée irréaliste – 23:59:59 au maximum."
+
+msgid "This song was not found."
+msgstr "Ce morceau n’a pas été trouvé."
+
+msgid "Please check the highlighted fields."
+msgstr "Veuillez vérifier les champs signalés."
+
+msgid "“{title}” by {artist} has been added to the song list."
+msgstr "« {title} » de {artist} a été ajouté à la liste des morceaux."
+
+msgid "“{title}” by {artist} has been saved."
+msgstr "« {title} » de {artist} a été enregistré."
+
+msgid "“{title}” has been removed from the song list. Wishes already received are kept."
+msgstr "« {title} » a été retiré de la liste des morceaux. Les souhaits déjà reçus sont conservés."
+
+# ---- Login and access ----------------------------------------------------------------
+
+msgid "Editing the wish list, the songs and the users is reserved for staff."
+msgstr "La modification de la liste de souhaits, des morceaux et des utilisateurs est réservée à l’équipe."
+
+msgid "Username"
+msgstr "Nom d’utilisateur"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Logged in as {name}."
+msgstr "Connecté en tant que {name}."
+
+msgid "Username or password is incorrect."
+msgstr "Nom d’utilisateur ou mot de passe incorrect."
+
+msgid "Please log in first."
+msgstr "Veuillez d’abord vous connecter."
+
+msgid "You do not have permission for that."
+msgstr "Vous n’avez pas l’autorisation pour cela."
+
+msgid "Session expired. Please reload the page."
+msgstr "Session expirée. Veuillez recharger la page."
+
+msgid "The session has expired. Please try again."
+msgstr "La session a expiré. Veuillez réessayer."
+
+msgid "An error occurred: {detail}"
+msgstr "Une erreur s’est produite : {detail}"
+
+msgid "The song list is not available right now. Please try again later."
+msgstr "La liste des morceaux n’est pas disponible pour le moment. Veuillez réessayer plus tard."
+
+msgid "The claw is stuck"
+msgstr "Le bras du juke-box est coincé"
+
+msgid "Check the database credentials in {config}. The application creates its tables itself; if the database user is not allowed to, use {schema}."
+msgstr "Vérifiez les identifiants de la base de données dans {config}. L’application crée ses tables elle-même ; si l’utilisateur de la base n’y est pas autorisé, utilisez {schema}."
+
+msgid "Database connection failed: {code}"
+msgstr "Échec de la connexion à la base de données : {code}"
+
+msgid "Table \"{table}\" does not have the expected structure, the columns {columns} are missing. If it comes from an older version, rename it or recreate it from sql/schema.sql."
+msgstr "La table « {table} » n’a pas la structure attendue, les colonnes {columns} manquent. Si elle provient d’une ancienne version, renommez-la ou recréez-la à partir de sql/schema.sql."
+
+# ---- Users ---------------------------------------------------------------------------
+
+msgid "{n} user."
+msgid_plural "{n} users."
+msgstr[0] "{n} utilisateur."
+msgstr[1] "{n} utilisateurs."
+
+msgid "{editor} maintains the song list, {moderator} the wish list; the {admin} manages users and may do everything. There is exactly one admin; the role is handed over when editing a user."
+msgstr "La {editor} gère la liste des morceaux, la {moderator} la liste de souhaits ; l’{admin} gère les utilisateurs et peut tout faire. Il y a exactement un admin ; le rôle se transmet en modifiant un utilisateur."
+
+msgid "Add user"
+msgstr "Ajouter un utilisateur"
+
+msgid "Edit user"
+msgstr "Modifier l’utilisateur"
+
+msgid "Users with roles and status"
+msgstr "Utilisateurs avec rôles et statut"
+
+msgid "Roles"
+msgstr "Rôles"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "(you)"
+msgstr "(vous)"
+
+msgid "no role"
+msgstr "aucun rôle"
+
+msgid "active"
+msgstr "actif"
+
+msgid "locked"
+msgstr "bloqué"
+
+msgid "Permanently delete user “{name}”?"
+msgstr "Supprimer définitivement l’utilisateur « {name} » ?"
+
+msgid "Pass on username and password – the new user can log in right away."
+msgstr "Transmettez le nom d’utilisateur et le mot de passe – le nouvel utilisateur peut se connecter immédiatement."
+
+msgid "The admin may do everything; their role boxes and status are therefore fixed. The admin role can be handed over to another user below."
+msgstr "L’admin peut tout faire ; ses cases de rôle et son statut sont donc figés. Le rôle d’admin peut être transmis à un autre utilisateur ci-dessous."
+
+msgid "Changes to roles and status take effect immediately, even for a running session."
+msgstr "Les changements de rôles et de statut prennent effet immédiatement, même pour une session en cours."
+
+msgid "New password"
+msgstr "Nouveau mot de passe"
+
+msgid "(leave empty to keep it)"
+msgstr "(laisser vide pour le conserver)"
+
+msgid "At least {n} characters."
+msgstr "Au moins {n} caractères."
+
+msgid "Repeat password"
+msgstr "Répéter le mot de passe"
+
+msgid "maintain the song list (add, edit, delete)"
+msgstr "gérer la liste des morceaux (ajouter, modifier, supprimer)"
+
+msgid "edit the wish list, pause wishing"
+msgstr "gérer la liste de souhaits, mettre les souhaits en pause"
+
+msgid "As admin this user has every permission anyway."
+msgstr "En tant qu’admin, cet utilisateur a de toute façon tous les droits."
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "locked users cannot log in and are dropped from running sessions"
+msgstr "les utilisateurs bloqués ne peuvent pas se connecter et sont exclus des sessions en cours"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Hand over admin role"
+msgstr "Transmettre le rôle d’admin"
+
+msgid "Afterwards {name} manages the users and may do everything. You keep your other roles but lose access to this page – you only get it back if the new admin hands the role back."
+msgstr "Ensuite, {name} gère les utilisateurs et peut tout faire. Vous gardez vos autres rôles mais perdez l’accès à cette page – vous ne le retrouverez que si le nouvel admin vous rend le rôle."
+
+msgid "Really hand the admin role over to “{name}”?"
+msgstr "Vraiment transmettre le rôle d’admin à « {name} » ?"
+
+msgid "Username: {min} to {max} characters."
+msgstr "Nom d’utilisateur : de {min} à {max} caractères."
+
+msgid "Username: letters, digits, dot, underscore, hyphen or @."
+msgstr "Nom d’utilisateur : lettres, chiffres, point, tiret bas, tiret ou @."
+
+msgid "This username is already taken."
+msgstr "Ce nom d’utilisateur est déjà pris."
+
+msgid "Password: at least {min} characters."
+msgstr "Mot de passe : au moins {min} caractères."
+
+msgid "The two passwords do not match."
+msgstr "Les deux mots de passe ne correspondent pas."
+
+msgid "This user is already the admin."
+msgstr "Cet utilisateur est déjà l’admin."
+
+msgid "This user was not found."
+msgstr "Cet utilisateur n’a pas été trouvé."
+
+msgid "The admin role can only be handed over to an active user."
+msgstr "Le rôle d’admin ne peut être transmis qu’à un utilisateur actif."
+
+msgid "The admin role could not be handed over."
+msgstr "Le rôle d’admin n’a pas pu être transmis."
+
+msgid "User “{name}” has been created."
+msgstr "L’utilisateur « {name} » a été créé."
+
+msgid "User “{name}” has been saved."
+msgstr "L’utilisateur « {name} » a été enregistré."
+
+msgid "User “{name}” has been deleted."
+msgstr "L’utilisateur « {name} » a été supprimé."
+
+msgid "The admin cannot be deleted – hand over the admin role first."
+msgstr "L’admin ne peut pas être supprimé – transmettez d’abord le rôle d’admin."
+
+msgid "Deleting was not possible."
+msgstr "La suppression n’a pas été possible."
+
+msgid "The admin role now belongs to “{name}”. You keep your other roles."
+msgstr "Le rôle d’admin appartient maintenant à « {name} ». Vous gardez vos autres rôles."
+
+msgid "Page not found"
+msgstr "Page introuvable"
+
+msgid "There is nothing at this address."
+msgstr "Il n’y a rien à cette adresse."
+
+msgid "To the song list"
+msgstr "Vers la liste des morceaux"
+
+# --- Rooms ---------------------------------------------------------------
+
+msgid "Rooms"
+msgstr "Salles"
+
+msgid "Room"
+msgstr "Salle"
+
+msgid "Main room"
+msgstr "Salle principale"
+
+msgid "always there"
+msgstr "toujours là"
+
+msgid "(current)"
+msgstr "(actuelle)"
+
+msgid "Change to"
+msgstr "Changer"
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "Wishes"
+msgstr "Souhaits"
+
+msgid "{n} room besides the main room."
+msgid_plural "{n} rooms besides the main room."
+msgstr[0] "Une salle en plus de la salle principale."
+msgstr[1] "{n} salles en plus de la salle principale."
+
+msgid "Every room has its own song list, picked from the master list, and its own wish list."
+msgstr "Chaque salle a sa propre liste de morceaux, choisie dans la liste principale, et sa propre liste de souhaits."
+
+msgid "Rooms with their number of songs"
+msgstr "Salles avec leur nombre de morceaux"
+
+msgid "Add room"
+msgstr "Créer une salle"
+
+msgid "Edit room"
+msgstr "Modifier la salle"
+
+msgid "A room gets its own address, its own song list picked from the master list and its own wish list."
+msgstr "Une salle reçoit sa propre adresse, sa propre liste de morceaux choisie dans la liste principale et sa propre liste de souhaits."
+
+msgid "Changing the machine name changes the address – links already handed out stop working."
+msgstr "Modifier le nom machine change l’adresse – les liens déjà distribués ne fonctionnent plus."
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Shown in the header and the list of rooms, e.g. “Summer party 2026”."
+msgstr "Affiché dans l’en-tête et la liste des salles, p. ex. « Fête d’été 2026 »."
+
+msgid "Machine name"
+msgstr "Nom machine"
+
+msgid "Part of the address: lower-case letters a–z, digits and hyphens."
+msgstr "Partie de l’adresse : minuscules a–z, chiffres et tirets."
+
+msgid "Machine name: {min} to {max} characters."
+msgstr "Nom machine : de {min} à {max} caractères."
+
+msgid "Machine name: lower-case letters a–z, digits and hyphens, e.g. “sommerfest-2026”."
+msgstr "Nom machine : minuscules a–z, chiffres et tirets, p. ex. « fete-ete-2026 »."
+
+msgid "This machine name is already taken."
+msgstr "Ce nom machine est déjà pris."
+
+msgid "This room was not found."
+msgstr "Cette salle n’a pas été trouvée."
+
+msgid "Room “{name}” has been created. Now pick its songs from the master list."
+msgstr "La salle « {name} » a été créée. Choisissez maintenant ses morceaux dans la liste principale."
+
+msgid "Room “{name}” has been saved."
+msgstr "La salle « {name} » a été enregistrée."
+
+msgid "Room “{name}” has been deleted together with its wishes."
+msgstr "La salle « {name} » a été supprimée avec ses souhaits."
+
+msgid "Permanently delete room “{name}” together with its wishes?"
+msgstr "Supprimer définitivement la salle « {name} » avec ses souhaits ?"
+
+msgid "The main room always offers the whole song list."
+msgstr "La salle principale propose toujours toute la liste de morceaux."
+
+msgid "Manage the room: pick its songs from the master list."
+msgstr "Gérer la salle : choisir ses morceaux dans la liste principale."
+
+msgid "This room has no songs yet."
+msgstr "Cette salle n’a pas encore de morceaux."
+
+msgid "in this room."
+msgstr "dans cette salle."
+
+msgid "Remove"
+msgstr "Retirer"
+
+msgid "Songs of the room"
+msgstr "Morceaux de la salle"
+
+msgid "Remove every song from this room? Wishes already received are kept."
+msgstr "Retirer tous les morceaux de cette salle ? Les souhaits déjà reçus sont conservés."
+
+msgid "{n} song added to the room."
+msgid_plural "{n} songs added to the room."
+msgstr[0] "Un morceau ajouté à la salle."
+msgstr[1] "{n} morceaux ajoutés à la salle."
+
+msgid "{n} song removed from the room."
+msgid_plural "{n} songs removed from the room."
+msgstr[0] "Un morceau retiré de la salle."
+msgstr[1] "{n} morceaux retirés de la salle."
+
+msgid "Switch room"
+msgstr "Changer de salle"
+
+msgid "Manage {room}"
+msgstr "Gérer {room}"
+
+msgid "{n} of {total} songs are in the room."
+msgstr "{n} morceaux sur {total} sont dans la salle."
+
+msgid "Move songs with the arrows: to the right into the room, to the left out of it. The search filters both columns."
+msgstr "Déplacez les morceaux avec les flèches : vers la droite dans la salle, vers la gauche pour les retirer. La recherche filtre les deux colonnes."
+
+msgid "Master list"
+msgstr "Liste principale"
+
+msgid "Master list: songs not yet in the room"
+msgstr "Liste principale : morceaux pas encore dans la salle"
+
+msgid "Songs in the room"
+msgstr "Morceaux dans la salle"
+
+msgid "Every song of the master list is in the room."
+msgstr "Tous les morceaux de la liste principale sont dans la salle."
+
+msgid "Add all {n}"
+msgstr "Ajouter les {n}"
+
+msgid "Remove all {n}"
+msgstr "Retirer les {n}"
+
+msgid "{n} song available"
+msgid_plural "{n} songs available"
+msgstr[0] "Un morceau disponible"
+msgstr[1] "{n} morceaux disponibles"
+
+msgid "{n} song in the room"
+msgid_plural "{n} songs in the room"
+msgstr[0] "Un morceau dans la salle"
+msgstr[1] "{n} morceaux dans la salle"
+
+msgid "Add the {n} song found"
+msgid_plural "Add all {n} songs found"
+msgstr[0] "Ajouter le morceau trouvé"
+msgstr[1] "Ajouter les {n} morceaux trouvés"
+
+msgid "Remove the {n} song found"
+msgid_plural "Remove all {n} songs found"
+msgstr[0] "Retirer le morceau trouvé"
+msgstr[1] "Retirer les {n} morceaux trouvés"
+
+msgid "Manage"
+msgstr "Gérer"
+
+msgid "{n} room found for “{q}”."
+msgid_plural "{n} rooms found for “{q}”."
+msgstr[0] "Une salle trouvée pour « {q} »."
+msgstr[1] "{n} salles trouvées pour « {q} »."
+
+msgid "{n} archived room."
+msgid_plural "{n} archived rooms."
+msgstr[0] "Une salle archivée."
+msgstr[1] "{n} salles archivées."
+
+msgid "Archived rooms stay reachable through their address but leave the room switcher and the guests’ list."
+msgstr "Les salles archivées restent accessibles par leur adresse mais disparaissent du sélecteur de salle et de la liste des visiteurs."
+
+msgid "Search rooms"
+msgstr "Rechercher des salles"
+
+msgid "Room name or machine name …"
+msgstr "Nom de la salle ou nom machine …"
+
+msgid "Filter"
+msgstr "Filtre"
+
+msgid "Show:"
+msgstr "Afficher :"
+
+msgid "Archived"
+msgstr "Archivées"
+
+msgid "All"
+msgstr "Toutes"
+
+msgid "No room found. Try a different spelling?"
+msgstr "Aucune salle trouvée. Une autre orthographe ?"
+
+msgid "No archived rooms."
+msgstr "Aucune salle archivée."
+
+msgid "archived"
+msgstr "archivée"
+
+msgid "archived rooms leave the room switcher and the guests’ list but stay reachable through their address"
+msgstr "les salles archivées disparaissent du sélecteur de salle et de la liste des visiteurs, mais restent accessibles par leur adresse"
+
+msgid "Filter rooms"
+msgstr "Filtrer les salles"
+
+msgid "Filter …"
+msgstr "Filtrer …"
+
+msgid "No room matches."
+msgstr "Aucune salle ne correspond."
+
+msgid "Room “{name}” has been archived; wishing there is paused."
+msgstr "La salle « {name} » a été archivée ; les souhaits y sont en pause."
+
+msgid "Pause wishing in all rooms"
+msgstr "Mettre les souhaits en pause dans toutes les salles"
+
+msgid "Resume wishing in all rooms"
+msgstr "Reprendre les souhaits dans toutes les salles"
+
+msgid "Wishing is paused in the main room and in every room."
+msgstr "Les souhaits sont en pause dans la salle principale et dans toutes les salles."
+
+msgid "The pause has been lifted; every room is back to the state it had before."
+msgstr "La pause est levée ; chaque salle a retrouvé son état précédent."
+
+msgid "Account: signed in as {name}"
+msgstr "Compte : connecté en tant que {name}"
+
+msgid "Account: not signed in"
+msgstr "Compte : non connecté"
+
+msgid "Signed in as"
+msgstr "Connecté en tant que"
+
+msgid "{n} wish"
+msgid_plural "{n} wishes"
+msgstr[0] "{n} souhait"
+msgstr[1] "{n} souhaits"
+
+msgid "The admin account still uses the default password."
+msgstr "Le compte admin utilise encore le mot de passe par défaut."
+
+msgid "Anyone who knows this software can sign in – {change}."
+msgstr "Quiconque connaît ce logiciel peut se connecter – {change}."
+
+msgid "change it now"
+msgstr "le changer maintenant"
+
+msgid "Wishing is paused in {room} right now."
+msgstr "Les souhaits sont en pause dans {room} pour le moment."

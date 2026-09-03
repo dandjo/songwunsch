@@ -1,0 +1,23 @@
+# Songwunsch -- Apache: every address goes through the front controller,
+# nothing else is reachable from outside.
+# Needs Apache 2.4 with mod_rewrite and AllowOverride FileInfo Limit (or All).
+# For nginx see README, section "Webserver".
+
+# Only index.php may be executed. Every other PHP file, the configuration,
+# the SQL and translation files and the README stay hidden.
+<FilesMatch "\.(php|sql|po|pot|md|ini|log|env)$">
+    Require all denied
+</FilesMatch>
+<Files "index.php">
+    Require all granted
+</Files>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Static assets are delivered directly ...
+    RewriteRule ^assets/ - [L]
+    # ... everything else is the front controller's business; it answers
+    # 404 for addresses it does not know.
+    RewriteCond %{REQUEST_URI} !/index\.php$
+    RewriteRule ^ index.php [L]
+</IfModule>

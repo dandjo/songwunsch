@@ -1,0 +1,10 @@
+# Credentials -- never commit
+/config.php
+
+# Local files
+*.log
+.DS_Store
+.idea/
+
+# Docker
+/.env

@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /etc/traefik/certs/songwunsch.localhost.crt
+      keyFile: /etc/traefik/certs/songwunsch.localhost.key

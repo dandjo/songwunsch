@@ -1,0 +1,3 @@
+# Local certificates do not belong in version control.
+*.crt
+*.key
