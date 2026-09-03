@@ -598,6 +598,28 @@ code {
 }
 .grid tbody tr:hover { background: rgba(255, 255, 255, .04); }
 
+/* A song card that wishes on click (app.js adds .is-clickable): the whole
+   card answers to the pointer -- gold frame and shadow on hover, the Wish
+   button lights up with it, the card presses down while clicked, and the
+   frame also shows when the Wish button has keyboard focus. */
+.grid tbody tr.is-clickable {
+    cursor: pointer;
+    transition: border-color .12s, box-shadow .12s, transform .08s;
+    -webkit-tap-highlight-color: transparent; /* our own pressed state replaces the grey flash */
+}
+.grid tbody tr.is-clickable:hover,
+.grid tbody tr.is-clickable.is-pressed,
+.grid tbody tr.is-clickable:focus-within {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold), 0 6px 18px rgba(0, 0, 0, .35);
+    background: rgba(230, 180, 80, .06);
+}
+.grid tbody tr.is-clickable:hover .wish-button,
+.grid tbody tr.is-clickable.is-pressed .wish-button,
+.grid tbody tr.is-clickable:focus-within .wish-button { background: var(--gold-bright); border-color: var(--gold-bright); }
+.grid tbody tr.is-clickable:active,
+.grid tbody tr.is-clickable.is-pressed { transform: scale(.995); }
+
 /* Title, artist, length and genre on one line, the actions right of them;
    the line wraps only when the card is too narrow. The title carries the
    weight; the artist steps back. Gold is reserved for actions. */
@@ -874,10 +896,16 @@ code {
    switches): an SVG centres exactly, a text glyph would not. */
 /* Nudged up 1px: flexbox centres the icon on the line box, whose middle sits
    below the centre of the capitals; the eye aligns to the capitals. */
-.button__glyph { flex: 0 0 auto; margin-left: -.2rem; position: relative; top: -1px; }
+.button__glyph { flex: 0 0 auto; }
+/* Half a rem between glyph and label (the button's gap plus this margin);
+   the glyph tucks a little into the padding so the pair looks centred. */
+.button__glyph           { margin: 0 .15rem 0 -.1rem; }
+.button__glyph--trailing { margin: 0 -.1rem 0 .15rem; }
 /* On the compact card buttons the glyph steps back a little. */
-.cell-action .button__glyph { width: 14px; height: 14px; margin-left: -.15rem; }
-.icon-button .button__glyph { margin: 0; }
+.cell-action .button__glyph { width: 14px; height: 14px; }
+/* Icon-only buttons: the glyph is the whole content, centred as is. */
+.icon-button .button__glyph,
+.arrow-button .button__glyph { margin: 0; }
 .icon-button .button__icon { display: inline; font-size: 1.1em; }
 .icon-button .button__label {
     position: absolute;
@@ -1005,7 +1033,6 @@ code {
     line-height: 1;
     cursor: pointer;
 }
-.arrow-button svg { display: block; }
 .arrow-button:hover { background: var(--gold); border-color: var(--gold); color: var(--base); }
 .arrow-button--remove { border-color: var(--danger-line); color: var(--danger); }
 .arrow-button--remove:hover { background: var(--danger-deep); border-color: var(--danger-deep); color: #fff; }

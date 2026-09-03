@@ -179,8 +179,9 @@ function asset_version(?string $set = null): string
  * Inline SVG icon in front of a button label -- decorative, hidden from
  * assistive technology; the label carries the meaning. One place for the
  * paths so every button draws the same glyph. Unknown names yield nothing.
+ * $trailing marks a glyph placed after its label (spacing mirrors).
  */
-function icon(string $name, int $size = 16): string
+function icon(string $name, int $size = 16, bool $trailing = false): string
 {
     // Every glyph fills the same optical box, roughly 2..14 of the 16-unit
     // grid: outlines reach 2/14 with their stroke, filled shapes stop a little
@@ -193,8 +194,8 @@ function icon(string $name, int $size = 16): string
         'list'   => '<path d="M3.1 3.6h9.8M3.1 8h9.8M3.1 12.4h9.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
         'key'    => '<circle cx="5.4" cy="10.6" r="2.8" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M7.4 8.6 13.4 2.6M10.8 5.2l2 2M12.6 3.4l1.4 1.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
         'note'   => '<path d="M6.3 11.8V2.9l7.4-1.6v9.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="3.8" cy="12.3" r="2.7" fill="currentColor"/><circle cx="12" cy="10.6" r="2.7" fill="currentColor"/>',
-        'enter'  => '<path d="M2.6 8h10.2M8.6 3.6 13 8l-4.4 4.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
-        'back'   => '<path d="M13.4 8H3.2M7.4 3.6 3 8l4.4 4.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+        'arrow-right' => '<path d="M2.6 8h10.2M8.6 3.6 13 8l-4.4 4.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+        'arrow-left'  => '<path d="M13.4 8H3.2M7.4 3.6 3 8l4.4 4.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
         'pencil' => '<path d="M1.2 14.8v-3.8l9.4-9.4 3.8 3.8-9.4 9.4z" fill="currentColor"/><path d="M9.8 2.4l3.8 3.8" fill="none" stroke="var(--panel, #1b1e2a)" stroke-width="1.3"/>',
         'star'   => '<path d="M8 1 9.95 5.95 15.2 6.3 11.1 9.65 12.45 14.8 8 12 3.55 14.8 4.9 9.65.8 6.3 6.05 5.95z" fill="currentColor" stroke="currentColor" stroke-width=".8" stroke-linejoin="round"/>',
         'check'  => '<path d="M3.3 8.4 6.7 11.8 12.7 4.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
@@ -205,7 +206,7 @@ function icon(string $name, int $size = 16): string
         return '';
     }
 
-    return '<svg class="button__glyph" viewBox="0 0 16 16" width="' . $size . '" height="' . $size . '"'
+    return '<svg class="button__glyph' . ($trailing ? ' button__glyph--trailing' : '') . '" viewBox="0 0 16 16" width="' . $size . '" height="' . $size . '"'
         . ' aria-hidden="true" focusable="false">' . $paths[$name] . '</svg>';
 }
 

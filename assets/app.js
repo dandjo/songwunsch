@@ -86,12 +86,27 @@
             return;
         }
 
-        row.style.cursor = 'pointer';
+        // The class carries cursor, hover and pressed state (style.css) --
+        // only rows that really react get them.
+        row.classList.add('is-clickable');
         row.addEventListener('click', function (event) {
             if (event.target.closest('a, button, input, label')) {
                 return;
             }
             button.click();
+        });
+
+        // Touch has no hover: light the card up while the finger is down and
+        // keep it lit after the tap until the page reloads with the result.
+        var press = function () { row.classList.add('is-pressed'); };
+        var release = function () { row.classList.remove('is-pressed'); };
+        row.addEventListener('pointerdown', press);
+        row.addEventListener('pointercancel', release);
+        row.addEventListener('pointerleave', release);
+        row.addEventListener('pointerup', function (event) {
+            if (event.target.closest('a:not(.wish-button), .row-actions__pair, input, label')) {
+                release();
+            }
         });
     });
 

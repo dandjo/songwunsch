@@ -142,7 +142,7 @@ $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
                 <td class="cell-action">
                     <div class="row-actions">
                         <a class="wish-button" href="<?= $e($address) ?>"<?= $isHere ? ' aria-current="true"' : '' ?>>
-                            <?= icon('enter') ?><?= $e(t('Change to')) ?><span class="sr-only">: <?= $e((string) $row['name']) ?></span>
+                            <?= icon('arrow-right') ?><?= $e(t('Change to')) ?><span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                         </a>
                         <?php if ($canEdit && !$isMain): ?>
                             <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'room' => $slug])) ?>">

@@ -41,12 +41,8 @@ $move = static function (string $action, string $label, ?int $key, bool $all, st
     return $html . '<button type="submit" class="' . $class . '">' . $label . '</button></form>';
 };
 
-/** Arrow icon for the move buttons -- an SVG centres exactly, a text glyph sits below the middle. */
-$arrowIcon = static fn (string $direction): string => '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">'
-    . ($direction === 'right'
-        ? '<path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"'
-        : '<path d="M13 8H4M7.5 4.5 4 8l3.5 3.5"')
-    . ' fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+/** Arrow for the move buttons -- the shared glyph, so it matches every other button icon. */
+$arrowIcon = static fn (string $direction, bool $trailing = false): string => icon($direction === 'right' ? 'arrow-right' : 'arrow-left', 16, $trailing);
 
 /** A song card of either column. */
 $card = static function (array $row, string $action, string $arrow, string $verb, string $class) use ($move, $e, $arrowIcon): string {
@@ -74,7 +70,7 @@ $card = static function (array $row, string $action, string $arrow, string $verb
     </div>
     <?php /* Counterpart of "Manage" on the song list: back to the room's list. */ ?>
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url(['p' => 'songs'])) ?>"><?= icon('back') ?><?= $e(t('To the song list')) ?></a>
+        <a class="link-button" href="<?= $e(url(['p' => 'songs'])) ?>"><?= icon('arrow-left') ?><?= $e(t('To the song list')) ?></a>
     </div>
 </div>
 
@@ -103,7 +99,7 @@ $card = static function (array $row, string $action, string $arrow, string $verb
                         'room_songs_add',
                         $e($q !== ''
                             ? tn('Add the {n} song found', 'Add all {n} songs found', $availableTotal, ['n' => Format::number($availableTotal)])
-                            : t('Add all {n}', ['n' => Format::number($availableTotal)])) . $arrowIcon('right'),
+                            : t('Add all {n}', ['n' => Format::number($availableTotal)])) . $arrowIcon('right', true),
                         null,
                         true,
                         'link-button',
