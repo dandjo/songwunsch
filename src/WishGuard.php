@@ -67,7 +67,13 @@ final class WishGuard
 
     public function isPaused(): bool
     {
-        return $this->settings->get($this->pausedKey(), '0') === '1';
+        return $this->pausedIn($this->roomId);
+    }
+
+    /** Is another room closed? For the room list, which shows every room's state. */
+    public function pausedIn(int $roomId): bool
+    {
+        return $this->settings->get(self::pausedKeyFor($roomId), '0') === '1';
     }
 
     public function setPaused(bool $paused): void

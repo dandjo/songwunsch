@@ -16,6 +16,7 @@ $e = static fn (?string $v): string => Format::e($v);
 // kinds the user's roles may delete are shown.
 $rows = array_intersect_key([
     'songs'  => [t('Confirm deleting songs'),  t('Delete in the song list')],
+    'suggestions' => [t('Confirm deleting suggestions'), t('Delete under Suggestions – Clear list always asks')],
     'wishes' => [t('Confirm deleting wishes'), t('Delete in the wish list – Clear list always asks')],
     'rooms'  => [t('Confirm deleting rooms'),  t('Delete under Rooms – the room’s wishes go with it')],
 ], array_flip($kinds));

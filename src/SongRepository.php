@@ -127,6 +127,19 @@ final class SongRepository
     }
 
     /**
+     * Is this song already in the master list? Compared case-insensitively
+     * through the table's collation -- used to tell a guest their suggestion
+     * is already there to be wished for.
+     */
+    public function exists(string $artist, string $title): bool
+    {
+        return $this->db->one(
+            'SELECT id FROM `' . self::TABLE . '` WHERE artist = ? AND title = ? LIMIT 1',
+            [$artist, $title],
+        ) !== null;
+    }
+
+    /**
      * Genres already in use, for the suggestion list in the form -- keeps
      * the spelling consistent.
      *

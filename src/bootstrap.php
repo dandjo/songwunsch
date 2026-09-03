@@ -104,7 +104,8 @@ function normalize_base_path(string $value): string
 
 /**
  * The room of this request. index.php sets it once the route is known; url()
- * then keeps room-bound pages (songs, wishes, room_songs) inside that room.
+ * then keeps room-bound pages (songs, wishes, suggestions, room_songs) inside
+ * that room.
  * The default room has no slug and lives at the base path itself.
  *
  * @param array<string,mixed>|null $set
@@ -128,9 +129,10 @@ function current_room(?array $set = null): array
  * itself, so url() without 'p' is also the target of every form. All other
  * parameters go into the query string.
  *
- * Pages that belong to a room (songs, wishes, room_songs) are placed in the
- * current room: /rooms/<slug>, /rooms/<slug>/wishes, /rooms/<slug>/manage.
- * 'room' overrides that -- a slug for another room, '' for the default room.
+ * Pages that belong to a room (songs, wishes, suggestions, room_songs) are
+ * placed in the current room: /rooms/<slug>, /rooms/<slug>/wishes,
+ * /rooms/<slug>/suggestions, /rooms/<slug>/manage. 'room' overrides that --
+ * a slug for another room, '' for the default room.
  */
 function url(array $params = []): string
 {
@@ -143,14 +145,15 @@ function url(array $params = []): string
     $params = array_filter($params, static fn ($v): bool => $v !== null && $v !== '');
 
     $target = base_path();
-    if (in_array($page, ['songs', 'wishes', 'room_songs'], true)) {
+    if (in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs'], true)) {
         $prefix  = $slug !== '' ? '/rooms/' . $slug : '';
         // A room's song list is the room itself: /rooms/<slug> without a
         // trailing slash; only the default room is the bare base path '/'.
         $target .= match ($page) {
-            'songs'      => $prefix !== '' ? $prefix : '/',
-            'wishes'     => $prefix . '/wishes',
-            'room_songs' => $prefix . '/manage',
+            'songs'       => $prefix !== '' ? $prefix : '/',
+            'wishes'      => $prefix . '/wishes',
+            'suggestions' => $prefix . '/suggestions',
+            'room_songs'  => $prefix . '/manage',
         };
     } else {
         $target .= '/' . $page;
@@ -198,6 +201,10 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         'arrow-left'  => '<path d="M13.4 8H3.2M7.4 3.6 3 8l4.4 4.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
         // Rooms: a door with a knob. Users: two people, one in front.
         'door'   => '<path d="M3 14V2h8v12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M1.5 14h13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="8.6" cy="8.2" r="1.3" fill="currentColor"/>',
+        // A clock -- when the wish came in.
+        'clock'  => '<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 4.6V8l2.4 1.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+        // One person -- who wished; the same figure as the account icon.
+        'user'   => '<circle cx="8" cy="4.6" r="3.1" fill="currentColor"/><path d="M1.8 14.6c0-3.6 2.7-5.9 6.2-5.9s6.2 2.3 6.2 5.9z" fill="currentColor"/>',
         'users'  => '<circle cx="6" cy="5" r="3" fill="currentColor"/><path d="M.8 14.2c0-3.2 2.3-5.2 5.2-5.2s5.2 2 5.2 5.2z" fill="currentColor"/><circle cx="11.6" cy="5.6" r="2.3" fill="currentColor"/><path d="M12.4 14.2h3c0-2.7-1.6-4.4-3.9-4.6a6 6 0 0 1 .9 4.6z" fill="currentColor"/>',
         'pencil' => '<path d="M1.2 14.8v-3.8l9.4-9.4 3.8 3.8-9.4 9.4z" fill="currentColor"/><path d="M9.8 2.4l3.8 3.8" fill="none" stroke="var(--panel, #1b1e2a)" stroke-width="1.3"/>',
         'star'   => '<path d="M8 1 9.95 5.95 15.2 6.3 11.1 9.65 12.45 14.8 8 12 3.55 14.8 4.9 9.65.8 6.3 6.05 5.95z" fill="currentColor" stroke="currentColor" stroke-width=".8" stroke-linejoin="round"/>',
@@ -207,6 +214,11 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         'gear'   => '<path fill-rule="evenodd" d="M13.2 7.0 L14.9 7.1 L14.9 8.9 L13.2 9.0 L12.4 11.0 L13.5 12.3 L12.3 13.5 L11.0 12.4 L9.0 13.2 L8.9 14.9 L7.1 14.9 L7.0 13.2 L5.0 12.4 L3.7 13.5 L2.5 12.3 L3.6 11.0 L2.8 9.0 L1.1 8.9 L1.1 7.1 L2.8 7.0 L3.6 5.0 L2.5 3.7 L3.7 2.5 L5.0 3.6 L7.0 2.8 L7.1 1.1 L8.9 1.1 L9.0 2.8 L11.0 3.6 L12.3 2.5 L13.5 3.7 L12.4 5.0z M8 5.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 1 0 0-4.8z" fill="currentColor"/>',
         // Guest view: an eye.
         'eye'    => '<path d="M1.6 8c1.8-3.3 3.9-4.9 6.4-4.9S12.6 4.7 14.4 8c-1.8 3.3-3.9 4.9-6.4 4.9S3.4 11.3 1.6 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="8" r="2.1" fill="currentColor"/>',
+        // Wish list: to the very top / bottom -- a bar with a filled triangle.
+        'to-top'    => '<path d="M2.5 2.4h11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 5.2l5.2 8.3H2.8z" fill="currentColor"/>',
+        'to-bottom' => '<path d="M2.5 13.6h11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 10.8L2.8 2.5h10.4z" fill="currentColor"/>',
+        // Suggestions: a light bulb -- the glass as an outline, the base solid.
+        'bulb'   => '<path d="M5.7 10.4c0-1.7-2.4-2.5-2.4-5.1a4.7 4.7 0 0 1 9.4 0c0 2.6-2.4 3.4-2.4 5.1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.6 13h4.8M6.6 15.2h2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
     ];
 
     if (!isset($paths[$name])) {
@@ -326,8 +338,9 @@ function require_login(\Songwunsch\Security $security): void
 }
 
 /**
- * Login plus role for an area ('wishes', 'songs', 'users'). Without the role
- * the user is sent back to the song list with a notice.
+ * Login plus role for an area ('wishes', 'songs', 'suggestions', 'rooms',
+ * 'users'). Without the role the user is sent back to the song list with a
+ * notice.
  */
 function require_role(\Songwunsch\Security $security, string $area): void
 {
@@ -344,7 +357,8 @@ function require_role(\Songwunsch\Security $security, string $area): void
 
 /**
  * What this user may delete -- the kinds whose confirmation they can switch
- * off under Settings: songs and rooms for editors, wishes for moderators.
+ * off under Settings: songs, suggestions and rooms for editors, wishes for
+ * moderators.
  *
  * @return list<string> subset of Settings::CONFIRM_DELETE
  */

@@ -11,8 +11,10 @@ use Songwunsch\Format;
 /** @var int $pageNo */
 /** @var int $pages */
 /** @var bool $canEdit        editor or admin: create, edit, delete */
-/** @var bool $isAdmin        admin: pause or resume wishing in every room at once */
-/** @var bool $pausedAll      the admin's pause of every room is in force */
+/** @var bool $isAdmin        admin: close or open every room at once */
+/** @var bool $pausedAll      the admin's closing of every room is in force */
+/** @var bool $canPause       moderator or admin: close and open single rooms */
+/** @var array<int,bool> $pausedRooms  room id => closed?, for the rows shown */
 /** @var int $masterSongs     songs in the master list (= the main room) */
 /** @var int $masterWishes    open wishes of the main room */
 /** @var array<string,mixed> $room  current room */
@@ -25,6 +27,8 @@ $canCount  = $security->can('wishes');
 $listUrl   = static fn (array $extra = []): string => url(array_merge(['p' => 'rooms', 'q' => $q, 'filter' => $canEdit ? $filter : null], $extra));
 // The main room heads the list once: first page, no search, not the archive.
 $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
+// Guests get no action column: the room's name is the link into the room.
+$hasActions = $canPause || $canEdit;
 ?>
 
 <div class="panel__head">
@@ -58,7 +62,7 @@ $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
                         <?php else: ?>
                             <?= icon('pause') ?>
                         <?php endif; ?>
-                        <?= $e($pausedAll ? t('Resume wishing in all rooms') : t('Pause wishing in all rooms')) ?>
+                        <?= $e($pausedAll ? t('Lift the closing of all rooms') : t('Close all rooms')) ?>
                     </button>
                 </form>
             <?php endif; ?>
@@ -101,7 +105,9 @@ $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
             <?php if ($canCount): ?>
                 <th scope="col"><?= $e(t('Wishes')) ?></th>
             <?php endif; ?>
-            <th scope="col"><span class="sr-only"><?= $e(t('Actions')) ?></span></th>
+            <?php if ($hasActions): ?>
+                <th scope="col"><span class="sr-only"><?= $e(t('Actions')) ?></span></th>
+            <?php endif; ?>
         </tr>
         </thead>
         <tbody>
@@ -125,9 +131,23 @@ $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
             ?>
             <tr>
                 <td class="cell-title">
-                    <?= $e((string) $row['name']) ?>
+                    <?php /* The name leads into the room -- the way to change rooms from
+                             here. The main room is a POST that clears the remembered
+                             room (RoomMemory); every other room is reached by address. */ ?>
+                    <?php if ($isMain): ?>
+                        <form method="post" action="<?= $e(url(['p' => 'rooms'])) ?>" class="room-link-form">
+                            <input type="hidden" name="a" value="room_switch">
+                            <input type="hidden" name="slug" value="">
+                            <input type="hidden" name="to" value="songs">
+                            <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                            <button type="submit" class="room-link"<?= $isHere ? ' aria-current="true"' : '' ?>><?= $e((string) $row['name']) ?></button>
+                        </form>
+                    <?php else: ?>
+                        <a class="room-link" href="<?= $e($address) ?>"<?= $isHere ? ' aria-current="true"' : '' ?>><?= $e((string) $row['name']) ?></a>
+                    <?php endif; ?>
                     <?php if ($isMain): ?><span class="tag tag--gold"><?= $e(t('always there')) ?></span><?php endif; ?>
                     <?php if ((int) $row['active'] === 0): ?><span class="tag"><?= $e(t('archived')) ?></span><?php endif; ?>
+                    <?php if ($canPause && ($pausedRooms[(int) $row['id']] ?? false)): ?><span class="tag"><?= $e(t('closed')) ?></span><?php endif; ?>
                     <?php if ($isHere): ?><span class="muted"><?= $e(t('(current)')) ?></span><?php endif; ?>
                 </td>
                 <td class="cell-genre"><code class="address"><?= $e($address) ?></code></td>
@@ -136,15 +156,31 @@ $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
                 <?php if ($canCount): ?>
                     <td class="cell-wishes"><?= $e(tn('{n} wish', '{n} wishes', (int) $row['wish_count'], ['n' => Format::number((int) $row['wish_count'])])) ?></td>
                 <?php endif; ?>
-                <?php /* One action cell per row, stacked at the right edge: "Change to"
-                         (primary) above "Manage", below them Edit and Delete side by
-                         side 50/50 as icon buttons -- the label stays for screen readers and
-                         as tooltip. Editors only, never for the main room. */ ?>
+                <?php if ($hasActions): ?>
+                <?php /* One action cell per row, stacked at the right edge: Close/Open
+                         room (moderators) above "Manage", below them Edit and Delete
+                         side by side 50/50 as icon buttons -- the label stays for screen
+                         readers and as tooltip. Editing never for the main room. */ ?>
                 <td class="cell-action">
                     <div class="row-actions">
-                        <a class="wish-button" href="<?= $e($address) ?>"<?= $isHere ? ' aria-current="true"' : '' ?>>
-                            <?= icon('arrow-right') ?><?= $e(t('Change to')) ?><span class="sr-only">: <?= $e((string) $row['name']) ?></span>
-                        </a>
+                        <?php if ($canPause): ?>
+                            <?php /* Close or open the room -- the moderator's switch,
+                                     for the main room as well. Pause bars while open,
+                                     a play triangle while closed. */ ?>
+                            <?php $closed = $pausedRooms[(int) $row['id']] ?? false; ?>
+                            <form method="post" action="<?= $e(url()) ?>">
+                                <input type="hidden" name="a" value="pause">
+                                <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                                <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
+                                <input type="hidden" name="state" value="<?= $closed ? '0' : '1' ?>">
+                                <input type="hidden" name="back" value="<?= $e($listUrl(['page' => $pageNo > 1 ? $pageNo : null])) ?>">
+                                <button type="submit" class="<?= $closed ? 'wish-button' : 'link-button' ?>" aria-pressed="<?= $closed ? 'true' : 'false' ?>">
+                                    <?= icon($closed ? 'play' : 'pause') ?>
+                                    <span class="button__label"><?= $e($closed ? t('Open room') : t('Close room')) ?></span>
+                                    <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                         <?php if ($canEdit && !$isMain): ?>
                             <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'room' => $slug])) ?>">
                                 <?= icon('note') ?>
@@ -172,6 +208,7 @@ $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
                         <?php endif; ?>
                     </div>
                 </td>
+                <?php endif; ?>
             </tr>
         <?php endforeach; ?>
         </tbody>
@@ -190,5 +227,3 @@ $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
     </nav>
 <?php endif; ?>
 <?php endif; ?>
-
-<script src="<?= $e(asset('assets/app.js')) ?>" defer></script>

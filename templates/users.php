@@ -100,5 +100,3 @@ $e = static fn (?string $v): string => Format::e($v);
         </tbody>
     </table>
 </div>
-
-<script src="<?= $e(asset('assets/app.js')) ?>" defer></script>

@@ -13,8 +13,8 @@ final class Settings
 {
     private const TABLE = '`' . Schema::SETTINGS . '`';
 
-    /** What the admin can switch the delete confirmation off for. */
-    public const CONFIRM_DELETE = ['songs', 'wishes', 'rooms'];
+    /** What a user can switch the delete confirmation off for -- each an area of Security::can(). */
+    public const CONFIRM_DELETE = ['songs', 'suggestions', 'wishes', 'rooms'];
 
     public function __construct(private readonly Database $db)
     {
@@ -51,10 +51,11 @@ final class Settings
     }
 
     /**
-     * Does deleting a single song, wish or room ask this user for
-     * confirmation? On by default; every user switches it off per kind under
-     * Settings, for their own account only. Bulk actions (clear the wish
-     * list) always ask. Without a user (id 0) the answer is always yes.
+     * Does deleting a single song, suggestion, wish or room ask this user
+     * for confirmation? On by default; every user switches it off per kind
+     * under Settings, for their own account only. Bulk actions (clear the
+     * wish list or the suggestions) always ask. Without a user (id 0) the
+     * answer is always yes.
      */
     public function confirmsDelete(int $userId, string $what): bool
     {

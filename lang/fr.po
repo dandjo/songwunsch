@@ -68,8 +68,6 @@ msgstr "Morceaux"
 msgid "Wish list"
 msgstr "Liste de souhaits"
 
-msgid "wish list"
-msgstr "liste de souhaits"
 
 msgid "{n} open wish"
 msgid_plural "{n} open wishes"
@@ -88,11 +86,9 @@ msgstr "Se connecter"
 msgid "Language"
 msgstr "Langue"
 
-msgid "You can resume it on the room’s {wishlist}."
-msgstr "Vous pouvez les réactiver depuis la {wishlist} de la salle."
 
-msgid "The song list stays open – wishing will be back later."
-msgstr "La liste des morceaux reste ouverte – les souhaits reviendront plus tard."
+msgid "The song list stays visible – wishing and suggesting will be back later."
+msgstr "La liste des morceaux reste visible – souhaits et suggestions reviendront plus tard."
 
 msgid "Error"
 msgstr "Erreur"
@@ -213,11 +209,11 @@ msgstr "Les souhaits dans l’ordre où ils seront joués."
 msgid "Position"
 msgstr "Position"
 
-msgid "Wishing is paused"
-msgstr "Les souhaits sont en pause"
+msgid "The room is closed"
+msgstr "La salle est fermée"
 
-msgid "– the audience cannot submit anything right now."
-msgstr "– le public ne peut rien envoyer pour le moment."
+msgid "– the audience cannot wish or suggest anything right now."
+msgstr "– le public ne peut ni souhaiter ni suggérer pour le moment."
 
 msgid "Change the order with the arrows – on a desktop also by drag & drop. Sorting only changes the view."
 msgstr "Changez l’ordre avec les flèches – sur ordinateur aussi par glisser-déposer. Le tri ne change que l’affichage."
@@ -231,11 +227,11 @@ msgstr "ordre manuel"
 msgid "Manual order"
 msgstr "Ordre manuel"
 
-msgid "Pause wishing"
-msgstr "Mettre les souhaits en pause"
+msgid "Close room"
+msgstr "Fermer la salle"
 
-msgid "Resume wishing"
-msgstr "Reprendre les souhaits"
+msgid "Open room"
+msgstr "Ouvrir la salle"
 
 msgid "Really delete all wishes?"
 msgstr "Vraiment supprimer tous les souhaits ?"
@@ -261,8 +257,8 @@ msgstr "L’ordre n’a pas pu être enregistré."
 msgid "The order could not be saved – please reload the page."
 msgstr "L’ordre n’a pas pu être enregistré – veuillez recharger la page."
 
-msgid "Received wishes"
-msgstr "Souhaits reçus"
+msgid "Received wishes, with the name of whoever wished"
+msgstr "Souhaits reçus, avec le nom de la personne qui a souhaité"
 
 msgid " in manual order, changeable by drag & drop or arrow buttons"
 msgstr " en ordre manuel, modifiable par glisser-déposer ou avec les flèches"
@@ -296,16 +292,12 @@ msgid_plural "{n} wishes deleted."
 msgstr[0] "{n} souhait supprimé."
 msgstr[1] "{n} souhaits supprimés."
 
-msgid "Wishing is paused. The audience can see the song list but cannot submit anything."
-msgstr "Les souhaits sont en pause. Le public voit la liste des morceaux mais ne peut rien envoyer."
 
-msgid "Wishing is open again."
-msgstr "Les souhaits sont de nouveau ouverts."
 
 # ---- Wishing (public) ----------------------------------------------------------------
 
-msgid "The wish list is closed right now."
-msgstr "La liste de souhaits est fermée pour le moment."
+msgid "The room is closed right now."
+msgstr "La salle est fermée pour le moment."
 
 msgid "Thanks, your wish is in."
 msgstr "Merci, votre souhait est enregistré."
@@ -498,8 +490,8 @@ msgstr "Répéter le mot de passe"
 msgid "maintain the song list (add, edit, delete)"
 msgstr "gérer la liste des morceaux (ajouter, modifier, supprimer)"
 
-msgid "edit the wish list, pause wishing"
-msgstr "gérer la liste de souhaits, mettre les souhaits en pause"
+msgid "edit the wish list, open and close the room"
+msgstr "gérer la liste de souhaits, ouvrir et fermer la salle"
 
 msgid "As admin this user has every permission anyway."
 msgstr "En tant qu’admin, cet utilisateur a de toute façon tous les droits."
@@ -593,8 +585,6 @@ msgstr "toujours là"
 msgid "(current)"
 msgstr "(actuelle)"
 
-msgid "Change to"
-msgstr "Changer"
 
 msgid "Address"
 msgstr "Adresse"
@@ -797,20 +787,20 @@ msgstr "Filtrer …"
 msgid "No room matches."
 msgstr "Aucune salle ne correspond."
 
-msgid "Room “{name}” has been archived; wishing there is paused."
-msgstr "La salle « {name} » a été archivée ; les souhaits y sont en pause."
+msgid "Room “{name}” has been archived and closed."
+msgstr "La salle « {name} » a été archivée et fermée."
 
-msgid "Pause wishing in all rooms"
-msgstr "Mettre les souhaits en pause dans toutes les salles"
+msgid "Close all rooms"
+msgstr "Fermer toutes les salles"
 
-msgid "Resume wishing in all rooms"
-msgstr "Reprendre les souhaits dans toutes les salles"
+msgid "Lift the closing of all rooms"
+msgstr "Lever la fermeture de toutes les salles"
 
-msgid "Wishing is paused in the main room and in every room."
-msgstr "Les souhaits sont en pause dans la salle principale et dans toutes les salles."
+msgid "The main room and every room are closed."
+msgstr "La salle principale et toutes les salles sont fermées."
 
-msgid "The pause has been lifted; every room is back to the state it had before."
-msgstr "La pause est levée ; chaque salle a retrouvé son état précédent."
+msgid "The closing is lifted; every room is back to the state it had before."
+msgstr "La fermeture est levée ; chaque salle a retrouvé son état précédent."
 
 msgid "Account: signed in as {name}"
 msgstr "Compte : connecté en tant que {name}"
@@ -856,8 +846,8 @@ msgstr "Quiconque connaît ce logiciel peut se connecter – {change}."
 msgid "change it now"
 msgstr "le changer maintenant"
 
-msgid "Wishing is paused in {room} right now."
-msgstr "Les souhaits sont en pause dans {room} pour le moment."
+msgid "{room} is closed right now."
+msgstr "{room} est fermée pour le moment."
 
 msgid "To the song list"
 msgstr "Vers la liste des morceaux"
@@ -899,3 +889,243 @@ msgstr "Confirmer la suppression de salles"
 
 msgid "Delete under Rooms – the room’s wishes go with it"
 msgstr "Supprimer sous Salles – les souhaits de la salle partent avec"
+
+# ---- Guest name (the visitor's name for the wish list) -------------------------------------
+
+msgid "Welcome! What is your name?"
+msgstr "Bienvenue ! Comment t’appelles-tu ?"
+
+msgid "Your name"
+msgstr "Ton nom"
+
+msgid "First name or nickname"
+msgstr "Prénom ou surnom"
+
+msgid "It appears on the wish list next to every song you wish for, visible to everyone in the room."
+msgstr "Il apparaît dans la liste de souhaits à côté de chaque chanson que tu souhaites, visible par tout le monde dans la salle."
+
+msgid "It is kept in this browser for a year and can be changed any time in the account menu at the top right."
+msgstr "Il est conservé un an dans ce navigateur et peut être modifié à tout moment dans le menu du compte, en haut à droite."
+
+msgid "Leave the field empty to wish without a name."
+msgstr "Laisse le champ vide pour souhaiter sans nom."
+
+msgid "Save name"
+msgstr "Enregistrer le nom"
+
+msgid "Not now"
+msgstr "Pas maintenant"
+
+msgid "Back"
+msgstr "Retour"
+
+msgid "Hello {name}! Your wishes now carry your name."
+msgstr "Bonjour {name} ! Tes souhaits portent désormais ton nom."
+
+msgid "Your wishes now carry no name."
+msgstr "Tes souhaits ne portent désormais aucun nom."
+
+msgid "Your wishes currently carry the name “{name}”."
+msgstr "Tes souhaits portent actuellement le nom « {name} »."
+
+msgid "Your wishes currently carry no name."
+msgstr "Tes souhaits ne portent actuellement aucun nom."
+
+msgid "Account: not signed in, wishing as {name}"
+msgstr "Compte : non connecté, souhaite en tant que {name}"
+
+msgid "Your name on the wish list:"
+msgstr "Ton nom dans la liste de souhaits :"
+
+msgid "No name yet"
+msgstr "Pas encore de nom"
+
+msgid "Set name"
+msgstr "Définir le nom"
+
+msgid "Change name"
+msgstr "Modifier le nom"
+
+msgid "Name for wishes"
+msgstr "Nom pour les souhaits"
+
+msgid "Wishing as {name}"
+msgstr "Souhaite en tant que {name}"
+
+msgid "From"
+msgstr "De"
+
+msgid "No name given"
+msgstr "Aucun nom indiqué"
+
+# ---- Song suggestions ------------------------------------------------------------------
+
+msgid "Suggestions"
+msgstr "Suggestions"
+
+msgid "Song suggestions"
+msgstr "Suggestions de morceaux"
+
+msgid "{n} open suggestion"
+msgid_plural "{n} open suggestions"
+msgstr[0] "{n} suggestion en attente"
+msgstr[1] "{n} suggestions en attente"
+
+msgid "{n} suggestion waiting."
+msgid_plural "{n} suggestions waiting."
+msgstr[0] "{n} suggestion en attente."
+msgstr[1] "{n} suggestions en attente."
+
+msgid "Adopt puts the song on the list once you have added what is missing; Delete drops the suggestion."
+msgstr "Reprendre ajoute le morceau à la liste une fois les informations manquantes complétées ; Supprimer écarte la suggestion."
+
+msgid "Missing a song? Name it here – the editors decide whether it joins the song list."
+msgstr "Un morceau manque ? Indiquez-le ici – la rédaction décide s’il rejoint la liste."
+
+msgid "{n} suggestion is waiting for the editors."
+msgid_plural "{n} suggestions are waiting for the editors."
+msgstr[0] "{n} suggestion attend la rédaction."
+msgstr[1] "{n} suggestions attendent la rédaction."
+
+msgid "Really delete all suggestions?"
+msgstr "Vraiment supprimer toutes les suggestions ?"
+
+msgid "Suggest a song"
+msgstr "Suggérer un morceau"
+
+msgid "Suggest"
+msgstr "Suggérer"
+
+msgid "Your name, {name}, goes with the suggestion so the editors know who asked."
+msgstr "Votre nom, {name}, accompagne la suggestion pour que la rédaction sache qui l’a demandée."
+
+msgid "The suggestion is passed on without a name; set one in the account menu if you like."
+msgstr "La suggestion est transmise sans nom ; vous pouvez en indiquer un dans le menu du compte."
+
+msgid "No suggestions yet. The audience has everything it needs – or has not found the form."
+msgstr "Pas encore de suggestion. Le public a tout ce qu’il lui faut – ou n’a pas encore trouvé le formulaire."
+
+msgid "Open song suggestions, oldest first, with who suggested them"
+msgstr "Suggestions de morceaux en attente, les plus anciennes d’abord, avec le nom de qui les a faites"
+
+msgid "Adopt"
+msgstr "Reprendre"
+
+msgid "Delete the suggestion “{title}”?"
+msgstr "Supprimer la suggestion « {title} » ?"
+
+msgid "Adopt suggestion"
+msgstr "Reprendre la suggestion"
+
+msgid "Artist and title come from the suggestion – check them and add length and genre. The song goes on the list, the suggestion off it."
+msgstr "L’artiste et le titre viennent de la suggestion – vérifiez-les et ajoutez la durée et le genre. Le morceau rejoint la liste, la suggestion disparaît."
+
+msgid "Thanks, your suggestion is in."
+msgstr "Merci, votre suggestion est enregistrée."
+
+msgid "That was very quick – please click “Suggest” once more."
+msgstr "C’était très rapide – veuillez cliquer encore une fois sur « Suggérer »."
+
+msgid "The page has been open for a long time – please reload it and suggest again."
+msgstr "La page est ouverte depuis longtemps – veuillez la recharger et suggérer à nouveau."
+
+msgid "One moment – please do not suggest that quickly in a row."
+msgstr "Un instant – veuillez ne pas suggérer aussi vite d’affilée."
+
+msgid "The suggestion box is full – please try again later."
+msgstr "La boîte à suggestions est pleine – veuillez réessayer plus tard."
+
+msgid "“{title}” by {artist} is already on the song list – you can wish for it right away."
+msgstr "« {title} » de {artist} figure déjà dans la liste – vous pouvez le demander tout de suite."
+
+msgid "“{title}” by {artist} has already been suggested."
+msgstr "« {title} » de {artist} a déjà été suggéré."
+
+msgid "Thanks! “{title}” by {artist} has been passed on to the editors."
+msgstr "Merci ! « {title} » de {artist} a été transmis à la rédaction."
+
+msgid "“{title}” by {artist} has been added to the song list and taken off the suggestions."
+msgstr "« {title} » de {artist} a été ajouté à la liste et retiré des suggestions."
+
+msgid "Suggestion deleted."
+msgstr "Suggestion supprimée."
+
+msgid "This suggestion was not found."
+msgstr "Cette suggestion n’a pas été trouvée."
+
+msgid "{n} suggestion deleted."
+msgid_plural "{n} suggestions deleted."
+msgstr[0] "{n} suggestion supprimée."
+msgstr[1] "{n} suggestions supprimées."
+
+msgid "Confirm deleting suggestions"
+msgstr "Confirmer la suppression de suggestions"
+
+msgid "Delete under Suggestions – Clear list always asks"
+msgstr "Supprimer sous Suggestions – Vider la liste demande toujours"
+
+msgid "A suggestion made in a room carries the room’s tag – the adopted song is offered there as well."
+msgstr "Une suggestion faite dans une salle porte l’étiquette de la salle – le morceau repris y est aussi proposé."
+
+msgid "Suggested from this room, the song is offered here once it is in."
+msgstr "Suggéré depuis cette salle, le morceau y sera proposé une fois ajouté."
+
+msgid "deleted room"
+msgstr "salle supprimée"
+
+msgid "It was suggested in room “{room}”, so the song is offered there as well."
+msgstr "Il a été suggéré dans la salle « {room} » – le morceau y sera donc aussi proposé."
+
+msgid "“{title}” by {artist} has been added to the song list and to room “{room}”, and taken off the suggestions."
+msgstr "« {title} » de {artist} a été ajouté à la liste et à la salle « {room} », et retiré des suggestions."
+
+msgid "The room is closed right now – no wishes and no suggestions."
+msgstr "La salle est fermée pour le moment – ni souhaits ni suggestions."
+
+# ---- Open and closed rooms -------------------------------------------------------------
+
+msgid "“{name}” is closed. The audience can see its song list but cannot wish or suggest anything there."
+msgstr "« {name} » est fermée. Le public voit la liste des morceaux mais ne peut y ni souhaiter ni suggérer."
+
+msgid "“{name}” is open again."
+msgstr "« {name} » est de nouveau ouverte."
+
+msgid "The audience sees the song list but cannot wish or suggest anything."
+msgstr "Le public voit la liste des morceaux mais ne peut ni souhaiter ni suggérer."
+
+msgid "Open it in the notice above or under {rooms}."
+msgstr "Vous pouvez la rouvrir depuis l’avis ci-dessus ou sous {rooms}."
+
+msgid "closed"
+msgstr "fermée"
+
+msgid "Move {label} to the top"
+msgstr "Placer {label} tout en haut"
+
+msgid "Move {label} to the bottom"
+msgstr "Placer {label} tout en bas"
+
+msgid "Search suggestions"
+msgstr "Rechercher des suggestions"
+
+msgid "Artist, title, name …"
+msgstr "Artiste, titre, nom…"
+
+msgid "{n} suggestion found for “{q}”."
+msgid_plural "{n} suggestions found for “{q}”."
+msgstr[0] "{n} suggestion trouvée pour « {q} »."
+msgstr[1] "{n} suggestions trouvées pour « {q} »."
+
+msgid "{n} suggestion waiting in total."
+msgid_plural "{n} suggestions waiting in total."
+msgstr[0] "{n} suggestion en attente au total."
+msgstr[1] "{n} suggestions en attente au total."
+
+msgid "No suggestion matches. Try a different spelling?"
+msgstr "Aucune suggestion ne correspond. Une autre orthographe ?"
+
+msgid "Open suggestions"
+msgstr "Suggestions en attente"
+
+msgid "No suggestions yet – yours could be the first."
+msgstr "Pas encore de suggestion – la vôtre pourrait être la première."

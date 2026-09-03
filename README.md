@@ -16,13 +16,18 @@ under `/rooms/<name>`, see [Rooms](#rooms).
 
 * **Start page** (public) – the song list as cards with title, artist, length
   and genre, a search field and a sort bar above. One click on a song puts it
-  on the wish list.
+  on the wish list. On the first visit the site asks for the guest's name; it
+  is kept in a cookie and shown on the wish list next to their wishes, see
+  [The guest's name](#the-guests-name).
 * **Edit the song list** (editor role) – add, change and delete titles; see
   [Maintaining the song list](#maintaining-the-song-list).
 * **Wish list** (publicly readable) – received wishes in the order they will
   be played. Guests see the list without buttons and without sorting; the
   moderator role sorts, reorders, deletes single wishes or the whole list and
-  pauses wishing.
+  closes or opens the room.
+* **Song suggestions** (public) – whoever misses a song names artist and
+  title; editors adopt a suggestion into the song list or delete it, see
+  [Song suggestions](#song-suggestions).
 * **Users** (admin) – create accounts, assign roles, lock them; see
   [Users and roles](#users-and-roles).
 
@@ -115,13 +120,16 @@ Below the base path these addresses exist; anything else is a 404:
 | --- | --- |
 | `/` | Song list (start page) |
 | `/wishes` | Wish list |
+| `/suggestions` | Song suggestions: form and searchable list for everyone, buttons for editors |
 | `/login` | Sign-in |
-| `/song?key=<id>` | Create a song (`key=0`) or edit one – editor |
+| `/name` | The guest's name for the wish list – change or remove it |
+| `/song?key=<id>` | Create a song (`key=0`) or edit one – editor; `/song?suggestion=<id>` adopts a suggestion |
 | `/users`, `/user?id=<id>` | User management – admin |
-| `/rooms` | List of rooms with *Change to*; editors create rooms here |
+| `/rooms` | List of rooms, each name leads into its room; moderators close and open rooms, editors create them here |
 | `/room?id=<id>` | Create a room (`id=0`) or edit one – editor |
 | `/rooms/<name>` | Song list of a room |
 | `/rooms/<name>/wishes` | Wish list of a room |
+| `/rooms/<name>/suggestions` | Suggest a song from inside a room – the adopted song joins the room |
 | `/rooms/<name>/manage` | Manage the room's songs (selection from the master list) – editor |
 
 Sorting, search and page are appended as query parameters
@@ -282,14 +290,15 @@ The files sit directly in `public_html`, which matches the default
 
 ## Database
 
-The application works with seven fixed tables. Names and columns are a
+The application works with eight fixed tables. Names and columns are a
 prerequisite; there is no detection or mapping of foreign tables.
 
 | Table | Columns | Purpose |
 | --- | --- | --- |
 | `songs` | `id`, `artist`, `title`, `length_sec` (seconds, `NULL` = unknown), `genre` | Repertoire |
-| `song_wishes` | `id`, `song_id`, `artist`, `title`, `length_sec`, `genre`, `created_at`, `position`, `room_id` | Wish list, `room_id` 0 = main room |
-| `settings` | `name`, `value`, `updated_at` | Pause switch per room, marker of the admin's pause, daily secrets |
+| `song_wishes` | `id`, `song_id`, `artist`, `title`, `length_sec`, `genre`, `wisher`, `created_at`, `position`, `room_id` | Wish list, `wisher` = the guest's name if given, `room_id` 0 = main room |
+| `song_suggestions` | `id`, `artist`, `title`, `suggester`, `created_at`, `room_id` | Open song suggestions, see [Song suggestions](#song-suggestions); `suggester` = the guest's name if given, `room_id` = the room it was made in (0 = main room) |
+| `settings` | `name`, `value`, `updated_at` | Open/closed switch per room, marker of the admin's *Close all rooms*, daily secrets, personal settings |
 | `wish_throttle` | `id`, `sender`, `created_at` | Rate limiting, see [Protecting the wishing](#protecting-the-wishing) |
 | `users` | `id`, `username`, `password_hash`, `is_admin`, `role_moderator`, `role_editor`, `active`, `created_at`, `updated_at` | Staff accounts, see [Users and roles](#users-and-roles) |
 | `rooms` | `id`, `slug`, `name`, `active`, `created_at`, `updated_at` | Rooms, see [Rooms](#rooms) |
@@ -320,8 +329,9 @@ changes one changes both.
 **Existing tables** are checked: if one of the expected columns is missing
 from an existing table, the application stops with a clear message instead of
 an SQL error in the middle of operation. The only exception are columns a
-newer version added (`Schema::ADDITIONS`, currently `song_wishes.room_id` and
-`rooms.active`): `ensure()` creates those itself via `ALTER TABLE`, for which
+newer version added (`Schema::ADDITIONS`, currently `song_wishes.room_id`,
+`song_wishes.wisher`, `song_suggestions.room_id` and `rooms.active`):
+`ensure()` creates those itself via `ALTER TABLE`, for which
 the database user needs `ALTER` once. Without that right the statement is
 available as a comment in `sql/schema.sql`. Tables from earlier versions
 (`musik_repertoire`, `song_wishes` with `song_ref` and `length_raw`) are not
@@ -391,8 +401,8 @@ table and managed on the **Users** page.
 | Role | May |
 | --- | --- |
 | **Admin** | Create, edit, lock and delete users – and everything editors and moderators may do |
-| **Editor** | Maintain the song list: add, edit, delete titles; create, edit, delete rooms and manage their songs |
-| **Moderator** | Edit the wish list: sort, reorder, delete, clear, pause wishing (everyone may view it) |
+| **Editor** | Maintain the song list: add, edit, delete titles; work the song suggestions; create, edit, delete rooms and manage their songs |
+| **Moderator** | Edit the wish list: sort, reorder, delete, clear; close and open the room (everyone may view the list) |
 
 Editor and moderator can be combined; a user without a role can sign in but
 only sees the public song list.
@@ -438,6 +448,48 @@ Artist and title are required (up to 255 characters), genre is optional (up to
 length and genre. If a song is deleted from the song list, wishes already
 received for it remain fully readable.
 
+## Song suggestions
+
+The **Suggestions** tab (light bulb, right of the wish list) is open to
+everyone, signed in or not. Whoever misses a song enters artist and title;
+the guest's name, if they gave one (see [The guest's name](#the-guests-name)),
+travels with the suggestion so the editors know who asked. Everyone sees the
+open suggestions below the form – oldest first, with the time received, the
+name of whoever suggested and the room's tag – and can search them by
+artist, title or name (several terms are combined with AND, like the song
+search). Only editors get the buttons.
+
+Suggestions aim at the master list, which every room picks from, and there
+is one list for the whole site. A suggestion made inside a room
+(`/rooms/<name>/suggestions`, where the tab leads while one is in the room)
+remembers that room: the editor sees it tagged with the room's name, and the
+adopted song is offered in that room right away, not only in the master
+list. The room switcher keeps one on the suggestions page when changing
+rooms. If the room is deleted meanwhile, its suggestions stay and fall back
+to the main room. While a room is closed (see [Rooms](#rooms)), suggesting
+is closed there as well: the form gives way to a notice, and a late
+submission is turned away.
+
+Before a suggestion is stored, the application checks that the song is not
+already on the song list (then the guest is told to simply wish for it) and
+that it has not been suggested already – both compared case-insensitively.
+The form carries the same bot hurdles as wishing (honeypot, signed
+timestamp), a per-session cooldown (`suggestion_cooldown_sec`, 10 s) and a
+cap on open suggestions (`suggestion_max_open`, 200; 0 = no cap), both in
+`config.php`.
+
+**Editors** (and the admin) additionally get a counter badge on the tab and
+two buttons on every row:
+
+* **Adopt** opens the *Add song* form as *Adopt suggestion*: artist and
+  title are filled in, the cursor waits in the length field for what is
+  missing – length and genre. *Add* creates the song, puts it into the
+  suggestion's room if there was one, and deletes the suggestion in one go;
+  *Cancel* leaves everything as it was.
+* **Delete** drops the suggestion. It asks for confirmation unless the
+  editor switched that off under Settings; *Clear list* above the list
+  deletes every suggestion and always asks.
+
 ## Rooms
 
 A room is a capsule of song list and wish list with its own address, for
@@ -467,36 +519,97 @@ deleted there disappears from all rooms.
 **Archiving.** Every room is *active* or *archived* (column `active`,
 checkbox in the edit form). Archived rooms vanish from the room switcher and
 from the list guests see under `/rooms`, but remain reachable through their
-address. Archiving automatically pauses wishing in the room; whoever
-reactivates the room resumes it on the room's own wish list. Editors see every
+address. Archiving automatically closes the room; whoever reactivates it
+opens it again in the room list or the header notice. Editors see every
 room under `/rooms`, archived ones tagged, and filter by *All*, *Active* and
 *Archived*; a search field finds rooms by display or machine name, the list
 paginates like the song list. From seven rooms on, the room switcher's overlay
 shows a filter field that hides entries as you type (JavaScript; without it
 the full list stays).
 
-**Wish list per room.** Wishes carry `room_id` (0 = main room); order,
-clearing, deleting and the pause switch act only within the respective room.
-Only what is in the room can be wished for. Moderation applies to all rooms.
-When a room is deleted, its song selection and its wishes go with it.
+**The remembered room.** The room a visitor chose last is kept in a cookie
+(`songwunsch_room`, one year, nothing but the room's machine name). Every
+page inside a room writes it. Pages without a room in their address
+(`/rooms`, `/users`, `/settings`, the forms) read it: header, room switcher
+and the *Songs*, *Wish list* and *Suggestions* tabs stay in that room. A
+room-bound address that names no room (`/`, `/wishes`, `/suggestions`, also
+with query parameters) redirects into the remembered room – every time, so
+a bookmark, a typed address or a return visit never drops the visitor out
+of their room. The main room is chosen explicitly: its entry in the room
+switcher and its name in the room list are small forms (action
+`room_switch`) that remove the cookie; only that, or an address naming
+another room (`/rooms/<name>`, a QR code for instance), changes the memory.
+If the remembered room has been deleted, the cookie is dropped.
 
-**Pausing all rooms.** Under `/rooms`, left of *Add room*, the admin has the
-switch *Pause wishing in all rooms*. It closes wishing in the main room and in
-every room, archived ones included, and remembers each room's previous state
-while doing so (key `wishes_paused_all` in `settings`). While the pause is in
-force the switch reads *Resume wishing in all rooms*; it restores the
-remembered state: rooms that were open reopen, rooms the moderator had paused
-themselves stay paused. Rooms created in the meantime are left unchanged.
-Single rooms can be switched on their own wish list at any time.
+**Wish list per room.** Wishes carry `room_id` (0 = main room); order,
+clearing and deleting act only within the respective room. Only what is in
+the room can be wished for. Moderation applies to all rooms. When a room is
+deleted, its song selection and its wishes go with it.
+
+**Open and closed.** Every room, the main room included, is *open* or
+*closed*. Moderators (and the admin) switch it under *Rooms*: every row
+carries *Close room* / *Open room* at the right, and a closed room is
+tagged *closed* there. While a room is closed the song list stays visible,
+but the audience can neither wish nor suggest a song there: the *Wish*
+buttons disappear, the suggestion form gives way to a notice, and a notice
+stands in the header of every page of the room – for moderators with an
+*Open room* button right in it. Internally this is the former pause switch
+(keys `wishes_paused` and `wishes_paused:<room id>` in `settings`).
+
+**Closing all rooms.** Under `/rooms`, left of *Add room*, the admin has the
+switch *Close all rooms*. It closes the main room and every room, archived
+ones included, and remembers each room's previous state while doing so (key
+`wishes_paused_all` in `settings`). While that is in force the switch reads
+*Lift the closing of all rooms*; it restores the remembered state: rooms that were open
+reopen, rooms the moderator had closed themselves stay closed. Rooms created
+in the meantime are left unchanged. Single rooms can be switched in the same
+list at any time.
 
 **Switching.** As soon as a room exists, the **room switcher** stands at the
 far left of the navigation: a tab with the name of the current room that, like
 the language menu, opens an overlay with all rooms (without JavaScript,
 `<details>`). The **Rooms** tab (`/rooms`) appears only for editors and admin;
-the page itself with the *Change to* button remains reachable for everyone.
+the page itself, where every name leads into its room, remains reachable for
+everyone.
 Inside a room its name stands in the header, and all links of the application
 stay within the room – generated by `url()` in `src/bootstrap.php`, which
 prefixes room-bound pages with `/rooms/<name>`.
+
+## The guest's name
+
+A wish is more useful when the band knows who it is for. On the first visit
+(no name cookie yet, not signed in, on the song list, wish list, suggestions
+or rooms page) a dialog asks for the guest's name and says what happens with
+it: it appears on the wish list next to every song they wish for, visible to
+everyone in the room, and is kept in this browser for a year. The same name
+goes with every song suggestion the guest makes. *Save name* stores it,
+*Not now* (or Escape) closes the dialog for the rest of the session – a
+returning guest is asked again. Wishing works either way; a wish without a
+name simply shows none.
+
+The name lives in a cookie (`songwunsch_name`, one year, `HttpOnly`, same
+scope as the session cookie) and nowhere else until a wish is made; then it is
+copied into the wish (`song_wishes.wisher`) and shown in the *From* column of
+the wish list, for guests and moderators alike. Moderators can sort by it.
+
+The account menu (person icon, top right) heads with the name the way it heads
+with the username for signed-in users, and offers *Change name* – or *Set
+name* when there is none yet. That leads to `/name`, the same form as a page;
+an empty name removes the cookie. Signed-in users find the entry as *Wishing
+as …* / *Name for wishes*: their wishes carry the cookie's name like anyone
+else's.
+
+Names are tidied on the way in (control characters dropped, whitespace
+collapsed, at most 40 characters) and escaped on the way out like every other
+value. The dialog is a `<dialog>`: with JavaScript it is modal over the
+darkened page, without it the same element stands as a card at the top of the
+panel – the forms work either way.
+
+**Data protection.** The name is personal data the guest chooses to give. It
+is stored only with the wish and deleted with it (*Delete*, *Clear list*,
+deleting a room); nothing links it to an IP address or a session. The cookie
+holds nothing but the name, is set at the guest's explicit request and can be
+removed by the guest at any time. Nothing else about the guest is recorded.
 
 ## Protecting the wishing
 
@@ -506,7 +619,7 @@ without third-party services and without plain-text IPs:
 
 | Layer | What happens | Setting in `config.php` |
 | --- | --- | --- |
-| Pause | The moderator closes wishing; the song list stays visible, the *Wish* buttons disappear, a notice with a pause icon stands in the header of every page | Button on the wish list |
+| Closed room | The moderator closes the room; the song list stays visible, the *Wish* buttons and the suggestion form disappear, a notice stands in the header of every page | *Close room* under Rooms |
 | Global limits | At most N open wishes, at most M wishes per minute across all visitors | `wish_limits.max_open`, `wish_limits.per_minute_total` |
 | Limit per sender | At most X per minute and Y per hour from the same address | `wish_limits.per_minute_sender`, `wish_limits.per_hour_sender` |
 | Brake per session | Minimum gap between two wishes in the same browser | `wish_cooldown_sec` |
@@ -541,24 +654,28 @@ middleware or the hoster.
 | --- | --- |
 | Search | Field at the top; several terms are combined with AND; `/` jumps into the search field |
 | Switch language | Language menu (globe) top right; the choice is remembered |
+| Give or change your name | Asked on the first visit; later account menu (person icon) top right → *Change name* / *Set name*, or `/name`. An empty name removes it |
 | Sign in / sign out | Account menu (person icon) top right next to the language menu; when signed in it shows the name and *Log out* |
 | See the site as a guest | Signed in: account menu → *View as guest*; a notice in the header and *End guest view* lead back. Meanwhile pages, controls and actions behave exactly as for a visitor without a login |
 | Sort | Sort bar above the list, a second click reverses the direction |
 | Wish | *Wish* button in the row (or a click on the row) |
-| Change the order | Wish list → drag the row (drag & drop) or ▲/▼ in the first column |
+| Change the order | Wish list → drag the row (drag & drop) or the buttons on the right: to the top, ▲, ▼, to the bottom |
 | Delete a wish | Wish list → *Delete* in the row |
 | Delete everything | Wish list → *Clear list* |
-| Pause wishing | Moderator: wish list → *Pause wishing* / *Resume wishing* |
-| Pause everywhere | Admin: Rooms → *Pause wishing in all rooms* / *Resume …* |
+| Close or open a room | Moderator: Rooms → *Close room* / *Open room* in the row (no wishes and no suggestions while closed); a closed room's header notice has *Open room* as well |
+| Close all rooms | Admin: Rooms → *Close all rooms* / *Lift the closing of all rooms* |
+| Suggest a song | Suggestions → artist and title → *Suggest* (everyone, also without a login) |
+| Adopt a suggestion | Editor: Suggestions → *Adopt* in the row → add length and genre → *Add* |
+| Delete a suggestion | Editor: Suggestions → *Delete* in the row; *Clear list* deletes all |
 | Add a song | Editor: song list → *Add song* |
 | Change a song | Editor: *Edit* in the row |
 | Delete a song | Editor: *Delete* in the row (with confirmation) |
-| Change room | Room switcher at the far left of the navigation (shows the current room, opens the list) or Rooms → *Change to* |
+| Change room | Room switcher at the far left of the navigation (shows the current room, opens the list) or Rooms → click the room's name; the choice is remembered in a cookie, see [Rooms](#rooms) |
 | Create a room | Editor: Rooms → *Add room*, then *Manage* |
 | Manage a room's songs | Editor: *Manage* in the room or under Rooms |
 | Create a user | Admin: Users → *Add user* |
 | Hand over the admin role | Admin: Users → *Edit* → *Hand over admin role* |
-| Switch off delete confirmations | Signed in: Settings → *Delete confirmations*, per account and separately for songs, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
+| Switch off delete confirmations | Signed in: Settings → *Delete confirmations*, per account and separately for songs, suggestions, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order
@@ -573,8 +690,9 @@ There is a single layout for all screen sizes: the compact card layout that
 used to be the phone view only. There is no separate desktop table view any
 more; on wide screens the shell is centred and limited to 1180 px. In the
 header the word mark, the language menu and the account menu (person icon,
-opens *Log in* or name, *View as guest* and *Log out* as a popout like the
-language menu) share the first row, the navigation is right-aligned below. The popouts (language,
+opens the guest's name with *Change name* and *Log in*, or for staff the
+username, *Name for wishes*, *View as guest* and *Log out*, as a popout like
+the language menu) share the first row, the navigation is right-aligned below. The popouts (language,
 account, room switcher) are `<details>` and work without JavaScript; with
 JavaScript they additionally close on a click outside or on Escape, and
 opening one menu closes the others.
@@ -582,19 +700,30 @@ opening one menu closes the others.
 All lists share the same action pattern: a card's buttons stand at the right
 in a vertical stack, each as wide as the widest. *Edit* and *Delete* share one
 line of the stack as an icon pair (pencil / bin, 50 % each); their text remains
-as a tooltip and for screen readers.
+as a tooltip and for screen readers. The stack never stretches the text: every
+card grid has a flexible empty row above and below its text lines, so a tall
+stack only adds height there and the text stays a tight, centred block.
 
 * **Song list** – title, below it artist · length · genre; *Wish* on the
   right, when signed in the pair *Edit* / *Delete* below it.
 * **Rooms** – name, below it the address, below that the counts spelled out
-  ("50 songs · 7 wishes"); *Change to* on the right, for editors *Manage* and
-  the pair *Edit* / *Delete* below it.
+  ("50 songs · 7 wishes"); the name is the link into the room. On the right,
+  for moderators *Close room* / *Open room*, for editors *Manage* and the
+  pair *Edit* / *Delete*; guests see no buttons.
 * **Users** – name, below it roles · status; the pair *Edit* / *Delete* on the
   right (the admin only has *Edit*).
+* **Suggestions** – title, below it the artist and, if made in a room, the
+  room as a tag; on the right the time received above who suggested, next
+  to it *Adopt* above *Delete*. On phones time and name move to a third
+  line, like on the wish list.
 * **Wish list** – position on the left, title, below it artist · length ·
-  genre; on the right the time received and next to it ▲/▼ above *Delete*
-  (bin, as wide as the arrow pair). On phones the time received moves below
-  the meta line. The relative time ("5 min ago") is dropped; overlong names
+  genre; on the right, right-aligned in one column, the time received (clock
+  glyph and stamp) above who wished (person glyph and name, if given), and
+  next to it the four move buttons (to the top, ▲, ▼, to the bottom) above
+  *Delete* (bin, as wide as the button row). On phones the four become a
+  2×2 block, "to the top" under ▲ and "to the bottom" under ▼, and
+  the time received moves to a third line under the artist, the name right of
+  it. The relative time ("5 min ago") is dropped; overlong names
   are truncated with an ellipsis instead of pushing the buttons.
 
 Input fields are 16 px so iOS does not zoom in.
@@ -610,7 +739,10 @@ src/Database.php       PDO connection, prepared statements only
 src/Schema.php         Fixed table definition, creates missing tables
 src/SongRepository.php Song list: search, sort, paginate, maintain
 src/WishRepository.php Wish list: create, read, sort, delete
+src/SuggestionRepository.php  Song suggestions: validate, store, list, delete
 src/WishGuard.php      Protection of wishing: limits, bot trap, pause
+src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
+src/RoomMemory.php     The room chosen last: cookie, once-per-session restore
 src/Settings.php       Key/value store in the settings table
 src/Security.php       Session, login against users, roles, CSRF, wish brake
 src/UserRepository.php Users: create, edit, delete, hand over admin
@@ -618,7 +750,7 @@ src/RoomRepository.php Rooms: create, edit, delete, song selection from the mast
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter
-templates/             layout, home, wishes, song, users, user, rooms, room, room_songs, login, error, _sortbar
+templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, name, _name_form, error, _sortbar
 assets/                style.css (dark interface), app.js
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)
@@ -639,7 +771,9 @@ docker/                Dockerfile, php.ini, entrypoint, Traefik configuration
 * Output consistently through `Format::e()` (`htmlspecialchars`).
 * Session cookie `HttpOnly` + `SameSite=Lax`, `Secure` as soon as HTTPS is
   active, `path` limited to the base path; `session_regenerate_id()` on
-  sign-in.
+  sign-in. The two further cookies – the guest's name (`songwunsch_name`) and
+  the room chosen last (`songwunsch_room`) – carry the same flags and hold
+  nothing but that one value each.
 * Every writing action is a POST form with a CSRF token.
 * Every operating function checks sign-in **and** role in the front controller
   (`require_role`), not only in the view; JSON calls (drag & drop) receive
@@ -655,11 +789,15 @@ docker/                Dockerfile, php.ini, entrypoint, Traefik configuration
   [Web server](#web-server).
 * For production set `'show_errors' => false` – technical details are then
   shown only to signed-in users, everything else goes to the error log.
-* For every wish only artist, title, length, genre and the timestamp are
-  stored – **no** name, **no** IP address, **no** user agent. The wish list
-  therefore contains no personal data. The rate limiting keeps a daily
-  changing pseudonym of the address for at most one hour, see
-  [Protecting the wishing](#protecting-the-wishing).
+* For every wish artist, title, length, genre, the timestamp and – if the
+  guest gave one – their name are stored; **no** IP address, **no** user
+  agent. The name is the only personal data on the wish list, it is given
+  voluntarily and goes with the wish, see [The guest's name](#the-guests-name).
+  A song suggestion stores artist, title, the timestamp and likewise the
+  guest's name if given; it is deleted when the suggestion is adopted or
+  dropped.
+  The rate limiting keeps a daily changing pseudonym of the address for at
+  most one hour, see [Protecting the wishing](#protecting-the-wishing).
 
 ## Accessibility
 

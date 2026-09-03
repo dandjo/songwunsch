@@ -89,7 +89,7 @@ $checked = static fn (string $field): string => ($values[$field] ?? '') === '1' 
             </label>
             <label class="check">
                 <input type="checkbox" name="role_moderator" value="1"<?= $checked('role_moderator') ?><?= $isAdmin ? ' disabled' : '' ?>>
-                <span><strong><?= $e(t('Moderator', [], 'role')) ?></strong> – <?= $e(t('edit the wish list, pause wishing')) ?></span>
+                <span><strong><?= $e(t('Moderator', [], 'role')) ?></strong> – <?= $e(t('edit the wish list, open and close the room')) ?></span>
             </label>
             <?php if ($isAdmin): ?>
                 <p class="field__hint"><?= $e(t('As admin this user has every permission anyway.')) ?></p>
@@ -138,5 +138,3 @@ $checked = static fn (string $field): string => ($values[$field] ?? '') === '1' 
         </div>
     <?php endif; ?>
 </div>
-
-<script src="<?= $e(asset('assets/app.js')) ?>" defer></script>

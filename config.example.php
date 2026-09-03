@@ -61,6 +61,10 @@ return [
     'per_page'          => (int) $env('PER_PAGE', '50'), // songs per page
     'wish_cooldown_sec' => 5,     // minimum gap between two wishes per session
     'allow_duplicates'  => false, // may the same song be wished while still open?
+    // Song suggestions from the audience: open suggestions in total (0 = no
+    // limit) and the minimum gap between two suggestions per session.
+    'suggestion_max_open'     => 200,
+    'suggestion_cooldown_sec' => 10,
 
     // --- Wish protection (see src/WishGuard.php) --------------------------
     // Limits; 0 disables the respective limit.

@@ -12,10 +12,11 @@ namespace Songwunsch;
  * immediately -- even for a session that is already running.
  *
  * Areas for can():
- *   'wishes'  edit the wish list     -- moderator or admin
- *   'songs'   maintain the song list -- editor or admin
- *   'rooms'   manage rooms            -- editor or admin
- *   'users'   manage users           -- admin only
+ *   'wishes'       edit the wish list         -- moderator or admin
+ *   'songs'        maintain the song list     -- editor or admin
+ *   'suggestions'  work the song suggestions  -- editor or admin
+ *   'rooms'        manage rooms               -- editor or admin
+ *   'users'        manage users               -- admin only
  *
  * Guest view: a signed-in user can look at the site the way a visitor
  * without a login sees it. While the view is on, user() and everything
@@ -159,10 +160,11 @@ final class Security
         }
 
         return match ($area) {
-            'wishes' => (int) $user['role_moderator'] === 1,
-            'songs'  => (int) $user['role_editor'] === 1,
-            'rooms'  => (int) $user['role_editor'] === 1,
-            default  => false,
+            'wishes'      => (int) $user['role_moderator'] === 1,
+            'songs'       => (int) $user['role_editor'] === 1,
+            'suggestions' => (int) $user['role_editor'] === 1,
+            'rooms'       => (int) $user['role_editor'] === 1,
+            default       => false,
         };
     }
 
@@ -250,16 +252,20 @@ final class Security
             && hash_equals((string) $_SESSION['csrf'], $token);
     }
 
-    /** Simple per-session wish cooldown, without storing personal data. */
-    public function throttled(int $cooldownSeconds): bool
+    /**
+     * Simple per-session cooldown, without storing personal data. One clock
+     * per kind of submission: 'wish' (the default) and 'suggestion' do not
+     * block each other.
+     */
+    public function throttled(int $cooldownSeconds, string $what = 'wish'): bool
     {
-        $last = (int) ($_SESSION['last_wish'] ?? 0);
+        $last = (int) ($_SESSION['last_' . $what] ?? 0);
 
         return $cooldownSeconds > 0 && (time() - $last) < $cooldownSeconds;
     }
 
-    public function markWish(): void
+    public function markWish(string $what = 'wish'): void
     {
-        $_SESSION['last_wish'] = time();
+        $_SESSION['last_' . $what] = time();
     }
 }

@@ -107,6 +107,22 @@ final class RoomRepository
     }
 
     /**
+     * Display name of every room, active and archived, by id -- for tagging
+     * rows (the suggestions) with the room they belong to.
+     *
+     * @return array<int,string>
+     */
+    public function namesById(): array
+    {
+        $names = [];
+        foreach ($this->db->all('SELECT id, name FROM ' . self::TABLE) as $row) {
+            $names[(int) $row['id']] = (string) $row['name'];
+        }
+
+        return $names;
+    }
+
+    /**
      * Ids of every room, active and archived -- for switches that act on all
      * rooms at once (the admin's pause).
      *
@@ -223,6 +239,9 @@ final class RoomRepository
         try {
             $this->db->exec('DELETE FROM ' . self::SONGS . ' WHERE room_id = ?', [$id]);
             $this->db->exec('DELETE FROM `' . Schema::WISHES . '` WHERE room_id = ?', [$id]);
+            // Suggestions made in the room stay -- they aim at the master
+            // list anyway -- and fall back to the main room.
+            $this->db->exec('UPDATE `' . Schema::SUGGESTIONS . '` SET room_id = 0 WHERE room_id = ?', [$id]);
             $removed = $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE id = ? LIMIT 1', [$id]);
             $pdo->commit();
         } catch (\Throwable $e) {

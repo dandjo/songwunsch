@@ -15,10 +15,13 @@ use Songwunsch\Translator;
 /** @var Translator $translator */
 /** @var array{type:string,message:string}|null $flash */
 /** @var int|null $wishCount */
+/** @var int|null $suggestionCount  open song suggestions, badge for editors */
 /** @var bool $paused  wishing closed by the moderator */
 /** @var \Songwunsch\Settings $settings */
 /** @var array<string,mixed> $room  current room; the default room has id 0 */
 /** @var array<int,array<string,mixed>> $roomList  all rooms, for the switcher */
+/** @var string|null $guestName  the visitor's name for wishes, from the cookie */
+/** @var bool $askName           first visit: ask for the name in a dialog */
 
 $e      = static fn (?string $v): string => Format::e($v);
 $inRoom = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
@@ -93,15 +96,31 @@ foreach ($translator->available() as $code => $name) {
                             $targetSlug = (string) ($entry['slug'] ?? '');
                             $switchPage = match (true) {
                                 $page === 'wishes'                          => 'wishes',
+                                $page === 'suggestions'                     => 'suggestions',
                                 $page === 'room_songs' && $targetSlug !== '' => 'room_songs',
                                 default                                     => 'songs',
                             };
                         ?>
                             <li>
-                                <a href="<?= $e(url(['p' => $switchPage, 'room' => $targetSlug])) ?>"
-                                   class="roomswitch__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="true"' : '' ?>>
-                                    <?= $e((string) $entry['name']) ?>
-                                </a>
+                                <?php if ($targetSlug === ''): ?>
+                                    <?php /* The main room has no address of its own that could
+                                             be told apart from a bare visit, so choosing it is
+                                             a POST that clears the remembered room (RoomMemory). */ ?>
+                                    <form method="post" action="<?= $e(url(['p' => $page])) ?>">
+                                        <input type="hidden" name="a" value="room_switch">
+                                        <input type="hidden" name="slug" value="">
+                                        <input type="hidden" name="to" value="<?= $e($switchPage) ?>">
+                                        <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                                        <button type="submit" class="roomswitch__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="true"' : '' ?>>
+                                            <?= $e((string) $entry['name']) ?>
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <a href="<?= $e(url(['p' => $switchPage, 'room' => $targetSlug])) ?>"
+                                       class="roomswitch__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="true"' : '' ?>>
+                                        <?= $e((string) $entry['name']) ?>
+                                    </a>
+                                <?php endif; ?>
                             </li>
                         <?php endforeach; ?>
                     </ul>
@@ -118,6 +137,13 @@ foreach ($translator->available() as $code => $name) {
             <a href="<?= $e(url(['p' => 'wishes'])) ?>"<?= $page === 'wishes' ? ' aria-current="page"' : '' ?>>
                 <?= icon('star') ?><?= $e(t('Wish list')) ?><?php if ($wishCount !== null && $security->can('wishes')): ?>
                     <span class="badge"><span aria-hidden="true"><?= (int) $wishCount ?></span><span class="sr-only"><?= $e(tn('{n} open wish', '{n} open wishes', (int) $wishCount)) ?></span></span>
+                <?php endif; ?>
+            </a>
+            <?php /* Song suggestions: everyone may suggest, so the tab is
+                     public; the counter only for the editors who work it. */ ?>
+            <a href="<?= $e(url(['p' => 'suggestions'])) ?>"<?= $page === 'suggestions' ? ' aria-current="page"' : '' ?>>
+                <?= icon('bulb') ?><?= $e(t('Suggestions')) ?><?php if ($suggestionCount !== null && $security->can('suggestions')): ?>
+                    <span class="badge"><span aria-hidden="true"><?= (int) $suggestionCount ?></span><span class="sr-only"><?= $e(tn('{n} open suggestion', '{n} open suggestions', (int) $suggestionCount)) ?></span></span>
                 <?php endif; ?>
             </a>
             <?php if ($security->can('users')): ?>
@@ -164,10 +190,13 @@ foreach ($translator->available() as $code => $name) {
                      the guest view the dot becomes a ring. */ ?>
             <?php
             $accountLabel = match (true) {
+                $account === null && $guestName !== null => t('Account: not signed in, wishing as {name}', ['name' => $guestName]),
                 $account === null => t('Account: not signed in'),
                 $guestView        => t('Account: {name}, guest view on', ['name' => (string) $account['username']]),
                 default           => t('Account: signed in as {name}', ['name' => (string) $account['username']]),
             };
+            // Where the name form leads: /name, back to the current address.
+            $nameHref = url(['p' => 'name', 'back' => $here]);
             ?>
             <details class="account">
                 <summary class="account__toggle" aria-label="<?= $e($accountLabel) ?>"<?= $page === 'login' ? ' aria-current="page"' : '' ?>>
@@ -180,6 +209,11 @@ foreach ($translator->available() as $code => $name) {
                 <div class="account__menu">
                     <?php if ($account !== null): ?>
                         <p class="account__name"><span class="sr-only"><?= $e(t('Signed in as')) ?> </span><?= $e((string) $account['username']) ?></p>
+                        <?php /* Staff wish too; the name from the cookie goes
+                                 with their wishes like with anyone else's. */ ?>
+                        <a class="account__item<?= $page === 'name' ? ' is-active' : '' ?>" href="<?= $e($nameHref) ?>"<?= $page === 'name' ? ' aria-current="page"' : '' ?>>
+                            <?= $e($guestName !== null ? t('Wishing as {name}', ['name' => $guestName]) : t('Name for wishes')) ?>
+                        </a>
                         <?php /* See the site as a visitor without a login does
                                  -- to check what guests get -- and back. Posts
                                  to the current page so the server knows where
@@ -201,6 +235,17 @@ foreach ($translator->available() as $code => $name) {
                             <button type="submit" class="account__item"><?= $e(t('Log out')) ?></button>
                         </form>
                     <?php else: ?>
+                        <?php /* A visitor heads the menu with the name they gave
+                                 for the wish list -- the way a signed-in user
+                                 heads it with their username. */ ?>
+                        <?php if ($guestName !== null): ?>
+                            <p class="account__name"><span class="sr-only"><?= $e(t('Your name on the wish list:')) ?> </span><?= $e($guestName) ?></p>
+                        <?php else: ?>
+                            <p class="account__name account__name--none"><?= $e(t('No name yet')) ?></p>
+                        <?php endif; ?>
+                        <a class="account__item<?= $page === 'name' ? ' is-active' : '' ?>" href="<?= $e($nameHref) ?>"<?= $page === 'name' ? ' aria-current="page"' : '' ?>>
+                            <?= $e($guestName !== null ? t('Change name') : t('Set name')) ?>
+                        </a>
                         <a class="account__item<?= $page === 'login' ? ' is-active' : '' ?>" href="<?= $e(url(['p' => 'login'])) ?>"<?= $page === 'login' ? ' aria-current="page"' : '' ?>><?= $e(t('Log in')) ?></a>
                     <?php endif; ?>
                 </div>
@@ -230,25 +275,32 @@ foreach ($translator->available() as $code => $name) {
         <?php endif; ?>
 
         <?php if ($paused): ?>
-            <p class="dome__notice" role="status">
+            <?php /* A <div> like the guest notice: it may hold the form with
+                     which a moderator opens the room right here. */ ?>
+            <div class="dome__notice dome__notice--closed" role="status">
                 <svg class="dome__notice-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
                     <circle cx="12" cy="12" r="11" fill="currentColor" opacity=".18"/>
                     <rect x="8" y="7" width="3" height="10" rx="1" fill="currentColor"/>
                     <rect x="13" y="7" width="3" height="10" rx="1" fill="currentColor"/>
                 </svg>
                 <span>
-                    <strong><?= t('Wishing is paused in {room} right now.', [
+                    <strong><?= t('{room} is closed right now.', [
                         'room' => '<span class="dome__notice-room">' . $e((string) $room['name']) . '</span>',
                     ]) ?></strong>
-                    <?php if ($security->can('wishes')): ?>
-                        <?= t('You can resume it on the room’s {wishlist}.', [
-                            'wishlist' => '<a href="' . $e(url(['p' => 'wishes'])) . '">' . $e(t('wish list')) . '</a>',
-                        ]) ?>
-                    <?php else: ?>
-                        <?= $e(t('The song list stays open – wishing will be back later.')) ?>
-                    <?php endif; ?>
+                    <?= $e($security->can('wishes')
+                        ? t('The audience sees the song list but cannot wish or suggest anything.')
+                        : t('The song list stays visible – wishing and suggesting will be back later.')) ?>
                 </span>
-            </p>
+                <?php if ($security->can('wishes')): ?>
+                    <form method="post" action="<?= $e(url(['p' => $page])) ?>" class="dome__notice-action">
+                        <input type="hidden" name="a" value="pause">
+                        <input type="hidden" name="state" value="0">
+                        <input type="hidden" name="back" value="<?= $e($here) ?>">
+                        <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                        <button type="submit" class="link-button"><?= icon('play') ?><?= $e(t('Open room')) ?></button>
+                    </form>
+                <?php endif; ?>
+            </div>
         <?php endif; ?>
 
         <?php if ($security->usesDefaultPassword()): ?>
@@ -275,6 +327,22 @@ foreach ($translator->available() as $code => $name) {
             <p class="flash flash--<?= $e($flash['type']) ?>" role="status"><?= $e($flash['message']) ?></p>
         <?php endif; ?>
 
+        <?php if ($askName): ?>
+            <?php /* First visit: ask for the name. A <dialog> that is open from
+                     the start, so without JavaScript it stands as a card at the
+                     top of the panel; the inline script right behind it turns
+                     it modal before anything below is painted. */ ?>
+            <dialog class="namebox" open data-namebox aria-labelledby="namebox-title">
+                <h2 class="namebox__title" id="namebox-title"><?= $e(t('Welcome! What is your name?')) ?></h2>
+                <?php
+                $nameBack = $here;
+                $nameAsk  = true;
+                require __DIR__ . '/_name_form.php';
+                ?>
+            </dialog>
+            <script>(function (d) { if (d && typeof d.showModal === 'function') { d.removeAttribute('open'); d.showModal(); } }(document.currentScript.previousElementSibling));</script>
+        <?php endif; ?>
+
         <?php require __DIR__ . '/' . $template . '.php'; ?>
     </main>
 
@@ -282,5 +350,7 @@ foreach ($translator->available() as $code => $name) {
         <p>Powered by <a href="https://magicmusic.at" rel="noopener">magicmusic.at</a></p>
     </footer>
 </div>
+<?php /* One script for every page; each enhancement checks for its markup. */ ?>
+<script src="<?= $e(asset('assets/app.js')) ?>" defer></script>
 </body>
 </html>

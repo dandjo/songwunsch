@@ -10,8 +10,9 @@ use RuntimeException;
  * The application's fixed database schema.
  *
  * Table and column names are a prerequisite and live in one place:
- * `songs`, `song_wishes`, `settings`, `wish_throttle`, `users`, `rooms`,
- * `room_songs`. ensure() runs on every request before the first data access:
+ * `songs`, `song_wishes`, `song_suggestions`, `settings`, `wish_throttle`,
+ * `users`, `rooms`, `room_songs`. ensure() runs on every request before the
+ * first data access:
  * a missing table is created -- whether the application runs in the Docker
  * stack, on a shared host or locally. Existing tables are checked for the
  * expected columns; a column that a later version added (ADDITIONS) is added
@@ -25,6 +26,7 @@ final class Schema
 {
     public const SONGS    = 'songs';
     public const WISHES   = 'song_wishes';
+    public const SUGGESTIONS = 'song_suggestions';
     public const SETTINGS = 'settings';
     public const THROTTLE = 'wish_throttle';
     public const USERS    = 'users';
@@ -34,7 +36,8 @@ final class Schema
     /** @var array<string,array<int,string>> table => required columns */
     private const COLUMNS = [
         self::SONGS    => ['id', 'artist', 'title', 'length_sec', 'genre'],
-        self::WISHES   => ['id', 'song_id', 'artist', 'title', 'length_sec', 'genre', 'created_at', 'position', 'room_id'],
+        self::WISHES   => ['id', 'song_id', 'artist', 'title', 'length_sec', 'genre', 'wisher', 'created_at', 'position', 'room_id'],
+        self::SUGGESTIONS => ['id', 'artist', 'title', 'suggester', 'created_at', 'room_id'],
         self::SETTINGS => ['name', 'value', 'updated_at'],
         self::THROTTLE => ['id', 'sender', 'created_at'],
         self::USERS    => ['id', 'username', 'password_hash', 'is_admin', 'role_moderator', 'role_editor', 'active', 'created_at', 'updated_at'],
@@ -57,6 +60,12 @@ final class Schema
         self::WISHES => [
             'room_id' => 'ALTER TABLE `song_wishes` ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 '
                 . "COMMENT 'rooms.id, 0 = default room' AFTER `position`, ADD KEY `idx_room_id` (`room_id`)",
+            'wisher'  => 'ALTER TABLE `song_wishes` ADD COLUMN `wisher` VARCHAR(64) NULL '
+                . "COMMENT 'name the guest gave for the wish list, optional' AFTER `genre`",
+        ],
+        self::SUGGESTIONS => [
+            'room_id' => 'ALTER TABLE `song_suggestions` ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 '
+                . "COMMENT 'rooms.id the suggestion was made in, 0 = main room; the adopted song joins that room' AFTER `created_at`",
         ],
     ];
 
@@ -83,6 +92,7 @@ final class Schema
                 `title`      VARCHAR(255) NOT NULL,
                 `length_sec` INT UNSIGNED NULL,
                 `genre`      VARCHAR(128) NULL,
+                `wisher`     VARCHAR(64)  NULL COMMENT 'name the guest gave for the wish list, optional',
                 `created_at` DATETIME     NOT NULL,
                 `position`   INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'manual order (drag & drop)',
                 `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id, 0 = default room',
@@ -91,6 +101,19 @@ final class Schema
                 KEY `idx_song_id` (`song_id`),
                 KEY `idx_position` (`position`),
                 KEY `idx_room_id` (`room_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            SQL,
+        self::SUGGESTIONS => <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `song_suggestions` (
+                `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `artist`     VARCHAR(255) NOT NULL,
+                `title`      VARCHAR(255) NOT NULL,
+                `suggester`  VARCHAR(64)  NULL COMMENT 'name the guest gave, optional',
+                `created_at` DATETIME     NOT NULL,
+                `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id the suggestion was made in, 0 = main room; the adopted song joins that room',
+                PRIMARY KEY (`id`),
+                KEY `idx_created_at` (`created_at`),
+                KEY `idx_artist_title` (`artist`, `title`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             SQL,
         self::SETTINGS => <<<'SQL'

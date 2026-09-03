@@ -5,7 +5,9 @@
 -- installations where the web user is not allowed to CREATE TABLE, and it is
 -- imported by the Docker stack on the very first start of the database.
 --
--- Wishes deliberately hold no personal data: no name, no IP, no user agent.
+-- Wishes and suggestions hold no IP and no user agent; the only personal data
+-- is the name a guest chose to give (wisher, suggester), and it goes when the
+-- wish or suggestion goes.
 -- wish_throttle keeps a short-lived pseudonym (see there), users only the
 -- username and password hash of the staff accounts.
 
@@ -36,6 +38,7 @@ CREATE TABLE IF NOT EXISTS `song_wishes` (
     `title`      VARCHAR(255) NOT NULL,
     `length_sec` INT UNSIGNED NULL,
     `genre`      VARCHAR(128) NULL,
+    `wisher`     VARCHAR(64)  NULL COMMENT 'name the guest gave for the wish list, optional',
     `created_at` DATETIME     NOT NULL,
     `position`   INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'manual order (drag & drop)',
     `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id, 0 = default room',
@@ -52,6 +55,32 @@ CREATE TABLE IF NOT EXISTS `song_wishes` (
 --   ALTER TABLE `song_wishes`
 --       ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id, 0 = default room' AFTER `position`,
 --       ADD KEY `idx_room_id` (`room_id`);
+-- Likewise for a table from before guests could give their name:
+--   ALTER TABLE `song_wishes`
+--       ADD COLUMN `wisher` VARCHAR(64) NULL COMMENT 'name the guest gave for the wish list, optional' AFTER `genre`;
+
+-- Song suggestions from the audience: artist and title of a song that is
+-- missing from the repertoire. The editor adopts a suggestion into `songs`
+-- (adding length and genre) or deletes it; either way it leaves this table.
+-- Suggestions aim at the master list; room_id remembers the room the guest
+-- was in, and an adopted song is offered in that room right away. suggester
+-- is the guest's name if given, and goes with the suggestion.
+CREATE TABLE IF NOT EXISTS `song_suggestions` (
+    `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `artist`     VARCHAR(255) NOT NULL,
+    `title`      VARCHAR(255) NOT NULL,
+    `suggester`  VARCHAR(64)  NULL COMMENT 'name the guest gave, optional',
+    `created_at` DATETIME     NOT NULL,
+    `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id the suggestion was made in, 0 = main room; the adopted song joins that room',
+    PRIMARY KEY (`id`),
+    KEY `idx_created_at` (`created_at`),
+    KEY `idx_artist_title` (`artist`, `title`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Upgrade of a song_suggestions table from before the room was remembered
+-- (the application does this itself, see above):
+--   ALTER TABLE `song_suggestions`
+--       ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id the suggestion was made in, 0 = main room' AFTER `created_at`;
 
 -- State that outlives requests: the moderator's pause switch, daily secrets
 -- of the wish guard.

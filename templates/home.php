@@ -220,5 +220,3 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
         </nav>
     <?php endif; ?>
 <?php endif; ?>
-
-<script src="<?= $e(asset('assets/app.js')) ?>" defer></script>

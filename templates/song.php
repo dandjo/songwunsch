@@ -7,6 +7,8 @@ use Songwunsch\SongRepository;
 
 /** @var SongRepository $repo */
 /** @var int $key                           0 = new song */
+/** @var array<string,mixed>|null $adopt    the suggestion this new song adopts, if any */
+/** @var array<string,mixed>|null $adoptRoom  the room the suggestion was made in -- the song joins it */
 /** @var array<string,string> $values */
 /** @var array<string,string> $errors */
 /** @var string $back */
@@ -34,11 +36,18 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 
 <div class="panel__head">
     <div>
-        <h1><?= $e($isNew ? t('Add song') : t('Edit song')) ?></h1>
+        <h1><?= $e($adopt !== null ? t('Adopt suggestion') : ($isNew ? t('Add song') : t('Edit song'))) ?></h1>
         <p class="muted">
-            <?= $e($isNew
-                ? t('The audience can pick the song right away.')
-                : t('Wishes already received keep their previous wording.')) ?>
+            <?php if ($adopt !== null): ?>
+                <?= $e(t('Artist and title come from the suggestion – check them and add length and genre. The song goes on the list, the suggestion off it.')) ?>
+                <?php if ($adoptRoom !== null): ?>
+                    <?= $e(t('It was suggested in room “{room}”, so the song is offered there as well.', ['room' => (string) $adoptRoom['name']])) ?>
+                <?php endif; ?>
+            <?php else: ?>
+                <?= $e($isNew
+                    ? t('The audience can pick the song right away.')
+                    : t('Wishes already received keep their previous wording.')) ?>
+            <?php endif; ?>
         </p>
     </div>
 </div>
@@ -52,12 +61,17 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
         <input type="hidden" name="a" value="song_save">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="key" value="<?= (int) $key ?>">
+        <?php if ($adopt !== null): ?>
+            <input type="hidden" name="suggestion" value="<?= (int) $adopt['id'] ?>">
+        <?php endif; ?>
         <input type="hidden" name="back" value="<?= $e($back) ?>">
 
         <div class="field">
             <label for="artist"><?= $e(t('Artist')) ?></label>
+            <?php /* Adopting: artist and title are already there, the cursor
+                     goes to the first missing field. */ ?>
             <input type="text" id="artist" name="artist" value="<?= $e($values['artist'] ?? '') ?>"
-                   autocomplete="off" required autofocus<?= $attrs('artist', SongRepository::MAX_ARTIST) ?>>
+                   autocomplete="off" required<?= $adopt === null ? ' autofocus' : '' ?><?= $attrs('artist', SongRepository::MAX_ARTIST) ?>>
             <?= $fieldError('artist') ?>
         </div>
 
@@ -71,7 +85,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
         <div class="field">
             <label for="length"><?= $e(t('Length')) ?> <span class="muted"><?= $e(t('(optional)')) ?></span></label>
             <input type="text" id="length" name="length" value="<?= $e($values['length'] ?? '') ?>"
-                   inputmode="numeric" placeholder="3:45" maxlength="10"
+                   inputmode="numeric" placeholder="3:45" maxlength="10"<?= $adopt !== null ? ' autofocus' : '' ?>
                    aria-describedby="hint-length<?= isset($errors['length']) ? ' err-length' : '' ?>"
                    <?= isset($errors['length']) ? 'aria-invalid="true"' : '' ?>>
             <p class="field__hint" id="hint-length">

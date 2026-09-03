@@ -171,5 +171,3 @@ $card = static function (array $row, string $action, string $arrow, string $verb
         <?php endif; ?>
     </section>
 </div>
-
-<script src="<?= $e(asset('assets/app.js')) ?>" defer></script>

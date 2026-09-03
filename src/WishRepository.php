@@ -9,8 +9,9 @@ namespace Songwunsch;
  * artist/title/length/genre, so the wish list stays readable even when the
  * song is edited or deleted later.
  *
- * No personal data is stored on purpose -- no name, no IP address, no user
- * agent (GDPR: data minimisation).
+ * No IP address and no user agent are stored (GDPR: data minimisation). The
+ * only personal data is the name a guest chose to give (`wisher`, see
+ * GuestName); it stays with the wish and is deleted with it.
  *
  * Every instance is bound to one room (room_id, 0 = default room): all
  * reading and writing stays inside that room's list.
@@ -44,6 +45,7 @@ final class WishRepository
             'title'  => 'title',
             'length' => 'length_sec',
             'genre'  => 'genre',
+            'wisher' => 'wisher',
         ];
     }
 
@@ -74,8 +76,11 @@ final class WishRepository
         ) !== null;
     }
 
-    /** @param array<string,mixed> $song row from SongRepository */
-    public function add(array $song): void
+    /**
+     * @param array<string,mixed> $song   row from SongRepository
+     * @param string|null         $wisher the guest's name for the list, if given
+     */
+    public function add(array $song, ?string $wisher = null): void
     {
         $table = self::TABLE;
 
@@ -83,14 +88,15 @@ final class WishRepository
         // "x minutes ago" then agree even when PHP and MySQL run in different
         // time zones (typical for separate containers).
         $this->db->exec(
-            "INSERT INTO {$table} (song_id, artist, title, length_sec, genre, created_at, room_id, position)
-             VALUES (?, ?, ?, ?, ?, ?, ?, (SELECT * FROM (SELECT COALESCE(MAX(position), 0) + 1 FROM {$table} WHERE room_id = ?) AS next_pos))",
+            "INSERT INTO {$table} (song_id, artist, title, length_sec, genre, wisher, created_at, room_id, position)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT * FROM (SELECT COALESCE(MAX(position), 0) + 1 FROM {$table} WHERE room_id = ?) AS next_pos))",
             [
                 (int) $song['id'],
                 (string) $song['artist'],
                 (string) $song['title'],
                 $song['length_sec'] !== null ? (int) $song['length_sec'] : null,
                 $song['genre'] !== null && $song['genre'] !== '' ? (string) $song['genre'] : null,
+                $wisher !== null && $wisher !== '' ? $wisher : null,
                 date('Y-m-d H:i:s'),
                 $this->roomId,
                 $this->roomId,
@@ -167,6 +173,23 @@ final class WishRepository
         }
 
         [$ids[$at], $ids[$target]] = [$ids[$target], $ids[$at]];
+        $this->reorder($ids);
+
+        return true;
+    }
+
+    /** Move an entry to the very top or the very bottom of the list. */
+    public function moveToEnd(int $id, bool $top): bool
+    {
+        $ids = array_map('intval', array_column($this->all('manual', 'asc'), 'id'));
+        $at  = array_search($id, $ids, true);
+
+        if ($at === false) {
+            return false;
+        }
+
+        array_splice($ids, $at, 1);
+        $top ? array_unshift($ids, $id) : array_push($ids, $id);
         $this->reorder($ids);
 
         return true;

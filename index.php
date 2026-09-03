@@ -8,14 +8,19 @@ declare(strict_types=1);
  * Pages (path below the base path, see url() in src/bootstrap.php):
  *   /        songs (start, public)            | /login
  *   /wishes  public view, moderators edit     | /song   (editor)
+ *   /suggestions  everyone suggests, editors adopt or delete
+ *   /name    the visitor's name for wishes    | /settings (signed in)
  *   /users   admin                            | /user   (admin)
  *   /rooms   list of rooms (public)           | /room   (editor: create/edit)
  *   /rooms/<slug>          a room's song list  -- same page as /, in the room
  *   /rooms/<slug>/wishes   a room's wish list  -- same page as /wishes
+ *   /rooms/<slug>/suggestions  suggest from inside the room: the adopted song joins it
  *   /rooms/<slug>/manage   pick the room's songs from the master list (editor)
- * Actions (POST to any of these): wish | login | logout
+ * Actions (POST to any of these): wish | suggest | login | logout | name_save | name_skip
+ *                  | room_switch (explicit change of room, clears the memory for the main room)
  *                  | delete | clear | reorder | move | pause      (moderator)
  *                  | song_save | song_delete                      (editor)
+ *                  | suggestion_delete | suggestions_clear        (editor)
  *                  | room_save | room_delete                      (editor)
  *                  | room_songs_add | room_songs_remove           (editor)
  *                  | user_save | user_delete | admin_transfer     (admin)
@@ -30,11 +35,14 @@ declare(strict_types=1);
 
 use Songwunsch\Database;
 use Songwunsch\Format;
+use Songwunsch\GuestName;
+use Songwunsch\RoomMemory;
 use Songwunsch\RoomRepository;
 use Songwunsch\Schema;
 use Songwunsch\Security;
 use Songwunsch\Settings;
 use Songwunsch\SongRepository;
+use Songwunsch\SuggestionRepository;
 use Songwunsch\Translator;
 use Songwunsch\UserRepository;
 use Songwunsch\WishGuard;
@@ -65,6 +73,7 @@ asset_version((string) ($config['version'] ?? getenv('APP_VERSION') ?: ''));
 $db     = new Database($config['db']);
 $schema = new Schema($db);
 $songs  = new SongRepository($db);
+$suggestions = new SuggestionRepository($db);
 $users  = new UserRepository($db);
 $rooms  = new RoomRepository($db);
 $settings = new Settings($db);
@@ -74,6 +83,10 @@ $settings = new Settings($db);
 // the same domain do not share a session.
 $security = new Security($users, base_path() . '/');
 $security->startSession();
+// The visitor's name for the wish list -- a cookie with the same scope.
+$nameCookie = new GuestName(base_path() . '/', Security::isHttps());
+// The room the visitor chose last -- a cookie with the same scope.
+$roomMemory = new RoomMemory(base_path() . '/', Security::isHttps());
 
 // --- Language ------------------------------------------------------------
 $translator = new Translator(__DIR__ . '/lang');
@@ -94,6 +107,7 @@ translator($translator);
 $routes = [
     ''        => 'songs',
     '/wishes' => 'wishes',
+    '/suggestions' => 'suggestions',
     '/login'  => 'login',
     '/song'   => 'song',
     '/users'  => 'users',
@@ -101,9 +115,11 @@ $routes = [
     '/rooms'  => 'rooms',
     '/room'   => 'room',
     '/settings' => 'settings',
+    '/name'   => 'name',
 ];
-// Inside a room: /rooms/<slug>, /rooms/<slug>/wishes, /rooms/<slug>/manage.
-$roomRoutes = ['' => 'songs', '/wishes' => 'wishes', '/manage' => 'room_songs'];
+// Inside a room: /rooms/<slug>, /rooms/<slug>/wishes, /rooms/<slug>/suggestions,
+// /rooms/<slug>/manage.
+$roomRoutes = ['' => 'songs', '/wishes' => 'wishes', '/suggestions' => 'suggestions', '/manage' => 'room_songs'];
 
 $requestPath = rawurldecode((string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH));
 $scriptDir   = rtrim(str_replace('\\', '/', dirname((string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'))), '/');
@@ -139,6 +155,39 @@ if ($route === '/index.php') {
     $page = $roomRoutes[$m[2] ?? ''];
 } else {
     not_found();
+}
+
+// --- The remembered room (cookie, see RoomMemory) --------------------------
+// /rooms/<slug>/... names its room and is remembered. The bare /, /wishes,
+// /suggestions redirect into the remembered room -- every time; only the
+// explicit switch to the main room (action room_switch) clears the memory.
+// Pages without a room in their address (/rooms, /users, ...) stay in the
+// remembered room as well, so the context never changes on its own.
+$roomBound  = in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs'], true);
+$remembered = $roomMemory->slug();
+$useMemory  = $route !== '/index.php'
+    && $remembered !== null
+    && (!$roomBound || (int) $room['id'] === RoomRepository::DEFAULT_ID);
+if ($useMemory) {
+    try {
+        $schema->ensure();
+        $kept = $rooms->findBySlug($remembered);
+    } catch (Throwable $e) {
+        $kept = null;
+    }
+    if ($kept === null) {
+        // The room is gone: the memory goes with it.
+        $roomMemory->forget();
+    } elseif ($roomBound && $_SERVER['REQUEST_METHOD'] === 'GET') {
+        redirect(url(array_merge(['p' => $page, 'room' => (string) $kept['slug']], $_GET)));
+    } else {
+        // A POST to the bare address, or a page outside any room: handle it
+        // in the remembered room.
+        $room = $kept;
+    }
+}
+if ($roomBound && (int) $room['id'] !== RoomRepository::DEFAULT_ID) {
+    $roomMemory->remember((string) $room['slug']);
 }
 
 current_room($room);
@@ -210,6 +259,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect(url(['p' => 'songs']));
                 // no break
 
+            case 'name_save':
+                // The visitor's name for the wish list, kept in a cookie. An
+                // empty name removes it; wishes then carry no name.
+                $name = GuestName::clean((string) ($_POST['name'] ?? ''));
+                $nameCookie->remember($name);
+                flash('ok', $name === ''
+                    ? t('Your wishes now carry no name.')
+                    : t('Hello {name}! Your wishes now carry your name.', ['name' => $name]));
+                redirect(back(url(['p' => 'songs'])));
+                // no break
+
+            case 'name_skip':
+                // "Not now" -- stop asking for this session.
+                $nameCookie->skip();
+                redirect(back(url(['p' => 'songs'])));
+                // no break
+
+            case 'room_switch':
+                // Explicit change of room from the switcher or the room list.
+                // Rooms are reached through their address; this is the way to
+                // the main room, which has none of its own: the memory is
+                // cleared, so / means the main room again. 'to' names the
+                // page to land on -- the same sub-page the visitor is on.
+                $to = (string) ($_POST['to'] ?? 'songs');
+                $to = in_array($to, ['songs', 'wishes', 'suggestions'], true) ? $to : 'songs';
+                $slug = (string) ($_POST['slug'] ?? '');
+                if ($slug === '') {
+                    $roomMemory->forget();
+                    redirect(url(['p' => $to, 'room' => '']));
+                }
+                $target = $rooms->findBySlug($slug);
+                if ($target === null) {
+                    flash('error', t('This room was not found.'));
+                    redirect(url(['p' => 'rooms']));
+                }
+                $roomMemory->remember($slug);
+                redirect(url(['p' => $to, 'room' => $slug]));
+                // no break
+
             case 'guest_view':
                 // Look at the site as a visitor without a login, or back. The
                 // account is checked directly: in the guest view isLoggedIn()
@@ -226,13 +314,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Stay on the page -- unless it is one a guest may not see;
                 // then the song list, like for any stranger. The form posts
                 // to the current page, so $page is the one being looked at.
-                $public = in_array($page, ['songs', 'wishes', 'rooms', 'login'], true);
+                $public = in_array($page, ['songs', 'wishes', 'suggestions', 'rooms', 'login'], true);
                 redirect($on && !$public ? url(['p' => 'songs']) : back(url(['p' => $page])));
                 // no break
 
             case 'wish':
                 if ($guard->isPaused()) {
-                    flash('info', t('The wish list is closed right now.'));
+                    flash('info', t('The room is closed right now.'));
                     redirect(back());
                 }
 
@@ -276,7 +364,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect(back());
                 }
 
-                $wishes->add($song);
+                $wishes->add($song, $nameCookie->current());
                 $guard->record();
                 $security->markWish();
 
@@ -285,6 +373,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'artist' => (string) $song['artist'],
                 ]));
                 redirect(back());
+                // no break
+
+            case 'suggest':
+                // A guest names a song that is missing from the repertoire.
+                // Same bot hurdles as wishing (honeypot, signed timestamp),
+                // its own session cooldown and a cap on open suggestions.
+                $suggestUrl = url(['p' => 'suggestions']);
+
+                // The moderator's pause closes suggesting in the room as well.
+                if ($guard->isPaused()) {
+                    flash('info', t('The room is closed right now – no wishes and no suggestions.'));
+                    redirect($suggestUrl);
+                }
+
+                switch ($guard->checkForm($_POST['t'] ?? null, $_POST['hp_url'] ?? null)) {
+                    case WishGuard::CHECK_BOT:
+                        flash('ok', t('Thanks, your suggestion is in.'));
+                        redirect($suggestUrl);
+                        // no break
+                    case WishGuard::CHECK_FAST:
+                        flash('error', t('That was very quick – please click “Suggest” once more.'));
+                        redirect($suggestUrl);
+                        // no break
+                    case WishGuard::CHECK_STALE:
+                        flash('error', t('The page has been open for a long time – please reload it and suggest again.'));
+                        redirect($suggestUrl);
+                        // no break
+                }
+
+                if ($security->throttled((int) ($config['suggestion_cooldown_sec'] ?? 10), 'suggestion')) {
+                    flash('error', t('One moment – please do not suggest that quickly in a row.'));
+                    redirect($suggestUrl);
+                }
+
+                $input = [
+                    'artist' => (string) ($_POST['artist'] ?? ''),
+                    'title'  => (string) ($_POST['title'] ?? ''),
+                ];
+                $checked = $suggestions->validate($input);
+
+                if ($checked['errors'] !== []) {
+                    remember_input($input, $checked['errors']);
+                    flash('error', t('Please check the highlighted fields.'));
+                    redirect($suggestUrl);
+                }
+
+                $maxOpen = (int) ($config['suggestion_max_open'] ?? 200);
+                if ($maxOpen > 0 && $suggestions->count() >= $maxOpen) {
+                    remember_input($input, []);
+                    flash('error', t('The suggestion box is full – please try again later.'));
+                    redirect($suggestUrl);
+                }
+
+                $artist = $checked['values']['artist'];
+                $title  = $checked['values']['title'];
+
+                if ($songs->exists($artist, $title)) {
+                    flash('info', t('“{title}” by {artist} is already on the song list – you can wish for it right away.', [
+                        'title'  => $title,
+                        'artist' => $artist,
+                    ]));
+                    redirect($suggestUrl);
+                }
+
+                if ($suggestions->isPending($artist, $title)) {
+                    flash('info', t('“{title}” by {artist} has already been suggested.', [
+                        'title'  => $title,
+                        'artist' => $artist,
+                    ]));
+                    redirect($suggestUrl);
+                }
+
+                // The room the guest is in goes with the suggestion: once
+                // adopted, the song is offered there right away.
+                $suggestions->add($checked['values'], $nameCookie->current(), $roomId);
+                $security->markWish('suggestion');
+
+                flash('ok', t('Thanks! “{title}” by {artist} has been passed on to the editors.', [
+                    'title'  => $title,
+                    'artist' => $artist,
+                ]));
+                redirect($suggestUrl);
                 // no break
 
             // ---- Wish list (moderator) -------------------------------------
@@ -310,22 +480,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             case 'move':
+                // One step (up, down) or to the very end (top, bottom).
                 require_role($security, 'wishes');
-                $wishes->move(
-                    (int) ($_POST['id'] ?? 0),
-                    ($_POST['dir'] ?? 'up') === 'down' ? 1 : -1,
-                );
+                $dir = (string) ($_POST['dir'] ?? 'up');
+                if ($dir === 'top' || $dir === 'bottom') {
+                    $wishes->moveToEnd((int) ($_POST['id'] ?? 0), $dir === 'top');
+                } else {
+                    $wishes->move((int) ($_POST['id'] ?? 0), $dir === 'down' ? 1 : -1);
+                }
                 redirect(back(url(['p' => 'wishes'])));
                 // no break
 
             case 'pause':
+                // Close or open a room: the current one (button in the header
+                // notice) or any room named by id (button in the room list).
                 require_role($security, 'wishes');
+                $targetId   = isset($_POST['id']) ? (int) $_POST['id'] : $roomId;
+                $targetRoom = $targetId === RoomRepository::DEFAULT_ID ? RoomRepository::defaultRoom() : $rooms->find($targetId);
+                if ($targetRoom === null) {
+                    flash('error', t('This room was not found.'));
+                    redirect(back(url(['p' => 'rooms'])));
+                }
+
+                $targetGuard = $targetId === $roomId ? $guard : new WishGuard(
+                    $db,
+                    $settings,
+                    (array) ($config['wish_limits'] ?? []),
+                    (bool) ($config['trust_proxy'] ?? false),
+                    (int) ($config['wish_min_form_sec'] ?? 2),
+                    $targetId,
+                );
                 $paused = (($_POST['state'] ?? '0') === '1');
-                $guard->setPaused($paused);
+                $targetGuard->setPaused($paused);
                 flash('ok', $paused
-                    ? t('Wishing is paused. The audience can see the song list but cannot submit anything.')
-                    : t('Wishing is open again.'));
-                redirect(url(['p' => 'wishes']));
+                    ? t('“{name}” is closed. The audience can see its song list but cannot wish or suggest anything there.', ['name' => (string) $targetRoom['name']])
+                    : t('“{name}” is open again.', ['name' => (string) $targetRoom['name']]));
+                redirect(back(url(['p' => $page])));
                 // no break
 
             case 'pause_all':
@@ -333,10 +523,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 require_role($security, 'users');
                 if (($_POST['state'] ?? '0') === '1') {
                     $guard->pauseEverywhere($rooms->ids());
-                    flash('ok', t('Wishing is paused in the main room and in every room.'));
+                    flash('ok', t('The main room and every room are closed.'));
                 } else {
                     $guard->resumeEverywhere($rooms->ids());
-                    flash('ok', t('The pause has been lifted; every room is back to the state it had before.'));
+                    flash('ok', t('The closing is lifted; every room is back to the state it had before.'));
                 }
                 redirect(url(['p' => 'rooms']));
                 // no break
@@ -361,6 +551,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'song_save':
                 require_role($security, 'songs');
                 $key = (int) ($_POST['key'] ?? 0); // 0 = new song
+                // A new song may adopt a suggestion: the suggestion's id
+                // travels with the form and is deleted once the song is in.
+                $adopting = $key === 0 ? (int) ($_POST['suggestion'] ?? 0) : 0;
 
                 $input = [
                     'artist' => (string) ($_POST['artist'] ?? ''),
@@ -369,7 +562,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'genre'  => (string) ($_POST['genre'] ?? ''),
                 ];
                 $checked = $songs->validate($input);
-                $formUrl = url(['p' => 'song', 'key' => $key > 0 ? $key : null, 'back' => back()]);
+                $formUrl = url([
+                    'p'          => 'song',
+                    'key'        => $key > 0 ? $key : null,
+                    'suggestion' => $adopting > 0 ? $adopting : null,
+                    'back'       => back(),
+                ]);
 
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
@@ -379,11 +577,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 try {
                     if ($key === 0) {
-                        $songs->create($checked['values']);
-                        flash('ok', t('“{title}” by {artist} has been added to the song list.', [
-                            'title'  => $input['title'],
-                            'artist' => $input['artist'],
-                        ]));
+                        $newId = $songs->create($checked['values']);
+                        $args  = ['title' => $input['title'], 'artist' => $input['artist']];
+
+                        // The suggestion has served its purpose. If someone
+                        // deleted it meanwhile, the song is in all the same.
+                        // A suggestion made inside a room puts the song into
+                        // that room as well -- unless the room is gone.
+                        $adopted  = $adopting > 0 ? $suggestions->find($adopting) : null;
+                        $joinRoom = $adopted !== null && (int) $adopted['room_id'] > 0
+                            ? $rooms->find((int) $adopted['room_id'])
+                            : null;
+                        if ($adopting > 0) {
+                            $suggestions->delete($adopting);
+                        }
+                        if ($joinRoom !== null) {
+                            $rooms->addSongs((int) $joinRoom['id'], [$newId]);
+                        }
+
+                        flash('ok', match (true) {
+                            $joinRoom !== null => t('“{title}” by {artist} has been added to the song list and to room “{room}”, and taken off the suggestions.', $args + ['room' => (string) $joinRoom['name']]),
+                            $adopting > 0      => t('“{title}” by {artist} has been added to the song list and taken off the suggestions.', $args),
+                            default            => t('“{title}” by {artist} has been added to the song list.', $args),
+                        });
                     } else {
                         $songs->update($key, $checked['values']);
                         flash('ok', t('“{title}” by {artist} has been saved.', [
@@ -416,6 +632,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'title' => (string) $song['title'],
                 ]));
                 redirect(back());
+                // no break
+
+            // ---- Song suggestions (editor) ---------------------------------
+
+            case 'suggestion_delete':
+                require_role($security, 'suggestions');
+                $suggestions->delete((int) ($_POST['id'] ?? 0))
+                    ? flash('ok', t('Suggestion deleted.'))
+                    : flash('error', t('This suggestion was not found.'));
+                redirect(url(['p' => 'suggestions']));
+                // no break
+
+            case 'suggestions_clear':
+                require_role($security, 'suggestions');
+                $removed = $suggestions->deleteAll();
+                flash('ok', tn('{n} suggestion deleted.', '{n} suggestions deleted.', $removed));
+                redirect(url(['p' => 'suggestions']));
                 // no break
 
             // ---- Rooms (editor) --------------------------------------------
@@ -473,7 +706,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 flash('ok', $archivedNow
-                    ? t('Room “{name}” has been archived; wishing there is paused.', ['name' => $checked['values']['name']])
+                    ? t('Room “{name}” has been archived and closed.', ['name' => $checked['values']['name']])
                     : t('Room “{name}” has been saved.', ['name' => $checked['values']['name']]));
                 redirect(url(['p' => 'rooms']));
                 // no break
@@ -625,14 +858,23 @@ $view = [
     'csrf'       => $security->csrfToken(),
     'flash'      => flash_take(),
     'wishCount'  => null,
+    'suggestionCount' => null, // badge on the Suggestions tab, editors only
     'paused'     => false, // wishing closed by the moderator -- notice in the header
     'roomList'   => [],    // rooms for the switcher in the header
+    'guestName'  => $nameCookie->current(), // the visitor's name for wishes, account menu
+    'askName'    => false, // first visit: ask for the name (dialog in the layout)
 ];
 
 try {
     $schema->ensure();
     $view['paused']   = $guard->isPaused();
     $view['roomList'] = $rooms->names();
+    // Visitors without a login are asked for their name once, on the public
+    // pages where wishing happens. Staff in the guest view see it as well --
+    // that is what the guest view is for.
+    $view['askName']  = !$security->isLoggedIn()
+        && $nameCookie->shouldAsk()
+        && in_array($page, ['songs', 'wishes', 'suggestions', 'rooms'], true);
 
     switch ($page) {
         case 'login':
@@ -664,6 +906,9 @@ try {
             require_role($security, 'songs');
             $key  = (int) ($_GET['key'] ?? 0); // 0 = new song
             $song = null;
+            // Adopting a suggestion: a new song whose artist and title come
+            // from the suggestion; the editor adds length and genre.
+            $adopt = null;
 
             if ($key > 0) {
                 $song = $songs->find($key);
@@ -671,24 +916,66 @@ try {
                     flash('error', t('This song was not found.'));
                     redirect(url(['p' => 'songs']));
                 }
+            } elseif ((int) ($_GET['suggestion'] ?? 0) > 0) {
+                $adopt = $suggestions->find((int) $_GET['suggestion']);
+                if ($adopt === null) {
+                    flash('error', t('This suggestion was not found.'));
+                    redirect(url(['p' => 'suggestions']));
+                }
             }
 
             // After a failed validation the input and errors are in the
             // session; otherwise the values come from the database.
             $kept = remembered_input();
 
-            $view['title']    = $key === 0 ? t('Add song') : t('Edit song');
+            $view['title']    = match (true) {
+                $adopt !== null => t('Adopt suggestion'),
+                $key === 0      => t('Add song'),
+                default         => t('Edit song'),
+            };
             $view['template'] = 'song';
             $view['repo']     = $songs;
             $view['key']      = $key;
+            $view['adopt']    = $adopt;
+            // The room the suggestion was made in -- the song will join it.
+            $view['adoptRoom'] = $adopt !== null && (int) $adopt['room_id'] > 0 ? $rooms->find((int) $adopt['room_id']) : null;
             $view['errors']   = $kept['errors'] ?? [];
-            $view['back']     = safe_target($_GET['back'] ?? null) ?? url(['p' => 'songs']);
+            $view['back']     = safe_target($_GET['back'] ?? null) ?? url(['p' => $adopt !== null ? 'suggestions' : 'songs']);
             $view['values']   = $kept['values'] ?? [
-                'artist' => (string) ($song['artist'] ?? ''),
-                'title'  => (string) ($song['title'] ?? ''),
+                'artist' => (string) ($adopt['artist'] ?? $song['artist'] ?? ''),
+                'title'  => (string) ($adopt['title'] ?? $song['title'] ?? ''),
                 'length' => Format::lengthInput($song['length_sec'] ?? null),
                 'genre'  => (string) ($song['genre'] ?? ''),
             ];
+            break;
+
+        case 'suggestions':
+            // Everyone sees the open suggestions and may search them; editors
+            // also adopt and delete. The badge keeps the full count.
+            $canEdit = $security->can('suggestions');
+            $kept    = remembered_input();
+            $q       = trim((string) ($_GET['q'] ?? ''));
+
+            $view['title']     = t('Song suggestions');
+            $view['template']  = 'suggestions';
+            $view['canEdit']   = $canEdit;
+            $view['q']         = $q;
+            $view['rows']      = $suggestions->all($q);
+            // Room names for the tags on the rows, by id -- archived rooms too.
+            $view['roomNames'] = $rooms->namesById();
+            // No form while wishing is paused in this room.
+            $view['formToken'] = $view['paused'] ? '' : $guard->formToken();
+            $view['errors']    = $kept['errors'] ?? [];
+            $view['values']    = $kept['values'] ?? ['artist' => '', 'title' => ''];
+            $view['suggestionCount'] = $q === '' ? count($view['rows']) : $suggestions->count();
+            break;
+
+        case 'name':
+            // The visitor's name for the wish list -- the same form the
+            // first visit shows in a dialog, as a page for later changes.
+            $view['title']    = t('Your name');
+            $view['template'] = 'name';
+            $view['back']     = safe_target($_GET['back'] ?? null) ?? url(['p' => 'songs']);
             break;
 
         case 'settings':
@@ -766,6 +1053,14 @@ try {
             // hands every room its previous state back.
             $view['isAdmin']      = $security->isAdmin();
             $view['pausedAll']    = $view['isAdmin'] && $guard->isPausedEverywhere();
+            // Moderators close and open rooms from the list: which are closed?
+            $view['canPause']     = $security->can('wishes');
+            $view['pausedRooms']  = [];
+            if ($view['canPause']) {
+                foreach ([RoomRepository::DEFAULT_ID, ...array_map('intval', array_column($roomResult['rows'], 'id'))] as $id) {
+                    $view['pausedRooms'][$id] = $guard->pausedIn($id);
+                }
+            }
             $view['masterSongs']  = $songs->count();
             $view['masterWishes'] = (new WishRepository($db))->count();
             break;
@@ -855,6 +1150,9 @@ try {
 
     if ($security->can('wishes') && $view['wishCount'] === null) {
         $view['wishCount'] = $wishes->count();
+    }
+    if ($security->can('suggestions') && $view['suggestionCount'] === null) {
+        $view['suggestionCount'] = $suggestions->count();
     }
 } catch (Throwable $e) {
     $view['title']    = t('Error');

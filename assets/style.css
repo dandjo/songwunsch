@@ -312,6 +312,8 @@ code {
     text-overflow: ellipsis;
     max-width: 16rem;
 }
+/* A visitor without a name: the head line says so, quieter still. */
+.account__name--none { color: var(--muted); font-weight: 500; font-style: italic; }
 
 /* Pause notice: its own row across the full width of the header, gold on
    dark -- the accent colour of the actions, because one is missing right
@@ -354,7 +356,8 @@ code {
 .dome__notice > .button__glyph { flex: 0 0 auto; margin: 0; }
 .dome__notice > span { flex: 1 1 auto; }
 .dome__notice-action { margin: 0; flex: 0 0 auto; }
-.dome__notice--guest { flex-wrap: wrap; }
+.dome__notice--guest,
+.dome__notice--closed { flex-wrap: wrap; }
 /* The room's name inside the notice: a small chip, so it stands out without
    quotation marks that would differ per language. */
 .dome__notice-room {
@@ -484,6 +487,10 @@ code {
     font-weight: 500;
     white-space: nowrap;
 }
+/* The main room's entry is a button (a POST that clears the remembered room);
+   it must read exactly like the links around it. */
+.nav button.roomswitch__item { background: none; font: inherit; font-size: .9rem; font-weight: 500; text-align: left; cursor: pointer; }
+.roomswitch__menu form { margin: 0; }
 .nav .roomswitch__item:hover { background: rgba(255, 255, 255, .06); border-color: transparent; }
 .nav .roomswitch__item.is-active { color: var(--gold); background: transparent; }
 .nav .roomswitch__item.is-active::after { content: '✓'; margin-left: 1rem; font-size: .85em; }
@@ -646,7 +653,31 @@ code {
 .cell-length,
 .cell-genre  { order: 3; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cell-rank   { color: var(--text-muted); }
-.cell-time   { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Time received: clock glyph and stamp, like the name with its person. */
+.cell-time {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cell-time .button__glyph { flex: 0 0 auto; margin: 0; opacity: .8; }
+/* Who wished: person glyph and name, quiet like the artist line. */
+.cell-wisher {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    min-width: 0;
+    font-size: .85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cell-wisher .button__glyph { flex: 0 0 auto; margin: 0; opacity: .8; }
+/* The name itself truncates; a flex container's own text would not. */
+.cell-wisher__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* A tag never widens its cell beyond the track. */
 .cell-genre .tag { max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
 .cell-time .ago { display: none; }
@@ -671,6 +702,15 @@ code {
     white-space: nowrap;
 }
 
+/* ---------- Cards: the text on the left, the actions on the right ----------
+   Every list card is a grid: text lines on the left, the button stack (and
+   on the wish list the time / name column) on the right, spanning all lines.
+   So that a tall stack never stretches the text lines apart, each grid has a
+   flexible empty row above and below the text rows (minmax(0, 1fr)): the
+   spanning items hand their extra height to those two rows, and the text
+   stays a tight block, centred beside the buttons. The row gap is 0 for the
+   same reason -- the second line carries its spacing as a margin. */
+
 /* ---------- Song list: two lines per card ----------
      1) title
      2) artist, length, genre
@@ -684,14 +724,18 @@ code {
         auto               /* length       */
         minmax(0, 1fr)     /* genre        */
         max-content;       /* actions      */
+    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
     align-items: center;
-    gap: .25rem .6rem;
+    gap: 0 .6rem;
 }
-.grid--songs .cell-title  { grid-area: 1 / 1 / 2 / 4; }
-.grid--songs .cell-artist { grid-area: 2 / 1; }
-.grid--songs .cell-length { grid-area: 2 / 2; }
-.grid--songs .cell-genre  { grid-area: 2 / 3; }
-.grid--songs .cell-action { grid-area: 1 / 4 / 3 / 5; margin: 0; }
+.grid--songs .cell-title  { grid-area: 2 / 1 / 3 / 4; }
+.grid--songs .cell-artist { grid-area: 3 / 1; }
+.grid--songs .cell-length { grid-area: 3 / 2; }
+.grid--songs .cell-genre  { grid-area: 3 / 3; }
+.grid--songs .cell-artist,
+.grid--songs .cell-length,
+.grid--songs .cell-genre  { margin-top: .25rem; }
+.grid--songs .cell-action { grid-area: 1 / 4 / 5 / 5; margin: 0; }
 
 .grid--songs .cell-title,
 .grid--songs .cell-artist {
@@ -710,13 +754,16 @@ code {
         minmax(0, auto)    /* roles        */
         minmax(0, 1fr)     /* status       */
         max-content;       /* actions      */
+    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
     align-items: center;
-    gap: .25rem .6rem;
+    gap: 0 .6rem;
 }
-.grid--users .cell-title  { grid-area: 1 / 1 / 2 / 3; }
-.grid--users .cell-genre  { grid-area: 2 / 1; }
-.grid--users .cell-length { grid-area: 2 / 2; }
-.grid--users .cell-action { grid-area: 1 / 3 / 3 / 4; margin: 0; }
+.grid--users .cell-title  { grid-area: 2 / 1 / 3 / 3; }
+.grid--users .cell-genre  { grid-area: 3 / 1; }
+.grid--users .cell-length { grid-area: 3 / 2; }
+.grid--users .cell-genre,
+.grid--users .cell-length { margin-top: .25rem; }
+.grid--users .cell-action { grid-area: 1 / 3 / 5 / 4; margin: 0; }
 .grid--users .cell-title {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -727,34 +774,47 @@ code {
      1) name
      2) address
      3) "50 songs · 7 wishes", spelled out
-   One button stack at the right edge spanning all lines: "Change to" above
-   "Manage songs", "Edit" and "Delete" (the latter three for editors). */
+   The name is the link into the room. One button stack at the right edge
+   spanning all lines: "Close room" / "Open room" (moderators) above "Manage",
+   "Edit" and "Delete" (editors); guests get no stack at all. */
 .grid--rooms tbody tr {
     display: grid;
     grid-template-columns:
         auto               /* songs         */
         minmax(0, 1fr)     /* wishes        */
         max-content;       /* actions       */
+    grid-template-rows: minmax(0, 1fr) auto auto auto minmax(0, 1fr);
     align-items: center;
-    gap: .2rem .6rem;
+    gap: 0 .6rem;
 }
-.grid--rooms .cell-title  { grid-area: 1 / 1 / 2 / 3; }
-.grid--rooms .cell-genre  { grid-area: 2 / 1 / 3 / 3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.grid--rooms .cell-length { grid-area: 3 / 1; color: var(--text-muted); }
-.grid--rooms .cell-wishes { grid-area: 3 / 2; font-size: .85rem; white-space: nowrap; color: var(--text-muted); }
+.grid--rooms .cell-title  { grid-area: 2 / 1 / 3 / 3; }
+.grid--rooms .cell-genre  { grid-area: 3 / 1 / 4 / 3; margin-top: .2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.grid--rooms .cell-length { grid-area: 4 / 1; margin-top: .2rem; color: var(--text-muted); }
+.grid--rooms .cell-wishes { grid-area: 4 / 2; margin-top: .2rem; font-size: .85rem; white-space: nowrap; color: var(--text-muted); }
 /* A dot separates the two counts. */
 .grid--rooms .cell-wishes::before { content: '·'; margin-right: .6rem; }
-.grid--rooms .cell-action { grid-area: 1 / 3 / 4 / 4; margin: 0; }
+.grid--rooms .cell-action { grid-area: 1 / 3 / 6 / 4; margin: 0; }
 .grid--rooms .cell-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .grid--rooms .address { font-size: .82rem; color: var(--text-muted); }
+/* The room's name as the way in: reads as the title, lights up gold on hover.
+   The main room's name is a button (its choice is a POST) and must look the
+   same as the links around it. */
+.room-link { color: inherit; text-decoration: none; }
+button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inherit; cursor: pointer; }
+.room-link-form { display: inline; margin: 0; }
+.room-link:hover,
+.room-link:focus-visible { color: var(--gold-bright); text-decoration: underline; text-underline-offset: .2em; }
+.room-link[aria-current="true"] { color: var(--gold); }
 
 /* ---------- Wish list: two lines per card, like the song list ----------
-     1) title
-     2) artist, length, genre
-   The position number stands to the left of both lines. To the right: the
-   time received, vertically centred, and next to it the actions stacked --
-   ▲▼ above, Delete below. display:contents dissolves the first cell so
-   number and arrows can be placed independently. */
+     1) title                        time received
+     2) artist, length, genre        who wished
+   The position number stands to the left of both lines. To the right one
+   cell, right-aligned: the time received above the name of whoever wished
+   (without a name the time alone, centred). Next to it the actions stacked
+   -- the move buttons above, Delete below, in one cell spanning all rows.
+   display:contents dissolves the first cell so the number can be placed on
+   its own. */
 .grid--wishes tbody tr {
     display: grid;
     grid-template-columns:
@@ -762,31 +822,36 @@ code {
         auto               /* artist       */
         auto               /* length       */
         minmax(0, 1fr)     /* genre        */
-        max-content        /* time         */
-        max-content;       /* ▲▼ / delete  */
+        max-content        /* time / name  */
+        max-content;       /* moves / delete */
+    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
     align-items: center;
-    gap: .25rem .6rem;
+    gap: 0 .6rem;
 }
 
 .grid--wishes .cell-rank  { display: contents; }
-.grid--wishes .rank       { grid-area: 1 / 1 / 3 / 2; min-width: 0; font-weight: 700; }
-.grid--wishes .cell-title { grid-area: 1 / 2 / 2 / 5; width: auto; }
-.grid--wishes .cell-time  {
-    grid-area: 1 / 5 / 3 / 6;
-    align-self: center;
-    justify-self: end;
-    font-size: .78rem;
-    white-space: nowrap;
+.grid--wishes .rank       { grid-area: 2 / 1 / 4 / 2; min-width: 0; font-weight: 700; }
+.grid--wishes .cell-title { grid-area: 2 / 2 / 3 / 5; width: auto; }
+.grid--wishes .cell-meta {
+    grid-area: 1 / 5 / 5 / 6;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: .2rem;
+    min-width: 0;
 }
-.grid--wishes .cell-artist { grid-area: 2 / 2; }
-.grid--wishes .cell-length { grid-area: 2 / 3; }
-.grid--wishes .cell-genre  { grid-area: 2 / 4; }
-.grid--wishes .move        { grid-area: 1 / 6; align-self: end; justify-self: end; }
-.grid--wishes .cell-action { grid-area: 2 / 6; align-self: start; margin: 0; justify-self: stretch; }
+.grid--wishes .cell-time { font-size: .78rem; }
+.grid--wishes .cell-artist { grid-area: 3 / 2; }
+.grid--wishes .cell-length { grid-area: 3 / 3; }
+.grid--wishes .cell-genre  { grid-area: 3 / 4; }
+.grid--wishes .cell-artist,
+.grid--wishes .cell-length,
+.grid--wishes .cell-genre  { margin-top: .25rem; }
+.grid--wishes .cell-wisher { max-width: 12rem; }
+.grid--wishes .cell-action { grid-area: 1 / 6 / 5 / 7; margin: 0; }
 .grid--wishes .cell-action form { display: flex; }
-/* Without the arrows (any sorting other than manual) Delete takes both rows. */
-.grid--wishes:not(.grid--sortable) .cell-action { grid-area: 1 / 6 / 3 / 7; align-self: center; }
-/* Delete spans the full width of the arrow pair above it. */
+/* Delete spans the full width of the move buttons above it. */
 .grid--wishes .cell-action .delete-button { width: 100%; justify-content: center; }
 
 /* Overlong names are truncated instead of shifting the buttons. */
@@ -797,6 +862,53 @@ code {
     white-space: nowrap;
 }
 .grid--wishes .cell-action .delete-button { min-height: 2.1rem; }
+
+/* ---------- Song suggestions: two lines per card, like the wish list ----------
+     1) title                                  time received
+     2) artist, room tag (if made in a room)   who suggested
+   Right of the meta column the actions stacked: Adopt above Delete. */
+.grid--suggestions tbody tr {
+    display: grid;
+    grid-template-columns:
+        auto               /* artist         */
+        minmax(0, 1fr)     /* room tag       */
+        max-content        /* time / name    */
+        max-content;       /* adopt / delete */
+    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0 .6rem;
+}
+.grid--suggestions .cell-title  { grid-area: 2 / 1 / 3 / 3; }
+.grid--suggestions .cell-artist { grid-area: 3 / 1; }
+.grid--suggestions .cell-room   { grid-area: 3 / 2; }
+.grid--suggestions .cell-artist,
+.grid--suggestions .cell-room   { margin-top: .25rem; }
+.grid--suggestions .cell-meta {
+    grid-area: 1 / 3 / 5 / 4;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: .2rem;
+    min-width: 0;
+}
+.grid--suggestions .cell-time   { font-size: .78rem; }
+.grid--suggestions .cell-wisher { max-width: 12rem; }
+.grid--suggestions .cell-action { grid-area: 1 / 4 / 5 / 5; margin: 0; }
+.grid--suggestions .cell-title,
+.grid--suggestions .cell-artist {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* The suggest form: artist and title side by side where there is room. */
+.field-pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 0 1rem;
+}
+.suggest .field--group .field:last-child { margin-bottom: .5rem; }
 
 .rank {
     display: inline-flex;
@@ -816,12 +928,15 @@ code {
 }
 .reorder-failed { outline: 2px solid var(--danger); }
 
-.move {
-    display: inline-flex;
+/* Four move buttons in one row: to the top, ▲, ▼, to the bottom -- the top
+   of the action stack; Delete below spans the same width. */
+.row-actions .move {
+    display: flex;
     gap: .2rem;
-    vertical-align: middle;
 }
-.move form { margin: 0; }
+.move form { margin: 0; display: flex; }
+.move-button { display: inline-flex; align-items: center; justify-content: center; }
+.move-button .button__glyph { margin: 0; }
 
 .move-button {
     width: 2.1rem;
@@ -1087,6 +1202,37 @@ code {
     font-weight: 700;
 }
 
+/* ---------- Name dialog ----------
+   Asked once, on the first visit. As a modal (JavaScript) it floats over a
+   darkened page; without JavaScript the same <dialog open> stands as a card
+   at the top of the panel. Under /name the form sits in the login box. */
+.namebox {
+    width: min(100% - 2rem, 28rem);
+    margin: auto;
+    padding: 1.4rem 1.5rem 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    color: var(--text);
+    box-shadow: var(--shadow-deep);
+}
+.namebox::backdrop { background: rgba(6, 7, 10, .72); backdrop-filter: blur(2px); }
+.namebox[open]:not(:modal) { position: relative; width: auto; margin: 0 0 1.25rem; }
+.namebox__title {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: var(--text);
+}
+.namebox__form .field { margin-bottom: 1.1rem; }
+.namebox__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.namebox__actions form { margin: 0; }
+/* "Not now" stands apart, below the real choice. */
+.namebox__skip { margin: .9rem 0 0; display: flex; justify-content: flex-end; }
+.namebox__skip .link-button { color: var(--text-muted); border-color: transparent; }
+.namebox__skip .link-button:hover { color: var(--text); }
+
 /* ---------- Messages ---------- */
 
 .flash {
@@ -1277,23 +1423,59 @@ code {
    push the stack off the card. */
 @media (max-width: 560px) {
     /* The button stack keeps its place at the right edge of every card; the
-       text cells shrink with an ellipsis. Only the wish list rearranges: the
-       time stamp moves under the meta line so the stack has room.
-         [# title                 | ▲▼    ]
+       text cells shrink with an ellipsis. Only the wish list rearranges: a
+       third line under the artist carries the time received and, flowing
+       right after it, who wished -- no column, so the name never jumps.
+         [# title                   | ▲▼    ]
          [# artist | length | genre | delete]
-         [time                            ]                                    */
+         [# time   | name           |       ]                                  */
     .grid--wishes tbody tr {
         grid-template-columns: max-content minmax(0, auto) auto minmax(0, 1fr) max-content;
+        grid-template-rows: minmax(0, 1fr) auto auto auto minmax(0, 1fr);
     }
-    .grid--wishes .rank        { grid-area: 1 / 1 / 3 / 2; }
-    .grid--wishes .cell-title  { grid-area: 1 / 2 / 2 / 5; }
-    .grid--wishes .cell-artist { grid-area: 2 / 2; }
-    .grid--wishes .cell-length { grid-area: 2 / 3; }
-    .grid--wishes .cell-genre  { grid-area: 2 / 4; }
-    .grid--wishes .cell-time   { grid-area: 3 / 1 / 4 / 5; justify-self: start; margin-top: .3rem; }
-    .grid--wishes .move        { grid-area: 1 / 5; }
-    .grid--wishes .cell-action { grid-area: 2 / 5 / 4 / 6; }
-    .grid--wishes:not(.grid--sortable) .cell-action { grid-area: 1 / 5 / 4 / 6; }
+    .grid--wishes .rank        { grid-area: 2 / 1 / 5 / 2; }
+    .grid--wishes .cell-title  { grid-area: 2 / 2 / 3 / 5; }
+    .grid--wishes .cell-artist { grid-area: 3 / 2; }
+    .grid--wishes .cell-length { grid-area: 3 / 3; }
+    .grid--wishes .cell-genre  { grid-area: 3 / 4; }
+    .grid--wishes .cell-meta {
+        grid-area: 4 / 2 / 5 / 5;
+        margin-top: .25rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: .25rem .75rem;
+    }
+    .grid--wishes .cell-wisher { max-width: 100%; }
+    .grid--wishes .cell-action { grid-area: 1 / 5 / 6 / 6; }
+    /* Four move buttons would be too wide for a phone: a 2x2 block instead,
+       "to the top" under ▲ and "to the bottom" under ▼. */
+    .row-actions .move  { display: grid; grid-template-columns: repeat(2, auto); }
+    .move .move__up     { grid-area: 1 / 1; }
+    .move .move__down   { grid-area: 1 / 2; }
+    .move .move__top    { grid-area: 2 / 1; }
+    .move .move__bottom { grid-area: 2 / 2; }
+
+    /* Suggestions rearrange the same way: time and name on a third line. */
+    .grid--suggestions tbody tr {
+        grid-template-columns: auto minmax(0, 1fr) max-content;
+        grid-template-rows: minmax(0, 1fr) auto auto auto minmax(0, 1fr);
+    }
+    .grid--suggestions .cell-title  { grid-area: 2 / 1 / 3 / 3; }
+    .grid--suggestions .cell-artist { grid-area: 3 / 1; }
+    .grid--suggestions .cell-room   { grid-area: 3 / 2; }
+    .grid--suggestions .cell-meta {
+        grid-area: 4 / 1 / 5 / 3;
+        margin-top: .25rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: .25rem .75rem;
+    }
+    .grid--suggestions .cell-wisher { max-width: 100%; }
+    .grid--suggestions .cell-action { grid-area: 1 / 3 / 6 / 4; }
 }
 
 /* ---------- Very narrow screens ---------- */
@@ -1313,4 +1495,13 @@ code {
 
 @media (forced-colors: active) {
     .wish-button, .delete-button, .link-button, .nav a, .account__item { border: 1px solid ButtonText; }
+}
+
+/* ---------- A list below a form (suggestions) ----------
+   The open suggestions are set apart from the suggest form above them by a
+   hairline and their own heading, so form and list do not read as one. */
+.list-section {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
 }

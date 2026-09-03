@@ -42,6 +42,20 @@
         }
     });
 
+    // First visit: the name dialog. The inline script in the layout has
+    // already made it modal; here Escape counts as "Not now" -- the skip
+    // form posts, so the question is not repeated on the next page.
+    var namebox = document.querySelector('dialog[data-namebox]');
+    if (namebox) {
+        var skip = namebox.querySelector('form[data-name-skip]');
+        namebox.addEventListener('cancel', function (event) {
+            if (skip) {
+                event.preventDefault();
+                skip.submit();
+            }
+        });
+    }
+
     // Header popouts (language, account, room switcher) are <details> and
     // work without this; with it they also close on a click elsewhere or on
     // Escape, so a menu does not stay open while one uses the page.
@@ -147,14 +161,14 @@
                 if (rank) {
                     rank.lastChild.textContent = String(index + 1);
                 }
-                var up = row.querySelector('.move form:first-child button');
-                var down = row.querySelector('.move form:last-child button');
-                if (up) {
-                    up.disabled = index === 0;
-                }
-                if (down) {
-                    down.disabled = index === rows.length - 1;
-                }
+                // Up and to the top are pointless on the first row, down and
+                // to the bottom on the last.
+                row.querySelectorAll('.move button[data-move]').forEach(function (button) {
+                    var dir = button.getAttribute('data-move');
+                    button.disabled = (dir === 'up' || dir === 'top')
+                        ? index === 0
+                        : index === rows.length - 1;
+                });
             });
         };
 
