@@ -1150,3 +1150,26 @@ msgstr "Der Hauptraum ist immer da und liegt an der Wurzeladresse; nur sein Name
 
 msgid "The main room is now called “{name}”."
 msgstr "Der Hauptraum heißt jetzt „{name}“."
+
+# ---- Start room -----------------------------------------------------------------------------
+
+msgid "As start room"
+msgstr "Als Startraum"
+
+msgid "start room"
+msgstr "Startraum"
+
+msgid "New visitors now start in “{name}”."
+msgstr "Neue Besucher starten jetzt in „{name}“."
+
+msgid "New visitors start in the main room again."
+msgstr "Neue Besucher starten wieder im Hauptraum."
+
+msgid "There is no room at this address – here is the start page."
+msgstr "Unter dieser Adresse gibt es keinen Raum – hier ist die Startseite."
+
+msgid "The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last."
+msgstr "Im Startraum landen Besucher, die die nackte Adresse aufrufen und noch keinen Raum gewählt haben; alle anderen bleiben in ihrem zuletzt gewählten Raum."
+
+msgid "Visitors who open the bare address without having chosen a room yet land in the main room; As start room sends them into another room instead."
+msgstr "Besucher, die die nackte Adresse aufrufen und noch keinen Raum gewählt haben, landen im Hauptraum; „Als Startraum“ schickt sie stattdessen in einen anderen Raum."

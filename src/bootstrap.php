@@ -217,6 +217,8 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         // Wish list: to the very top / bottom -- a bar with a filled triangle.
         'to-top'    => '<path d="M2.5 2.4h11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 5.2l5.2 8.3H2.8z" fill="currentColor"/>',
         'to-bottom' => '<path d="M2.5 13.6h11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 10.8L2.8 2.5h10.4z" fill="currentColor"/>',
+        // Start room: a flag on a pole.
+        'flag'   => '<path d="M3.2 14.5V1.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M4.6 2.2h8.6l-2.2 3.2 2.2 3.2H4.6z" fill="currentColor"/>',
         // Suggestions: a light bulb -- the glass as an outline, the base solid.
         'bulb'   => '<path d="M5.7 10.4c0-1.7-2.4-2.5-2.4-5.1a4.7 4.7 0 0 1 9.4 0c0 2.6-2.4 3.4-2.4 5.1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.6 13h4.8M6.6 15.2h2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
     ];

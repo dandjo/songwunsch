@@ -1146,3 +1146,26 @@ msgstr "La salle principale existe toujours et se trouve à l’adresse racine ;
 
 msgid "The main room is now called “{name}”."
 msgstr "La salle principale s’appelle désormais « {name} »."
+
+# ---- Start room -----------------------------------------------------------------------------
+
+msgid "As start room"
+msgstr "Salle de départ"
+
+msgid "start room"
+msgstr "salle de départ"
+
+msgid "New visitors now start in “{name}”."
+msgstr "Les nouveaux visiteurs commencent désormais dans « {name} »."
+
+msgid "New visitors start in the main room again."
+msgstr "Les nouveaux visiteurs commencent de nouveau dans la salle principale."
+
+msgid "There is no room at this address – here is the start page."
+msgstr "Il n’y a pas de salle à cette adresse – voici la page d’accueil."
+
+msgid "The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last."
+msgstr "La salle de départ accueille les visiteurs qui ouvrent l’adresse nue sans avoir encore choisi de salle ; tous les autres restent dans la salle choisie en dernier."
+
+msgid "Visitors who open the bare address without having chosen a room yet land in the main room; As start room sends them into another room instead."
+msgstr "Les visiteurs qui ouvrent l’adresse nue sans avoir encore choisi de salle arrivent dans la salle principale ; « Salle de départ » les envoie dans une autre salle."

@@ -15,6 +15,7 @@ use Songwunsch\Format;
 /** @var bool $pausedAll      the admin's closing of every room is in force */
 /** @var bool $canPause       moderator or admin: close and open single rooms */
 /** @var array<int,bool> $pausedRooms  room id => closed?, for the rows shown */
+/** @var int $startRoomId    room new visitors land in from the bare address, 0 = main room */
 /** @var int $masterSongs     songs in the master list (= the main room) */
 /** @var int $masterWishes    open wishes of the main room */
 /** @var array<string,mixed> $room  current room */
@@ -45,6 +46,9 @@ $hasActions = $canPause || $canEdit;
             <?= $e(t('Every room has its own repertoire, picked from the master list, and its own wish list.')) ?>
             <?php if ($canEdit): ?>
                 <?= $e(t('Archived rooms stay reachable through their address but leave the room switcher and the guests’ list.')) ?>
+                <?= $e($startRoomId > 0
+                    ? t('The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last.')
+                    : t('Visitors who open the bare address without having chosen a room yet land in the main room; As start room sends them into another room instead.')) ?>
             <?php endif; ?>
         </p>
     </div>
@@ -148,6 +152,7 @@ $hasActions = $canPause || $canEdit;
                     <?php if ($isMain): ?><span class="tag tag--gold"><?= $e(t('always there')) ?></span><?php endif; ?>
                     <?php if ((int) $row['active'] === 0): ?><span class="tag"><?= $e(t('archived')) ?></span><?php endif; ?>
                     <?php if ($canPause && ($pausedRooms[(int) $row['id']] ?? false)): ?><span class="tag"><?= $e(t('closed')) ?></span><?php endif; ?>
+                    <?php if ((int) $row['id'] === $startRoomId && (int) $row['active'] === 1): ?><span class="tag tag--gold"><?= $e(t('start room')) ?></span><?php endif; ?>
                     <?php if ($isHere): ?><span class="muted"><?= $e(t('(current)')) ?></span><?php endif; ?>
                 </td>
                 <td class="cell-genre"><code class="address"><?= $e($address) ?></code></td>
@@ -177,6 +182,21 @@ $hasActions = $canPause || $canEdit;
                                 <button type="submit" class="<?= $closed ? 'wish-button' : 'link-button' ?>" aria-pressed="<?= $closed ? 'true' : 'false' ?>">
                                     <?= icon($closed ? 'play' : 'pause') ?>
                                     <span class="button__label"><?= $e($closed ? t('Open room') : t('Close room')) ?></span>
+                                    <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
+                                </button>
+                            </form>
+                        <?php endif; ?>
+                        <?php if ($canEdit && (int) $row['id'] !== $startRoomId && (int) $row['active'] === 1): ?>
+                            <?php /* Where new visitors land: the bare address leads into
+                                     the start room. Setting the main room clears it. */ ?>
+                            <form method="post" action="<?= $e(url(['p' => 'rooms'])) ?>">
+                                <input type="hidden" name="a" value="room_start">
+                                <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                                <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
+                                <input type="hidden" name="back" value="<?= $e($listUrl(['page' => $pageNo > 1 ? $pageNo : null])) ?>">
+                                <button type="submit" class="link-button">
+                                    <?= icon('flag') ?>
+                                    <span class="button__label"><?= $e(t('As start room')) ?></span>
                                     <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                                 </button>
                             </form>

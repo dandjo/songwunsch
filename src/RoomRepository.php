@@ -40,6 +40,13 @@ final class RoomRepository
     /** Settings key under which the main room's chosen name is kept ('' = the default name). */
     public const MAIN_NAME_KEY = 'main_room_name';
 
+    /**
+     * Settings key of the start room: the id of the room a visitor without
+     * any remembered room lands in when opening the bare address. Absent or
+     * 0 = the main room, as the address says.
+     */
+    public const START_ROOM_KEY = 'start_room';
+
     /** @var string the main room's name as set by an editor, '' for the translated default */
     private static string $mainName = '';
 

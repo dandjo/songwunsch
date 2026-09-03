@@ -21,7 +21,7 @@ declare(strict_types=1);
  *                  | delete | clear | reorder | move | pause      (moderator)
  *                  | song_save | song_delete                      (editor)
  *                  | suggestion_delete | suggestions_clear        (editor)
- *                  | room_save | room_delete | main_room_save     (editor)
+ *                  | room_save | room_delete | main_room_save | room_start (editor)
  *                  | room_songs_add | room_songs_remove           (editor)
  *                  | user_save | user_delete | admin_transfer     (admin)
  *                  | pause_all                                    (admin)
@@ -147,7 +147,9 @@ if ($route === '/index.php') {
     $page = $routes[$route];
 } elseif (preg_match('#^/rooms/([^/]+)(/[^/]*)?$#', $route, $m) === 1 && isset($roomRoutes[$m[2] ?? ''])) {
     // The slug is checked against RoomRepository::SLUG_PATTERN before any
-    // query; an unknown or malformed room is a 404 like any other address.
+    // query. An unknown or malformed room is no dead end: a link to a room
+    // that has since been deleted or renamed leads to the start page, where
+    // the remembered room or the start room takes over, with a short notice.
     try {
         $schema->ensure();
         $found = $rooms->findBySlug($m[1]);
@@ -155,7 +157,8 @@ if ($route === '/index.php') {
         $found = null;
     }
     if ($found === null) {
-        not_found();
+        flash('info', t('There is no room at this address – here is the start page.'));
+        redirect(url(['p' => 'songs', 'room' => '']));
     }
     $room = $found;
     $page = $roomRoutes[$m[2] ?? ''];
@@ -166,13 +169,29 @@ if ($route === '/index.php') {
 // --- The remembered room (cookie, see RoomMemory) --------------------------
 // /rooms/<slug>/... names its room and is remembered. The bare /, /wishes,
 // /suggestions redirect into the remembered room -- every time; only the
-// explicit switch to the main room (action room_switch) clears the memory.
-// Pages without a room in their address (/rooms, /users, ...) stay in the
-// remembered room as well, so the context never changes on its own.
+// explicit switch to the main room (action room_switch) remembers the main
+// room instead. Pages without a room in their address (/rooms, /users, ...)
+// stay in the remembered room as well, so the context never changes on its
+// own. A visitor without any memory who opens a bare address lands in the
+// start room the editors set (Rooms -> "As start room"), if there is one.
 $roomBound  = in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs'], true);
 $remembered = $roomMemory->slug();
+$bareMain   = $roomBound && (int) $room['id'] === RoomRepository::DEFAULT_ID && $route !== '/index.php';
+if ($remembered === null && $bareMain && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    try {
+        $schema->ensure();
+        $startId = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
+        $start   = $startId > 0 ? $rooms->find($startId) : null;
+    } catch (Throwable $e) {
+        $start = null;
+    }
+    // An archived start room does not receive visitors; they stay in the main room.
+    if ($start !== null && (int) $start['active'] === 1) {
+        redirect(url(array_merge(['p' => $page, 'room' => (string) $start['slug']], $_GET)));
+    }
+}
 $useMemory  = $route !== '/index.php'
-    && $remembered !== null
+    && $remembered !== null && $remembered !== ''
     && (!$roomBound || (int) $room['id'] === RoomRepository::DEFAULT_ID);
 if ($useMemory) {
     try {
@@ -292,7 +311,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $to = in_array($to, ['songs', 'wishes', 'suggestions'], true) ? $to : 'songs';
                 $slug = (string) ($_POST['slug'] ?? '');
                 if ($slug === '') {
-                    $roomMemory->forget();
+                    // The main room, chosen on purpose -- remembered as such,
+                    // so the start room does not take over on the next visit.
+                    $roomMemory->remember('');
                     redirect(url(['p' => $to, 'room' => '']));
                 }
                 $target = $rooms->findBySlug($slug);
@@ -693,6 +714,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // ---- Rooms (editor) --------------------------------------------
 
+            case 'room_start':
+                // Which room a visitor without any remembered room lands in
+                // when opening the bare address. 0 = the main room (no setting).
+                require_role($security, 'rooms');
+                $startId = (int) ($_POST['id'] ?? 0);
+                if ($startId === RoomRepository::DEFAULT_ID) {
+                    $settings->delete(RoomRepository::START_ROOM_KEY);
+                    flash('ok', t('New visitors start in the main room again.'));
+                } else {
+                    $startRoom = $rooms->find($startId);
+                    if ($startRoom === null) {
+                        flash('error', t('This room was not found.'));
+                        redirect(url(['p' => 'rooms']));
+                    }
+                    $settings->set(RoomRepository::START_ROOM_KEY, (string) $startId);
+                    flash('ok', t('New visitors now start in “{name}”.', ['name' => (string) $startRoom['name']]));
+                }
+                redirect(back(url(['p' => 'rooms'])));
+                // no break
+
             case 'main_room_save':
                 // Rename the main room. It has no row of its own; the name
                 // lives in the settings. Empty means back to the default.
@@ -780,6 +821,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($target === null) {
                     flash('error', t('This room was not found.'));
                 } elseif ($rooms->delete((int) $target['id'])) {
+                    if ((int) $settings->get(RoomRepository::START_ROOM_KEY, '0') === (int) $target['id']) {
+                        $settings->delete(RoomRepository::START_ROOM_KEY);
+                    }
                     flash('ok', t('Room “{name}” has been deleted together with its wishes.', ['name' => (string) $target['name']]));
                 } else {
                     flash('error', t('Deleting was not possible.'));
@@ -1129,6 +1173,7 @@ try {
             $view['pageNo']       = $pageNo;
             $view['pages']        = max(1, (int) ceil($roomResult['total'] / $perPage));
             $view['canEdit']      = $canEdit;
+            $view['startRoomId']  = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
             // The admin's switch closes wishing in every room at once and later
             // hands every room its previous state back.
             $view['isAdmin']      = $security->isAdmin();

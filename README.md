@@ -114,7 +114,10 @@ BASE_PATH=/              ->  https://songwunsch.localhost/
 BASE_PATH=/songliste     ->  https://songwunsch.localhost/songliste/
 ```
 
-Below the base path these addresses exist; anything else is a 404:
+Below the base path these addresses exist; anything else is a 404. The one
+exception is `/rooms/<name>` with an unknown name: a link to a room that has
+been deleted or renamed leads to the start page with a notice, where the
+remembered room or the start room takes over.
 
 | Address | Page |
 | --- | --- |
@@ -559,6 +562,15 @@ wherever the main room is meant – header, room switcher, room list,
 notices. An empty name restores the default, "Main room" in the visitor's
 language.
 
+**The start room.** Where a visitor without any remembered room lands when
+opening the bare address (`/`, `/wishes`, `/suggestions`): the main room by
+default, or the room an editor marked with *As start room* on its row under
+*Rooms* (key `start_room` in `settings`, tagged *start room* in the list).
+Marking the main room clears the setting. An archived start room receives no
+visitors, a deleted one drops the setting. The start room only applies to a
+first visit: once a room is remembered – the main room included, chosen
+through the switcher or the list – that memory wins.
+
 **The remembered room.** The room a visitor chose last is kept in a cookie
 (`songwunsch_room`, one year, nothing but the room's machine name). Every
 page inside a room writes it. Pages without a room in their address
@@ -569,8 +581,9 @@ with query parameters) redirects into the remembered room – every time, so
 a bookmark, a typed address or a return visit never drops the visitor out
 of their room. The main room is chosen explicitly: its entry in the room
 switcher and its name in the room list are small forms (action
-`room_switch`) that remove the cookie; only that, or an address naming
-another room (`/rooms/<name>`, a QR code for instance), changes the memory.
+`room_switch`) that remember the main room as such; only that, or an address
+naming another room (`/rooms/<name>`, a QR code for instance), changes the
+memory.
 If the remembered room has been deleted, the cookie is dropped.
 
 **Wish list per room.** Wishes carry `room_id` (0 = main room); order,

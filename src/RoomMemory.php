@@ -20,14 +20,21 @@ namespace Songwunsch;
  *    /suggestions) redirects into the remembered room -- every time, so a
  *    bookmark or a typed address never drops the visitor out of their room;
  *  - the main room is chosen explicitly: the room switcher and the room
- *    list post the `room_switch` action, which removes the cookie. Only
- *    that, or an address naming another room, changes the memory.
+ *    list post the `room_switch` action, which remembers the main room as
+ *    MAIN. Only that, or an address naming another room, changes the
+ *    memory.
+ *  - without any memory (a first visit) the bare addresses lead into the
+ *    start room the editors set under Rooms, if any -- see index.php.
  *
- * The cookie holds nothing but a room's machine name: no personal data.
+ * The cookie holds nothing but a room's machine name (or the MAIN mark):
+ * no personal data.
  */
 final class RoomMemory
 {
     public const COOKIE = 'songwunsch_room';
+
+    /** Cookie value for "the main room was chosen" -- no slug can look like this. */
+    private const MAIN = '-';
 
     /**
      * @param string $cookiePath scope of the cookie, e.g. '/songliste/' --
@@ -40,8 +47,9 @@ final class RoomMemory
     }
 
     /**
-     * The remembered slug, or null when nothing is remembered (the main
-     * room) or the value is no slug at all.
+     * What is remembered: a room's slug, '' for the main room chosen on
+     * purpose, null when nothing is remembered or the value is no slug at
+     * all.
      */
     public function slug(): ?string
     {
@@ -49,26 +57,25 @@ final class RoomMemory
         if (!is_string($raw) || $raw === '') {
             return null;
         }
+        if ($raw === self::MAIN) {
+            return '';
+        }
 
         return preg_match(RoomRepository::SLUG_PATTERN, $raw) === 1 ? $raw : null;
     }
 
-    /** Remember a room for a year; '' (the main room) removes the memory. */
+    /** Remember a room for a year; '' remembers the main room. */
     public function remember(string $slug): void
     {
-        if ($slug === '') {
-            $this->forget();
-
-            return;
-        }
         if ($this->slug() === $slug) {
             return;
         }
-        $this->write($slug, time() + 365 * 86400);
-        $_COOKIE[self::COOKIE] = $slug;
+        $value = $slug === '' ? self::MAIN : $slug;
+        $this->write($value, time() + 365 * 86400);
+        $_COOKIE[self::COOKIE] = $value;
     }
 
-    /** Drop the memory -- the main room was chosen, or the room it named is gone. */
+    /** Drop the memory -- the room it named is gone. */
     public function forget(): void
     {
         if (!isset($_COOKIE[self::COOKIE])) {
