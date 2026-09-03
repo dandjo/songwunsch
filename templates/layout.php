@@ -102,18 +102,18 @@ foreach ($translator->available() as $code => $name) {
                 </details>
             <?php endif; ?>
             <?php if ($security->can('rooms')): ?>
-                <a href="<?= $e(url(['p' => 'rooms'])) ?>"<?= in_array($page, ['rooms', 'room'], true) ? ' aria-current="page"' : '' ?>><?= $e(t('Rooms')) ?></a>
+                <a href="<?= $e(url(['p' => 'rooms'])) ?>"<?= in_array($page, ['rooms', 'room'], true) ? ' aria-current="page"' : '' ?>><?= icon('door') ?><?= $e(t('Rooms')) ?></a>
             <?php endif; ?>
-            <a href="<?= $e(url(['p' => 'songs'])) ?>"<?= in_array($page, ['songs', 'room_songs'], true) ? ' aria-current="page"' : '' ?>><?= $e(t('Songs')) ?></a>
+            <a href="<?= $e(url(['p' => 'songs'])) ?>"<?= in_array($page, ['songs', 'room_songs'], true) ? ' aria-current="page"' : '' ?>><?= icon('note') ?><?= $e(t('Songs')) ?></a>
             <?php /* The wish list is visible to everyone; the counter badge only
                      for those who work it. Other areas only with a role. */ ?>
             <a href="<?= $e(url(['p' => 'wishes'])) ?>"<?= $page === 'wishes' ? ' aria-current="page"' : '' ?>>
-                <?= $e(t('Wish list')) ?><?php if ($wishCount !== null && $security->can('wishes')): ?>
+                <?= icon('star') ?><?= $e(t('Wish list')) ?><?php if ($wishCount !== null && $security->can('wishes')): ?>
                     <span class="badge"><span aria-hidden="true"><?= (int) $wishCount ?></span><span class="sr-only"><?= $e(tn('{n} open wish', '{n} open wishes', (int) $wishCount)) ?></span></span>
                 <?php endif; ?>
             </a>
             <?php if ($security->can('users')): ?>
-                <a href="<?= $e(url(['p' => 'users'])) ?>"<?= in_array($page, ['users', 'user'], true) ? ' aria-current="page"' : '' ?>><?= $e(t('Users')) ?></a>
+                <a href="<?= $e(url(['p' => 'users'])) ?>"<?= in_array($page, ['users', 'user'], true) ? ' aria-current="page"' : '' ?>><?= icon('users') ?><?= $e(t('Users')) ?></a>
             <?php endif; ?>
         </nav>
 
