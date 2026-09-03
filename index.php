@@ -193,11 +193,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             case 'settings_save':
-                // Admin: which deletions ask for confirmation. Unchecked
-                // boxes are not posted, so every kind is written explicitly.
-                require_role($security, 'users');
-                foreach (Settings::CONFIRM_DELETE as $what) {
-                    $settings->setConfirmDelete($what, (string) ($_POST['confirm_' . $what] ?? '') === '1');
+                // Which deletions ask this user for confirmation -- only the
+                // kinds their roles may delete. Unchecked boxes are not
+                // posted, so every kind is written explicitly.
+                require_login($security);
+                $selfId = (int) $security->user()['id'];
+                foreach (deletable_kinds($security) as $what) {
+                    $settings->setConfirmDelete($selfId, $what, (string) ($_POST['confirm_' . $what] ?? '') === '1');
                 }
                 flash('ok', t('Settings saved.'));
                 redirect(url(['p' => 'settings']));
@@ -574,6 +576,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } elseif ((int) $target['is_admin'] === 1) {
                     flash('error', t('The admin cannot be deleted – hand over the admin role first.'));
                 } elseif ($users->delete((int) $target['id'])) {
+                    $settings->forgetUser((int) $target['id']);
                     flash('ok', t('User “{name}” has been deleted.', ['name' => (string) $target['username']]));
                 } else {
                     flash('error', t('Deleting was not possible.'));
@@ -689,10 +692,13 @@ try {
             break;
 
         case 'settings':
-            require_role($security, 'users');
+            // Every signed-in user, for their own account.
+            require_login($security);
 
             $view['title']    = t('Settings');
             $view['template'] = 'settings';
+            $view['selfId']   = (int) $security->user()['id'];
+            $view['kinds']    = deletable_kinds($security);
             break;
 
         case 'users':

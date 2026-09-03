@@ -870,8 +870,11 @@ msgstr "Paramètres"
 msgid "Settings saved."
 msgstr "Paramètres enregistrés."
 
-msgid "Applies to everyone who may delete, not only to your own account."
-msgstr "S’applique à tous ceux qui peuvent supprimer, pas seulement à votre compte."
+msgid "Personal – these settings apply to your own account only."
+msgstr "Personnel – ces paramètres ne s’appliquent qu’à votre propre compte."
+
+msgid "Your account has no role that may delete anything, so there is nothing to set here."
+msgstr "Votre compte n’a aucun rôle autorisé à supprimer ; il n’y a donc rien à régler ici."
 
 msgid "Delete confirmations"
 msgstr "Confirmations de suppression"

@@ -184,7 +184,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                                                 </button>
                                             </form>
                                         <?php else: ?>
-                                            <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete('songs')): ?>
+                                            <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'songs')): ?>
                                                   data-confirm="<?= $e(t('Permanently delete “{title}” from the song list?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
                                                 <input type="hidden" name="a" value="song_delete">
                                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">

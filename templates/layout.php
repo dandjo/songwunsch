@@ -122,6 +122,9 @@ foreach ($translator->available() as $code => $name) {
             </a>
             <?php if ($security->can('users')): ?>
                 <a href="<?= $e(url(['p' => 'users'])) ?>"<?= in_array($page, ['users', 'user'], true) ? ' aria-current="page"' : '' ?>><?= icon('users') ?><?= $e(t('Users')) ?></a>
+            <?php endif; ?>
+            <?php if ($security->isLoggedIn()): ?>
+                <?php /* Personal settings, for every signed-in user. */ ?>
                 <a href="<?= $e(url(['p' => 'settings'])) ?>"<?= $page === 'settings' ? ' aria-current="page"' : '' ?>><?= icon('gear') ?><?= $e(t('Settings')) ?></a>
             <?php endif; ?>
         </nav>

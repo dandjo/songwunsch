@@ -157,7 +157,7 @@ $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
                                     <span class="button__label"><?= $e(t('Edit')) ?></span>
                                     <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                                 </a>
-                                <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete('rooms')): ?>
+                                <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'rooms')): ?>
                                       data-confirm="<?= $e(t('Permanently delete room “{name}” together with its wishes?', ['name' => (string) $row['name']])) ?>"<?php endif; ?>>
                                     <input type="hidden" name="a" value="room_delete">
                                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">

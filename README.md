@@ -558,7 +558,7 @@ middleware or the hoster.
 | Manage a room's songs | Editor: *Manage* in the room or under Rooms |
 | Create a user | Admin: Users → *Add user* |
 | Hand over the admin role | Admin: Users → *Edit* → *Hand over admin role* |
-| Switch off delete confirmations | Admin: Settings → *Delete confirmations*, separately for songs, wishes and rooms (all on by default; *Clear list* always asks) |
+| Switch off delete confirmations | Signed in: Settings → *Delete confirmations*, per account and separately for songs, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order

@@ -51,18 +51,31 @@ final class Settings
     }
 
     /**
-     * Does deleting a single song, wish or room ask for confirmation? On by
-     * default; the admin switches it off per kind under Settings. Bulk
-     * actions (clear the wish list) always ask.
+     * Does deleting a single song, wish or room ask this user for
+     * confirmation? On by default; every user switches it off per kind under
+     * Settings, for their own account only. Bulk actions (clear the wish
+     * list) always ask. Without a user (id 0) the answer is always yes.
      */
-    public function confirmsDelete(string $what): bool
+    public function confirmsDelete(int $userId, string $what): bool
     {
-        return $this->get('confirm_delete_' . $what, '1') !== '0';
+        return $userId <= 0 || $this->get(self::userKey($userId, 'confirm_delete_' . $what), '1') !== '0';
     }
 
-    public function setConfirmDelete(string $what, bool $on): void
+    public function setConfirmDelete(int $userId, string $what, bool $on): void
     {
-        $this->set('confirm_delete_' . $what, $on ? '1' : '0');
+        $this->set(self::userKey($userId, 'confirm_delete_' . $what), $on ? '1' : '0');
+    }
+
+    /** Drop everything stored for a user -- when the account is deleted. */
+    public function forgetUser(int $userId): void
+    {
+        $this->deleteByPrefixExcept(self::userKey($userId, ''), []);
+    }
+
+    /** Per-user values live under `user.<id>.<name>`. */
+    private static function userKey(int $userId, string $name): string
+    {
+        return 'user.' . $userId . '.' . $name;
     }
 
     public function delete(string $name): void

@@ -342,6 +342,20 @@ function require_role(\Songwunsch\Security $security, string $area): void
     }
 }
 
+/**
+ * What this user may delete -- the kinds whose confirmation they can switch
+ * off under Settings: songs and rooms for editors, wishes for moderators.
+ *
+ * @return list<string> subset of Settings::CONFIRM_DELETE
+ */
+function deletable_kinds(\Songwunsch\Security $security): array
+{
+    return array_values(array_filter(
+        \Songwunsch\Settings::CONFIRM_DELETE,
+        static fn (string $what): bool => $security->can($what),
+    ));
+}
+
 /** Start page after logging in: the wish list for moderators, otherwise the song list. */
 function home_for(\Songwunsch\Security $security): string
 {

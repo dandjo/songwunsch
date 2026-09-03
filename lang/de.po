@@ -874,8 +874,11 @@ msgstr "Einstellungen"
 msgid "Settings saved."
 msgstr "Einstellungen gespeichert."
 
-msgid "Applies to everyone who may delete, not only to your own account."
-msgstr "Gilt für alle, die löschen dürfen – nicht nur für das eigene Konto."
+msgid "Personal – these settings apply to your own account only."
+msgstr "Persönlich – diese Einstellungen gelten nur für das eigene Konto."
+
+msgid "Your account has no role that may delete anything, so there is nothing to set here."
+msgstr "Das Konto hat keine Rolle, die etwas löschen darf – hier gibt es daher nichts einzustellen."
 
 msgid "Delete confirmations"
 msgstr "Löschbestätigungen"
