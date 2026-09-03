@@ -25,6 +25,9 @@ final class SuggestionRepository
 {
     private const TABLE = '`' . Schema::SUGGESTIONS . '`';
 
+    /** Settings key of the list's revision -- raised on every change, polled by open pages (app.js). */
+    public const REVISION_KEY = 'suggestions_rev';
+
     public const MAX_ARTIST = SongRepository::MAX_ARTIST;
     public const MAX_TITLE  = SongRepository::MAX_TITLE;
 

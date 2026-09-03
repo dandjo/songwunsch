@@ -37,6 +37,22 @@ final class Settings
     }
 
     /**
+     * Raise a counter by one, creating it as 1. Done in the database, so two
+     * concurrent changes never end up with the same number -- the revision
+     * counters of the wish lists and the suggestions rely on that. Only the
+     * difference between two readings matters, never the height, so the
+     * counter wraps around at a million and stays a short number for good.
+     */
+    public function increment(string $name): void
+    {
+        $this->db->exec(
+            'INSERT INTO ' . self::TABLE . " (name, value, updated_at) VALUES (?, '1', ?)
+             ON DUPLICATE KEY UPDATE value = (CAST(value AS UNSIGNED) + 1) % 1000000, updated_at = VALUES(updated_at)",
+            [$name, date('Y-m-d H:i:s')],
+        );
+    }
+
+    /**
      * Create a value only if it does not exist yet. Two concurrent calls thus
      * agree on the same value -- important for secrets.
      */

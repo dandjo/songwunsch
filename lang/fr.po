@@ -1129,3 +1129,6 @@ msgstr "Suggestions en attente"
 
 msgid "No suggestions yet – yours could be the first."
 msgstr "Pas encore de suggestion – la vôtre pourrait être la première."
+
+msgid "The list has been updated."
+msgstr "La liste a été mise à jour."

@@ -365,6 +365,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $wishes->add($song, $nameCookie->current());
+                $guard->touch();
                 $guard->record();
                 $security->markWish();
 
@@ -448,6 +449,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // The room the guest is in goes with the suggestion: once
                 // adopted, the song is offered there right away.
                 $suggestions->add($checked['values'], $nameCookie->current(), $roomId);
+                $settings->increment(SuggestionRepository::REVISION_KEY);
                 $security->markWish('suggestion');
 
                 flash('ok', t('Thanks! “{title}” by {artist} has been passed on to the editors.', [
@@ -468,6 +470,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     explode(',', (string) ($_POST['order'] ?? '')),
                 ));
                 $count = $wishes->reorder($ids);
+                if ($count > 0) {
+                    $guard->touch();
+                }
 
                 if (wants_json()) {
                     send_json(['ok' => $count > 0, 'count' => $count]);
@@ -483,10 +488,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // One step (up, down) or to the very end (top, bottom).
                 require_role($security, 'wishes');
                 $dir = (string) ($_POST['dir'] ?? 'up');
-                if ($dir === 'top' || $dir === 'bottom') {
-                    $wishes->moveToEnd((int) ($_POST['id'] ?? 0), $dir === 'top');
-                } else {
-                    $wishes->move((int) ($_POST['id'] ?? 0), $dir === 'down' ? 1 : -1);
+                $moved = $dir === 'top' || $dir === 'bottom'
+                    ? $wishes->moveToEnd((int) ($_POST['id'] ?? 0), $dir === 'top')
+                    : $wishes->move((int) ($_POST['id'] ?? 0), $dir === 'down' ? 1 : -1);
+                if ($moved) {
+                    $guard->touch();
                 }
                 redirect(back(url(['p' => 'wishes'])));
                 // no break
@@ -533,15 +539,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             case 'delete':
                 require_role($security, 'wishes');
-                $wishes->delete((int) ($_POST['id'] ?? 0))
-                    ? flash('ok', t('Wish deleted.'))
-                    : flash('error', t('Wish not found.'));
+                if ($wishes->delete((int) ($_POST['id'] ?? 0))) {
+                    $guard->touch();
+                    flash('ok', t('Wish deleted.'));
+                } else {
+                    flash('error', t('Wish not found.'));
+                }
                 redirect(back(url(['p' => 'wishes'])));
                 // no break
 
             case 'clear':
                 require_role($security, 'wishes');
                 $removed = $wishes->deleteAll();
+                $guard->touch();
                 flash('ok', tn('{n} wish deleted.', '{n} wishes deleted.', $removed));
                 redirect(url(['p' => 'wishes']));
                 // no break
@@ -590,6 +600,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             : null;
                         if ($adopting > 0) {
                             $suggestions->delete($adopting);
+                            $settings->increment(SuggestionRepository::REVISION_KEY);
                         }
                         if ($joinRoom !== null) {
                             $rooms->addSongs((int) $joinRoom['id'], [$newId]);
@@ -638,15 +649,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             case 'suggestion_delete':
                 require_role($security, 'suggestions');
-                $suggestions->delete((int) ($_POST['id'] ?? 0))
-                    ? flash('ok', t('Suggestion deleted.'))
-                    : flash('error', t('This suggestion was not found.'));
+                if ($suggestions->delete((int) ($_POST['id'] ?? 0))) {
+                    $settings->increment(SuggestionRepository::REVISION_KEY);
+                    flash('ok', t('Suggestion deleted.'));
+                } else {
+                    flash('error', t('This suggestion was not found.'));
+                }
                 redirect(url(['p' => 'suggestions']));
                 // no break
 
             case 'suggestions_clear':
                 require_role($security, 'suggestions');
                 $removed = $suggestions->deleteAll();
+                $settings->increment(SuggestionRepository::REVISION_KEY);
                 flash('ok', tn('{n} suggestion deleted.', '{n} suggestions deleted.', $removed));
                 redirect(url(['p' => 'suggestions']));
                 // no break
@@ -859,6 +874,7 @@ $view = [
     'flash'      => flash_take(),
     'wishCount'  => null,
     'suggestionCount' => null, // badge on the Suggestions tab, editors only
+    'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ...], wish list and suggestions
     'paused'     => false, // wishing closed by the moderator -- notice in the header
     'roomList'   => [],    // rooms for the switcher in the header
     'guestName'  => $nameCookie->current(), // the visitor's name for wishes, account menu
@@ -868,6 +884,23 @@ $view = [
 try {
     $schema->ensure();
     $view['paused']   = $guard->isPaused();
+
+    // Live updates (app.js): the wish list and the suggestions poll a token
+    // that changes with every change of what they show; ?poll=1 answers with
+    // that token alone. The suggestions' token includes the room's wish
+    // revision, since closing the room hides their form as well.
+    $liveToken = match ($page) {
+        'wishes'      => (string) $guard->revision(),
+        'suggestions' => $settings->get(SuggestionRepository::REVISION_KEY, '0') . '.' . $guard->revision(),
+        default       => null,
+    };
+    if ($liveToken !== null && isset($_GET['poll'])) {
+        header('Cache-Control: no-store');
+        send_json(['rev' => $liveToken]);
+    }
+    if ($liveToken !== null) {
+        $view['live'] = ['url' => url(['p' => $page, 'poll' => 1]), 'rev' => $liveToken];
+    }
     $view['roomList'] = $rooms->names();
     // Visitors without a login are asked for their name once, on the public
     // pages where wishing happens. Staff in the guest view see it as well --

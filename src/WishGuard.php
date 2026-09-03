@@ -27,6 +27,7 @@ final class WishGuard
 {
     private const THROTTLE      = '`' . Schema::THROTTLE . '`';
     private const PAUSED_KEY    = 'wishes_paused'; // + ':<room id>' for rooms other than the default
+    private const REVISION_KEY  = 'wishes_rev';    // + ':<room id>' -- counts every change of the room's wish list
     private const PAUSED_ALL    = 'wishes_paused_all'; // JSON {room id: 0|1}: the states before the admin paused everywhere
     private const SECRET_KEY    = 'secret:'; // + date, e.g. secret:2026-09-02
     private const KEEP_SECONDS  = 3600;      // lifetime of the sender entries
@@ -79,6 +80,31 @@ final class WishGuard
     public function setPaused(bool $paused): void
     {
         $this->settings->set($this->pausedKey(), $paused ? '1' : '0');
+        $this->touch();
+    }
+
+    // ---- Revision ---------------------------------------------------------
+
+    /**
+     * Revision of the room's wish list: a counter that every change raises
+     * -- a wish coming in, deleted, moved, the list cleared, the room closed
+     * or opened. Open wish-list pages poll it (app.js) and reload the list
+     * when it moved on, so everyone sees the same order without refreshing.
+     */
+    public function revision(): int
+    {
+        return (int) $this->settings->get(self::REVISION_KEY . ($this->roomId === RoomRepository::DEFAULT_ID ? '' : ':' . $this->roomId), '0');
+    }
+
+    /** The wish list changed: raise the revision. */
+    public function touch(): void
+    {
+        self::touchRoom($this->settings, $this->roomId);
+    }
+
+    private static function touchRoom(Settings $settings, int $roomId): void
+    {
+        $settings->increment(self::REVISION_KEY . ($roomId === RoomRepository::DEFAULT_ID ? '' : ':' . $roomId));
     }
 
     /**
@@ -96,6 +122,7 @@ final class WishGuard
             $key = self::pausedKeyFor((int) $roomId);
             $before[(string) $roomId] = $this->settings->get($key, '0') === '1' ? 1 : 0;
             $this->settings->set($key, '1');
+            self::touchRoom($this->settings, (int) $roomId);
         }
 
         // Pressed twice: keep the first snapshot, it holds the real states.
@@ -119,6 +146,7 @@ final class WishGuard
         foreach ([RoomRepository::DEFAULT_ID, ...$roomIds] as $roomId) {
             if (array_key_exists((string) $roomId, $before)) {
                 $this->settings->set(self::pausedKeyFor((int) $roomId), (int) $before[(string) $roomId] === 1 ? '1' : '0');
+                self::touchRoom($this->settings, (int) $roomId);
             }
         }
 

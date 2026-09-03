@@ -1133,3 +1133,6 @@ msgstr "Offene Vorschläge"
 
 msgid "No suggestions yet – yours could be the first."
 msgstr "Noch keine Vorschläge – deiner könnte der erste sein."
+
+msgid "The list has been updated."
+msgstr "Die Liste wurde aktualisiert."

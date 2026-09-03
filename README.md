@@ -704,10 +704,24 @@ The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order
 is kept and reachable again via *#* or *Manual order*.
 
+**Live updates.** The wish list and the suggestions keep themselves current
+without a reload: every change – a wish coming in, deleted or moved, the list
+cleared, the room closed or opened, a suggestion made, adopted or deleted –
+raises a revision counter in the `settings` table (`wishes_rev`,
+`wishes_rev:<room id>`, `suggestions_rev`; the counters wrap at a million,
+only the difference matters). An open page polls `?poll=1` on its own
+address every four seconds, a JSON answer of a few bytes, and only when the
+revision moved on does it fetch the page again and swap its content in –
+focus and scroll position stay, a drag in progress postpones the swap, hidden
+tabs do not poll, errors back the interval off up to a minute. A WebSocket
+would need a long-running server process, which shared hosting does not
+offer; polling a counter costs a tiny request per open page and interval.
+Without JavaScript the page is current after the next reload, as before.
+
 Sorting, searching, wishing, reordering and deleting work without JavaScript –
 the ▲/▼ switches are ordinary forms and at the same time the way for keyboard
-and touch. `assets/app.js` adds drag & drop, row click, confirmations and the
-`/` key.
+and touch. `assets/app.js` adds drag & drop, row click, confirmations, the
+`/` key and the live updates.
 
 There is a single layout for all screen sizes: the compact card layout that
 used to be the phone view only. There is no separate desktop table view any

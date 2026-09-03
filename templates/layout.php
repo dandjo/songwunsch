@@ -22,6 +22,7 @@ use Songwunsch\Translator;
 /** @var array<int,array<string,mixed>> $roomList  all rooms, for the switcher */
 /** @var string|null $guestName  the visitor's name for wishes, from the cookie */
 /** @var bool $askName           first visit: ask for the name in a dialog */
+/** @var array{url:string,rev:string}|null $live  polling address and current revision, wish list and suggestions */
 
 $e      = static fn (?string $v): string => Format::e($v);
 $inRoom = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
@@ -49,7 +50,9 @@ foreach ($translator->available() as $code => $name) {
     <link rel="stylesheet" href="<?= $e(asset('assets/style.css')) ?>">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎵</text></svg>">
 </head>
-<body data-endpoint="<?= $e(url()) ?>">
+<?php /* data-live: the wish list and the suggestions poll this address for
+         their revision and reload themselves when it moved on (app.js). */ ?>
+<body data-endpoint="<?= $e(url()) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-msg-updated="<?= $e(t('The list has been updated.')) ?>"<?php endif; ?>>
 <a class="skip-link" href="#content"><?= $e(t('Skip to content')) ?></a>
 
 <div class="cabinet">
