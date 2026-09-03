@@ -16,11 +16,19 @@ use Songwunsch\Translator;
 /** @var array{type:string,message:string}|null $flash */
 /** @var int|null $wishCount */
 /** @var bool $paused  wishing closed by the moderator */
+/** @var \Songwunsch\Settings $settings */
 /** @var array<string,mixed> $room  current room; the default room has id 0 */
 /** @var array<int,array<string,mixed>> $roomList  all rooms, for the switcher */
 
 $e      = static fn (?string $v): string => Format::e($v);
 $inRoom = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
+
+// The account menu shows who is really signed in -- also in the guest view,
+// where $security->user() and everything else answer as for a stranger.
+$account   = $security->account();
+$guestView = $security->guestView();
+// Where a switch of the view leads back to: the current address.
+$here      = url(array_merge(['p' => $page], $_GET));
 
 // Language switcher: the current address with ?lang=<code> added.
 $langLinks = [];
@@ -114,6 +122,7 @@ foreach ($translator->available() as $code => $name) {
             </a>
             <?php if ($security->can('users')): ?>
                 <a href="<?= $e(url(['p' => 'users'])) ?>"<?= in_array($page, ['users', 'user'], true) ? ' aria-current="page"' : '' ?>><?= icon('users') ?><?= $e(t('Users')) ?></a>
+                <a href="<?= $e(url(['p' => 'settings'])) ?>"<?= $page === 'settings' ? ' aria-current="page"' : '' ?>><?= icon('gear') ?><?= $e(t('Settings')) ?></a>
             <?php endif; ?>
         </nav>
 
@@ -147,19 +156,42 @@ foreach ($translator->available() as $code => $name) {
             </details>
         <?php endif; ?>
 
-            <?php /* Account menu behind a person icon: Log in for guests, name
-                     and Log out for the signed-in user. */ ?>
+            <?php /* Account menu behind a person icon: Log in for guests; name,
+                     guest view switch and Log out for the signed-in user. In
+                     the guest view the dot becomes a ring. */ ?>
+            <?php
+            $accountLabel = match (true) {
+                $account === null => t('Account: not signed in'),
+                $guestView        => t('Account: {name}, guest view on', ['name' => (string) $account['username']]),
+                default           => t('Account: signed in as {name}', ['name' => (string) $account['username']]),
+            };
+            ?>
             <details class="account">
-                <summary class="account__toggle" aria-label="<?= $e($security->isLoggedIn() ? t('Account: signed in as {name}', ['name' => $security->username()]) : t('Account: not signed in')) ?>"<?= $page === 'login' ? ' aria-current="page"' : '' ?>>
+                <summary class="account__toggle" aria-label="<?= $e($accountLabel) ?>"<?= $page === 'login' ? ' aria-current="page"' : '' ?>>
                     <svg class="account__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
                         <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/>
                         <path d="M4 20c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                     </svg>
-                    <?php if ($security->isLoggedIn()): ?><span class="account__dot" aria-hidden="true"></span><?php endif; ?>
+                    <?php if ($account !== null): ?><span class="account__dot<?= $guestView ? ' account__dot--guest' : '' ?>" aria-hidden="true"></span><?php endif; ?>
                 </summary>
                 <div class="account__menu">
-                    <?php if ($security->isLoggedIn()): ?>
-                        <p class="account__name"><span class="sr-only"><?= $e(t('Signed in as')) ?> </span><?= $e($security->username()) ?></p>
+                    <?php if ($account !== null): ?>
+                        <p class="account__name"><span class="sr-only"><?= $e(t('Signed in as')) ?> </span><?= $e((string) $account['username']) ?></p>
+                        <?php /* See the site as a visitor without a login does
+                                 -- to check what guests get -- and back. Posts
+                                 to the current page so the server knows where
+                                 the switch happened. */ ?>
+                        <form method="post" action="<?= $e(url(['p' => $page])) ?>">
+                            <input type="hidden" name="a" value="guest_view">
+                            <input type="hidden" name="on" value="<?= $guestView ? '0' : '1' ?>">
+                            <input type="hidden" name="back" value="<?= $e($here) ?>">
+                            <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                            <?php if ($guestView): ?>
+                                <button type="submit" class="account__item account__item--accent"><?= $e(t('End guest view')) ?></button>
+                            <?php else: ?>
+                                <button type="submit" class="account__item"><?= $e(t('View as guest')) ?></button>
+                            <?php endif; ?>
+                        </form>
                         <form method="post" action="<?= $e(url()) ?>">
                             <input type="hidden" name="a" value="logout">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
@@ -171,6 +203,28 @@ foreach ($translator->available() as $code => $name) {
                 </div>
             </details>
         </div>
+
+        <?php if ($guestView): ?>
+            <?php /* A visible reminder while the guest view is on -- otherwise
+                     the missing controls look like a lost login. */ ?>
+            <?php /* A <div>, not a <p>: the paragraph could not hold the form
+                     -- browsers would close it early and drop the button
+                     out of the notice. */ ?>
+            <div class="dome__notice dome__notice--guest" role="status">
+                <?= icon('eye', 22) ?>
+                <span>
+                    <strong><?= $e(t('Guest view.')) ?></strong>
+                    <?= $e(t('You see the site as a visitor without a login does.')) ?>
+                </span>
+                <form method="post" action="<?= $e(url(['p' => $page])) ?>" class="dome__notice-action">
+                    <input type="hidden" name="a" value="guest_view">
+                    <input type="hidden" name="on" value="0">
+                    <input type="hidden" name="back" value="<?= $e($here) ?>">
+                    <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                    <button type="submit" class="link-button"><?= $e(t('End guest view')) ?></button>
+                </form>
+            </div>
+        <?php endif; ?>
 
         <?php if ($paused): ?>
             <p class="dome__notice" role="status">

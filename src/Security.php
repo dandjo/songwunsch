@@ -16,6 +16,13 @@ namespace Songwunsch;
  *   'songs'   maintain the song list -- editor or admin
  *   'rooms'   manage rooms            -- editor or admin
  *   'users'   manage users           -- admin only
+ *
+ * Guest view: a signed-in user can look at the site the way a visitor
+ * without a login sees it. While the view is on, user() and everything
+ * built on it (isLoggedIn, can, isAdmin, ...) answer as for a guest, so
+ * pages, controls and POST actions behave exactly like for a stranger.
+ * Only account() still knows who is actually signed in -- for the account
+ * menu, where the view is switched back.
  */
 final class Security
 {
@@ -77,8 +84,17 @@ final class Security
 
     // ---- User ---------------------------------------------------------------
 
-    /** The logged-in, active user or null. */
+    /**
+     * The logged-in, active user or null. Null as well while the guest view
+     * is on -- the request is then handled as for a visitor without a login.
+     */
     public function user(): ?array
+    {
+        return $this->guestView() ? null : $this->account();
+    }
+
+    /** The actually signed-in, active user, regardless of the guest view. */
+    public function account(): ?array
     {
         if ($this->user !== false) {
             return $this->user;
@@ -103,6 +119,22 @@ final class Security
     public function isLoggedIn(): bool
     {
         return $this->user() !== null;
+    }
+
+    /** Is the signed-in user currently looking at the site as a guest? */
+    public function guestView(): bool
+    {
+        return !empty($_SESSION['guest_view']) && $this->account() !== null;
+    }
+
+    /** Switch the guest view on or off; a no-op without a signed-in account. */
+    public function setGuestView(bool $on): void
+    {
+        if ($on && $this->account() !== null) {
+            $_SESSION['guest_view'] = true;
+        } else {
+            unset($_SESSION['guest_view']);
+        }
     }
 
     public function username(): string
@@ -150,6 +182,7 @@ final class Security
         session_regenerate_id(true);
         $_SESSION['user_id']    = (int) $user['id'];
         $_SESSION['auth_since'] = time();
+        unset($_SESSION['guest_view']);
         $this->user             = $user;
         $this->notePassword($password);
 

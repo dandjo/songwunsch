@@ -17,6 +17,7 @@ use Songwunsch\Format;
 /** @var int $masterWishes    open wishes of the main room */
 /** @var array<string,mixed> $room  current room */
 /** @var string $csrf */
+/** @var \Songwunsch\Settings $settings  delete confirmation switches */
 
 $e         = static fn (?string $v): string => Format::e($v);
 $currentId = (int) $room['id'];
@@ -156,8 +157,8 @@ $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
                                     <span class="button__label"><?= $e(t('Edit')) ?></span>
                                     <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                                 </a>
-                                <form method="post" action="<?= $e(url()) ?>"
-                                      data-confirm="<?= $e(t('Permanently delete room “{name}” together with its wishes?', ['name' => (string) $row['name']])) ?>">
+                                <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete('rooms')): ?>
+                                      data-confirm="<?= $e(t('Permanently delete room “{name}” together with its wishes?', ['name' => (string) $row['name']])) ?>"<?php endif; ?>>
                                     <input type="hidden" name="a" value="room_delete">
                                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                     <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">

@@ -13,6 +13,9 @@ final class Settings
 {
     private const TABLE = '`' . Schema::SETTINGS . '`';
 
+    /** What the admin can switch the delete confirmation off for. */
+    public const CONFIRM_DELETE = ['songs', 'wishes', 'rooms'];
+
     public function __construct(private readonly Database $db)
     {
     }
@@ -45,6 +48,21 @@ final class Settings
         );
 
         return (string) $this->get($name, $value);
+    }
+
+    /**
+     * Does deleting a single song, wish or room ask for confirmation? On by
+     * default; the admin switches it off per kind under Settings. Bulk
+     * actions (clear the wish list) always ask.
+     */
+    public function confirmsDelete(string $what): bool
+    {
+        return $this->get('confirm_delete_' . $what, '1') !== '0';
+    }
+
+    public function setConfirmDelete(string $what, bool $on): void
+    {
+        $this->set('confirm_delete_' . $what, $on ? '1' : '0');
     }
 
     public function delete(string $name): void

@@ -542,6 +542,7 @@ middleware or the hoster.
 | Search | Field at the top; several terms are combined with AND; `/` jumps into the search field |
 | Switch language | Language menu (globe) top right; the choice is remembered |
 | Sign in / sign out | Account menu (person icon) top right next to the language menu; when signed in it shows the name and *Log out* |
+| See the site as a guest | Signed in: account menu → *View as guest*; a notice in the header and *End guest view* lead back. Meanwhile pages, controls and actions behave exactly as for a visitor without a login |
 | Sort | Sort bar above the list, a second click reverses the direction |
 | Wish | *Wish* button in the row (or a click on the row) |
 | Change the order | Wish list → drag the row (drag & drop) or ▲/▼ in the first column |
@@ -557,6 +558,7 @@ middleware or the hoster.
 | Manage a room's songs | Editor: *Manage* in the room or under Rooms |
 | Create a user | Admin: Users → *Add user* |
 | Hand over the admin role | Admin: Users → *Edit* → *Hand over admin role* |
+| Switch off delete confirmations | Admin: Settings → *Delete confirmations*, separately for songs, wishes and rooms (all on by default; *Clear list* always asks) |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order
@@ -571,8 +573,8 @@ There is a single layout for all screen sizes: the compact card layout that
 used to be the phone view only. There is no separate desktop table view any
 more; on wide screens the shell is centred and limited to 1180 px. In the
 header the word mark, the language menu and the account menu (person icon,
-opens *Log in* or name and *Log out* as a popout like the language menu) share
-the first row, the navigation is right-aligned below. The popouts (language,
+opens *Log in* or name, *View as guest* and *Log out* as a popout like the
+language menu) share the first row, the navigation is right-aligned below. The popouts (language,
 account, room switcher) are `<details>` and work without JavaScript; with
 JavaScript they additionally close on a click outside or on Escape, and
 opening one menu closes the others.

@@ -819,6 +819,27 @@ msgstr "Die Pause ist aufgehoben; jeder Raum hat wieder den Zustand von vorher."
 msgid "Account: signed in as {name}"
 msgstr "Konto: angemeldet als {name}"
 
+msgid "Account: {name}, guest view on"
+msgstr "Konto: {name}, Gastansicht aktiv"
+
+msgid "View as guest"
+msgstr "Als Gast ansehen"
+
+msgid "End guest view"
+msgstr "Gastansicht beenden"
+
+msgid "Guest view."
+msgstr "Gastansicht."
+
+msgid "You see the site as a visitor without a login does."
+msgstr "Die Seite erscheint so, wie sie Besucher ohne Anmeldung sehen."
+
+msgid "You now see the site as a guest does. Your own view is back in the account menu."
+msgstr "Die Seite erscheint jetzt wie für Gäste. Zurück zur eigenen Ansicht geht es im Kontomenü."
+
+msgid "Back to your own view."
+msgstr "Zurück in der eigenen Ansicht."
+
 msgid "Account: not signed in"
 msgstr "Konto: nicht angemeldet"
 
@@ -844,3 +865,38 @@ msgstr "Wünschen ist in {room} gerade pausiert."
 
 msgid "To the song list"
 msgstr "Zur Songliste"
+
+# ---- Settings -----------------------------------------------------------------------------
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "Settings saved."
+msgstr "Einstellungen gespeichert."
+
+msgid "Applies to everyone who may delete, not only to your own account."
+msgstr "Gilt für alle, die löschen dürfen – nicht nur für das eigene Konto."
+
+msgid "Delete confirmations"
+msgstr "Löschbestätigungen"
+
+msgid "Ask before deleting – switch off what gets in the way of routine work."
+msgstr "Vor dem Löschen nachfragen – abschalten, was bei der Routinearbeit stört."
+
+msgid "Confirm deleting songs"
+msgstr "Löschen von Songs bestätigen"
+
+msgid "Delete in the song list"
+msgstr "Löschen in der Songliste"
+
+msgid "Confirm deleting wishes"
+msgstr "Löschen von Wünschen bestätigen"
+
+msgid "Delete in the wish list – Clear list always asks"
+msgstr "Löschen in der Wunschliste – Liste leeren fragt immer nach"
+
+msgid "Confirm deleting rooms"
+msgstr "Löschen von Räumen bestätigen"
+
+msgid "Delete under Rooms – the room’s wishes go with it"
+msgstr "Löschen unter Räume – die Wünsche des Raums gehen mit"

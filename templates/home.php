@@ -15,6 +15,7 @@ use Songwunsch\SongRepository;
 /** @var int $pageNo */
 /** @var int $pages */
 /** @var string $csrf */
+/** @var \Songwunsch\Settings $settings  delete confirmation switches */
 /** @var bool $paused          wishing closed by the moderator */
 /** @var string $formToken     signed timestamp for the wish form */
 /** @var array<string,mixed> $room  current room */
@@ -183,8 +184,8 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                                                 </button>
                                             </form>
                                         <?php else: ?>
-                                            <form method="post" action="<?= $e(url()) ?>"
-                                                  data-confirm="<?= $e(t('Permanently delete “{title}” from the song list?', ['title' => (string) $row['title']])) ?>">
+                                            <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete('songs')): ?>
+                                                  data-confirm="<?= $e(t('Permanently delete “{title}” from the song list?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
                                                 <input type="hidden" name="a" value="song_delete">
                                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                                 <input type="hidden" name="back" value="<?= $e($current) ?>">

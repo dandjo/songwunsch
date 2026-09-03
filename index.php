@@ -67,6 +67,7 @@ $schema = new Schema($db);
 $songs  = new SongRepository($db);
 $users  = new UserRepository($db);
 $rooms  = new RoomRepository($db);
+$settings = new Settings($db);
 // $wishes and $guard are bound to the room and are created after routing.
 
 // The session cookie is scoped to the base path, so several applications on
@@ -99,6 +100,7 @@ $routes = [
     '/user'   => 'user',
     '/rooms'  => 'rooms',
     '/room'   => 'room',
+    '/settings' => 'settings',
 ];
 // Inside a room: /rooms/<slug>, /rooms/<slug>/wishes, /rooms/<slug>/manage.
 $roomRoutes = ['' => 'songs', '/wishes' => 'wishes', '/manage' => 'room_songs'];
@@ -144,7 +146,7 @@ $roomId = (int) $room['id'];
 $wishes = new WishRepository($db, $roomId);
 $guard  = new WishGuard(
     $db,
-    new Settings($db),
+    $settings,
     (array) ($config['wish_limits'] ?? []),
     (bool) ($config['trust_proxy'] ?? false),
     (int) ($config['wish_min_form_sec'] ?? 2),
@@ -190,9 +192,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect(url(['p' => 'login']));
                 // no break
 
+            case 'settings_save':
+                // Admin: which deletions ask for confirmation. Unchecked
+                // boxes are not posted, so every kind is written explicitly.
+                require_role($security, 'users');
+                foreach (Settings::CONFIRM_DELETE as $what) {
+                    $settings->setConfirmDelete($what, (string) ($_POST['confirm_' . $what] ?? '') === '1');
+                }
+                flash('ok', t('Settings saved.'));
+                redirect(url(['p' => 'settings']));
+                // no break
+
             case 'logout':
                 $security->logout();
                 redirect(url(['p' => 'songs']));
+                // no break
+
+            case 'guest_view':
+                // Look at the site as a visitor without a login, or back. The
+                // account is checked directly: in the guest view isLoggedIn()
+                // already answers no, which is the whole point.
+                if ($security->account() === null) {
+                    flash('info', t('Please log in first.'));
+                    redirect(url(['p' => 'login']));
+                }
+                $on = (string) ($_POST['on'] ?? '') === '1';
+                $security->setGuestView($on);
+                flash('info', $on
+                    ? t('You now see the site as a guest does. Your own view is back in the account menu.')
+                    : t('Back to your own view.'));
+                // Stay on the page -- unless it is one a guest may not see;
+                // then the song list, like for any stranger. The form posts
+                // to the current page, so $page is the one being looked at.
+                $public = in_array($page, ['songs', 'wishes', 'rooms', 'login'], true);
+                redirect($on && !$public ? url(['p' => 'songs']) : back(url(['p' => $page])));
                 // no break
 
             case 'wish':
@@ -423,7 +456,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($archivedNow) {
                     $roomGuard = new WishGuard(
                         $db,
-                        new Settings($db),
+                        $settings,
                         (array) ($config['wish_limits'] ?? []),
                         (bool) ($config['trust_proxy'] ?? false),
                         (int) ($config['wish_min_form_sec'] ?? 2),
@@ -584,6 +617,7 @@ $view = [
     'page'       => $page,
     'room'       => $room,
     'security'   => $security,
+    'settings'   => $settings,
     'translator' => $translator,
     'csrf'       => $security->csrfToken(),
     'flash'      => flash_take(),
@@ -652,6 +686,13 @@ try {
                 'length' => Format::lengthInput($song['length_sec'] ?? null),
                 'genre'  => (string) ($song['genre'] ?? ''),
             ];
+            break;
+
+        case 'settings':
+            require_role($security, 'users');
+
+            $view['title']    = t('Settings');
+            $view['template'] = 'settings';
             break;
 
         case 'users':

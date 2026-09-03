@@ -8,6 +8,7 @@ use Songwunsch\Format;
 /** @var string $sort */
 /** @var string $dir */
 /** @var string $csrf */
+/** @var \Songwunsch\Settings $settings  delete confirmation switches */
 /** @var bool $paused   wishing closed by the moderator */
 /** @var bool $canEdit  moderator or admin: controls, sorting, drag & drop */
 /** @var array<string,mixed> $room  current room */
@@ -195,7 +196,7 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
                     </td>
                     <?php if ($canEdit): ?>
                         <td class="cell-action">
-                            <form method="post" action="<?= $e(url()) ?>" data-confirm="<?= $e(t('Remove “{title}” from the list?', ['title' => (string) $row['title']])) ?>">
+                            <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete('wishes')): ?> data-confirm="<?= $e(t('Remove “{title}” from the list?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
                                 <input type="hidden" name="a" value="delete">
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                 <input type="hidden" name="back" value="<?= $e($current) ?>">

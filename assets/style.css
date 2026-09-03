@@ -245,6 +245,11 @@ code {
     background: var(--gold);
     box-shadow: 0 0 0 2px var(--base);
 }
+/* Guest view: the dot becomes a ring -- signed in, but not acting as such. */
+.account__dot--guest {
+    background: var(--base);
+    box-shadow: 0 0 0 2px var(--base), inset 0 0 0 1.5px var(--gold);
+}
 
 .lang__menu,
 .account__menu {
@@ -290,6 +295,10 @@ code {
 .account__item.is-active { color: var(--gold); }
 .lang__menu a.is-active::after,
 .account__item.is-active::after { content: '✓'; margin-left: 1rem; font-size: .85em; }
+/* End guest view: gold like the other accents, because it is the way out
+   of a special state. */
+.account__item--accent { color: var(--gold); }
+.account__item--accent:hover { color: var(--gold-bright); }
 /* The signed-in name heads the account menu, muted, with a hairline below. */
 .account__name {
     margin: 0 0 .35rem;
@@ -340,6 +349,12 @@ code {
 .dome__notice--warn strong,
 .dome__notice--warn a { color: var(--danger); }
 .dome__notice-icon { flex: 0 0 auto; }
+/* Guest view notice: the eye glyph at the same size as the other notice
+   icons; the switch back stands at the right end of the row. */
+.dome__notice > .button__glyph { flex: 0 0 auto; margin: 0; }
+.dome__notice > span { flex: 1 1 auto; }
+.dome__notice-action { margin: 0; flex: 0 0 auto; }
+.dome__notice--guest { flex-wrap: wrap; }
 /* The room's name inside the notice: a small chip, so it stands out without
    quotation marks that would differ per language. */
 .dome__notice-room {
@@ -1152,7 +1167,9 @@ code {
 
 /* The edit form has more fields than the login -- and a heading above it
    that it stays left-aligned with. */
-.login--wide { max-width: 34rem; margin: 0 0 1.5rem; }
+/* Detail forms (song, room, user, settings) use the panel's full width; only
+   the login box and the error page stay narrow and centred. */
+.login--wide { max-width: none; margin: 0 0 1.5rem; }
 
 /* ---------- Form groups (roles, status) ---------- */
 
