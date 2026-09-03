@@ -448,6 +448,29 @@ Artist and title are required (up to 255 characters), genre is optional (up to
 length and genre. If a song is deleted from the song list, wishes already
 received for it remain fully readable.
 
+**Importing a CSV.** `tools/import-csv.php` reads a CSV with a header row
+and adds its songs; the columns are found by name (title: *Songtitel*,
+*Titel*, *Title*, *Song*; artist: *Künstler*, *Interpret*, *Artist*;
+optional genre: *Attribute*, *Genre*, *Tags*; optional length: *Länge*,
+*Length*, *Dauer*), comma or semicolon separated, UTF-8 with or without BOM.
+Several genre values in one cell (`Oldie; PopSong`) are kept, joined with a
+comma; a few spellings from the streamersonglist export are tidied on the
+way (`PopSong` → `Pop`, `Rock Song` → `Rock`, `RocknRoll` → `Rock 'n' Roll`,
+`X-Mas` → `Weihnachten`). Rows are validated like the song form, rows
+already present (same artist and title) are skipped, and everything is
+written in one transaction.
+
+```bash
+php tools/import-csv.php --dry-run songs.csv            # parse and report only
+php tools/import-csv.php songs.csv                      # add the songs
+php tools/import-csv.php --replace songs.csv            # delete every song first
+php tools/import-csv.php --skip='KEIN SONG!' -  < songs.csv   # from stdin, skipping a placeholder title
+docker compose exec -T web php tools/import-csv.php --replace - < songs.csv
+```
+
+`--replace` empties `songs` and `room_songs`: the rooms lose their song
+selection and must be filled again under *Manage*; wishes keep their copies.
+
 ## Song suggestions
 
 The **Suggestions** tab (light bulb, right of the wish list) is open to
@@ -757,6 +780,7 @@ sql/                   schema.sql (all tables), demo.sql (test data)
 tools/hash.php         Create a password hash
 tools/install.php      Create the tables beforehand, set up the first admin (CLI)
 tools/demo.php         Import the demo repertoire from sql/demo.sql (CLI)
+tools/import-csv.php   Import songs from a CSV file, optionally replacing the list (CLI)
 tools/extract-strings.php  Generate the translation template, check .po files (CLI)
 tools/deploy.sh        Sync to the web host via rsync, see Deployment
 compose.yml            Docker stack: web, db, optional traefik
