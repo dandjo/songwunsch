@@ -81,11 +81,11 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
-#: templates/room_songs.php:113 templates/room_songs.php:116 templates/song.php:100
+#: templates/room_songs.php:117 templates/room_songs.php:120 templates/song.php:100
 msgid "Add"
 msgstr ""
 
-#: templates/room_songs.php:102
+#: templates/room_songs.php:106
 msgid "Add all {n}"
 msgstr ""
 
@@ -97,7 +97,7 @@ msgstr ""
 msgid "Add song"
 msgstr ""
 
-#: templates/room_songs.php:101
+#: templates/room_songs.php:105
 msgid "Add the {n} song found"
 msgid_plural "Add all {n} songs found"
 msgstr[0] ""
@@ -135,11 +135,11 @@ msgstr ""
 msgid "Archived rooms stay reachable through their address but leave the room switcher and the guests’ list."
 msgstr ""
 
-#: src/SongRepository.php:160 templates/home.php:26 templates/room_songs.php:113 templates/room_songs.php:163 templates/song.php:58 templates/wishes.php:104 templates/wishes.php:138
+#: src/SongRepository.php:160 templates/home.php:26 templates/room_songs.php:117 templates/room_songs.php:167 templates/song.php:58 templates/wishes.php:104 templates/wishes.php:138
 msgid "Artist"
 msgstr ""
 
-#: templates/home.php:83 templates/room_songs.php:79
+#: templates/home.php:83 templates/room_songs.php:83
 msgid "Artist, title, genre …"
 msgstr ""
 
@@ -231,7 +231,7 @@ msgstr ""
 msgid "Every room has its own song list, picked from the master list, and its own wish list."
 msgstr ""
 
-#: templates/room_songs.php:94
+#: templates/room_songs.php:98
 msgid "Every song of the master list is in the room."
 msgstr ""
 
@@ -319,11 +319,11 @@ msgstr ""
 msgid "Manual order"
 msgstr ""
 
-#: templates/room_songs.php:89
+#: templates/room_songs.php:93
 msgid "Master list"
 msgstr ""
 
-#: templates/room_songs.php:112
+#: templates/room_songs.php:116
 msgid "Master list: songs not yet in the room"
 msgstr ""
 
@@ -359,7 +359,7 @@ msgstr ""
 msgid "No room matches."
 msgstr ""
 
-#: templates/home.php:99 templates/room_songs.php:94 templates/room_songs.php:143
+#: templates/home.php:99 templates/room_songs.php:98 templates/room_songs.php:147
 msgid "No song found. Try a different spelling?"
 msgstr ""
 
@@ -379,15 +379,15 @@ msgstr ""
 msgid "Order saved."
 msgstr ""
 
-#: src/bootstrap.php:375
+#: src/bootstrap.php:376
 msgid "Page not found"
 msgstr ""
 
-#: templates/home.php:215 templates/room_songs.php:127 templates/rooms.php:185
+#: templates/home.php:215 templates/room_songs.php:131 templates/rooms.php:185
 msgid "Page {page} of {pages}"
 msgstr ""
 
-#: templates/home.php:211 templates/room_songs.php:123 templates/rooms.php:181
+#: templates/home.php:211 templates/room_songs.php:127 templates/rooms.php:181
 msgid "Pages"
 msgstr ""
 
@@ -435,7 +435,7 @@ msgstr ""
 msgid "Please check the highlighted fields."
 msgstr ""
 
-#: src/bootstrap.php:312 src/bootstrap.php:314
+#: src/bootstrap.php:313 src/bootstrap.php:315
 msgid "Please log in first."
 msgstr ""
 
@@ -467,19 +467,19 @@ msgstr ""
 msgid "Received wishes"
 msgstr ""
 
-#: templates/home.php:179 templates/home.php:181 templates/room_songs.php:163 templates/room_songs.php:166
+#: templates/home.php:179 templates/home.php:181 templates/room_songs.php:167 templates/room_songs.php:170
 msgid "Remove"
 msgstr ""
 
-#: templates/room_songs.php:151
+#: templates/room_songs.php:155
 msgid "Remove all {n}"
 msgstr ""
 
-#: templates/room_songs.php:155
+#: templates/room_songs.php:159
 msgid "Remove every song from this room? Wishes already received are kept."
 msgstr ""
 
-#: templates/room_songs.php:150
+#: templates/room_songs.php:154
 msgid "Remove the {n} song found"
 msgid_plural "Remove all {n} songs found"
 msgstr[0] ""
@@ -541,7 +541,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: templates/home.php:84 templates/room_songs.php:80 templates/rooms.php:73
+#: templates/home.php:84 templates/room_songs.php:84 templates/rooms.php:73
 msgid "Search"
 msgstr ""
 
@@ -549,7 +549,7 @@ msgstr ""
 msgid "Search rooms"
 msgstr ""
 
-#: templates/home.php:82 templates/room_songs.php:78
+#: templates/home.php:82 templates/room_songs.php:82
 msgid "Search songs"
 msgstr ""
 
@@ -581,7 +581,7 @@ msgstr ""
 msgid "Songs"
 msgstr ""
 
-#: templates/room_songs.php:162
+#: templates/room_songs.php:166
 msgid "Songs in the room"
 msgstr ""
 
@@ -677,7 +677,7 @@ msgstr ""
 msgid "The session has expired. Please try again."
 msgstr ""
 
-#: src/bootstrap.php:356
+#: src/bootstrap.php:357
 msgid "The song list is not available right now. Please try again later."
 msgstr ""
 
@@ -701,7 +701,7 @@ msgstr ""
 msgid "The wishes in the order they will be played."
 msgstr ""
 
-#: src/bootstrap.php:375
+#: src/bootstrap.php:376
 msgid "There is nothing at this address."
 msgstr ""
 
@@ -709,7 +709,7 @@ msgstr ""
 msgid "This machine name is already taken."
 msgstr ""
 
-#: templates/home.php:93 templates/room_songs.php:143
+#: templates/home.php:93 templates/room_songs.php:147
 msgid "This room has no songs yet."
 msgstr ""
 
@@ -733,7 +733,7 @@ msgstr ""
 msgid "This username is already taken."
 msgstr ""
 
-#: src/SongRepository.php:161 templates/home.php:26 templates/room_songs.php:113 templates/room_songs.php:163 templates/song.php:65 templates/wishes.php:105 templates/wishes.php:139
+#: src/SongRepository.php:161 templates/home.php:26 templates/room_songs.php:117 templates/room_songs.php:167 templates/song.php:65 templates/wishes.php:105 templates/wishes.php:139
 msgid "Title"
 msgstr ""
 
@@ -741,7 +741,7 @@ msgstr ""
 msgid "To reorder, switch to the {manual}."
 msgstr ""
 
-#: src/bootstrap.php:373
+#: src/bootstrap.php:374 templates/room_songs.php:77
 msgid "To the song list"
 msgstr ""
 
@@ -829,7 +829,7 @@ msgstr ""
 msgid "You can resume it on the room’s {wishlist}."
 msgstr ""
 
-#: src/bootstrap.php:329 src/bootstrap.php:331
+#: src/bootstrap.php:330 src/bootstrap.php:332
 msgid "You do not have permission for that."
 msgstr ""
 
@@ -849,7 +849,7 @@ msgstr ""
 msgid "archived rooms leave the room switcher and the guests’ list but stay reachable through their address"
 msgstr ""
 
-#: templates/home.php:213 templates/room_songs.php:125 templates/rooms.php:183
+#: templates/home.php:213 templates/room_songs.php:129 templates/rooms.php:183
 msgid "back"
 msgstr ""
 
@@ -898,7 +898,7 @@ msgstr ""
 msgid "manual order"
 msgstr ""
 
-#: templates/home.php:217 templates/room_songs.php:129 templates/rooms.php:187
+#: templates/home.php:217 templates/room_songs.php:133 templates/rooms.php:187
 msgid "next"
 msgstr ""
 
@@ -906,7 +906,7 @@ msgstr ""
 msgid "no role"
 msgstr ""
 
-#: templates/home.php:86 templates/room_songs.php:82 templates/rooms.php:75
+#: templates/home.php:86 templates/room_songs.php:86 templates/rooms.php:75
 msgid "reset"
 msgstr ""
 
@@ -1005,13 +1005,13 @@ msgid_plural "{n} songs added to the room."
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/room_songs.php:90
+#: templates/room_songs.php:94
 msgid "{n} song available"
 msgid_plural "{n} songs available"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/room_songs.php:139
+#: templates/room_songs.php:143
 msgid "{n} song in the room"
 msgid_plural "{n} songs in the room"
 msgstr[0] ""

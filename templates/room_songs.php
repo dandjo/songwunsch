@@ -72,6 +72,10 @@ $card = static function (array $row, string $action, string $arrow, string $verb
             <?= $e(t('Move songs with the arrows: to the right into the room, to the left out of it. The search filters both columns.')) ?>
         </p>
     </div>
+    <?php /* Counterpart of "Manage" on the song list: back to the room's list. */ ?>
+    <div class="panel__actions">
+        <a class="link-button" href="<?= $e(url(['p' => 'songs'])) ?>"><?= icon('back') ?><?= $e(t('To the song list')) ?></a>
+    </div>
 </div>
 
 <form class="search" method="get" action="<?= $e(url(['p' => 'room_songs'])) ?>" role="search">

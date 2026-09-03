@@ -841,3 +841,6 @@ msgstr "jetzt ändern"
 
 msgid "Wishing is paused in {room} right now."
 msgstr "Wünschen ist in {room} gerade pausiert."
+
+msgid "To the song list"
+msgstr "Zur Songliste"

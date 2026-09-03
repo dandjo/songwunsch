@@ -837,3 +837,6 @@ msgstr "le changer maintenant"
 
 msgid "Wishing is paused in {room} right now."
 msgstr "Les souhaits sont en pause dans {room} pour le moment."
+
+msgid "To the song list"
+msgstr "Vers la liste des morceaux"
