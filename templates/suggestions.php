@@ -46,7 +46,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
     <div>
         <h1><?= $e(t('Song suggestions')) ?><?= $inRoom ? ' <span class="muted">· ' . $e((string) $room['name']) . '</span>' : '' ?></h1>
         <p class="muted">
-            <?= $e(t('Missing a song? Name it here – the editors decide whether it joins the song list.')) ?>
+            <?= $e(t('Missing a song? Name it here – the editors decide whether it joins the repertoire.')) ?>
             <?php if ($inRoom): ?>
                 <?= $e(t('Suggested from this room, the song is offered here once it is in.')) ?>
             <?php endif; ?>
@@ -116,7 +116,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                     <?= $e(tn('{n} suggestion waiting in total.', '{n} suggestions waiting in total.', $open)) ?>
                 <?php elseif ($canEdit): ?>
                     <?= $e(tn('{n} suggestion waiting.', '{n} suggestions waiting.', $open)) ?>
-                    <?= $e(t('Adopt puts the song on the list once you have added what is missing; Delete drops the suggestion.')) ?>
+                    <?= $e(t('Adopt puts the song on the list and onto the wish list once you have added what is missing; Delete drops the suggestion.')) ?>
                     <?= $e(t('A suggestion made in a room carries the room’s tag – the adopted song is offered there as well.')) ?>
                 <?php else: ?>
                     <?= $e(tn('{n} suggestion is waiting for the editors.', '{n} suggestions are waiting for the editors.', $open)) ?>
@@ -182,7 +182,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                             <?php if ($rowRoom > 0): ?>
                                 <span class="tag"><span class="sr-only"><?= $e(t('Room')) ?>: </span><?= $e($roomNames[$rowRoom] ?? t('deleted room')) ?></span>
                             <?php else: ?>
-                                <span class="sr-only"><?= $e(t('Main room')) ?></span>
+                                <span class="sr-only"><?= $e((string) RoomRepository::defaultRoom()['name']) ?></span>
                             <?php endif; ?>
                         </td>
                         <td class="cell-meta">

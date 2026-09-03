@@ -39,7 +39,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
         <h1><?= $e($adopt !== null ? t('Adopt suggestion') : ($isNew ? t('Add song') : t('Edit song'))) ?></h1>
         <p class="muted">
             <?php if ($adopt !== null): ?>
-                <?= $e(t('Artist and title come from the suggestion – check them and add length and genre. The song goes on the list, the suggestion off it.')) ?>
+                <?= $e(t('Artist and title come from the suggestion – check them and add length and genre. The song goes on the list and straight onto the wish list, the suggestion off it.')) ?>
                 <?php if ($adoptRoom !== null): ?>
                     <?= $e(t('It was suggested in room “{room}”, so the song is offered there as well.', ['room' => (string) $adoptRoom['name']])) ?>
                 <?php endif; ?>

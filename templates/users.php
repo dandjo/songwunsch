@@ -17,7 +17,7 @@ $e = static fn (?string $v): string => Format::e($v);
         <h1><?= $e(t('Users')) ?></h1>
         <p class="muted">
             <?= $e(tn('{n} user.', '{n} users.', count($rows))) ?>
-            <?= t('{editor} maintains the song list, {moderator} the wish list; the {admin} manages users and may do everything. There is exactly one admin; the role is handed over when editing a user.', [
+            <?= t('{editor} maintains the repertoire, {moderator} the wish list; the {admin} manages users and may do everything. There is exactly one admin; the role is handed over when editing a user.', [
                 'editor'    => '<strong>' . $e(t('Editor', [], 'role')) . '</strong>',
                 'moderator' => '<strong>' . $e(t('Moderator', [], 'role')) . '</strong>',
                 'admin'     => '<strong>' . $e(t('Admin', [], 'role')) . '</strong>',

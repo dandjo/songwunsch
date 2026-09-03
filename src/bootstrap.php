@@ -390,7 +390,7 @@ function error_detail(\Throwable $e, array $config, \Songwunsch\Security $securi
 
     error_log('[songwunsch] ' . $e::class . ': ' . $e->getMessage());
 
-    return t('The song list is not available right now. Please try again later.');
+    return t('The repertoire is not available right now. Please try again later.');
 }
 
 /** Emergency exit when not even the configuration can be loaded. */
@@ -407,7 +407,7 @@ function render_fatal(string $title, string $html): never
 function not_found(): never
 {
     $link = '<a href="' . htmlspecialchars(url(), ENT_QUOTES, 'UTF-8') . '">'
-        . htmlspecialchars(t('To the song list'), ENT_QUOTES, 'UTF-8') . '</a>';
+        . htmlspecialchars(t('To the repertoire'), ENT_QUOTES, 'UTF-8') . '</a>';
 
     render_bare(404, t('Page not found'), htmlspecialchars(t('There is nothing at this address.'), ENT_QUOTES, 'UTF-8') . ' ' . $link);
 }

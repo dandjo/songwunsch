@@ -70,7 +70,7 @@ $card = static function (array $row, string $action, string $arrow, string $verb
     </div>
     <?php /* Counterpart of "Manage" on the song list: back to the room's list. */ ?>
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url(['p' => 'songs'])) ?>"><?= icon('arrow-left') ?><?= $e(t('To the song list')) ?></a>
+        <a class="link-button" href="<?= $e(url(['p' => 'songs'])) ?>"><?= icon('arrow-left') ?><?= $e(t('To the repertoire')) ?></a>
     </div>
 </div>
 

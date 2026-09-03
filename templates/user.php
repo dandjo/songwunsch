@@ -85,7 +85,7 @@ $checked = static fn (string $field): string => ($values[$field] ?? '') === '1' 
             <legend><?= $e(t('Roles')) ?></legend>
             <label class="check">
                 <input type="checkbox" name="role_editor" value="1"<?= $checked('role_editor') ?><?= $isAdmin ? ' disabled' : '' ?>>
-                <span><strong><?= $e(t('Editor', [], 'role')) ?></strong> – <?= $e(t('maintain the song list (add, edit, delete)')) ?></span>
+                <span><strong><?= $e(t('Editor', [], 'role')) ?></strong> – <?= $e(t('maintain the repertoire (add, edit, delete)')) ?></span>
             </label>
             <label class="check">
                 <input type="checkbox" name="role_moderator" value="1"<?= $checked('role_moderator') ?><?= $isAdmin ? ' disabled' : '' ?>>

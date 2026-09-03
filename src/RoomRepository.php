@@ -37,10 +37,31 @@ final class RoomRepository
     {
     }
 
-    /** The virtual default room. */
+    /** Settings key under which the main room's chosen name is kept ('' = the default name). */
+    public const MAIN_NAME_KEY = 'main_room_name';
+
+    /** @var string the main room's name as set by an editor, '' for the translated default */
+    private static string $mainName = '';
+
+    /**
+     * Give the main room a name of its own (index.php reads it from the
+     * settings on every request). An empty string means the default,
+     * "Main room" in the visitor's language.
+     */
+    public static function nameMainRoom(string $name): void
+    {
+        self::$mainName = trim($name);
+    }
+
+    /** The virtual default room, under its chosen or its default name. */
     public static function defaultRoom(): array
     {
-        return ['id' => self::DEFAULT_ID, 'slug' => null, 'name' => t('Main room'), 'is_default' => true];
+        return [
+            'id'         => self::DEFAULT_ID,
+            'slug'       => null,
+            'name'       => self::$mainName !== '' ? self::$mainName : t('Main room'),
+            'is_default' => true,
+        ];
     }
 
     public static function isDefault(array $room): bool

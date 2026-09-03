@@ -6,6 +6,7 @@ use Songwunsch\Format;
 use Songwunsch\RoomRepository;
 
 /** @var int $id                    0 = new room */
+/** @var bool $main                  rename the main room: only its name, no address, no status */
 /** @var array<string,string> $values */
 /** @var array<string,string> $errors */
 /** @var string $csrf */
@@ -29,10 +30,12 @@ $invalid = static fn (string $field): string => isset($errors[$field])
 
 <div class="panel__head">
     <div>
-        <h1><?= $e($isNew ? t('Add room') : t('Edit room')) ?></h1>
+        <h1><?= $e($main ? t('Rename the main room') : ($isNew ? t('Add room') : t('Edit room'))) ?></h1>
         <p class="muted">
-            <?php if ($isNew): ?>
-                <?= $e(t('A room gets its own address, its own song list picked from the master list and its own wish list.')) ?>
+            <?php if ($main): ?>
+                <?= $e(t('The main room is always there and lives at the root address; only its name can change. Leave the field empty for the default name.')) ?>
+            <?php elseif ($isNew): ?>
+                <?= $e(t('A room gets its own address, its own repertoire picked from the master list and its own wish list.')) ?>
             <?php else: ?>
                 <?= $e(t('Changing the machine name changes the address – links already handed out stop working.')) ?>
             <?php endif; ?>
@@ -42,18 +45,21 @@ $invalid = static fn (string $field): string => isset($errors[$field])
 
 <div class="login login--wide">
     <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="room_save">
+        <input type="hidden" name="a" value="<?= $main ? 'main_room_save' : 'room_save' ?>">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="id" value="<?= (int) $id ?>">
 
         <div class="field">
             <label for="name"><?= $e(t('Name')) ?></label>
             <input type="text" id="name" name="name" value="<?= $e($values['name'] ?? '') ?>"
-                   required autofocus maxlength="<?= RoomRepository::MAX_NAME ?>"<?= $invalid('name') ?>>
-            <p class="field__hint" id="hint-name"><?= $e(t('Shown in the header and the list of rooms, e.g. “Summer party 2026”.')) ?></p>
+                   <?= $main ? 'placeholder="' . $e(t('Main room')) . '"' : 'required' ?> autofocus maxlength="<?= RoomRepository::MAX_NAME ?>"<?= $invalid('name') ?>>
+            <p class="field__hint" id="hint-name"><?= $e($main
+                ? t('Shown in the header, the room switcher and the list of rooms wherever the main room is meant.')
+                : t('Shown in the header and the list of rooms, e.g. “Summer party 2026”.')) ?></p>
             <?= $fieldError('name') ?>
         </div>
 
+        <?php if (!$main): ?>
         <div class="field">
             <label for="slug"><?= $e(t('Machine name')) ?></label>
             <input type="text" id="slug" name="slug" value="<?= $e($values['slug'] ?? '') ?>"
@@ -74,9 +80,10 @@ $invalid = static fn (string $field): string => isset($errors[$field])
                 <span><strong><?= $e(t('Active')) ?></strong> – <?= $e(t('archived rooms leave the room switcher and the guests’ list but stay reachable through their address')) ?></span>
             </label>
         </fieldset>
+        <?php endif; ?>
 
         <div class="panel__actions">
-            <button type="submit" class="wish-button"><?= icon($isNew ? 'plus' : 'check') ?><?= $e($isNew ? t('Create') : t('Save')) ?></button>
+            <button type="submit" class="wish-button"><?= icon($isNew && !$main ? 'plus' : 'check') ?><?= $e($isNew && !$main ? t('Create') : t('Save')) ?></button>
             <a class="link-button" href="<?= $e($backUrl) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
         </div>
     </form>

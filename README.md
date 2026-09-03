@@ -9,24 +9,24 @@ are functional rather than decorative: 8 px on buttons and inputs, 12 px on
 surfaces, 16 px on the shell. System fonts only.
 
 By default the application sits at the domain root: `https://example.org/` is
-the song list, `/wishes` the wish list, `/login` the sign-in page. A sub-path
+the repertoire, `/wishes` the wish list, `/login` the sign-in page. A sub-path
 such as `/songliste` is possible, see [Base path](#base-path). In addition
 there are **rooms** with their own song selection and their own wish list
 under `/rooms/<name>`, see [Rooms](#rooms).
 
-* **Start page** (public) – the song list as cards with title, artist, length
+* **Start page** (public) – the repertoire as cards with title, artist, length
   and genre, a search field and a sort bar above. One click on a song puts it
   on the wish list. On the first visit the site asks for the guest's name; it
   is kept in a cookie and shown on the wish list next to their wishes, see
   [The guest's name](#the-guests-name).
-* **Edit the song list** (editor role) – add, change and delete titles; see
-  [Maintaining the song list](#maintaining-the-song-list).
+* **Edit the repertoire** (editor role) – add, change and delete titles; see
+  [Maintaining the repertoire](#maintaining-the-repertoire).
 * **Wish list** (publicly readable) – received wishes in the order they will
   be played. Guests see the list without buttons and without sorting; the
   moderator role sorts, reorders, deletes single wishes or the whole list and
   closes or opens the room.
 * **Song suggestions** (public) – whoever misses a song names artist and
-  title; editors adopt a suggestion into the song list or delete it, see
+  title; editors adopt a suggestion into the repertoire or delete it, see
   [Song suggestions](#song-suggestions).
 * **Users** (admin) – create accounts, assign roles, lock them; see
   [Users and roles](#users-and-roles).
@@ -118,7 +118,7 @@ Below the base path these addresses exist; anything else is a 404:
 
 | Address | Page |
 | --- | --- |
-| `/` | Song list (start page) |
+| `/` | Repertoire (start page) |
 | `/wishes` | Wish list |
 | `/suggestions` | Song suggestions: form and searchable list for everyone, buttons for editors |
 | `/login` | Sign-in |
@@ -127,7 +127,7 @@ Below the base path these addresses exist; anything else is a 404:
 | `/users`, `/user?id=<id>` | User management – admin |
 | `/rooms` | List of rooms, each name leads into its room; moderators close and open rooms, editors create them here |
 | `/room?id=<id>` | Create a room (`id=0`) or edit one – editor |
-| `/rooms/<name>` | Song list of a room |
+| `/rooms/<name>` | Repertoire of a room |
 | `/rooms/<name>/wishes` | Wish list of a room |
 | `/rooms/<name>/suggestions` | Suggest a song from inside a room – the adopted song joins the room |
 | `/rooms/<name>/manage` | Manage the room's songs (selection from the master list) – editor |
@@ -159,7 +159,7 @@ For a sub-path there are two modes of operation, both with the same value:
 With a sub-path nothing redirects from the domain root –
 `https://songwunsch.localhost/` answers 404 as long as nothing else is mounted
 there; the root belongs to another application. If it should point to the
-song list, that is an additional Traefik router on `Path(`/`)` with a
+repertoire, that is an additional Traefik router on `Path(`/`)` with a
 `redirectregex` middleware – deliberately not included.
 
 ## Installation without Docker
@@ -401,11 +401,11 @@ table and managed on the **Users** page.
 | Role | May |
 | --- | --- |
 | **Admin** | Create, edit, lock and delete users – and everything editors and moderators may do |
-| **Editor** | Maintain the song list: add, edit, delete titles; work the song suggestions; create, edit, delete rooms and manage their songs |
+| **Editor** | Maintain the repertoire: add, edit, delete titles; work the song suggestions; create, edit, delete rooms and manage their songs |
 | **Moderator** | Edit the wish list: sort, reorder, delete, clear; close and open the room (everyone may view the list) |
 
 Editor and moderator can be combined; a user without a role can sign in but
-only sees the public song list.
+only sees the public repertoire.
 
 **Exactly one admin.** The database allows only one: `is_admin` is `1` or
 `NULL`, and a unique index permits only a single `1`. The admin role is
@@ -434,9 +434,9 @@ e-mail, no real name, no sign-in timestamps. Whoever names accounts after real
 people processes personal data by doing so; role or function names (`dj1`,
 `bar`) avoid that.
 
-## Maintaining the song list
+## Maintaining the repertoire
 
-With the editor role (or as admin) every row of the song list additionally
+With the editor role (or as admin) every row of the repertoire additionally
 carries *Edit* and *Delete*, and *Add song* stands above the list.
 
 **Entering the length.** The field accepts `3:45`, `1:02:03` or a plain number
@@ -445,7 +445,7 @@ Artist and title are required (up to 255 characters), genre is optional (up to
 128 characters) with a suggestion list of the values already in use.
 
 **Deleted songs and the wish list.** A wish stores a copy of artist, title,
-length and genre. If a song is deleted from the song list, wishes already
+length and genre. If a song is deleted from the repertoire, wishes already
 received for it remain fully readable.
 
 **Importing a CSV.** `tools/import-csv.php` reads a CSV with a header row
@@ -494,7 +494,7 @@ is closed there as well: the form gives way to a notice, and a late
 submission is turned away.
 
 Before a suggestion is stored, the application checks that the song is not
-already on the song list (then the guest is told to simply wish for it) and
+already on the repertoire (then the guest is told to simply wish for it) and
 that it has not been suggested already – both compared case-insensitively.
 The form carries the same bot hurdles as wishing (honeypot, signed
 timestamp), a per-session cooldown (`suggestion_cooldown_sec`, 10 s) and a
@@ -507,17 +507,19 @@ two buttons on every row:
 * **Adopt** opens the *Add song* form as *Adopt suggestion*: artist and
   title are filled in, the cursor waits in the length field for what is
   missing – length and genre. *Add* creates the song, puts it into the
-  suggestion's room if there was one, and deletes the suggestion in one go;
-  *Cancel* leaves everything as it was.
+  suggestion's room if there was one, places it on that room's wish list in
+  the name of whoever suggested it (the suggestion was a wish, after all)
+  and deletes the suggestion, all in one go; *Cancel* leaves everything as
+  it was.
 * **Delete** drops the suggestion. It asks for confirmation unless the
   editor switched that off under Settings; *Clear list* above the list
   deletes every suggestion and always asks.
 
 ## Rooms
 
-A room is a capsule of song list and wish list with its own address, for
+A room is a capsule of repertoire and wish list with its own address, for
 instance for two stages or two evenings. `/` and `/wishes` are technically the
-**main room**: always there, without a record, with the whole song list.
+**main room**: always there, without a record, with the whole repertoire.
 
 **Creating.** On the **Rooms** page (`/rooms`) editors create rooms. A room
 has a display name (up to 128 characters, free) and a **machine name** for the
@@ -528,14 +530,14 @@ at `/rooms/sommerfest-2026`, its wish list at `/rooms/sommerfest-2026/wishes`.
 Changing the machine name changes the address – links already handed out stop
 working.
 
-**Managing songs.** A room's song list is a selection from the master list
-(the song list of the main room), table `room_songs`. Under
+**Managing songs.** A room's repertoire is a selection from the master list
+(the repertoire of the main room), table `room_songs`. Under
 `/rooms/<name>/manage` there are two columns: on the left the master list
 without the songs already in the room, on the right the room's list. An arrow
 to the right takes a song into the room, an arrow to the left removes it
 again; a search field filters both columns, *Add all …* and *Remove all …*
 move the whole search result. On narrow screens the columns stack. In the
-room's song list the editor's delete button reads *Remove* – the song only
+room's repertoire the editor's delete button reads *Remove* – the song only
 leaves the room. Songs are edited exclusively in the master list; a song
 deleted there disappears from all rooms.
 
@@ -546,15 +548,22 @@ address. Archiving automatically closes the room; whoever reactivates it
 opens it again in the room list or the header notice. Editors see every
 room under `/rooms`, archived ones tagged, and filter by *All*, *Active* and
 *Archived*; a search field finds rooms by display or machine name, the list
-paginates like the song list. From seven rooms on, the room switcher's overlay
+paginates like the repertoire. From seven rooms on, the room switcher's overlay
 shows a filter field that hides entries as you type (JavaScript; without it
 the full list stays).
+
+**The main room's name.** The main room has no row and no address part of
+its own, but it can be renamed: editors find *Rename* on its row under
+*Rooms*. The name is kept in `settings` (`main_room_name`) and shows
+wherever the main room is meant – header, room switcher, room list,
+notices. An empty name restores the default, "Main room" in the visitor's
+language.
 
 **The remembered room.** The room a visitor chose last is kept in a cookie
 (`songwunsch_room`, one year, nothing but the room's machine name). Every
 page inside a room writes it. Pages without a room in their address
 (`/rooms`, `/users`, `/settings`, the forms) read it: header, room switcher
-and the *Songs*, *Wish list* and *Suggestions* tabs stay in that room. A
+and the *Repertoire*, *Wish list* and *Suggestions* tabs stay in that room. A
 room-bound address that names no room (`/`, `/wishes`, `/suggestions`, also
 with query parameters) redirects into the remembered room – every time, so
 a bookmark, a typed address or a return visit never drops the visitor out
@@ -572,7 +581,7 @@ deleted, its song selection and its wishes go with it.
 **Open and closed.** Every room, the main room included, is *open* or
 *closed*. Moderators (and the admin) switch it under *Rooms*: every row
 carries *Close room* / *Open room* at the right, and a closed room is
-tagged *closed* there. While a room is closed the song list stays visible,
+tagged *closed* there. While a room is closed the repertoire stays visible,
 but the audience can neither wish nor suggest a song there: the *Wish*
 buttons disappear, the suggestion form gives way to a notice, and a notice
 stands in the header of every page of the room – for moderators with an
@@ -601,7 +610,7 @@ prefixes room-bound pages with `/rooms/<name>`.
 ## The guest's name
 
 A wish is more useful when the band knows who it is for. On the first visit
-(no name cookie yet, not signed in, on the song list, wish list, suggestions
+(no name cookie yet, not signed in, on the repertoire, wish list, suggestions
 or rooms page) a dialog asks for the guest's name and says what happens with
 it: it appears on the wish list next to every song they wish for, visible to
 everyone in the room, and is kept in this browser for a year. The same name
@@ -642,7 +651,7 @@ without third-party services and without plain-text IPs:
 
 | Layer | What happens | Setting in `config.php` |
 | --- | --- | --- |
-| Closed room | The moderator closes the room; the song list stays visible, the *Wish* buttons and the suggestion form disappear, a notice stands in the header of every page | *Close room* under Rooms |
+| Closed room | The moderator closes the room; the repertoire stays visible, the *Wish* buttons and the suggestion form disappear, a notice stands in the header of every page | *Close room* under Rooms |
 | Global limits | At most N open wishes, at most M wishes per minute across all visitors | `wish_limits.max_open`, `wish_limits.per_minute_total` |
 | Limit per sender | At most X per minute and Y per hour from the same address | `wish_limits.per_minute_sender`, `wish_limits.per_hour_sender` |
 | Brake per session | Minimum gap between two wishes in the same browser | `wish_cooldown_sec` |
@@ -690,7 +699,7 @@ middleware or the hoster.
 | Suggest a song | Suggestions → artist and title → *Suggest* (everyone, also without a login) |
 | Adopt a suggestion | Editor: Suggestions → *Adopt* in the row → add length and genre → *Add* |
 | Delete a suggestion | Editor: Suggestions → *Delete* in the row; *Clear list* deletes all |
-| Add a song | Editor: song list → *Add song* |
+| Add a song | Editor: repertoire → *Add song* |
 | Change a song | Editor: *Edit* in the row |
 | Delete a song | Editor: *Delete* in the row (with confirmation) |
 | Change room | Room switcher at the far left of the navigation (shows the current room, opens the list) or Rooms → click the room's name; the choice is remembered in a cookie, see [Rooms](#rooms) |
@@ -741,7 +750,7 @@ as a tooltip and for screen readers. The stack never stretches the text: every
 card grid has a flexible empty row above and below its text lines, so a tall
 stack only adds height there and the text stays a tight, centred block.
 
-* **Song list** – title, below it artist · length · genre; *Wish* on the
+* **Repertoire** – title, below it artist · length · genre; *Wish* on the
   right, when signed in the pair *Edit* / *Delete* below it.
 * **Rooms** – name, below it the address, below that the counts spelled out
   ("50 songs · 7 wishes"); the name is the link into the room. On the right,
@@ -774,7 +783,7 @@ config.example.php     Template for config.php (credentials, base path, first ad
 src/bootstrap.php      Autoloader and helpers (base_path, url, asset, icon, redirect, flash)
 src/Database.php       PDO connection, prepared statements only
 src/Schema.php         Fixed table definition, creates missing tables
-src/SongRepository.php Song list: search, sort, paginate, maintain
+src/SongRepository.php Repertoire: search, sort, paginate, maintain
 src/WishRepository.php Wish list: create, read, sort, delete
 src/SuggestionRepository.php  Song suggestions: validate, store, list, delete
 src/WishGuard.php      Protection of wishing: limits, bot trap, pause

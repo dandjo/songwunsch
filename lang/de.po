@@ -66,8 +66,8 @@ msgstr "Wähle deinen Titel – wir spielen ihn"
 msgid "Main navigation"
 msgstr "Hauptnavigation"
 
-msgid "Songs"
-msgstr "Songliste"
+msgid "Repertoire"
+msgstr "Repertoire"
 
 msgid "Wish list"
 msgstr "Wunschliste"
@@ -91,16 +91,13 @@ msgid "Language"
 msgstr "Sprache"
 
 
-msgid "The song list stays visible – wishing and suggesting will be back later."
-msgstr "Die Songliste bleibt sichtbar – wünschen und vorschlagen geht später wieder."
+msgid "The repertoire stays visible – wishing and suggesting will be back later."
+msgstr "Das Repertoire bleibt sichtbar – wünschen und vorschlagen geht später wieder."
 
 msgid "Error"
 msgstr "Fehler"
 
 # ---- Song list ------------------------------------------------------------------
-
-msgid "Song list"
-msgstr "Songliste"
 
 msgid "{n} song"
 msgid_plural "{n} songs"
@@ -173,8 +170,8 @@ msgstr "Bearbeiten"
 msgid "Delete"
 msgstr "Löschen"
 
-msgid "Permanently delete “{title}” from the song list?"
-msgstr "„{title}“ endgültig aus der Songliste löschen?"
+msgid "Permanently delete “{title}” from the repertoire?"
+msgstr "„{title}“ endgültig aus dem Repertoire löschen?"
 
 msgid "Pages"
 msgstr "Seiten"
@@ -374,14 +371,14 @@ msgstr "Dieser Song wurde nicht gefunden."
 msgid "Please check the highlighted fields."
 msgstr "Bitte die markierten Felder prüfen."
 
-msgid "“{title}” by {artist} has been added to the song list."
-msgstr "„{title}“ von {artist} ist in die Songliste aufgenommen."
+msgid "“{title}” by {artist} has been added to the repertoire."
+msgstr "„{title}“ von {artist} ist ins Repertoire aufgenommen."
 
 msgid "“{title}” by {artist} has been saved."
 msgstr "„{title}“ von {artist} ist gespeichert."
 
-msgid "“{title}” has been removed from the song list. Wishes already received are kept."
-msgstr "„{title}“ ist aus der Songliste entfernt. Bereits eingegangene Wünsche bleiben erhalten."
+msgid "“{title}” has been removed from the repertoire. Wishes already received are kept."
+msgstr "„{title}“ ist aus dem Repertoire entfernt. Bereits eingegangene Wünsche bleiben erhalten."
 
 # ---- Login and access --------------------------------------------------------------------
 
@@ -415,8 +412,8 @@ msgstr "Die Sitzung ist abgelaufen. Bitte noch einmal versuchen."
 msgid "An error occurred: {detail}"
 msgstr "Es ist ein Fehler aufgetreten: {detail}"
 
-msgid "The song list is not available right now. Please try again later."
-msgstr "Die Songliste ist gerade nicht verfügbar. Bitte später erneut versuchen."
+msgid "The repertoire is not available right now. Please try again later."
+msgstr "Das Repertoire ist gerade nicht verfügbar. Bitte später erneut versuchen."
 
 msgid "The claw is stuck"
 msgstr "Da klemmt der Greifarm"
@@ -437,8 +434,8 @@ msgid_plural "{n} users."
 msgstr[0] "Ein Benutzer."
 msgstr[1] "{n} Benutzer."
 
-msgid "{editor} maintains the song list, {moderator} the wish list; the {admin} manages users and may do everything. There is exactly one admin; the role is handed over when editing a user."
-msgstr "{editor} pflegt die Songliste, {moderator} die Wunschliste, der {admin} verwaltet die Benutzer und darf alles. Es gibt genau einen Admin; die Rolle wird beim Bearbeiten eines Benutzers übergeben."
+msgid "{editor} maintains the repertoire, {moderator} the wish list; the {admin} manages users and may do everything. There is exactly one admin; the role is handed over when editing a user."
+msgstr "{editor} pflegt das Repertoire, {moderator} die Wunschliste, der {admin} verwaltet die Benutzer und darf alles. Es gibt genau einen Admin; die Rolle wird beim Bearbeiten eines Benutzers übergeben."
 
 msgid "Add user"
 msgstr "Benutzer anlegen"
@@ -491,8 +488,8 @@ msgstr "Mindestens {n} Zeichen."
 msgid "Repeat password"
 msgstr "Passwort wiederholen"
 
-msgid "maintain the song list (add, edit, delete)"
-msgstr "Songliste pflegen (hinzufügen, bearbeiten, löschen)"
+msgid "maintain the repertoire (add, edit, delete)"
+msgstr "Repertoire pflegen (hinzufügen, bearbeiten, löschen)"
 
 msgid "edit the wish list, open and close the room"
 msgstr "Wunschliste bearbeiten, Raum öffnen und schließen"
@@ -569,8 +566,8 @@ msgstr "Seite nicht gefunden"
 msgid "There is nothing at this address."
 msgstr "Unter dieser Adresse gibt es nichts."
 
-msgid "To the song list"
-msgstr "Zur Songliste"
+msgid "To the repertoire"
+msgstr "Zum Repertoire"
 
 # --- Rooms ---------------------------------------------------------------
 
@@ -601,8 +598,8 @@ msgid_plural "{n} rooms besides the main room."
 msgstr[0] "Ein Raum neben dem Hauptraum."
 msgstr[1] "{n} Räume neben dem Hauptraum."
 
-msgid "Every room has its own song list, picked from the master list, and its own wish list."
-msgstr "Jeder Raum hat eine eigene Songliste, zusammengestellt aus der Master-Liste, und eine eigene Wunschliste."
+msgid "Every room has its own repertoire, picked from the master list, and its own wish list."
+msgstr "Jeder Raum hat ein eigenes Repertoire, zusammengestellt aus der Master-Liste, und eine eigene Wunschliste."
 
 msgid "Rooms with their number of songs"
 msgstr "Räume mit ihrer Anzahl an Songs"
@@ -613,8 +610,8 @@ msgstr "Raum anlegen"
 msgid "Edit room"
 msgstr "Raum bearbeiten"
 
-msgid "A room gets its own address, its own song list picked from the master list and its own wish list."
-msgstr "Ein Raum bekommt eine eigene Adresse, eine eigene Songliste aus der Master-Liste und eine eigene Wunschliste."
+msgid "A room gets its own address, its own repertoire picked from the master list and its own wish list."
+msgstr "Ein Raum bekommt eine eigene Adresse, ein eigenes Repertoire aus der Master-Liste und eine eigene Wunschliste."
 
 msgid "Changing the machine name changes the address – links already handed out stop working."
 msgstr "Ein geänderter Maschinenname ändert die Adresse – bereits verteilte Links funktionieren dann nicht mehr."
@@ -655,8 +652,8 @@ msgstr "Raum „{name}“ wurde samt seinen Wünschen gelöscht."
 msgid "Permanently delete room “{name}” together with its wishes?"
 msgstr "Raum „{name}“ samt seinen Wünschen endgültig löschen?"
 
-msgid "The main room always offers the whole song list."
-msgstr "Der Hauptraum bietet immer die gesamte Songliste."
+msgid "The main room always offers the whole repertoire."
+msgstr "Der Hauptraum bietet immer das gesamte Repertoire."
 
 msgid "Manage the room: pick its songs from the master list."
 msgstr "Raum verwalten: Songs aus der Master-Liste auswählen."
@@ -853,9 +850,6 @@ msgstr "jetzt ändern"
 msgid "{room} is closed right now."
 msgstr "{room} ist gerade geschlossen."
 
-msgid "To the song list"
-msgstr "Zur Songliste"
-
 # ---- Settings -----------------------------------------------------------------------------
 
 msgid "Settings"
@@ -879,8 +873,8 @@ msgstr "Vor dem Löschen nachfragen – abschalten, was bei der Routinearbeit st
 msgid "Confirm deleting songs"
 msgstr "Löschen von Songs bestätigen"
 
-msgid "Delete in the song list"
-msgstr "Löschen in der Songliste"
+msgid "Delete in the repertoire"
+msgstr "Löschen im Repertoire"
 
 msgid "Confirm deleting wishes"
 msgstr "Löschen von Wünschen bestätigen"
@@ -980,11 +974,11 @@ msgid_plural "{n} suggestions waiting."
 msgstr[0] "{n} Vorschlag wartet."
 msgstr[1] "{n} Vorschläge warten."
 
-msgid "Adopt puts the song on the list once you have added what is missing; Delete drops the suggestion."
-msgstr "Übernehmen bringt den Song in die Liste, sobald das Fehlende ergänzt ist; Löschen verwirft den Vorschlag."
+msgid "Adopt puts the song on the list and onto the wish list once you have added what is missing; Delete drops the suggestion."
+msgstr "Übernehmen bringt den Song ins Repertoire und auf die Wunschliste, sobald das Fehlende ergänzt ist; Löschen verwirft den Vorschlag."
 
-msgid "Missing a song? Name it here – the editors decide whether it joins the song list."
-msgstr "Fehlt ein Song? Hier eintragen – die Redaktion entscheidet, ob er in die Songliste kommt."
+msgid "Missing a song? Name it here – the editors decide whether it joins the repertoire."
+msgstr "Fehlt ein Song? Hier eintragen – die Redaktion entscheidet, ob er ins Repertoire kommt."
 
 msgid "{n} suggestion is waiting for the editors."
 msgid_plural "{n} suggestions are waiting for the editors."
@@ -1021,8 +1015,8 @@ msgstr "Vorschlag „{title}“ löschen?"
 msgid "Adopt suggestion"
 msgstr "Vorschlag übernehmen"
 
-msgid "Artist and title come from the suggestion – check them and add length and genre. The song goes on the list, the suggestion off it."
-msgstr "Interpret und Titel stammen aus dem Vorschlag – prüfen und Länge sowie Genre ergänzen. Der Song kommt in die Liste, der Vorschlag verschwindet."
+msgid "Artist and title come from the suggestion – check them and add length and genre. The song goes on the list and straight onto the wish list, the suggestion off it."
+msgstr "Interpret und Titel stammen aus dem Vorschlag – prüfen und Länge sowie Genre ergänzen. Der Song kommt ins Repertoire und gleich auf die Wunschliste, der Vorschlag verschwindet."
 
 msgid "Thanks, your suggestion is in."
 msgstr "Danke, dein Vorschlag ist drin."
@@ -1039,8 +1033,8 @@ msgstr "Einen Moment – bitte nicht so schnell hintereinander vorschlagen."
 msgid "The suggestion box is full – please try again later."
 msgstr "Der Vorschlagskasten ist voll – bitte später noch einmal versuchen."
 
-msgid "“{title}” by {artist} is already on the song list – you can wish for it right away."
-msgstr "„{title}“ von {artist} steht schon in der Songliste – du kannst ihn dir gleich wünschen."
+msgid "“{title}” by {artist} is already on the repertoire – you can wish for it right away."
+msgstr "„{title}“ von {artist} steht schon im Repertoire – du kannst ihn dir gleich wünschen."
 
 msgid "“{title}” by {artist} has already been suggested."
 msgstr "„{title}“ von {artist} wurde bereits vorgeschlagen."
@@ -1048,8 +1042,8 @@ msgstr "„{title}“ von {artist} wurde bereits vorgeschlagen."
 msgid "Thanks! “{title}” by {artist} has been passed on to the editors."
 msgstr "Danke! „{title}“ von {artist} ist an die Redaktion weitergegeben."
 
-msgid "“{title}” by {artist} has been added to the song list and taken off the suggestions."
-msgstr "„{title}“ von {artist} steht jetzt in der Songliste und ist aus den Vorschlägen entfernt."
+msgid "“{title}” by {artist} has been added to the repertoire, put on the wish list and taken off the suggestions."
+msgstr "„{title}“ von {artist} steht jetzt im Repertoire, ist auf die Wunschliste gesetzt und aus den Vorschlägen entfernt."
 
 msgid "Suggestion deleted."
 msgstr "Vorschlag gelöscht."
@@ -1080,22 +1074,22 @@ msgstr "gelöschter Raum"
 msgid "It was suggested in room “{room}”, so the song is offered there as well."
 msgstr "Vorgeschlagen wurde er im Raum „{room}“ – der Song wird dort ebenfalls angeboten."
 
-msgid "“{title}” by {artist} has been added to the song list and to room “{room}”, and taken off the suggestions."
-msgstr "„{title}“ von {artist} steht jetzt in der Songliste und im Raum „{room}“ und ist aus den Vorschlägen entfernt."
+msgid "“{title}” by {artist} has been added to the repertoire and to room “{room}”, put on its wish list and taken off the suggestions."
+msgstr "„{title}“ von {artist} steht jetzt im Repertoire und im Raum „{room}“, ist auf dessen Wunschliste gesetzt und aus den Vorschlägen entfernt."
 
 msgid "The room is closed right now – no wishes and no suggestions."
 msgstr "Der Raum ist gerade geschlossen – keine Wünsche und keine Vorschläge."
 
 # ---- Open and closed rooms -------------------------------------------------------------
 
-msgid "“{name}” is closed. The audience can see its song list but cannot wish or suggest anything there."
-msgstr "„{name}“ ist geschlossen. Das Publikum sieht die Songliste, kann dort aber weder wünschen noch vorschlagen."
+msgid "“{name}” is closed. The audience can see its repertoire but cannot wish or suggest anything there."
+msgstr "„{name}“ ist geschlossen. Das Publikum sieht das Repertoire, kann dort aber weder wünschen noch vorschlagen."
 
 msgid "“{name}” is open again."
 msgstr "„{name}“ ist wieder offen."
 
-msgid "The audience sees the song list but cannot wish or suggest anything."
-msgstr "Das Publikum sieht die Songliste, kann aber weder wünschen noch vorschlagen."
+msgid "The audience sees the repertoire but cannot wish or suggest anything."
+msgstr "Das Publikum sieht das Repertoire, kann aber weder wünschen noch vorschlagen."
 
 msgid "Open it in the notice above or under {rooms}."
 msgstr "Öffnen lässt er sich im Hinweis oben oder unter {rooms}."
@@ -1136,3 +1130,23 @@ msgstr "Noch keine Vorschläge – deiner könnte der erste sein."
 
 msgid "The list has been updated."
 msgstr "Die Liste wurde aktualisiert."
+
+# ---- Main room name ----------------------------------------------------------------------
+
+msgid "Rename"
+msgstr "Umbenennen"
+
+msgid "Rename the main room"
+msgstr "Hauptraum umbenennen"
+
+msgid "Shown in the header, the room switcher and the list of rooms wherever the main room is meant."
+msgstr "Erscheint im Kopf, im Raumwechsler und in der Raumliste überall dort, wo der Hauptraum gemeint ist."
+
+msgid "The main room has its default name again."
+msgstr "Der Hauptraum trägt wieder seinen Standardnamen."
+
+msgid "The main room is always there and lives at the root address; only its name can change. Leave the field empty for the default name."
+msgstr "Der Hauptraum ist immer da und liegt an der Wurzeladresse; nur sein Name lässt sich ändern. Feld leer lassen für den Standardnamen."
+
+msgid "The main room is now called “{name}”."
+msgstr "Der Hauptraum heißt jetzt „{name}“."

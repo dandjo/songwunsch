@@ -134,7 +134,7 @@ foreach ($translator->available() as $code => $name) {
             <?php if ($security->can('rooms')): ?>
                 <a href="<?= $e(url(['p' => 'rooms'])) ?>"<?= in_array($page, ['rooms', 'room'], true) ? ' aria-current="page"' : '' ?>><?= icon('door') ?><?= $e(t('Rooms')) ?></a>
             <?php endif; ?>
-            <a href="<?= $e(url(['p' => 'songs'])) ?>"<?= in_array($page, ['songs', 'room_songs'], true) ? ' aria-current="page"' : '' ?>><?= icon('note') ?><?= $e(t('Songs')) ?></a>
+            <a href="<?= $e(url(['p' => 'songs'])) ?>"<?= in_array($page, ['songs', 'room_songs'], true) ? ' aria-current="page"' : '' ?>><?= icon('note') ?><?= $e(t('Repertoire')) ?></a>
             <?php /* The wish list is visible to everyone; the counter badge only
                      for those who work it. Other areas only with a role. */ ?>
             <a href="<?= $e(url(['p' => 'wishes'])) ?>"<?= $page === 'wishes' ? ' aria-current="page"' : '' ?>>
@@ -291,8 +291,8 @@ foreach ($translator->available() as $code => $name) {
                         'room' => '<span class="dome__notice-room">' . $e((string) $room['name']) . '</span>',
                     ]) ?></strong>
                     <?= $e($security->can('wishes')
-                        ? t('The audience sees the song list but cannot wish or suggest anything.')
-                        : t('The song list stays visible – wishing and suggesting will be back later.')) ?>
+                        ? t('The audience sees the repertoire but cannot wish or suggest anything.')
+                        : t('The repertoire stays visible – wishing and suggesting will be back later.')) ?>
                 </span>
                 <?php if ($security->can('wishes')): ?>
                     <form method="post" action="<?= $e(url(['p' => $page])) ?>" class="dome__notice-action">

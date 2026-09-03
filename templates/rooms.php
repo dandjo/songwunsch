@@ -42,7 +42,7 @@ $hasActions = $canPause || $canEdit;
             <?php else: ?>
                 <?= $e(tn('{n} room besides the main room.', '{n} rooms besides the main room.', $total)) ?>
             <?php endif; ?>
-            <?= $e(t('Every room has its own song list, picked from the master list, and its own wish list.')) ?>
+            <?= $e(t('Every room has its own repertoire, picked from the master list, and its own wish list.')) ?>
             <?php if ($canEdit): ?>
                 <?= $e(t('Archived rooms stay reachable through their address but leave the room switcher and the guests’ list.')) ?>
             <?php endif; ?>
@@ -101,7 +101,7 @@ $hasActions = $canPause || $canEdit;
         <tr>
             <th scope="col"><?= $e(t('Room')) ?></th>
             <th scope="col"><?= $e(t('Address')) ?></th>
-            <th scope="col"><?= $e(t('Songs')) ?></th>
+            <th scope="col"><?= $e(t('Repertoire')) ?></th>
             <?php if ($canCount): ?>
                 <th scope="col"><?= $e(t('Wishes')) ?></th>
             <?php endif; ?>
@@ -116,7 +116,7 @@ $hasActions = $canPause || $canEdit;
         $all = $showMain ? array_merge([[
             'id'         => 0,
             'slug'       => '',
-            'name'       => t('Main room'),
+            'name'       => (string) \Songwunsch\RoomRepository::defaultRoom()['name'],
             'active'     => 1,
             'song_count' => $masterSongs,
             'wish_count' => $masterWishes,
@@ -180,6 +180,14 @@ $hasActions = $canPause || $canEdit;
                                     <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                                 </button>
                             </form>
+                        <?php endif; ?>
+                        <?php if ($canEdit && $isMain): ?>
+                            <?php /* The main room cannot be managed or deleted, but renamed. */ ?>
+                            <a class="link-button" href="<?= $e(url(['p' => 'room', 'main' => 1])) ?>">
+                                <?= icon('pencil') ?>
+                                <span class="button__label"><?= $e(t('Rename')) ?></span>
+                                <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
+                            </a>
                         <?php endif; ?>
                         <?php if ($canEdit && !$isMain): ?>
                             <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'room' => $slug])) ?>">

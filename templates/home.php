@@ -49,7 +49,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
 
 <div class="panel__head">
     <div>
-        <h1><?= $e($inRoom ? (string) $room['name'] : t('Song list')) ?></h1>
+        <h1><?= $e($inRoom ? (string) $room['name'] : t('Repertoire')) ?></h1>
         <p class="muted">
             <?= $e(tn('{n} song', '{n} songs', $total, ['n' => Format::number($total)])) ?>
             <?= $e($q !== '' ? t('found for “{q}”.', ['q' => $q]) : ($inRoom ? t('in this room.') : t('in the repertoire.'))) ?>
@@ -185,7 +185,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                                             </form>
                                         <?php else: ?>
                                             <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'songs')): ?>
-                                                  data-confirm="<?= $e(t('Permanently delete “{title}” from the song list?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
+                                                  data-confirm="<?= $e(t('Permanently delete “{title}” from the repertoire?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
                                                 <input type="hidden" name="a" value="song_delete">
                                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                                 <input type="hidden" name="back" value="<?= $e($current) ?>">

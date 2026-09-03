@@ -21,7 +21,7 @@ declare(strict_types=1);
  *                  | delete | clear | reorder | move | pause      (moderator)
  *                  | song_save | song_delete                      (editor)
  *                  | suggestion_delete | suggestions_clear        (editor)
- *                  | room_save | room_delete                      (editor)
+ *                  | room_save | room_delete | main_room_save     (editor)
  *                  | room_songs_add | room_songs_remove           (editor)
  *                  | user_save | user_delete | admin_transfer     (admin)
  *                  | pause_all                                    (admin)
@@ -78,6 +78,12 @@ $users  = new UserRepository($db);
 $rooms  = new RoomRepository($db);
 $settings = new Settings($db);
 // $wishes and $guard are bound to the room and are created after routing.
+// The main room may carry a name of its own (Rooms -> Edit on the main room).
+try {
+    RoomRepository::nameMainRoom((string) $settings->get(RoomRepository::MAIN_NAME_KEY, ''));
+} catch (Throwable $e) {
+    // No database yet: the translated default stands; the page reports the problem.
+}
 
 // The session cookie is scoped to the base path, so several applications on
 // the same domain do not share a session.
@@ -431,7 +437,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $title  = $checked['values']['title'];
 
                 if ($songs->exists($artist, $title)) {
-                    flash('info', t('“{title}” by {artist} is already on the song list – you can wish for it right away.', [
+                    flash('info', t('“{title}” by {artist} is already on the repertoire – you can wish for it right away.', [
                         'title'  => $title,
                         'artist' => $artist,
                     ]));
@@ -519,7 +525,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $paused = (($_POST['state'] ?? '0') === '1');
                 $targetGuard->setPaused($paused);
                 flash('ok', $paused
-                    ? t('“{name}” is closed. The audience can see its song list but cannot wish or suggest anything there.', ['name' => (string) $targetRoom['name']])
+                    ? t('“{name}” is closed. The audience can see its repertoire but cannot wish or suggest anything there.', ['name' => (string) $targetRoom['name']])
                     : t('“{name}” is open again.', ['name' => (string) $targetRoom['name']]));
                 redirect(back(url(['p' => $page])));
                 // no break
@@ -605,11 +611,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($joinRoom !== null) {
                             $rooms->addSongs((int) $joinRoom['id'], [$newId]);
                         }
+                        // An adopted suggestion is a wish already: it goes
+                        // onto the wish list of the room it was made in, in
+                        // the name of whoever suggested it.
+                        if ($adopted !== null) {
+                            $wishRoomId = $joinRoom !== null ? (int) $joinRoom['id'] : RoomRepository::DEFAULT_ID;
+                            $newSong    = $songs->find($newId);
+                            if ($newSong !== null) {
+                                (new WishRepository($db, $wishRoomId))->add($newSong, (string) ($adopted['suggester'] ?? ''));
+                                $wishGuard = $wishRoomId === $roomId ? $guard : new WishGuard(
+                                    $db,
+                                    $settings,
+                                    (array) ($config['wish_limits'] ?? []),
+                                    (bool) ($config['trust_proxy'] ?? false),
+                                    (int) ($config['wish_min_form_sec'] ?? 2),
+                                    $wishRoomId,
+                                );
+                                $wishGuard->touch();
+                            }
+                        }
 
                         flash('ok', match (true) {
-                            $joinRoom !== null => t('“{title}” by {artist} has been added to the song list and to room “{room}”, and taken off the suggestions.', $args + ['room' => (string) $joinRoom['name']]),
-                            $adopting > 0      => t('“{title}” by {artist} has been added to the song list and taken off the suggestions.', $args),
-                            default            => t('“{title}” by {artist} has been added to the song list.', $args),
+                            $joinRoom !== null => t('“{title}” by {artist} has been added to the repertoire and to room “{room}”, put on its wish list and taken off the suggestions.', $args + ['room' => (string) $joinRoom['name']]),
+                            $adopted !== null  => t('“{title}” by {artist} has been added to the repertoire, put on the wish list and taken off the suggestions.', $args),
+                            default            => t('“{title}” by {artist} has been added to the repertoire.', $args),
                         });
                     } else {
                         $songs->update($key, $checked['values']);
@@ -639,7 +664,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $songs->delete((int) $song['id']);
                 $rooms->removeSongEverywhere((int) $song['id']);
-                flash('ok', t('“{title}” has been removed from the song list. Wishes already received are kept.', [
+                flash('ok', t('“{title}” has been removed from the repertoire. Wishes already received are kept.', [
                     'title' => (string) $song['title'],
                 ]));
                 redirect(back());
@@ -667,6 +692,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             // ---- Rooms (editor) --------------------------------------------
+
+            case 'main_room_save':
+                // Rename the main room. It has no row of its own; the name
+                // lives in the settings. Empty means back to the default.
+                require_role($security, 'rooms');
+                $name = trim(preg_replace('/\s+/u', ' ', (string) ($_POST['name'] ?? '')) ?? '');
+                if (mb_strlen($name) > RoomRepository::MAX_NAME) {
+                    remember_input(['name' => $name], ['name' => t('{field} is too long: at most {max} characters.', ['field' => t('Name'), 'max' => RoomRepository::MAX_NAME])]);
+                    flash('error', t('Please check the highlighted fields.'));
+                    redirect(url(['p' => 'room', 'main' => 1]));
+                }
+                if ($name === '') {
+                    $settings->delete(RoomRepository::MAIN_NAME_KEY);
+                    RoomRepository::nameMainRoom('');
+                    flash('ok', t('The main room has its default name again.'));
+                } else {
+                    $settings->set(RoomRepository::MAIN_NAME_KEY, $name);
+                    RoomRepository::nameMainRoom($name);
+                    flash('ok', t('The main room is now called “{name}”.', ['name' => $name]));
+                }
+                redirect(url(['p' => 'rooms']));
+                // no break
 
             case 'room_save':
                 require_role($security, 'rooms');
@@ -746,7 +793,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // every master song matching the search q.
                 require_role($security, 'rooms');
                 if ($roomId === RoomRepository::DEFAULT_ID) {
-                    flash('error', t('The main room always offers the whole song list.'));
+                    flash('error', t('The main room always offers the whole repertoire.'));
                     redirect(url(['p' => 'songs']));
                 }
 
@@ -1102,6 +1149,19 @@ try {
             require_role($security, 'rooms');
             $id   = (int) ($_GET['id'] ?? 0); // 0 = new room
             $edit = null;
+            // ?main=1: rename the main room -- only its name, kept in the settings.
+            $main = isset($_GET['main']);
+
+            if ($main) {
+                $kept = remembered_input();
+                $view['title']    = t('Rename the main room');
+                $view['template'] = 'room';
+                $view['id']       = 0;
+                $view['main']     = true;
+                $view['errors']   = $kept['errors'] ?? [];
+                $view['values']   = $kept['values'] ?? ['name' => (string) $settings->get(RoomRepository::MAIN_NAME_KEY, '')];
+                break;
+            }
 
             if ($id > 0) {
                 $edit = $rooms->find($id);
@@ -1116,6 +1176,7 @@ try {
             $view['title']    = $id === 0 ? t('Add room') : t('Edit room');
             $view['template'] = 'room';
             $view['id']       = $id;
+            $view['main']     = false;
             $view['errors']   = $kept['errors'] ?? [];
             $view['values']   = $kept['values'] ?? [
                 'slug'   => (string) ($edit['slug'] ?? ''),
@@ -1166,7 +1227,7 @@ try {
 
             $result = $songs->search($q, $sort, $dir, $pageNo, $perPage, $roomId);
 
-            $view['title']     = t('Song list');
+            $view['title']     = t('Repertoire');
             $view['template']  = 'home';
             $view['formToken'] = $view['paused'] ? '' : $guard->formToken();
             $view['repo']      = $songs;
