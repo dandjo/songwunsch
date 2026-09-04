@@ -1055,7 +1055,6 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.grid--wishes .cell-action .delete-button { min-height: 2.1rem; }
 
 /* ---------- Pages: two lines per card ----------
      1) title
@@ -1161,8 +1160,8 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .move-button .button__glyph { margin: 0; }
 
 .move-button {
-    width: 2.1rem;
-    height: 2.1rem;
+    width: 2rem;
+    height: 2rem;
     padding: 0;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
@@ -1174,9 +1173,9 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     cursor: pointer;
 }
 .move-button:hover:not(:disabled) {
-    background: var(--gold);
-    border-color: var(--gold);
-    color: var(--base);
+    background: var(--gold-tint);
+    border-color: var(--gold-deep);
+    color: var(--gold-bright);
 }
 .move-button:disabled {
     opacity: .3;
@@ -1228,7 +1227,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     background: var(--danger-tint);
     color: var(--danger);
 }
-.delete-button:hover,
+.delete-button:hover { background: var(--danger-tint); color: var(--danger-bright); }
 .danger-button:hover {
     background: var(--danger-deep);
     color: var(--text-strong);
@@ -1256,8 +1255,11 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
    the glyph tucks a little into the padding so the pair looks centred. */
 .button__glyph           { margin: 0 .15rem 0 -.1rem; }
 .button__glyph--trailing { margin: 0 -.1rem 0 .15rem; }
-/* On the compact card buttons the glyph steps back a little. */
-.cell-action .button__glyph { width: 14px; height: 14px; }
+/* On the card buttons -- the stack in the action cell, the move and the
+   picker's arrow buttons -- every glyph is 14px, whatever size it was drawn. */
+.cell-action .button__glyph,
+.move-button .button__glyph,
+.arrow-button .button__glyph { width: 14px; height: 14px; }
 /* Icon-only buttons: the glyph is the whole content, centred as is. */
 .icon-button .button__glyph,
 .arrow-button .button__glyph { margin: 0; }
@@ -1297,14 +1299,14 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 }
 .row-actions__pair > * { min-width: 0; display: flex; }
 
-/* One rule set for every button on a card: same height, padding and font
-   size -- regardless of column and colour role, in the song list as in the
-   wish list. More compact than the buttons outside the cards because they
-   repeat per row. */
+/* One rule set for every button on a card: the same 2rem height as the
+   move and arrow buttons, the same padding and font size -- regardless of
+   column and colour role, in the song list as in the wish list. Icon-only
+   buttons are 2rem squares (see .icon-button above). */
 .cell-action .wish-button,
 .cell-action .link-button,
 .cell-action .delete-button {
-    min-height: 1.75rem;
+    min-height: 2rem;
     padding: .2rem .7rem;
     font-size: .8rem;
     letter-spacing: .02em;
@@ -1417,8 +1419,8 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.4rem;
-    min-height: 2.4rem;
+    width: 2rem;
+    min-height: 2rem;
     padding: 0;
     border: 1px solid var(--gold-deep);
     border-radius: var(--radius-sm);
@@ -1429,9 +1431,9 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     line-height: 1;
     cursor: pointer;
 }
-.arrow-button:hover { background: var(--gold); border-color: var(--gold); color: var(--base); }
+.arrow-button:hover { background: var(--gold-tint); color: var(--gold-bright); }
 .arrow-button--remove { border-color: var(--danger-line); color: var(--danger); }
-.arrow-button--remove:hover { background: var(--danger-deep); border-color: var(--danger-deep); color: var(--text-strong); }
+.arrow-button--remove:hover { background: var(--danger-tint); color: var(--danger-bright); }
 
 /* ---------- Sort bar ---------- */
 
@@ -1874,7 +1876,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     .grid tbody tr, .grid tbody tr:nth-child(even) { padding: .65rem .65rem; }
     .cell-artist, .cell-length, .cell-genre { font-size: .82rem; }
 
-    .move-button { width: 1.95rem; height: 1.95rem; }
+    .move-button { width: 2rem; height: 2rem; }
 }
 
 /* ---------- Pages: the content the admins wrote ----------
