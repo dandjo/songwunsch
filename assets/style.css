@@ -1697,13 +1697,20 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 /* A closing remark after the list stands off from it. */
 .field--group ul.field__hint + .field__hint { margin-top: .9rem; }
 
-.check {
+/* A checkbox with its label in one line. Inside a .field the generic
+   ".field label" rule (block, small, bold) has the higher specificity, so
+   the selector names that case as well -- otherwise the flex layout and
+   its gap never apply and the text sticks to the box. */
+.check,
+.field .check {
     display: flex;
     align-items: flex-start;
     gap: .9rem;
     margin: .35rem 0 .55rem;
     font-size: .93rem;
+    font-weight: 400;
     line-height: 1.4;
+    color: var(--text-muted);
     cursor: pointer;
 }
 .check input[type="checkbox"] {
