@@ -1705,7 +1705,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .field .check {
     display: flex;
     align-items: flex-start;
-    gap: .9rem;
+    gap: .6rem;
     margin: .35rem 0 .55rem;
     font-size: .93rem;
     font-weight: 400;
