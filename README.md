@@ -154,7 +154,7 @@ Sorting, search and page are appended as query parameters
 records share a prefix: `/rooms` lists, `/rooms/new` creates, `/rooms/<id>/edit`
 edits, and `/rooms/<name>` is the room itself (so `new` and `main` are not
 available as room names). Everything the *Administration* menu leads to sits
-below `/admin` – users, logos, design, limits, pages, footer, languages – while a page's
+below `/admin` – languages, users, logos, design, limits, pages, footer – while a page's
 public address stays `/pages/<name>`. Anything else is a 404; there are no redirects from
 addresses of earlier versions.
 
@@ -574,7 +574,7 @@ pre-escaped and the rest printed without escaping.
 
 All operating functions sit behind a sign-in. Users are stored in the `users`
 table and managed on the **Users** page (`/admin/users`). Admins reach their
-pages – *Users*, *Logos*, *Design*, *Limits*, *Pages*, *Footer*, *Languages* – through the
+pages – *Languages*, *Users*, *Logos*, *Design*, *Limits*, *Pages*, *Footer* – through the
 **Administration** menu in the navigation, a tab that opens a list; all of
 them live below `/admin`.
 

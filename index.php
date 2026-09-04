@@ -188,7 +188,7 @@ if (isset($routes[$route])) {
     $page    = ['/admin/users' => 'user', '/rooms' => 'room', '/admin/pages' => 'page_edit'][$m[1]];
     $routeId = (int) $m[2];
 } elseif ($route === '/admin') {
-    // The menu's first entry.
+    // The users -- the menu's entry an admin needs most.
     redirect(url(['p' => 'users']));
 } elseif ($route === '/rooms/main/edit') {
     $page      = 'room';
