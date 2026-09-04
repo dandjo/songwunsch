@@ -58,20 +58,16 @@ return [
     // every release (or set APP_VERSION in the environment).
     'version' => $env('APP_VERSION', '1.0.0'),
 
-    // --- Behaviour --------------------------------------------------------
-    // The colours (Design), the footer line (Footer), the limits on wishing
-    // and suggesting and the page size of the lists (Limits) are set in the
-    // Administration menu, not here.
+    // --- Reverse proxy ----------------------------------------------------
+    // Behind a reverse proxy (Traefik, nginx) the visitor's IP is in
+    // X-Forwarded-For -- the basis of the per-sender wish limit (see
+    // src/WishGuard.php). Only enable this when the proxy is the only way in;
+    // otherwise senders could make up their address and bypass that limit.
+    'trust_proxy' => $env('TRUST_PROXY', '0') === '1',
 
-    // --- Wish protection (see src/WishGuard.php) --------------------------
-    // When the application runs behind a reverse proxy (Traefik, nginx) the
-    // visitor's IP is in X-Forwarded-For. Only enable this when the proxy is
-    // the only way in -- otherwise senders could make up their address and
-    // bypass the per-sender limit.
-    'trust_proxy'       => $env('TRUST_PROXY', '0') === '1',
-
+    // --- Errors -----------------------------------------------------------
     // Show technical error messages (table/column names) in the browser.
     // Helpful during setup, set to false in production -- logged-in users
     // still see the details.
-    'show_errors'       => $env('SHOW_ERRORS', '1') === '1',
+    'show_errors' => $env('SHOW_ERRORS', '1') === '1',
 ];
