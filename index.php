@@ -36,7 +36,7 @@ declare(strict_types=1);
  *                  | theme_save | limits_save                     (admin)
  *                  | page_save | page_delete                      (admin)
  *                  | pages_languages_move | pages_languages_reorder  fallback order of the languages (admin)
- *                  | footer_add | footer_remove | footer_move | footer_reorder (admin)
+ *                  | footer_add | footer_remove | footer_move | footer_reorder | footer_text_save (admin)
  *                  | pause_all                                    (admin)
  * Admins may do everything. ?lang=<code> switches the UI language.
  * The web server routes every address to this file (.htaccess); anything
@@ -49,6 +49,7 @@ declare(strict_types=1);
 use Songwunsch\Database;
 use Songwunsch\Format;
 use Songwunsch\GuestName;
+use Songwunsch\Html;
 use Songwunsch\Limits;
 use Songwunsch\PageRepository;
 use Songwunsch\RoomMemory;
@@ -521,6 +522,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             // ---- The footer (admins) ---------------------------------------
+
+            case 'footer_text_save':
+                // The operator's own footer line -- credits, a link -- below
+                // the page links. Admins only; the HTML is reduced to what
+                // the pages may contain (Html), an empty line drops it.
+                require_role($security, 'users');
+                $html = Html::clean((string) ($_POST['text'] ?? ''));
+                if ($html === '') {
+                    $settings->delete(Settings::FOOTER_HTML);
+                    flash('ok', t('The footer line has been removed.'));
+                } else {
+                    $settings->set(Settings::FOOTER_HTML, $html);
+                    flash('ok', t('The footer line has been saved.'));
+                }
+                redirect(url(['p' => 'footer']));
+                // no break
 
             case 'footer_add':
                 // Link a page at the end of the footer.
@@ -1298,7 +1315,7 @@ $view = [
     'roomList'   => [],    // rooms for the switcher in the header
     'guestName'  => $nameCookie->current(), // the visitor's name for wishes, account menu
     'askName'    => false, // first visit: ask for the name (dialog in the layout)
-    'footer'     => trim((string) ($config['footer'] ?? '')), // HTML from config.php, printed as is; empty = no footer
+    'footer'     => '',    // the operator's own footer line (Administration -> Footer), HTML printed as is; filled below
     'footerPages' => [],  // the admins' pages the footer links (Administration -> Footer), in order
     'editor'     => false, // load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page
     'themeCss'   => '',    // colour overrides the admins set under Design, '' = stylesheet defaults; filled below
@@ -1325,8 +1342,10 @@ try {
         $view['live'] = ['url' => url(['p' => $page, 'poll' => 1]), 'rev' => $liveToken];
     }
     $view['roomList'] = $rooms->names();
-    // The footer links the pages the admins put there, on every screen.
+    // The footer links the pages the admins put there, on every screen, and
+    // carries the operator's own line below them.
     $view['footerPages'] = $pageRepo->footerLinks();
+    $view['footer']      = (string) $settings->get(Settings::FOOTER_HTML, '');
     // Visitors without a login are asked for their name once, on the public
     // pages where wishing happens. Staff in the guest view see it as well --
     // that is what the guest view is for.
@@ -1428,13 +1447,15 @@ try {
         case 'footer':
             // Admins only: which pages the footer links, in which order --
             // drag & drop or arrow buttons, like the wish list -- and which
-            // pages could be added.
+            // pages could be added; below that the operator's own line.
             require_role($security, 'users');
 
-            $view['title']     = t('Footer');
-            $view['template']  = 'footer';
-            $view['linked']    = $pageRepo->inFooter();
-            $view['available'] = $pageRepo->outsideFooter();
+            $view['title']      = t('Footer');
+            $view['template']   = 'footer';
+            $view['linked']     = $pageRepo->inFooter();
+            $view['available']  = $pageRepo->outsideFooter();
+            $view['footerText'] = $view['footer'];
+            $view['editor']     = true;
             break;
 
         case 'page_edit':

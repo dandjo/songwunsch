@@ -200,8 +200,18 @@
 
             var lang = field.getAttribute('data-editor-lang') || 'en';
             var translated = window.CKEDITOR_TRANSLATIONS && window.CKEDITOR_TRANSLATIONS[lang];
+            // The footer line gets the compact variant: text with bold,
+            // italic and links, no headings, lists or tables.
+            var compact = field.hasAttribute('data-editor-compact');
 
-            CK.ClassicEditor.create(field, {
+            CK.ClassicEditor.create(field, compact ? {
+                licenseKey: 'GPL',
+                language: translated ? lang : 'en',
+                placeholder: field.getAttribute('data-editor-placeholder') || '',
+                plugins: [CK.Essentials, CK.Paragraph, CK.Bold, CK.Italic, CK.Link, CK.RemoveFormat, CK.PasteFromOffice, CK.SourceEditing],
+                toolbar: { items: ['bold', 'italic', 'link', 'removeFormat', '|', 'undo', 'redo', '|', 'sourceEditing'], shouldNotGroupWhenFull: false },
+                link: { defaultProtocol: 'https://', addTargetToExternalLinks: true }
+            } : {
                 licenseKey: 'GPL',
                 language: translated ? lang : 'en',
                 placeholder: field.getAttribute('data-editor-placeholder') || '',

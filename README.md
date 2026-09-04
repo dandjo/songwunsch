@@ -414,14 +414,12 @@ row per page and language (`page_id`, `lang`, `title`, `body`). The fallback
 order is `pages_languages` in the `settings` table, codes separated by
 commas.
 
-The operator's own line remains: `'footer'` in `config.php` (or `FOOTER_HTML`
-from the environment) is printed below the page links – credits, an external
-link. The value is HTML and goes out **unescaped**, so it is the operator's
-own markup only, never anything a visitor typed.
-
-```php
-'footer' => '<p>Powered by <a href="https://example.org" rel="noopener">example.org</a></p>',
-```
+The operator's own line – credits, a link to the operator's site – is written
+on the same page, *Your own line* below the picker, in a compact editor
+(bold, italic, links, source view) and printed below the page links on every
+screen. Saving reduces the HTML to what the pages may contain (`src/Html.php`);
+the value lives in the `settings` table (`footer_html`). Leave it empty for no
+line.
 
 ## Deployment
 
@@ -915,6 +913,7 @@ middleware or the hoster.
 | Change your own password | Signed in (admins included): account menu → User settings → *Change password* (current password plus the new one twice) |
 | See your own roles | Signed in: account menu → User settings, box *Your account* |
 | Put a logo in the header | Admins: *Administration → Logos* (`/admin/logos`): upload, *Switch live*, see [Logo](#logo) |
+| Change the footer line | Admins: *Administration → Footer* (`/admin/footer`), *Your own line* below the picker |
 | Change the colours | Admins: *Administration → Design* (`/admin/theme`): pick or type a colour per area, *Default* brings the built-in one back, see [Colours](#colours) |
 | Change the wish and suggestion limits | Admins: *Administration → Limits* (`/admin/limits`): open wishes per room, per-minute and per-hour limits, seconds between two wishes or suggestions, duplicates, see [Protecting the wishing](#protecting-the-wishing) |
 

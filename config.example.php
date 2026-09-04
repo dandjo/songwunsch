@@ -58,16 +58,9 @@ return [
     // every release (or set APP_VERSION in the environment).
     'version' => $env('APP_VERSION', '1.0.0'),
 
-    // --- Footer -----------------------------------------------------------
-    // A line at the bottom of every page: credits, an imprint link. HTML is
-    // printed as is (not escaped), so only put your own markup here, never
-    // anything from visitors. Empty (default): no footer at all.
-    // Example:  '<p>Powered by <a href="https://example.org" rel="noopener">example.org</a></p>'
-    'footer' => $env('FOOTER_HTML', ''),
-
     // --- Behaviour --------------------------------------------------------
-    // The colours (Design) and the limits on wishing and suggesting (Limits)
-    // are set in the Administration menu, not here.
+    // The colours (Design), the footer line (Footer) and the limits on wishing
+    // and suggesting (Limits) are set in the Administration menu, not here.
     'per_page'          => (int) $env('PER_PAGE', '50'), // songs per page
 
     // --- Wish protection (see src/WishGuard.php) --------------------------

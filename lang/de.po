@@ -1643,3 +1643,23 @@ msgstr "Bitte eine Zahl zwischen {min} und {max} eingeben."
 
 msgid "The limits have been saved."
 msgstr "Die Limits sind gespeichert."
+
+# ---- Footer line (Administration -> Footer) -----------------------------------
+
+msgid "Below the links stands your own line – credits, a link to your site."
+msgstr "Unter den Links steht deine eigene Zeile – Credits, ein Link zu deiner Seite."
+
+msgid "Your own line"
+msgstr "Deine eigene Zeile"
+
+msgid "Shown below the page links on every screen – credits, a link to your site. Bold, italic and links; leave it empty for no line."
+msgstr "Steht auf jedem Bildschirm unter den Seiten-Links – Credits, ein Link zu deiner Seite. Fett, kursiv und Links; leer lassen für keine Zeile."
+
+msgid "Powered by …"
+msgstr "Powered by …"
+
+msgid "The footer line has been saved."
+msgstr "Die Footer-Zeile ist gespeichert."
+
+msgid "The footer line has been removed."
+msgstr "Die Footer-Zeile ist entfernt."

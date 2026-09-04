@@ -10,10 +10,13 @@ use Songwunsch\Format;
  * order. The arrow buttons move a page across -- one click, one round trip,
  * no JavaScript needed. The order on the right changes by drag & drop
  * (app.js, the wish list's code) or with the four move buttons of every row.
- * Pages themselves are written under Pages.
+ * Pages themselves are written under Pages. Below the picker the operator's
+ * own line: credits, a link -- a compact editor, the HTML reduced on saving.
  *
  * @var array<int,array<string,mixed>> $linked     pages in the footer, in order
  * @var array<int,array<string,mixed>> $available  pages outside the footer, by title
+ * @var string $footerText  the operator's line as stored (cleaned HTML), '' = none
+ * @var \Songwunsch\Translator $translator  for the editor's language
  * @var string $csrf
  */
 
@@ -37,6 +40,7 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
         <p class="muted">
             <?= $e(t('{n} of {total} pages are linked in the footer.', ['n' => count($linked), 'total' => count($linked) + count($available)])) ?>
             <?= $e(t('Move pages with the arrows: to the right into the footer, to the left out of it. On the right, drag a row or use its arrows to change the order.')) ?>
+            <?= $e(t('Below the links stands your own line – credits, a link to your site.')) ?>
         </p>
     </div>
     <div class="panel__actions">
@@ -140,4 +144,30 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
             </div>
         <?php endif; ?>
     </section>
+</div>
+
+<?php /* The operator's own line below the page links. Written in the same
+         editor as the pages, reduced to bold, italic and links; the server
+         cleans whatever arrives (Html), so the source view is safe too. */ ?>
+<div class="login login--wide">
+    <form method="post" action="<?= $e(url()) ?>" class="login__form">
+        <input type="hidden" name="a" value="footer_text_save">
+        <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+
+        <fieldset class="field field--group">
+            <legend><?= $e(t('Your own line')) ?></legend>
+            <p class="field__hint" id="hint-footer-text"><?= $e(t('Shown below the page links on every screen – credits, a link to your site. Bold, italic and links; leave it empty for no line.')) ?></p>
+            <div class="field field--editor field--editor--compact">
+                <label for="footer-text" class="sr-only"><?= $e(t('Your own line')) ?></label>
+                <textarea id="footer-text" name="text" rows="3" data-editor data-editor-compact
+                          data-editor-lang="<?= $e($translator->code()) ?>"
+                          data-editor-placeholder="<?= $e(t('Powered by …')) ?>"
+                          aria-describedby="hint-footer-text"><?= $e($footerText) ?></textarea>
+            </div>
+        </fieldset>
+
+        <div class="panel__actions">
+            <button type="submit" class="wish-button"><?= icon('check') ?><?= $e(t('Save')) ?></button>
+        </div>
+    </form>
 </div>

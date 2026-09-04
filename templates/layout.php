@@ -23,7 +23,7 @@ use Songwunsch\Translator;
 /** @var string|null $guestName  the visitor's name for wishes, from the cookie */
 /** @var bool $askName           first visit: ask for the name in a dialog */
 /** @var array{url:string,rev:string}|null $live  polling address and current revision, wish list and suggestions */
-/** @var string $footer  HTML for the footer from config.php ('footer'); empty = no footer */
+/** @var string $footer  the operator's own footer line (Administration -> Footer), cleaned HTML; empty = none */
 /** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
 /** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
 /** @var string $themeCss  :root colour overrides the admins set under Design, see Theme; '' = none */
@@ -445,8 +445,9 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                 </nav>
             <?php endif; ?>
             <?php if ($footer !== ''): ?>
-                <?php /* The operator's own line (credits, imprint link) -- HTML from
-                         config.php, deliberately printed unescaped. */ ?>
+                <?php /* The operator's own line (credits, a link), written under
+                         Administration -> Footer and reduced to the allowed HTML
+                         when saved (Html); deliberately printed unescaped. */ ?>
                 <div class="base__custom"><?= $footer ?></div>
             <?php endif; ?>
         </footer>

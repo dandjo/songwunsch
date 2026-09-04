@@ -2034,6 +2034,8 @@ code.is-example { color: var(--text-muted); font-style: italic; }
     padding: 0 1rem;
     line-height: 1.6;
 }
+.field--editor--compact textarea { min-height: 5rem; }
+.field--editor--compact .ck.ck-editor .ck-editor__editable_inline { min-height: 5rem; }
 .ck.ck-editor__editable_inline > :first-child { margin-top: 1rem; }
 .ck.ck-editor__editable_inline > :last-child { margin-bottom: 1rem; }
 /* Content in the editing area reads like the page it becomes. */
