@@ -857,7 +857,7 @@ without third-party services and without plain-text IPs:
 | Bot trap | Invisible form field; if it is filled, the wish is silently discarded and the sender sees a success message | – |
 | Minimum time | Signed timestamp in the form; submitting less than 2 s after the page load is rejected, the form expires after 6 h | `wish_min_form_sec` in `config.php` |
 
-Admins set the limits under **Limits** (`/admin/wish-limits`, in the
+Admins set the limits under **Limits** (`/admin/limits`, in the
 *Administration* menu), for every room alike; the same page carries the two
 limits on [song suggestions](#song-suggestions). A limit of `0` disables it.
 The defaults are 200 open wishes per room, 30 per minute in total, 3 per
@@ -916,7 +916,7 @@ middleware or the hoster.
 | See your own roles | Signed in: account menu → User settings, box *Your account* |
 | Put a logo in the header | Admins: *Administration → Logos* (`/admin/logos`): upload, *Switch live*, see [Logo](#logo) |
 | Change the colours | Admins: *Administration → Design* (`/admin/theme`): pick or type a colour per area, *Default* brings the built-in one back, see [Colours](#colours) |
-| Change the wish and suggestion limits | Admins: *Administration → Limits* (`/admin/wish-limits`): open wishes per room, per-minute and per-hour limits, seconds between two wishes or suggestions, duplicates, see [Protecting the wishing](#protecting-the-wishing) |
+| Change the wish and suggestion limits | Admins: *Administration → Limits* (`/admin/limits`): open wishes per room, per-minute and per-hour limits, seconds between two wishes or suggestions, duplicates, see [Protecting the wishing](#protecting-the-wishing) |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order

@@ -138,8 +138,8 @@ function current_room(?array $set = null): array
  * records share a prefix, and everything the Administration menu leads to
  * sits below /admin: /admin/users, /admin/users/new, /admin/users/<id>/edit,
  * /admin/logos, /admin/theme, /admin/pages, /admin/pages/new,
- * /admin/pages/<id>/edit (page_edit), /admin/footer, /admin/wish-limits
- * ('limits'). Public or for editors, without the prefix:
+ * /admin/pages/<id>/edit (page_edit), /admin/footer, /admin/limits.
+ * Public or for editors, without the prefix:
  * /pages/<slug> for readers ('p' => 'page', 'slug' => ...), /rooms,
  * /rooms/new, /rooms/<id>/edit, /rooms/main/edit ('main' => 1, rename the
  * main room), /song/<id>|new, /logo/<id>, /users/<id>/settings (one's own
@@ -181,10 +181,8 @@ function url(array $params = []): string
         // /rooms/new, /rooms/<id>/edit; users and pages the same below /admin.
         $list    = match ($page) { 'user' => '/admin/users', 'room' => '/rooms', 'page_edit' => '/admin/pages' };
         $target .= $list . ($id > 0 ? '/' . $id . '/edit' : '/new');
-    } elseif (in_array($page, ['users', 'logos', 'theme', 'pages', 'footer'], true)) {
+    } elseif (in_array($page, ['users', 'logos', 'theme', 'limits', 'pages', 'footer'], true)) {
         $target .= '/admin/' . $page;
-    } elseif ($page === 'limits') {
-        $target .= '/admin/wish-limits';
     } elseif ($page === 'logo') {
         $target .= '/logo/' . $id;
     } elseif ($page === 'page') {

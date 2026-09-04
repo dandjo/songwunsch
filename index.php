@@ -16,7 +16,7 @@ declare(strict_types=1);
  *   /admin/users     | /admin/users/new, /admin/users/<id>/edit
  *   /admin/logos       header logos
  *   /admin/theme       the colours (Design)
- *   /admin/wish-limits limits on wishing and suggesting (Limits)
+ *   /admin/limits      limits on wishing and suggesting
  *   /admin/pages     | /admin/pages/new, /admin/pages/<id>/edit (CKEditor, one tab per language)
  *   /admin/footer      which pages the footer links, in which order
  *   /admin           -> /admin/users
@@ -145,7 +145,7 @@ $routes = [
     '/admin/theme'  => 'theme',
     '/admin/pages'  => 'pages',
     '/admin/footer' => 'footer',
-    '/admin/wish-limits' => 'limits',
+    '/admin/limits' => 'limits',
 ];
 // Pages with an id in the path -- see url(): /song/<id>|new,
 // /admin/users/<id>/edit, /admin/users/new, /users/<id>/settings,
