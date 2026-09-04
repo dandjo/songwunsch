@@ -53,7 +53,7 @@ final class RoomRepository
     /**
      * Give the main room a name of its own (index.php reads it from the
      * settings on every request). An empty string means the default,
-     * "Main room" in the visitor's language.
+     * "General" in the visitor's language.
      */
     public static function nameMainRoom(string $name): void
     {
@@ -66,7 +66,7 @@ final class RoomRepository
         return [
             'id'         => self::DEFAULT_ID,
             'slug'       => null,
-            'name'       => self::$mainName !== '' ? self::$mainName : t('Main room'),
+            'name'       => self::$mainName !== '' ? self::$mainName : t('General'),
             'is_default' => true,
         ];
     }

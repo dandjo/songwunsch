@@ -41,14 +41,14 @@ $hasActions = $canPause || $canEdit;
             <?php elseif ($filter === 'archived'): ?>
                 <?= $e(tn('{n} archived room.', '{n} archived rooms.', $total)) ?>
             <?php else: ?>
-                <?= $e(tn('{n} room besides the main room.', '{n} rooms besides the main room.', $total)) ?>
+                <?= $e(tn('{n} room besides “General”.', '{n} rooms besides “General”.', $total)) ?>
             <?php endif; ?>
             <?= $e(t('Every room has its own repertoire, picked from the master list, and its own wish list.')) ?>
             <?php if ($canEdit): ?>
                 <?= $e(t('Archived rooms stay reachable through their address but leave the room switcher and the guests’ list.')) ?>
                 <?= $e($startRoomId > 0
                     ? t('The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last.')
-                    : t('Visitors who open the bare address without having chosen a room yet land in the main room; As start room sends them into another room instead.')) ?>
+                    : t('Visitors who open the bare address without having chosen a room yet land in “General”; As start room sends them into another room instead.')) ?>
             <?php endif; ?>
         </p>
     </div>

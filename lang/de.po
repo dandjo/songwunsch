@@ -583,8 +583,8 @@ msgstr "Räume"
 msgid "Room"
 msgstr "Raum"
 
-msgid "Main room"
-msgstr "Hauptraum"
+msgid "General"
+msgstr "Allgemein"
 
 msgid "always there"
 msgstr "immer da"
@@ -599,10 +599,10 @@ msgstr "Adresse"
 msgid "Wishes"
 msgstr "Wünsche"
 
-msgid "{n} room besides the main room."
-msgid_plural "{n} rooms besides the main room."
-msgstr[0] "Ein Raum neben dem Hauptraum."
-msgstr[1] "{n} Räume neben dem Hauptraum."
+msgid "{n} room besides “General”."
+msgid_plural "{n} rooms besides “General”."
+msgstr[0] "Ein Raum neben „Allgemein“."
+msgstr[1] "{n} Räume neben „Allgemein“."
 
 msgid "Every room has its own repertoire, picked from the master list, and its own wish list."
 msgstr "Jeder Raum hat ein eigenes Repertoire, zusammengestellt aus der Master-Liste, und eine eigene Wunschliste."
@@ -658,8 +658,8 @@ msgstr "Raum „{name}“ wurde samt seinen Wünschen gelöscht."
 msgid "Permanently delete room “{name}” together with its wishes?"
 msgstr "Raum „{name}“ samt seinen Wünschen endgültig löschen?"
 
-msgid "The main room always offers the whole repertoire."
-msgstr "Der Hauptraum bietet immer das gesamte Repertoire."
+msgid "“General” always offers the whole repertoire."
+msgstr "„Allgemein“ bietet immer das gesamte Repertoire."
 
 msgid "Manage the room: pick its songs from the master list."
 msgstr "Raum verwalten: Songs aus der Master-Liste auswählen."
@@ -803,8 +803,8 @@ msgstr "Alle Räume schließen"
 msgid "Lift the closing of all rooms"
 msgstr "Schließung aller Räume aufheben"
 
-msgid "The main room and every room are closed."
-msgstr "Der Hauptraum und alle Räume sind geschlossen."
+msgid "“General” and every room are closed."
+msgstr "„Allgemein“ und alle Räume sind geschlossen."
 
 msgid "The closing is lifted; every room is back to the state it had before."
 msgstr "Die Schließung ist aufgehoben; jeder Raum hat wieder den Zustand von vorher."
@@ -1139,20 +1139,20 @@ msgstr "Die Liste wurde aktualisiert."
 msgid "Rename"
 msgstr "Umbenennen"
 
-msgid "Rename the main room"
-msgstr "Hauptraum umbenennen"
+msgid "Rename “General”"
+msgstr "„Allgemein“ umbenennen"
 
-msgid "Shown in the header, the room switcher and the list of rooms wherever the main room is meant."
-msgstr "Erscheint im Kopf, im Raumwechsler und in der Raumliste überall dort, wo der Hauptraum gemeint ist."
+msgid "Shown in the header, the room switcher and the list of rooms wherever “General” is meant."
+msgstr "Erscheint im Kopf, im Raumwechsler und in der Raumliste überall dort, wo „Allgemein“ gemeint ist."
 
-msgid "The main room has its default name again."
-msgstr "Der Hauptraum trägt wieder seinen Standardnamen."
+msgid "“General” has its default name again."
+msgstr "„Allgemein“ trägt wieder seinen Standardnamen."
 
-msgid "The main room is always there and lives at the root address; only its name can change. Leave the field empty for the default name."
-msgstr "Der Hauptraum ist immer da und liegt an der Wurzeladresse; nur sein Name lässt sich ändern. Feld leer lassen für den Standardnamen."
+msgid "“General” is always there and lives at the root address; only its name can change. Leave the field empty for the default name."
+msgstr "„Allgemein“ ist immer da und liegt an der Wurzeladresse; nur der Name lässt sich ändern. Feld leer lassen für den Standardnamen."
 
-msgid "The main room is now called “{name}”."
-msgstr "Der Hauptraum heißt jetzt „{name}“."
+msgid "“General” is now called “{name}”."
+msgstr "„Allgemein“ heißt jetzt „{name}“."
 
 # ---- Start room -----------------------------------------------------------------------------
 
@@ -1165,8 +1165,8 @@ msgstr "Startraum"
 msgid "New visitors now start in “{name}”."
 msgstr "Neue Besucher starten jetzt in „{name}“."
 
-msgid "New visitors start in the main room again."
-msgstr "Neue Besucher starten wieder im Hauptraum."
+msgid "New visitors start in “General” again."
+msgstr "Neue Besucher starten wieder in „Allgemein“."
 
 msgid "There is no room at this address – here is the start page."
 msgstr "Unter dieser Adresse gibt es keinen Raum – hier ist die Startseite."
@@ -1174,5 +1174,5 @@ msgstr "Unter dieser Adresse gibt es keinen Raum – hier ist die Startseite."
 msgid "The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last."
 msgstr "Im Startraum landen Besucher, die die nackte Adresse aufrufen und noch keinen Raum gewählt haben; alle anderen bleiben in ihrem zuletzt gewählten Raum."
 
-msgid "Visitors who open the bare address without having chosen a room yet land in the main room; As start room sends them into another room instead."
-msgstr "Besucher, die die nackte Adresse aufrufen und noch keinen Raum gewählt haben, landen im Hauptraum; „Als Startraum“ schickt sie stattdessen in einen anderen Raum."
+msgid "Visitors who open the bare address without having chosen a room yet land in “General”; As start room sends them into another room instead."
+msgstr "Besucher, die die nackte Adresse aufrufen und noch keinen Raum gewählt haben, landen in „Allgemein“; „Als Startraum“ schickt sie stattdessen in einen anderen Raum."

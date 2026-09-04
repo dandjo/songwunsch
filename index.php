@@ -556,7 +556,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 require_role($security, 'users');
                 if (($_POST['state'] ?? '0') === '1') {
                     $guard->pauseEverywhere($rooms->ids());
-                    flash('ok', t('The main room and every room are closed.'));
+                    flash('ok', t('“General” and every room are closed.'));
                 } else {
                     $guard->resumeEverywhere($rooms->ids());
                     flash('ok', t('The closing is lifted; every room is back to the state it had before.'));
@@ -721,7 +721,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $startId = (int) ($_POST['id'] ?? 0);
                 if ($startId === RoomRepository::DEFAULT_ID) {
                     $settings->delete(RoomRepository::START_ROOM_KEY);
-                    flash('ok', t('New visitors start in the main room again.'));
+                    flash('ok', t('New visitors start in “General” again.'));
                 } else {
                     $startRoom = $rooms->find($startId);
                     if ($startRoom === null) {
@@ -747,11 +747,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($name === '') {
                     $settings->delete(RoomRepository::MAIN_NAME_KEY);
                     RoomRepository::nameMainRoom('');
-                    flash('ok', t('The main room has its default name again.'));
+                    flash('ok', t('“General” has its default name again.'));
                 } else {
                     $settings->set(RoomRepository::MAIN_NAME_KEY, $name);
                     RoomRepository::nameMainRoom($name);
-                    flash('ok', t('The main room is now called “{name}”.', ['name' => $name]));
+                    flash('ok', t('“General” is now called “{name}”.', ['name' => $name]));
                 }
                 redirect(url(['p' => 'rooms']));
                 // no break
@@ -837,7 +837,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // every master song matching the search q.
                 require_role($security, 'rooms');
                 if ($roomId === RoomRepository::DEFAULT_ID) {
-                    flash('error', t('The main room always offers the whole repertoire.'));
+                    flash('error', t('“General” always offers the whole repertoire.'));
                     redirect(url(['p' => 'songs']));
                 }
 
@@ -1200,7 +1200,7 @@ try {
 
             if ($main) {
                 $kept = remembered_input();
-                $view['title']    = t('Rename the main room');
+                $view['title']    = t('Rename “General”');
                 $view['template'] = 'room';
                 $view['id']       = 0;
                 $view['main']     = true;

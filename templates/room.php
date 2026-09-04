@@ -30,10 +30,10 @@ $invalid = static fn (string $field): string => isset($errors[$field])
 
 <div class="panel__head">
     <div>
-        <h1><?= $e($main ? t('Rename the main room') : ($isNew ? t('Add room') : t('Edit room'))) ?></h1>
+        <h1><?= $e($main ? t('Rename “General”') : ($isNew ? t('Add room') : t('Edit room'))) ?></h1>
         <p class="muted">
             <?php if ($main): ?>
-                <?= $e(t('The main room is always there and lives at the root address; only its name can change. Leave the field empty for the default name.')) ?>
+                <?= $e(t('“General” is always there and lives at the root address; only its name can change. Leave the field empty for the default name.')) ?>
             <?php elseif ($isNew): ?>
                 <?= $e(t('A room gets its own address, its own repertoire picked from the master list and its own wish list.')) ?>
             <?php else: ?>
@@ -52,9 +52,9 @@ $invalid = static fn (string $field): string => isset($errors[$field])
         <div class="field">
             <label for="name"><?= $e(t('Name')) ?></label>
             <input type="text" id="name" name="name" value="<?= $e($values['name'] ?? '') ?>"
-                   <?= $main ? 'placeholder="' . $e(t('Main room')) . '"' : 'required' ?> autofocus maxlength="<?= RoomRepository::MAX_NAME ?>"<?= $invalid('name') ?>>
+                   <?= $main ? 'placeholder="' . $e(t('General')) . '"' : 'required' ?> autofocus maxlength="<?= RoomRepository::MAX_NAME ?>"<?= $invalid('name') ?>>
             <p class="field__hint" id="hint-name"><?= $e($main
-                ? t('Shown in the header, the room switcher and the list of rooms wherever the main room is meant.')
+                ? t('Shown in the header, the room switcher and the list of rooms wherever “General” is meant.')
                 : t('Shown in the header and the list of rooms, e.g. “Summer party 2026”.')) ?></p>
             <?= $fieldError('name') ?>
         </div>

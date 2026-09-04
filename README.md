@@ -534,6 +534,7 @@ two buttons on every row:
 A room is a capsule of repertoire and wish list with its own address, for
 instance for two stages or two evenings. `/` and `/wishes` are technically the
 **main room**: always there, without a record, with the whole repertoire.
+Visitors see it under the name "General" ("Allgemein", "Général").
 
 **Creating.** On the **Rooms** page (`/rooms`) editors create rooms. A room
 has a display name (up to 128 characters, free) and a **machine name** for the
@@ -570,7 +571,7 @@ the full list stays).
 its own, but it can be renamed: editors find *Rename* on its row under
 *Rooms*. The name is kept in `settings` (`main_room_name`) and shows
 wherever the main room is meant – header, room switcher, room list,
-notices. An empty name restores the default, "Main room" in the visitor's
+notices. An empty name restores the default, "General" in the visitor's
 language.
 
 **The start room.** Where a visitor without any remembered room lands when

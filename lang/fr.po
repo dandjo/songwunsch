@@ -579,8 +579,8 @@ msgstr "Salles"
 msgid "Room"
 msgstr "Salle"
 
-msgid "Main room"
-msgstr "Salle principale"
+msgid "General"
+msgstr "Général"
 
 msgid "always there"
 msgstr "toujours là"
@@ -595,10 +595,10 @@ msgstr "Adresse"
 msgid "Wishes"
 msgstr "Souhaits"
 
-msgid "{n} room besides the main room."
-msgid_plural "{n} rooms besides the main room."
-msgstr[0] "Une salle en plus de la salle principale."
-msgstr[1] "{n} salles en plus de la salle principale."
+msgid "{n} room besides “General”."
+msgid_plural "{n} rooms besides “General”."
+msgstr[0] "Une salle en plus de « Général »."
+msgstr[1] "{n} salles en plus de « Général »."
 
 msgid "Every room has its own repertoire, picked from the master list, and its own wish list."
 msgstr "Chaque salle a sa propre liste de morceaux, choisie dans la liste principale, et sa propre liste de souhaits."
@@ -654,8 +654,8 @@ msgstr "La salle « {name} » a été supprimée avec ses souhaits."
 msgid "Permanently delete room “{name}” together with its wishes?"
 msgstr "Supprimer définitivement la salle « {name} » avec ses souhaits ?"
 
-msgid "The main room always offers the whole repertoire."
-msgstr "La salle principale propose toujours toute la liste de morceaux."
+msgid "“General” always offers the whole repertoire."
+msgstr "« Général » propose toujours toute la liste de morceaux."
 
 msgid "Manage the room: pick its songs from the master list."
 msgstr "Gérer la salle : choisir ses morceaux dans la liste principale."
@@ -799,8 +799,8 @@ msgstr "Fermer toutes les salles"
 msgid "Lift the closing of all rooms"
 msgstr "Lever la fermeture de toutes les salles"
 
-msgid "The main room and every room are closed."
-msgstr "La salle principale et toutes les salles sont fermées."
+msgid "“General” and every room are closed."
+msgstr "« Général » et toutes les salles sont fermées."
 
 msgid "The closing is lifted; every room is back to the state it had before."
 msgstr "La fermeture est levée ; chaque salle a retrouvé son état précédent."
@@ -1135,20 +1135,20 @@ msgstr "La liste a été mise à jour."
 msgid "Rename"
 msgstr "Renommer"
 
-msgid "Rename the main room"
-msgstr "Renommer la salle principale"
+msgid "Rename “General”"
+msgstr "Renommer « Général »"
 
-msgid "Shown in the header, the room switcher and the list of rooms wherever the main room is meant."
-msgstr "Affiché dans l’en-tête, le sélecteur de salle et la liste des salles partout où la salle principale est désignée."
+msgid "Shown in the header, the room switcher and the list of rooms wherever “General” is meant."
+msgstr "Affiché dans l’en-tête, le sélecteur de salle et la liste des salles partout où « Général » est désigné."
 
-msgid "The main room has its default name again."
-msgstr "La salle principale porte de nouveau son nom par défaut."
+msgid "“General” has its default name again."
+msgstr "« Général » porte de nouveau son nom par défaut."
 
-msgid "The main room is always there and lives at the root address; only its name can change. Leave the field empty for the default name."
-msgstr "La salle principale existe toujours et se trouve à l’adresse racine ; seul son nom peut changer. Laissez le champ vide pour le nom par défaut."
+msgid "“General” is always there and lives at the root address; only its name can change. Leave the field empty for the default name."
+msgstr "« Général » existe toujours et se trouve à l’adresse racine ; seul son nom peut changer. Laissez le champ vide pour le nom par défaut."
 
-msgid "The main room is now called “{name}”."
-msgstr "La salle principale s’appelle désormais « {name} »."
+msgid "“General” is now called “{name}”."
+msgstr "« Général » s’appelle désormais « {name} »."
 
 # ---- Start room -----------------------------------------------------------------------------
 
@@ -1161,8 +1161,8 @@ msgstr "salle de départ"
 msgid "New visitors now start in “{name}”."
 msgstr "Les nouveaux visiteurs commencent désormais dans « {name} »."
 
-msgid "New visitors start in the main room again."
-msgstr "Les nouveaux visiteurs commencent de nouveau dans la salle principale."
+msgid "New visitors start in “General” again."
+msgstr "Les nouveaux visiteurs commencent de nouveau dans « Général »."
 
 msgid "There is no room at this address – here is the start page."
 msgstr "Il n’y a pas de salle à cette adresse – voici la page d’accueil."
@@ -1170,5 +1170,5 @@ msgstr "Il n’y a pas de salle à cette adresse – voici la page d’accueil."
 msgid "The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last."
 msgstr "La salle de départ accueille les visiteurs qui ouvrent l’adresse nue sans avoir encore choisi de salle ; tous les autres restent dans la salle choisie en dernier."
 
-msgid "Visitors who open the bare address without having chosen a room yet land in the main room; As start room sends them into another room instead."
-msgstr "Les visiteurs qui ouvrent l’adresse nue sans avoir encore choisi de salle arrivent dans la salle principale ; « Salle de départ » les envoie dans une autre salle."
+msgid "Visitors who open the bare address without having chosen a room yet land in “General”; As start room sends them into another room instead."
+msgstr "Les visiteurs qui ouvrent l’adresse nue sans avoir encore choisi de salle arrivent dans « Général » ; « Salle de départ » les envoie dans une autre salle."
