@@ -178,7 +178,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                                                 <input type="hidden" name="back" value="<?= $e($current) ?>">
                                                 <input type="hidden" name="key[]" value="<?= $e($rowKey) ?>">
                                                 <button type="submit" class="delete-button icon-button" title="<?= $e(t('Remove')) ?>">
-                                                    <?= icon('cross') ?>
+                                                    <?= icon('trash') ?>
                                                     <span class="button__label"><?= $e(t('Remove')) ?></span>
                                                     <span class="sr-only">: <?= $e($rowLabel) ?></span>
                                                 </button>

@@ -55,6 +55,6 @@ $id = $nameAsk ? 'name-ask' : 'name';
         <input type="hidden" name="a" value="name_skip">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="back" value="<?= $e($nameBack) ?>">
-        <button type="submit" class="link-button"><?= $e(t('Not now')) ?></button>
+        <button type="submit" class="link-button"><?= icon('cross') ?><?= $e(t('Not now')) ?></button>
     </form>
 <?php endif; ?>

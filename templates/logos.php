@@ -111,7 +111,11 @@ $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
                             <input type="hidden" name="a" value="logo_delete">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                             <input type="hidden" name="id" value="<?= $logo['id'] ?>">
-                            <button type="submit" class="delete-button"><?= icon('trash') ?><?= $e(t('Delete')) ?></button>
+                            <?php /* Icon only, like the delete buttons in every list -- the label stays for screen readers and as tooltip. */ ?>
+                            <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
+                                <?= icon('trash') ?>
+                                <span class="button__label"><?= $e(t('Delete')) ?></span>
+                            </button>
                         </form>
                     </div>
                 </li>
