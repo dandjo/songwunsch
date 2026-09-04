@@ -6,7 +6,10 @@ use Songwunsch\Format;
 use Songwunsch\RoomRepository;
 use Songwunsch\SuggestionRepository;
 
-/** @var array<int,array<string,mixed>> $rows  open suggestions, for everyone */
+/** @var array<int,array<string,mixed>> $rows  open suggestions, one page, for everyone */
+/** @var int $found                     how many match the search, all pages */
+/** @var int $pageNo */
+/** @var int $pages */
 /** @var array<int,string> $roomNames    room names by id, for the tags on the rows */
 /** @var array<string,mixed> $room       current room; the default room has id 0 */
 /** @var bool $canEdit                  editor or admin: list, adopt, delete */
@@ -21,7 +24,7 @@ use Songwunsch\SuggestionRepository;
 /** @var string $csrf */
 
 $e       = static fn (?string $v): string => Format::e($v);
-$current = url(['p' => 'suggestions', 'q' => $q]);
+$current = url(['p' => 'suggestions', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
 $open    = (int) ($suggestionCount ?? count($rows));
 $inRoom  = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
 
@@ -112,7 +115,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
             <h2 id="open-suggestions"><?= $e(t('Open suggestions')) ?></h2>
             <p class="muted">
                 <?php if ($q !== ''): ?>
-                    <?= $e(tn('{n} suggestion found for “{q}”.', '{n} suggestions found for “{q}”.', count($rows), ['q' => $q])) ?>
+                    <?= $e(tn('{n} suggestion found for “{q}”.', '{n} suggestions found for “{q}”.', $found, ['q' => $q])) ?>
                     <?= $e(tn('{n} suggestion waiting in total.', '{n} suggestions waiting in total.', $open)) ?>
                 <?php elseif ($canEdit): ?>
                     <?= $e(tn('{n} suggestion waiting.', '{n} suggestions waiting.', $open)) ?>
@@ -211,6 +214,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                                 <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'suggestions')): ?> data-confirm="<?= $e(t('Delete the suggestion “{title}”?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
                                     <input type="hidden" name="a" value="suggestion_delete">
                                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                                    <input type="hidden" name="back" value="<?= $e($current) ?>">
                                     <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                     <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                         <?= icon('trash') ?>
@@ -226,5 +230,10 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                 </tbody>
             </table>
         </div>
+
+        <?php
+        $pageUrl = static fn (int $page): string => url(['p' => 'suggestions', 'q' => $q, 'page' => $page > 1 ? $page : null]);
+        require __DIR__ . '/_pager.php';
+        ?>
     <?php endif; ?>
 </section>

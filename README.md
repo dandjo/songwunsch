@@ -661,7 +661,8 @@ travels with the suggestion so the editors know who asked. Everyone sees the
 open suggestions below the form – oldest first, with the time received, the
 name of whoever suggested and the room's tag – and can search them by
 artist, title or name (several terms are combined with AND, like the song
-search). Only editors get the buttons.
+search). Long lists are paged like the repertoire (`per_page` in
+`config.php`). Only editors get the buttons.
 
 Suggestions aim at the master list, which every room picks from, and there
 is one list for the whole site. A suggestion made inside a room

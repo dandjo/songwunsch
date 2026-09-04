@@ -36,13 +36,14 @@ final class SuggestionRepository
     }
 
     /**
-     * Every open suggestion, oldest first -- the order they came in is the
-     * order the editor works through. With a query only those whose artist,
-     * title or suggester contain every term (AND, like the song search).
+     * One page of the open suggestions, oldest first -- the order they came
+     * in is the order the editor works through. With a query only those
+     * whose artist, title or suggester contain every term (AND, like the
+     * song search). `total` counts every match, not just the page.
      *
-     * @return array<int,array<string,mixed>>
+     * @return array{rows: array<int,array<string,mixed>>, total: int}
      */
-    public function all(string $query = ''): array
+    public function search(string $query, int $page, int $perPage): array
     {
         $terms      = preg_split('/\s+/u', trim($query), -1, PREG_SPLIT_NO_EMPTY) ?: [];
         $conditions = [];
@@ -55,7 +56,14 @@ final class SuggestionRepository
         }
         $where = $conditions === [] ? '' : ' WHERE ' . implode(' AND ', $conditions);
 
-        return $this->db->all('SELECT * FROM ' . self::TABLE . $where . ' ORDER BY created_at ASC, id ASC', $params);
+        $total  = (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE . $where, $params)['c'] ?? 0);
+        $offset = max(0, ($page - 1) * $perPage);
+        $rows   = $this->db->all(
+            'SELECT * FROM ' . self::TABLE . $where . " ORDER BY created_at ASC, id ASC LIMIT {$perPage} OFFSET {$offset}",
+            $params,
+        );
+
+        return ['rows' => $rows, 'total' => $total];
     }
 
     public function count(): int

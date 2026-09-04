@@ -119,7 +119,7 @@ $translator->load($lang);
 translator($translator);
 // The admins' pages: imprint, FAQ, ...; some linked in the footer. They answer
 // in the interface language, so they come after it is known.
-$pages = new PageRepository($db, $settings, $translator);
+$pageRepo = new PageRepository($db, $settings, $translator);
 
 // --- Route ---------------------------------------------------------------
 // The web server sends every address below the base path here (.htaccess).
@@ -388,7 +388,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // tags in validate() -- what is stored is what visitors get.
                 require_role($security, 'users');
                 $id       = (int) ($_POST['id'] ?? 0); // 0 = new page
-                $existing = $id > 0 ? $pages->find($id) : null;
+                $existing = $id > 0 ? $pageRepo->find($id) : null;
 
                 if ($id > 0 && $existing === null) {
                     flash('error', t('This page was not found.'));
@@ -400,7 +400,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $remove = strtolower((string) ($_POST['remove_lang'] ?? ''));
                 if ($remove !== '' && $existing !== null) {
                     $label = $translator->available()[$remove] ?? strtoupper($remove);
-                    if ($pages->removeLanguage($id, $remove)) {
+                    if ($pageRepo->removeLanguage($id, $remove)) {
                         flash('ok', t('“{title}” is no longer available in {language}.', ['title' => (string) $existing['title'], 'language' => $label]));
                     } else {
                         flash('error', t('{language} could not be removed: a page needs at least one language.', ['language' => $label]));
@@ -416,7 +416,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'title' => $strings($_POST['title'] ?? null),
                     'body'  => $strings($_POST['body'] ?? null),
                 ];
-                $checked = $pages->validate($input, $existing);
+                $checked = $pageRepo->validate($input, $existing);
                 $formUrl = url(['p' => 'page_edit', 'id' => $id > 0 ? $id : null]);
 
                 if ($checked['errors'] !== []) {
@@ -425,12 +425,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect($formUrl);
                 }
 
-                $title = $pages->titleOf($checked['values']['versions']);
+                $title = $pageRepo->titleOf($checked['values']['versions']);
                 if ($existing === null) {
-                    $pages->create($checked['values']);
+                    $pageRepo->create($checked['values']);
                     flash('ok', t('Page “{title}” has been created. It is reachable under its address; the footer links it once you add it there.', ['title' => $title]));
                 } else {
-                    $pages->update($id, $checked['values']);
+                    $pageRepo->update($id, $checked['values']);
                     flash('ok', t('Page “{title}” has been saved.', ['title' => $title]));
                 }
                 redirect(url(['p' => 'pages']));
@@ -440,11 +440,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Deleting takes the page out of the footer as well, and its
                 // versions in other languages with it.
                 require_role($security, 'users');
-                $target = $pages->find((int) ($_POST['id'] ?? 0));
+                $target = $pageRepo->find((int) ($_POST['id'] ?? 0));
 
                 if ($target === null) {
                     flash('error', t('This page was not found.'));
-                } elseif ($pages->delete((int) $target['id'])) {
+                } elseif ($pageRepo->delete((int) $target['id'])) {
                     flash('ok', t('Page “{title}” has been deleted.', ['title' => (string) $target['title']]));
                 } else {
                     flash('error', t('Deleting was not possible.'));
@@ -458,7 +458,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // way without JavaScript.
                 require_role($security, 'users');
                 $dir = (string) ($_POST['dir'] ?? 'up');
-                $pages->moveLanguage((string) ($_POST['code'] ?? ''), in_array($dir, ['up', 'down', 'top', 'bottom'], true) ? $dir : 'up');
+                $pageRepo->moveLanguage((string) ($_POST['code'] ?? ''), in_array($dir, ['up', 'down', 'top', 'bottom'], true) ? $dir : 'up');
                 redirect(url(['p' => 'pages']));
                 // no break
 
@@ -466,7 +466,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // "de,en,fr" -- the languages in their new order, from drag &
                 // drop (app.js, the same code as the wish list's).
                 require_role($security, 'users');
-                $saved = $pages->reorderLanguages(explode(',', (string) ($_POST['order'] ?? '')));
+                $saved = $pageRepo->reorderLanguages(explode(',', (string) ($_POST['order'] ?? '')));
 
                 if (wants_json()) {
                     send_json(['ok' => $saved]);
@@ -481,11 +481,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'footer_add':
                 // Link a page at the end of the footer.
                 require_role($security, 'users');
-                $target = $pages->find((int) ($_POST['id'] ?? 0));
+                $target = $pageRepo->find((int) ($_POST['id'] ?? 0));
                 if ($target === null) {
                     flash('error', t('This page was not found.'));
                 } else {
-                    $pages->addToFooter((int) $target['id']);
+                    $pageRepo->addToFooter((int) $target['id']);
                     flash('ok', t('“{title}” is linked in the footer now.', ['title' => (string) $target['title']]));
                 }
                 redirect(url(['p' => 'footer']));
@@ -494,11 +494,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'footer_remove':
                 // Take a page out of the footer; it keeps its address.
                 require_role($security, 'users');
-                $target = $pages->find((int) ($_POST['id'] ?? 0));
+                $target = $pageRepo->find((int) ($_POST['id'] ?? 0));
                 if ($target === null) {
                     flash('error', t('This page was not found.'));
                 } else {
-                    $pages->removeFromFooter((int) $target['id']);
+                    $pageRepo->removeFromFooter((int) $target['id']);
                     flash('ok', t('“{title}” is no longer linked in the footer. It stays reachable under its address.', ['title' => (string) $target['title']]));
                 }
                 redirect(url(['p' => 'footer']));
@@ -509,7 +509,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // keyboard's way and the way without JavaScript.
                 require_role($security, 'users');
                 $dir = (string) ($_POST['dir'] ?? 'up');
-                $pages->moveInFooter((int) ($_POST['id'] ?? 0), in_array($dir, ['up', 'down', 'top', 'bottom'], true) ? $dir : 'up');
+                $pageRepo->moveInFooter((int) ($_POST['id'] ?? 0), in_array($dir, ['up', 'down', 'top', 'bottom'], true) ? $dir : 'up');
                 redirect(url(['p' => 'footer']));
                 // no break
 
@@ -517,7 +517,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // "3,7,1" -- the footer's links in their new order, from drag
                 // & drop (app.js, the same code as the wish list's).
                 require_role($security, 'users');
-                $count = $pages->reorderFooter(array_filter(array_map(
+                $count = $pageRepo->reorderFooter(array_filter(array_map(
                     'intval',
                     explode(',', (string) ($_POST['order'] ?? '')),
                 )));
@@ -989,7 +989,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     flash('error', t('This suggestion was not found.'));
                 }
-                redirect(url(['p' => 'suggestions']));
+                redirect(back(url(['p' => 'suggestions'])));
                 // no break
 
             case 'suggestions_clear':
@@ -1282,7 +1282,7 @@ try {
     }
     $view['roomList'] = $rooms->names();
     // The footer links the pages the admins put there, on every screen.
-    $view['footerPages'] = $pages->footerLinks();
+    $view['footerPages'] = $pageRepo->footerLinks();
     // Visitors without a login are asked for their name once, on the public
     // pages where wishing happens. Staff in the guest view see it as well --
     // that is what the guest view is for.
@@ -1351,9 +1351,9 @@ try {
             $view['title']     = t('Pages');
             $view['template']  = 'pages';
             $view['q']         = $q;
-            $view['rows']      = $pages->all($q);
+            $view['rows']      = $pageRepo->all($q);
             $view['languages'] = $translator->available();   // code => native name
-            $view['order']     = $pages->languageOrder();    // the fallback order, codes
+            $view['order']     = $pageRepo->languageOrder();    // the fallback order, codes
             break;
 
         case 'footer':
@@ -1364,8 +1364,8 @@ try {
 
             $view['title']     = t('Footer');
             $view['template']  = 'footer';
-            $view['linked']    = $pages->inFooter();
-            $view['available'] = $pages->outsideFooter();
+            $view['linked']    = $pageRepo->inFooter();
+            $view['available'] = $pageRepo->outsideFooter();
             break;
 
         case 'page_edit':
@@ -1375,7 +1375,7 @@ try {
             $existing = null;
 
             if ($id > 0) {
-                $existing = $pages->find($id);
+                $existing = $pageRepo->find($id);
                 if ($existing === null) {
                     flash('error', t('This page was not found.'));
                     redirect(url(['p' => 'pages']));
@@ -1388,7 +1388,7 @@ try {
             // their tabs. An error puts its tab in front, otherwise the
             // interface language's if the page has it, otherwise the first
             // the page has, otherwise the interface language's.
-            $versions  = $id > 0 ? $pages->versions($id) : [];
+            $versions  = $id > 0 ? $pageRepo->versions($id) : [];
             $errors    = $kept['errors'] ?? [];
             $languages = $translator->available();
             $withError = null;
@@ -1418,7 +1418,7 @@ try {
 
         case 'page':
             // A page for everyone: /pages/<slug> -- in the footer or not.
-            $found = $pages->findBySlug($routeSlug);
+            $found = $pageRepo->findBySlug($routeSlug);
             if ($found === null) {
                 not_found();
             }
@@ -1509,19 +1509,26 @@ try {
             $canEdit = $security->can('suggestions');
             $kept    = remembered_input();
             $q       = trim((string) ($_GET['q'] ?? ''));
+            $perPage = max(10, (int) $config['per_page']);
+            $pageNo  = max(1, (int) ($_GET['page'] ?? 1));
+
+            $result = $suggestions->search($q, $pageNo, $perPage);
 
             $view['title']     = t('Song suggestions');
             $view['template']  = 'suggestions';
             $view['canEdit']   = $canEdit;
             $view['q']         = $q;
-            $view['rows']      = $suggestions->all($q);
+            $view['rows']      = $result['rows'];
+            $view['found']     = $result['total'];
+            $view['pageNo']    = $pageNo;
+            $view['pages']     = max(1, (int) ceil($result['total'] / $perPage));
             // Room names for the tags on the rows, by id -- archived rooms too.
             $view['roomNames'] = $rooms->namesById();
             // No form while wishing is paused in this room.
             $view['formToken'] = $view['paused'] ? '' : $guard->formToken();
             $view['errors']    = $kept['errors'] ?? [];
             $view['values']    = $kept['values'] ?? ['artist' => '', 'title' => ''];
-            $view['suggestionCount'] = $q === '' ? count($view['rows']) : $suggestions->count();
+            $view['suggestionCount'] = $q === '' ? $result['total'] : $suggestions->count();
             break;
 
         case 'name':
