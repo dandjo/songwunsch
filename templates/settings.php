@@ -94,23 +94,32 @@ $roleNotes  = [
 
             <div class="field">
                 <label for="current_password"><?= $e(t('Current password')) ?></label>
-                <input type="password" id="current_password" name="current_password" autocomplete="current-password" required<?= $invalid('current_password') ?>>
+                <div class="password" data-reveal>
+                    <input type="password" id="current_password" name="current_password" autocomplete="current-password" required<?= $invalid('current_password') ?>>
+                    <?= password_toggle() ?>
+                </div>
                 <?= $fieldError('current_password') ?>
             </div>
 
             <div class="field">
                 <label for="password"><?= $e(t('New password')) ?></label>
-                <input type="password" id="password" name="password" autocomplete="new-password" required
-                       minlength="<?= UserRepository::MIN_PASSWORD ?>"
-                       aria-describedby="hint-password<?= isset($errors['password']) ? ' err-password' : '' ?>"
-                       <?= isset($errors['password']) ? 'aria-invalid="true"' : '' ?>>
+                <div class="password" data-reveal>
+                    <input type="password" id="password" name="password" autocomplete="new-password" required
+                           minlength="<?= UserRepository::MIN_PASSWORD ?>"
+                           aria-describedby="hint-password<?= isset($errors['password']) ? ' err-password' : '' ?>"
+                           <?= isset($errors['password']) ? 'aria-invalid="true"' : '' ?>>
+                    <?= password_toggle() ?>
+                </div>
                 <p class="field__hint" id="hint-password"><?= $e(t('At least {n} characters.', ['n' => UserRepository::MIN_PASSWORD])) ?></p>
                 <?= $fieldError('password') ?>
             </div>
 
             <div class="field">
                 <label for="password2"><?= $e(t('Repeat password')) ?></label>
-                <input type="password" id="password2" name="password2" autocomplete="new-password" required<?= $invalid('password2') ?>>
+                <div class="password" data-reveal>
+                    <input type="password" id="password2" name="password2" autocomplete="new-password" required<?= $invalid('password2') ?>>
+                    <?= password_toggle() ?>
+                </div>
                 <?= $fieldError('password2') ?>
             </div>
         </fieldset>

@@ -1216,3 +1216,9 @@ msgstr "Ohne Rolle kannst du dich anmelden und das öffentliche Repertoire sehen
 msgid "Roles are assigned by the admin."
 msgstr "Rollen vergibt der Admin."
 
+msgid "Show password"
+msgstr "Passwort anzeigen"
+
+msgid "Hide password"
+msgstr "Passwort verbergen"
+

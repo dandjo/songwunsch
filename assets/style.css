@@ -1333,6 +1333,31 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     font-size: 16px; /* prevents the automatic zoom-in on iOS */
 }
 
+/* Password field with the show/hide eye at its right edge; the field keeps
+   room for it. The button carries both glyphs and shows one at a time. */
+.password { position: relative; }
+.password input { padding-right: 2.6rem; }
+.password__toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 2.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+.password__toggle:hover,
+.password__toggle:focus-visible { color: var(--text); }
+.password__toggle .button__glyph { margin: 0; }
+.password__toggle[aria-pressed="true"] .button__glyph:first-child,
+.password__toggle[aria-pressed="false"] .button__glyph:last-child { display: none; }
+
 .field input[aria-invalid="true"] {
     border-color: var(--danger);
     box-shadow: 0 0 0 3px rgba(255, 111, 133, .15);
@@ -1364,6 +1389,8 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 .field__legend { margin: 0 0 .5rem; font-size: 1rem; font-weight: 700; color: var(--text); }
 .field--group ul.field__hint { margin: .5rem 0 0; padding-left: 1.1rem; }
 .field--group ul.field__hint li { margin: .15rem 0; }
+/* A closing remark after the list stands off from it. */
+.field--group ul.field__hint + .field__hint { margin-top: .9rem; }
 
 .check {
     display: flex;

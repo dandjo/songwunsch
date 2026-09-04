@@ -218,6 +218,8 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         'gear'   => '<path fill-rule="evenodd" d="M13.2 7.0 L14.9 7.1 L14.9 8.9 L13.2 9.0 L12.4 11.0 L13.5 12.3 L12.3 13.5 L11.0 12.4 L9.0 13.2 L8.9 14.9 L7.1 14.9 L7.0 13.2 L5.0 12.4 L3.7 13.5 L2.5 12.3 L3.6 11.0 L2.8 9.0 L1.1 8.9 L1.1 7.1 L2.8 7.0 L3.6 5.0 L2.5 3.7 L3.7 2.5 L5.0 3.6 L7.0 2.8 L7.1 1.1 L8.9 1.1 L9.0 2.8 L11.0 3.6 L12.3 2.5 L13.5 3.7 L12.4 5.0z M8 5.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 1 0 0-4.8z" fill="currentColor"/>',
         // Guest view: an eye.
         'eye'    => '<path d="M1.6 8c1.8-3.3 3.9-4.9 6.4-4.9S12.6 4.7 14.4 8c-1.8 3.3-3.9 4.9-6.4 4.9S3.4 11.3 1.6 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="8" r="2.1" fill="currentColor"/>',
+        // The eye, struck through: the password is shown, click hides it again.
+        'eye-off' => '<path d="M1.6 8c1.8-3.3 3.9-4.9 6.4-4.9S12.6 4.7 14.4 8c-1.8 3.3-3.9 4.9-6.4 4.9S3.4 11.3 1.6 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="8" r="2.1" fill="currentColor"/><path d="M2.5 13.5 13.5 2.5" fill="none" stroke="var(--surface, #101218)" stroke-width="4" stroke-linecap="round"/><path d="M2.5 13.5 13.5 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
         // Wish list: to the very top / bottom -- a bar with a filled triangle.
         'to-top'    => '<path d="M2.5 2.4h11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 5.2l5.2 8.3H2.8z" fill="currentColor"/>',
         'to-bottom' => '<path d="M2.5 13.6h11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 10.8L2.8 2.5h10.4z" fill="currentColor"/>',
@@ -239,6 +241,20 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
 
     return '<svg class="button__glyph' . ($trailing ? ' button__glyph--trailing' : '') . '" viewBox="0 0 16 16" width="' . $size . '" height="' . $size . '"'
         . ' aria-hidden="true" focusable="false">' . $paths[$name] . '</svg>';
+}
+
+/**
+ * Show/hide switch for a password field. The field sits in a
+ * <div class="password" data-reveal> together with this button; app.js
+ * unhides the button and flips the field's type. Without JavaScript the
+ * button stays hidden and the field is an ordinary password field.
+ */
+function password_toggle(): string
+{
+    return '<button type="button" class="password__toggle" hidden aria-pressed="false"'
+        . ' aria-label="' . \Songwunsch\Format::e(t('Show password')) . '"'
+        . ' data-show="' . \Songwunsch\Format::e(t('Show password')) . '" data-hide="' . \Songwunsch\Format::e(t('Hide password')) . '">'
+        . icon('eye') . icon('eye-off') . '</button>';
 }
 
 /**

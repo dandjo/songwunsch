@@ -1212,3 +1212,9 @@ msgstr "Sans rôle, vous pouvez vous connecter et voir la liste publique des mor
 msgid "Roles are assigned by the admin."
 msgstr "Les rôles sont attribués par l’admin."
 
+msgid "Show password"
+msgstr "Afficher le mot de passe"
+
+msgid "Hide password"
+msgstr "Masquer le mot de passe"
+

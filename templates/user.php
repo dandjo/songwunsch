@@ -66,18 +66,24 @@ $checked = static fn (string $field): string => ($values[$field] ?? '') === '1' 
             <label for="password"><?= $e($isNew ? t('Password') : t('New password')) ?>
                 <?php if (!$isNew): ?><span class="muted"><?= $e(t('(leave empty to keep it)')) ?></span><?php endif; ?>
             </label>
-            <input type="password" id="password" name="password" autocomplete="new-password"
-                   <?= $isNew ? 'required' : '' ?> minlength="<?= UserRepository::MIN_PASSWORD ?>"
-                   aria-describedby="hint-password<?= isset($errors['password']) ? ' err-password' : '' ?>"
-                   <?= isset($errors['password']) ? 'aria-invalid="true"' : '' ?>>
+            <div class="password" data-reveal>
+                <input type="password" id="password" name="password" autocomplete="new-password"
+                       <?= $isNew ? 'required' : '' ?> minlength="<?= UserRepository::MIN_PASSWORD ?>"
+                       aria-describedby="hint-password<?= isset($errors['password']) ? ' err-password' : '' ?>"
+                       <?= isset($errors['password']) ? 'aria-invalid="true"' : '' ?>>
+                <?= password_toggle() ?>
+            </div>
             <p class="field__hint" id="hint-password"><?= $e(t('At least {n} characters.', ['n' => UserRepository::MIN_PASSWORD])) ?></p>
             <?= $fieldError('password') ?>
         </div>
 
         <div class="field">
             <label for="password2"><?= $e(t('Repeat password')) ?></label>
-            <input type="password" id="password2" name="password2" autocomplete="new-password"
-                   <?= $isNew ? 'required' : '' ?><?= $invalid('password2') ?>>
+            <div class="password" data-reveal>
+                <input type="password" id="password2" name="password2" autocomplete="new-password"
+                       <?= $isNew ? 'required' : '' ?><?= $invalid('password2') ?>>
+                <?= password_toggle() ?>
+            </div>
             <?= $fieldError('password2') ?>
         </div>
 

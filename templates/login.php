@@ -24,7 +24,10 @@ $e = static fn (?string $v): string => Format::e($v);
 
         <div class="field">
             <label for="pass"><?= $e(t('Password')) ?></label>
-            <input type="password" id="pass" name="pass" autocomplete="current-password" required>
+            <div class="password" data-reveal>
+                <input type="password" id="pass" name="pass" autocomplete="current-password" required>
+                <?= password_toggle() ?>
+            </div>
         </div>
 
         <button type="submit" class="wish-button wish-button--wide"><?= $e(t('Log in')) ?></button>

@@ -100,6 +100,24 @@
             }
         });
 
+        // Password fields: the eye shows the typed password and hides it
+        // again. The button is rendered hidden and only appears here, so
+        // without JavaScript nothing dangles beside the field.
+        root.querySelectorAll('[data-reveal]').forEach(function (box) {
+            var field = box.querySelector('input');
+            var toggle = box.querySelector('.password__toggle');
+            if (!field || !toggle || toggle.hasAttribute('data-bound')) { return; }
+            toggle.setAttribute('data-bound', '1');
+            toggle.hidden = false;
+            toggle.addEventListener('click', function () {
+                var show = field.type === 'password';
+                field.type = show ? 'text' : 'password';
+                toggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+                toggle.setAttribute('aria-label', toggle.getAttribute(show ? 'data-hide' : 'data-show'));
+                field.focus();
+            });
+        });
+
         // Confirmation before deleting.
         root.querySelectorAll('form[data-confirm]').forEach(function (form) {
             form.addEventListener('submit', function (event) {
