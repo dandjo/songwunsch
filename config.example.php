@@ -42,8 +42,9 @@ return [
     // --- First admin ------------------------------------------------------
     // Users are managed in the `users` table (page "Users"). These values
     // only matter while that table is empty: then the application creates
-    // the first admin from them. Afterwards the table alone counts; a
-    // password changed here has no effect any more.
+    // the first admin from them, who makes further users -- and further
+    // admins -- inside the application. Afterwards the table alone counts;
+    // a password changed here has no effect any more.
     // Create the hash with:  php tools/hash.php 'MyPassword'
     'auth' => [
         'user' => $env('AUTH_USER', 'Administrator'),

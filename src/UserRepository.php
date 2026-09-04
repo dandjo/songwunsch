@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace Songwunsch;
 
-use RuntimeException;
-
 /**
  * Users and roles in the `users` table.
  *
  * Roles:
- *  - Admin      creates and manages users; may do everything. There is exactly
- *               one -- the unique index on is_admin (1 or NULL) does not let
- *               the database hold a second one. The role is not assigned but
- *               handed over (transferAdmin).
+ *  - Admin      creates and manages users -- and hands out every role, this
+ *               one included; may do everything. Admin includes the other
+ *               two roles, and they are stored along with it (validate), so
+ *               an admin who gives the role up keeps them. Any number of
+ *               admins; the only rule is that the last active admin cannot
+ *               give the role up (activeAdmins), so there is always somebody
+ *               who can manage users. Nobody locks or deletes themselves.
  *  - Editor     maintains the song list.
  *  - Moderator  edits the wish list.
- * A user can be editor and moderator at the same time.
+ * Editor and moderator can be combined freely.
  *
  * Only username and password hash are stored -- no e-mail, no real name, no
  * login timestamps (data minimisation).
@@ -29,16 +30,16 @@ final class UserRepository
     public const MAX_NAME     = 64;
     public const MIN_PASSWORD = 8;
 
-    private const SELECT = 'SELECT id, username, password_hash, is_admin, role_moderator, role_editor, active FROM ' . self::TABLE;
+    private const SELECT = 'SELECT id, username, password_hash, role_admin, role_moderator, role_editor, active FROM ' . self::TABLE;
 
     public function __construct(private readonly Database $db)
     {
     }
 
-    /** @return array<int,array<string,mixed>> admin first, then alphabetically */
+    /** @return array<int,array<string,mixed>> alphabetically by username */
     public function all(): array
     {
-        return $this->db->all(self::SELECT . ' ORDER BY is_admin DESC, username ASC');
+        return $this->db->all(self::SELECT . ' ORDER BY username ASC');
     }
 
     public function count(): int
@@ -56,9 +57,19 @@ final class UserRepository
         return $this->db->one(self::SELECT . ' WHERE username = ? LIMIT 1', [$username]);
     }
 
-    public function admin(): ?array
+    /**
+     * How many active admins there are, not counting $exceptId. Zero means
+     * the user in question is the only one who can manage users -- then
+     * they must keep the role.
+     */
+    public function activeAdmins(int $exceptId = 0): int
     {
-        return $this->db->one(self::SELECT . ' WHERE is_admin = 1 LIMIT 1');
+        $row = $this->db->one(
+            'SELECT COUNT(*) AS c FROM ' . self::TABLE . ' WHERE role_admin = 1 AND active = 1 AND id <> ?',
+            [$exceptId],
+        );
+
+        return (int) ($row['c'] ?? 0);
     }
 
     /**
@@ -76,7 +87,7 @@ final class UserRepository
         $now = date('Y-m-d H:i:s');
         $this->db->exec(
             'INSERT INTO ' . self::TABLE
-            . ' (username, password_hash, is_admin, role_moderator, role_editor, active, created_at, updated_at)
+            . ' (username, password_hash, role_admin, role_moderator, role_editor, active, created_at, updated_at)
                VALUES (?, ?, 1, 1, 1, 1, ?, ?)',
             [mb_substr(trim((string) $auth['user']), 0, self::MAX_NAME), (string) $auth['hash'], $now, $now],
         );
@@ -125,8 +136,11 @@ final class UserRepository
             }
         }
 
-        $values['role_moderator'] = (($input['role_moderator'] ?? '') === '1') ? 1 : 0;
-        $values['role_editor']    = (($input['role_editor'] ?? '') === '1') ? 1 : 0;
+        // Admin includes editor and moderator -- the form locks those boxes
+        // (locked boxes are not posted), so the roles are derived here.
+        $values['role_admin']     = (($input['role_admin'] ?? '') === '1') ? 1 : 0;
+        $values['role_moderator'] = $values['role_admin'] === 1 || (($input['role_moderator'] ?? '') === '1') ? 1 : 0;
+        $values['role_editor']    = $values['role_admin'] === 1 || (($input['role_editor'] ?? '') === '1') ? 1 : 0;
         $values['active']         = (($input['active'] ?? '') === '1') ? 1 : 0;
 
         return ['values' => $values, 'errors' => $errors];
@@ -168,11 +182,12 @@ final class UserRepository
         $now = date('Y-m-d H:i:s');
         $this->db->exec(
             'INSERT INTO ' . self::TABLE
-            . ' (username, password_hash, is_admin, role_moderator, role_editor, active, created_at, updated_at)
-               VALUES (?, ?, NULL, ?, ?, ?, ?, ?)',
+            . ' (username, password_hash, role_admin, role_moderator, role_editor, active, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 $values['username'],
                 $values['password_hash'],
+                $values['role_admin'],
                 $values['role_moderator'],
                 $values['role_editor'],
                 $values['active'],
@@ -187,9 +202,10 @@ final class UserRepository
     /** @param array<string,mixed> $values result of validate(); without password_hash the password is kept */
     public function update(int $id, array $values): void
     {
-        $set    = ['username = ?', 'role_moderator = ?', 'role_editor = ?', 'active = ?', 'updated_at = ?'];
+        $set    = ['username = ?', 'role_admin = ?', 'role_moderator = ?', 'role_editor = ?', 'active = ?', 'updated_at = ?'];
         $params = [
             $values['username'],
+            $values['role_admin'],
             $values['role_moderator'],
             $values['role_editor'],
             $values['active'],
@@ -205,51 +221,10 @@ final class UserRepository
         $this->db->exec('UPDATE ' . self::TABLE . ' SET ' . implode(', ', $set) . ' WHERE id = ? LIMIT 1', $params);
     }
 
+    /** Delete a user. That it is not oneself is the caller's business. */
     public function delete(int $id): bool
     {
-        // The admin cannot be deleted -- the role is handed over first.
-        return $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE id = ? AND is_admin IS NULL LIMIT 1', [$id]) > 0;
-    }
-
-    /**
-     * Hand over the admin role: exactly one admin, therefore give it up and
-     * take it over in one transaction. The former admin keeps their other
-     * roles.
-     */
-    public function transferAdmin(int $fromId, int $toId): void
-    {
-        if ($fromId === $toId) {
-            throw new RuntimeException(t('This user is already the admin.'));
-        }
-
-        $target = $this->find($toId);
-        if ($target === null) {
-            throw new RuntimeException(t('This user was not found.'));
-        }
-        if ((int) $target['active'] !== 1) {
-            throw new RuntimeException(t('The admin role can only be handed over to an active user.'));
-        }
-
-        $pdo = $this->db->pdo();
-        $pdo->beginTransaction();
-        try {
-            $now = date('Y-m-d H:i:s');
-            $this->db->exec(
-                'UPDATE ' . self::TABLE . ' SET is_admin = NULL, updated_at = ? WHERE id = ? AND is_admin = 1',
-                [$now, $fromId],
-            );
-            $given = $this->db->exec(
-                'UPDATE ' . self::TABLE . ' SET is_admin = 1, updated_at = ? WHERE id = ? AND active = 1',
-                [$now, $toId],
-            );
-            if ($given !== 1) {
-                throw new RuntimeException(t('The admin role could not be handed over.'));
-            }
-            $pdo->commit();
-        } catch (\Throwable $e) {
-            $pdo->rollBack();
-            throw $e;
-        }
+        return $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE id = ? LIMIT 1', [$id]) > 0;
     }
 
     /**
@@ -261,7 +236,7 @@ final class UserRepository
     public static function roleLabels(array $user): array
     {
         $labels = [];
-        if ((int) ($user['is_admin'] ?? 0) === 1) {
+        if ((int) ($user['role_admin'] ?? 0) === 1) {
             $labels[] = t('Admin', [], 'role');
         }
         if ((int) ($user['role_editor'] ?? 0) === 1) {

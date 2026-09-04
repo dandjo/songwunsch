@@ -440,8 +440,8 @@ msgid_plural "{n} users."
 msgstr[0] "Ein Benutzer."
 msgstr[1] "{n} Benutzer."
 
-msgid "{editor} maintains the repertoire, {moderator} the wish list; the {admin} manages users and may do everything. There is exactly one admin; the role is handed over when editing a user."
-msgstr "{editor} pflegt das Repertoire, {moderator} die Wunschliste, der {admin} verwaltet die Benutzer und darf alles. Es gibt genau einen Admin; die Rolle wird beim Bearbeiten eines Benutzers übergeben."
+msgid "{editor} maintains the repertoire, {moderator} the wish list; {admin} manages users, hands out every role and may do everything. Roles can be combined; at least one active admin always remains."
+msgstr "{editor} pflegt das Repertoire, {moderator} die Wunschliste, {admin} verwaltet die Benutzer, vergibt alle Rollen und darf alles. Rollen lassen sich kombinieren; mindestens ein aktiver Admin bleibt immer."
 
 msgid "Add user"
 msgstr "Benutzer anlegen"
@@ -476,9 +476,6 @@ msgstr "Benutzer „{name}“ endgültig löschen?"
 msgid "Pass on username and password – the new user can log in right away."
 msgstr "Benutzername und Passwort weitergeben – der neue Benutzer kann sich sofort anmelden."
 
-msgid "The admin may do everything; their role boxes and status are therefore fixed. The admin role can be handed over to another user below."
-msgstr "Der Admin darf alles; seine Rollen-Häkchen und der Status sind deshalb fest. Die Admin-Rolle lässt sich unten an einen anderen Benutzer übergeben."
-
 msgid "Changes to roles and status take effect immediately, even for a running session."
 msgstr "Änderungen an Rollen und Status gelten sofort, auch für eine laufende Sitzung."
 
@@ -500,8 +497,14 @@ msgstr "Repertoire pflegen (hinzufügen, bearbeiten, löschen)"
 msgid "edit the wish list, open and close the room"
 msgstr "Wunschliste bearbeiten, Raum öffnen und schließen"
 
-msgid "As admin this user has every permission anyway."
-msgstr "Als Admin hat dieser Benutzer ohnehin alle Rechte."
+msgid "manage users and hand out roles; includes Editor and Moderator"
+msgstr "Benutzer verwalten und Rollen vergeben; schließt Editor und Moderator ein"
+
+msgid "The only active admin keeps the role – make another user admin first."
+msgstr "Der einzige aktive Admin behält die Rolle – mach zuerst einen anderen Benutzer zum Admin."
+
+msgid "You cannot lock yourself."
+msgstr "Du kannst dich nicht selbst sperren."
 
 msgid "Active"
 msgstr "Aktiv"
@@ -511,15 +514,6 @@ msgstr "gesperrte Benutzer können sich nicht anmelden und fliegen aus laufenden
 
 msgid "Create"
 msgstr "Anlegen"
-
-msgid "Hand over admin role"
-msgstr "Admin-Rolle übergeben"
-
-msgid "Afterwards {name} manages the users and may do everything. You keep your other roles but lose access to this page – you only get it back if the new admin hands the role back."
-msgstr "Danach verwaltet {name} die Benutzer und darf alles. Du behältst deine übrigen Rollen, verlierst aber den Zugang zu dieser Seite – zurück geht es nur, wenn der neue Admin die Rolle wieder übergibt."
-
-msgid "Really hand the admin role over to “{name}”?"
-msgstr "Admin-Rolle wirklich an „{name}“ übergeben?"
 
 msgid "Username: {min} to {max} characters."
 msgstr "Benutzername: {min} bis {max} Zeichen."
@@ -536,17 +530,8 @@ msgstr "Passwort: mindestens {min} Zeichen."
 msgid "The two passwords do not match."
 msgstr "Die beiden Passwörter stimmen nicht überein."
 
-msgid "This user is already the admin."
-msgstr "Der Admin ist bereits dieser Benutzer."
-
 msgid "This user was not found."
 msgstr "Dieser Benutzer wurde nicht gefunden."
-
-msgid "The admin role can only be handed over to an active user."
-msgstr "Die Admin-Rolle kann nur an einen aktiven Benutzer übergeben werden."
-
-msgid "The admin role could not be handed over."
-msgstr "Die Admin-Rolle konnte nicht übergeben werden."
 
 msgid "User “{name}” has been created."
 msgstr "Benutzer „{name}“ ist angelegt."
@@ -557,14 +542,17 @@ msgstr "Benutzer „{name}“ ist gespeichert."
 msgid "User “{name}” has been deleted."
 msgstr "Benutzer „{name}“ ist gelöscht."
 
-msgid "The admin cannot be deleted – hand over the admin role first."
-msgstr "Der Admin kann nicht gelöscht werden – zuerst die Admin-Rolle übergeben."
+msgid "You cannot delete yourself."
+msgstr "Du kannst dich nicht selbst löschen."
+
+msgid "You are the only active admin – make another user admin first."
+msgstr "Du bist der einzige aktive Admin – mach zuerst einen anderen Benutzer zum Admin."
 
 msgid "Deleting was not possible."
 msgstr "Löschen war nicht möglich."
 
-msgid "The admin role now belongs to “{name}”. You keep your other roles."
-msgstr "Die Admin-Rolle liegt jetzt bei „{name}“. Du behältst deine übrigen Rollen."
+msgid "You are no longer admin. Your other roles stay; another admin can give the role back."
+msgstr "Du bist kein Admin mehr. Deine übrigen Rollen bleiben; ein anderer Admin kann dir die Rolle zurückgeben."
 
 msgid "Page not found"
 msgstr "Seite nicht gefunden"
@@ -691,6 +679,9 @@ msgstr[1] "{n} Songs aus dem Raum entfernt."
 
 msgid "Switch room"
 msgstr "Raum wechseln"
+
+msgid "You are here"
+msgstr "Du bist hier"
 
 msgid "Manage {room}"
 msgstr "{room} verwalten"
@@ -844,8 +835,8 @@ msgid_plural "{n} wishes"
 msgstr[0] "{n} Wunsch"
 msgstr[1] "{n} Wünsche"
 
-msgid "The admin account still uses the default password."
-msgstr "Das Admin-Konto verwendet noch das Standardpasswort."
+msgid "Your account still uses the default password."
+msgstr "Dein Konto verwendet noch das Standardpasswort."
 
 msgid "Anyone who knows this software can sign in – {change}."
 msgstr "Wer diese Software kennt, kann sich anmelden – {change}."
@@ -1192,8 +1183,8 @@ msgstr "Das aktuelle Passwort stimmt nicht."
 msgid "Your password has been changed."
 msgstr "Dein Passwort wurde geändert."
 
-msgid "User management, plus everything editors and moderators may do."
-msgstr "Benutzerverwaltung, dazu alles, was Editoren und Moderatoren dürfen."
+msgid "Manage users and hand out roles, plus everything editors and moderators may do."
+msgstr "Benutzer verwalten und Rollen vergeben, dazu alles, was Editoren und Moderatoren dürfen."
 
 msgid "Repertoire, song suggestions and rooms."
 msgstr "Repertoire, Songvorschläge und Räume."
@@ -1204,11 +1195,14 @@ msgstr "Wunschliste: sortieren, löschen, leeren; Räume schließen und öffnen.
 msgid "Your account"
 msgstr "Dein Konto"
 
-msgid "Without a role you can sign in and see the public repertoire; roles are assigned by the admin."
-msgstr "Ohne Rolle kannst du dich anmelden und das öffentliche Repertoire sehen; Rollen vergibt der Admin."
+msgid "Without a role you can sign in and see the public repertoire; roles are assigned by admins."
+msgstr "Ohne Rolle kannst du dich anmelden und das öffentliche Repertoire sehen; Rollen vergeben die Admins."
 
-msgid "Roles are assigned by the admin."
-msgstr "Rollen vergibt der Admin."
+msgid "Roles are assigned by admins."
+msgstr "Rollen vergeben die Admins."
+
+msgid "Roles are assigned under Users – yours too."
+msgstr "Rollen werden unter Benutzer vergeben – auch deine."
 
 msgid "Show password"
 msgstr "Passwort anzeigen"

@@ -87,17 +87,22 @@ foreach ($translator->available() as $code => $name) {
 
         <nav class="nav" aria-label="<?= $e(t('Main navigation')) ?>">
             <?php if ($roomList !== []): ?>
-                <?php /* Room switcher: a tab-styled <details> like the language menu,
-                         left of the page tabs. Lists the main room and every room;
-                         works without JavaScript. */ ?>
+                <?php /* Room switcher: a <details> like the language menu, labelled
+                         "You are here: <room>" so the name reads as a place, not as
+                         a page. On phones it takes a row of its own above the tabs,
+                         on wider screens it stands at the left, apart from them
+                         (CSS). Lists the main room and every room; works without
+                         JavaScript. The visible text is the accessible name. */ ?>
                 <details class="roomswitch">
-                    <summary class="roomswitch__toggle" aria-label="<?= $e(t('Switch room')) ?>: <?= $e((string) $room['name']) ?>">
+                    <summary class="roomswitch__toggle">
+                        <?= icon('door') ?><span class="roomswitch__label"><?= $e(t('You are here')) ?>:</span>
                         <span class="roomswitch__current"><?= $e((string) $room['name']) ?></span>
                         <svg class="roomswitch__chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
                             <path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </summary>
                     <div class="roomswitch__panel">
+                    <p class="roomswitch__title"><?= $e(t('Switch room')) ?></p>
                     <?php if (count($roomList) > 6): ?>
                         <?php /* Filter field, wired up by app.js; without JavaScript
                                  the full list simply stays visible. */ ?>
@@ -330,7 +335,7 @@ foreach ($translator->available() as $code => $name) {
         <?php endif; ?>
 
         <?php if ($security->usesDefaultPassword()): ?>
-            <?php /* Only the admin sees this, only while the shipped password is in use. */ ?>
+            <?php /* Only while the signed-in user still has the shipped password. */ ?>
             <p class="dome__notice dome__notice--warn" role="alert">
                 <svg class="dome__notice-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
                     <path d="M12 2.5 22.5 20.5H1.5z" fill="currentColor" opacity=".18"/>
@@ -339,9 +344,9 @@ foreach ($translator->available() as $code => $name) {
                     <circle cx="12" cy="17" r="1.3" fill="currentColor"/>
                 </svg>
                 <span>
-                    <strong><?= $e(t('The admin account still uses the default password.')) ?></strong>
+                    <strong><?= $e(t('Your account still uses the default password.')) ?></strong>
                     <?= t('Anyone who knows this software can sign in – {change}.', [
-                        'change' => '<a href="' . $e(url(['p' => 'user', 'id' => (int) $security->user()['id']])) . '">' . $e(t('change it now')) . '</a>',
+                        'change' => '<a href="' . $e(url(['p' => 'settings', 'id' => (int) $security->user()['id']])) . '">' . $e(t('change it now')) . '</a>',
                     ]) ?>
                 </span>
             </p>

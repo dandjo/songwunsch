@@ -103,24 +103,33 @@ CREATE TABLE IF NOT EXISTS `wish_throttle` (
     KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Staff accounts. Exactly one admin: is_admin is 1 or NULL, the unique index
--- allows only one 1. The roles moderator (wish list) and editor (song list)
--- can be combined. The application creates the first admin from
+-- Staff accounts. Three roles: admin (manages users, may do everything),
+-- moderator (wish list) and editor (song list). Admin includes the other two
+-- and is stored together with them; moderator and editor combine freely.
+-- Any number of admins; the application only makes sure the last active
+-- admin cannot give the role up. It creates the first admin from
 -- auth.user/auth.hash in config.php as soon as the table is empty.
 CREATE TABLE IF NOT EXISTS `users` (
     `id`             INT UNSIGNED     NOT NULL AUTO_INCREMENT,
     `username`       VARCHAR(64)      NOT NULL,
     `password_hash`  VARCHAR(255)     NOT NULL,
-    `is_admin`       TINYINT UNSIGNED NULL COMMENT '1 for the single admin, otherwise NULL -- the unique index allows only one',
+    `role_admin`     TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'admin: manages users and may do everything',
     `role_moderator` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'moderator: may edit the wish list',
     `role_editor`    TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'editor: may maintain the song list',
     `active`         TINYINT UNSIGNED NOT NULL DEFAULT 1,
     `created_at`     DATETIME         NOT NULL,
     `updated_at`     DATETIME         NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uq_username` (`username`),
-    UNIQUE KEY `uq_admin` (`is_admin`)
+    UNIQUE KEY `uq_username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Upgrade of a users table from when there was exactly one admin (is_admin 1
+-- or NULL under a unique index). The application does this itself on the
+-- first request; by hand only if the web user may not ALTER:
+--   ALTER TABLE `users`
+--       ADD COLUMN `role_admin` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'admin: manages users and may do everything' AFTER `password_hash`;
+--   UPDATE `users` SET `role_admin` = 1, `role_moderator` = 1, `role_editor` = 1 WHERE `is_admin` = 1;
+--   ALTER TABLE `users` DROP COLUMN `is_admin`;
 
 -- Rooms: a capsule of song list and wish list with its own address
 -- /rooms/<slug>. The default room (/ and /wishes) is virtual -- id 0, no row,

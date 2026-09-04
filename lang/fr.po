@@ -436,8 +436,8 @@ msgid_plural "{n} users."
 msgstr[0] "{n} utilisateur."
 msgstr[1] "{n} utilisateurs."
 
-msgid "{editor} maintains the repertoire, {moderator} the wish list; the {admin} manages users and may do everything. There is exactly one admin; the role is handed over when editing a user."
-msgstr "La {editor} gère le répertoire, la {moderator} la liste de souhaits ; l’{admin} gère les utilisateurs et peut tout faire. Il y a exactement un admin ; le rôle se transmet en modifiant un utilisateur."
+msgid "{editor} maintains the repertoire, {moderator} the wish list; {admin} manages users, hands out every role and may do everything. Roles can be combined; at least one active admin always remains."
+msgstr "{editor} gère le répertoire, {moderator} la liste de souhaits ; {admin} gère les utilisateurs, attribue tous les rôles et peut tout faire. Les rôles se combinent ; il reste toujours au moins un admin actif."
 
 msgid "Add user"
 msgstr "Ajouter un utilisateur"
@@ -472,9 +472,6 @@ msgstr "Supprimer définitivement l’utilisateur « {name} » ?"
 msgid "Pass on username and password – the new user can log in right away."
 msgstr "Transmettez le nom d’utilisateur et le mot de passe – le nouvel utilisateur peut se connecter immédiatement."
 
-msgid "The admin may do everything; their role boxes and status are therefore fixed. The admin role can be handed over to another user below."
-msgstr "L’admin peut tout faire ; ses cases de rôle et son statut sont donc figés. Le rôle d’admin peut être transmis à un autre utilisateur ci-dessous."
-
 msgid "Changes to roles and status take effect immediately, even for a running session."
 msgstr "Les changements de rôles et de statut prennent effet immédiatement, même pour une session en cours."
 
@@ -496,8 +493,14 @@ msgstr "gérer le répertoire (ajouter, modifier, supprimer)"
 msgid "edit the wish list, open and close the room"
 msgstr "gérer la liste de souhaits, ouvrir et fermer la salle"
 
-msgid "As admin this user has every permission anyway."
-msgstr "En tant qu’admin, cet utilisateur a de toute façon tous les droits."
+msgid "manage users and hand out roles; includes Editor and Moderator"
+msgstr "gérer les utilisateurs et attribuer les rôles ; inclut Rédaction et Modération"
+
+msgid "The only active admin keeps the role – make another user admin first."
+msgstr "Le seul admin actif garde son rôle – nommez d’abord un autre utilisateur admin."
+
+msgid "You cannot lock yourself."
+msgstr "Vous ne pouvez pas vous bloquer vous-même."
 
 msgid "Active"
 msgstr "Actif"
@@ -507,15 +510,6 @@ msgstr "les utilisateurs bloqués ne peuvent pas se connecter et sont exclus des
 
 msgid "Create"
 msgstr "Créer"
-
-msgid "Hand over admin role"
-msgstr "Transmettre le rôle d’admin"
-
-msgid "Afterwards {name} manages the users and may do everything. You keep your other roles but lose access to this page – you only get it back if the new admin hands the role back."
-msgstr "Ensuite, {name} gère les utilisateurs et peut tout faire. Vous gardez vos autres rôles mais perdez l’accès à cette page – vous ne le retrouverez que si le nouvel admin vous rend le rôle."
-
-msgid "Really hand the admin role over to “{name}”?"
-msgstr "Vraiment transmettre le rôle d’admin à « {name} » ?"
 
 msgid "Username: {min} to {max} characters."
 msgstr "Nom d’utilisateur : de {min} à {max} caractères."
@@ -532,17 +526,8 @@ msgstr "Mot de passe : au moins {min} caractères."
 msgid "The two passwords do not match."
 msgstr "Les deux mots de passe ne correspondent pas."
 
-msgid "This user is already the admin."
-msgstr "Cet utilisateur est déjà l’admin."
-
 msgid "This user was not found."
 msgstr "Cet utilisateur n’a pas été trouvé."
-
-msgid "The admin role can only be handed over to an active user."
-msgstr "Le rôle d’admin ne peut être transmis qu’à un utilisateur actif."
-
-msgid "The admin role could not be handed over."
-msgstr "Le rôle d’admin n’a pas pu être transmis."
 
 msgid "User “{name}” has been created."
 msgstr "L’utilisateur « {name} » a été créé."
@@ -553,14 +538,17 @@ msgstr "L’utilisateur « {name} » a été enregistré."
 msgid "User “{name}” has been deleted."
 msgstr "L’utilisateur « {name} » a été supprimé."
 
-msgid "The admin cannot be deleted – hand over the admin role first."
-msgstr "L’admin ne peut pas être supprimé – transmettez d’abord le rôle d’admin."
+msgid "You cannot delete yourself."
+msgstr "Vous ne pouvez pas vous supprimer vous-même."
+
+msgid "You are the only active admin – make another user admin first."
+msgstr "Vous êtes le seul admin actif – nommez d’abord un autre utilisateur admin."
 
 msgid "Deleting was not possible."
 msgstr "La suppression n’a pas été possible."
 
-msgid "The admin role now belongs to “{name}”. You keep your other roles."
-msgstr "Le rôle d’admin appartient maintenant à « {name} ». Vous gardez vos autres rôles."
+msgid "You are no longer admin. Your other roles stay; another admin can give the role back."
+msgstr "Vous n’êtes plus admin. Vos autres rôles restent ; un autre admin peut vous rendre le rôle."
 
 msgid "Page not found"
 msgstr "Page introuvable"
@@ -687,6 +675,9 @@ msgstr[1] "{n} morceaux retirés de la salle."
 
 msgid "Switch room"
 msgstr "Changer de salle"
+
+msgid "You are here"
+msgstr "Vous êtes ici"
 
 msgid "Manage {room}"
 msgstr "Gérer {room}"
@@ -840,8 +831,8 @@ msgid_plural "{n} wishes"
 msgstr[0] "{n} souhait"
 msgstr[1] "{n} souhaits"
 
-msgid "The admin account still uses the default password."
-msgstr "Le compte admin utilise encore le mot de passe par défaut."
+msgid "Your account still uses the default password."
+msgstr "Votre compte utilise encore le mot de passe par défaut."
 
 msgid "Anyone who knows this software can sign in – {change}."
 msgstr "Quiconque connaît ce logiciel peut se connecter – {change}."
@@ -1188,8 +1179,8 @@ msgstr "Le mot de passe actuel n’est pas correct."
 msgid "Your password has been changed."
 msgstr "Votre mot de passe a été changé."
 
-msgid "User management, plus everything editors and moderators may do."
-msgstr "Gestion des utilisateurs, plus tout ce que peuvent faire les éditeurs et les modérateurs."
+msgid "Manage users and hand out roles, plus everything editors and moderators may do."
+msgstr "Gérer les utilisateurs et attribuer les rôles, plus tout ce que peuvent faire les éditeurs et les modérateurs."
 
 msgid "Repertoire, song suggestions and rooms."
 msgstr "Liste de morceaux, suggestions et salles."
@@ -1200,11 +1191,14 @@ msgstr "Liste de souhaits : trier, supprimer, vider ; fermer et ouvrir les salle
 msgid "Your account"
 msgstr "Votre compte"
 
-msgid "Without a role you can sign in and see the public repertoire; roles are assigned by the admin."
-msgstr "Sans rôle, vous pouvez vous connecter et voir la liste publique des morceaux ; les rôles sont attribués par l’admin."
+msgid "Without a role you can sign in and see the public repertoire; roles are assigned by admins."
+msgstr "Sans rôle, vous pouvez vous connecter et voir la liste publique des morceaux ; les rôles sont attribués par les admins."
 
-msgid "Roles are assigned by the admin."
-msgstr "Les rôles sont attribués par l’admin."
+msgid "Roles are assigned by admins."
+msgstr "Les rôles sont attribués par les admins."
+
+msgid "Roles are assigned under Users – yours too."
+msgstr "Les rôles s’attribuent sous Utilisateurs – les vôtres aussi."
 
 msgid "Show password"
 msgstr "Afficher le mot de passe"

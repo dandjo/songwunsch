@@ -23,9 +23,9 @@ declare(strict_types=1);
  *                  | suggestion_delete | suggestions_clear        (editor)
  *                  | room_save | room_delete | main_room_save | room_start (editor)
  *                  | room_songs_add | room_songs_remove           (editor)
- *                  | user_save | user_delete | admin_transfer     (admin)
+ *                  | user_save | user_delete                      (admin)
  *                  | pause_all                                    (admin)
- * The admin may do everything. ?lang=<code> switches the UI language.
+ * Admins may do everything. ?lang=<code> switches the UI language.
  * The web server routes every address to this file (.htaccess); addresses of
  * earlier versions (index.php?p=...) are redirected permanently.
  *
@@ -319,7 +319,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             case 'logo_upload':
-                // Header logos, admin only. Kept in the database (Uploads);
+                // Header logos, admins only. Kept in the database (Uploads);
                 // the new one may go live right away.
                 require_role($security, 'users');
                 $check = $uploads->check($_FILES['logo'] ?? []);
@@ -367,7 +367,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             case 'password_save':
-                // A signed-in user -- the admin included -- changes their own
+                // A signed-in user -- admins included -- changes their own
                 // password: the current one proves it is really them (a
                 // forgotten unlocked screen must not be enough).
                 require_login($security);
@@ -670,7 +670,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             case 'pause_all':
-                // Admin only: 'users' is the area nobody but the admin holds.
+                // Admins only: 'users' is the area nobody but admins hold.
                 require_role($security, 'users');
                 if (($_POST['state'] ?? '0') === '1') {
                     $guard->pauseEverywhere($rooms->ids());
@@ -973,11 +973,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect(back(url(['p' => 'room_songs'])));
                 // no break
 
-            // ---- Users (admin) ---------------------------------------------
+            // ---- Users (admins) --------------------------------------------
 
             case 'user_save':
                 require_role($security, 'users');
                 $id       = (int) ($_POST['id'] ?? 0); // 0 = new user
+                $selfId   = (int) $security->user()['id'];
                 $existing = $id > 0 ? $users->find($id) : null;
 
                 if ($id > 0 && $existing === null) {
@@ -986,18 +987,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $input = [
-                    'username'        => (string) ($_POST['username'] ?? ''),
-                    'password'        => (string) ($_POST['password'] ?? ''),
-                    'password2'       => (string) ($_POST['password2'] ?? ''),
+                    'username'       => (string) ($_POST['username'] ?? ''),
+                    'password'       => (string) ($_POST['password'] ?? ''),
+                    'password2'      => (string) ($_POST['password2'] ?? ''),
+                    'role_admin'     => (string) ($_POST['role_admin'] ?? ''),
                     'role_moderator' => (string) ($_POST['role_moderator'] ?? ''),
-                    'role_editor'  => (string) ($_POST['role_editor'] ?? ''),
-                    'active'          => (string) ($_POST['active'] ?? ''),
+                    'role_editor'    => (string) ($_POST['role_editor'] ?? ''),
+                    'active'         => (string) ($_POST['active'] ?? ''),
                 ];
                 $checked = $users->validate($input, $existing);
 
-                // The admin stays active -- otherwise they lock themselves out.
-                if ($existing !== null && (int) $existing['is_admin'] === 1) {
+                if ($id === $selfId) {
+                    // Nobody locks themselves out of a running session.
                     $checked['values']['active'] = 1;
+                    // The last active admin keeps the role -- otherwise nobody
+                    // could manage users any more. Only oneself can be that
+                    // last admin: whoever gets here is an active admin already.
+                    if ($checked['values']['role_admin'] !== 1 && $users->activeAdmins($id) === 0) {
+                        $checked['errors']['role_admin'] = t('You are the only active admin – make another user admin first.');
+                    }
                 }
 
                 $formUrl = url(['p' => 'user', 'id' => $id > 0 ? $id : null]);
@@ -1016,8 +1024,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $users->update($id, $checked['values']);
                     // Own password changed: the default-password warning follows suit.
-                    if ($id === (int) ($security->user()['id'] ?? 0) && isset($checked['values']['password_hash'])) {
+                    if ($id === $selfId && isset($checked['values']['password_hash'])) {
                         $security->notePassword($input['password']);
+                    }
+                    // Own admin role given up: the user list is closed from now
+                    // on, so the way leads to the pages the remaining roles open.
+                    if ($id === $selfId && $checked['values']['role_admin'] !== 1) {
+                        flash('ok', t('You are no longer admin. Your other roles stay; another admin can give the role back.'));
+                        redirect(url(['p' => $checked['values']['role_moderator'] === 1 ? 'wishes' : 'songs']));
                     }
                     flash('ok', t('User “{name}” has been saved.', ['name' => $checked['values']['username']]));
                 }
@@ -1026,12 +1040,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             case 'user_delete':
                 require_role($security, 'users');
+                $selfId = (int) $security->user()['id'];
                 $target = $users->find((int) ($_POST['id'] ?? 0));
 
                 if ($target === null) {
                     flash('error', t('This user was not found.'));
-                } elseif ((int) $target['is_admin'] === 1) {
-                    flash('error', t('The admin cannot be deleted – hand over the admin role first.'));
+                } elseif ((int) $target['id'] === $selfId) {
+                    // Also keeps the last active admin: whoever deletes is one.
+                    flash('error', t('You cannot delete yourself.'));
                 } elseif ($users->delete((int) $target['id'])) {
                     $settings->forgetUser((int) $target['id']);
                     flash('ok', t('User “{name}” has been deleted.', ['name' => (string) $target['username']]));
@@ -1039,28 +1055,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     flash('error', t('Deleting was not possible.'));
                 }
                 redirect(url(['p' => 'users']));
-                // no break
-
-            case 'admin_transfer':
-                require_role($security, 'users');
-                $self   = $security->user();
-                $target = $users->find((int) ($_POST['id'] ?? 0));
-
-                if ($target === null) {
-                    flash('error', t('This user was not found.'));
-                    redirect(url(['p' => 'users']));
-                }
-
-                try {
-                    $users->transferAdmin((int) $self['id'], (int) $target['id']);
-                    flash('ok', t('The admin role now belongs to “{name}”. You keep your other roles.', [
-                        'name' => (string) $target['username'],
-                    ]));
-                } catch (RuntimeException $e) {
-                    flash('error', $e->getMessage());
-                }
-                // The former admin no longer has access to user management.
-                redirect(url(['p' => 'songs']));
                 // no break
 
             default:
@@ -1131,20 +1125,39 @@ try {
             // The bytes of an id never change, so the browser may keep them
             // for good. nosniff and a CSP keep an SVG opened directly from
             // doing anything but drawing.
+            if ($uploads->info($routeId) === null) {
+                not_found();
+            }
+            // session_start() has queued the headers that keep pages out of
+            // the cache (Expires in the past, Pragma: no-cache); browsers
+            // honour Pragma over Cache-Control and would fetch the picture
+            // again on every page. An image needs none of them, nor a fresh
+            // session cookie.
+            header_remove('Expires');
+            header_remove('Pragma');
+            header_remove('Set-Cookie');
+            header('Cache-Control: public, max-age=31536000, immutable');
+            // A browser that asks anyway (hard reload) gets a 304 without
+            // the bytes leaving the database.
+            $etag = '"logo-' . $routeId . '"';
+            header('ETag: ' . $etag);
+            if (str_contains((string) ($_SERVER['HTTP_IF_NONE_MATCH'] ?? ''), $etag)) {
+                http_response_code(304);
+                exit;
+            }
             $file = $uploads->load($routeId);
             if ($file === null) {
                 not_found();
             }
             header('Content-Type: ' . $file['mime']);
             header('Content-Length: ' . (string) strlen($file['data']));
-            header('Cache-Control: public, max-age=31536000, immutable');
             header('X-Content-Type-Options: nosniff');
             header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'");
             echo $file['data'];
             exit;
 
         case 'logos':
-            // Admin only: every uploaded logo, one of them live.
+            // Admins only: every uploaded logo, one of them live.
             require_role($security, 'users');
 
             $view['title']    = t('Logos');
@@ -1267,7 +1280,6 @@ try {
             $view['template'] = 'settings';
             $view['selfId']   = $selfId;
             $view['kinds']    = deletable_kinds($security);
-            $view['isAdmin']  = $security->isAdmin();
             $view['account']  = $security->user();
             $view['errors']   = remembered_input()['errors'] ?? [];
             break;
@@ -1301,12 +1313,19 @@ try {
             $view['id']       = $id;
             $view['user']     = $user;
             $view['selfId']   = (int) $security->user()['id'];
+            // The only active admin (oneself, necessarily) keeps the role; the
+            // form says so instead of offering a box that user_save would refuse.
+            $view['onlyAdmin'] = $user !== null
+                && (int) $user['role_admin'] === 1
+                && (int) $user['active'] === 1
+                && $users->activeAdmins($id) === 0;
             $view['errors']   = $kept['errors'] ?? [];
             $view['values']   = $kept['values'] ?? [
-                'username'        => (string) ($user['username'] ?? ''),
+                'username'       => (string) ($user['username'] ?? ''),
+                'role_admin'     => (string) ($user['role_admin'] ?? '0'),
                 'role_moderator' => (string) ($user['role_moderator'] ?? '0'),
-                'role_editor'  => (string) ($user['role_editor'] ?? '0'),
-                'active'          => (string) ($user['active'] ?? '1'),
+                'role_editor'    => (string) ($user['role_editor'] ?? '0'),
+                'active'         => (string) ($user['active'] ?? '1'),
             ];
             break;
 
@@ -1334,7 +1353,7 @@ try {
             $view['pages']        = max(1, (int) ceil($roomResult['total'] / $perPage));
             $view['canEdit']      = $canEdit;
             $view['startRoomId']  = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
-            // The admin's switch closes wishing in every room at once and later
+            // The admins' switch closes wishing in every room at once and later
             // hands every room its previous state back.
             $view['isAdmin']      = $security->isAdmin();
             $view['pausedAll']    = $view['isAdmin'] && $guard->isPausedEverywhere();

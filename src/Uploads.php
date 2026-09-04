@@ -9,10 +9,10 @@ namespace Songwunsch;
  * `uploads` table, not on disk: the deployment syncs the code with --delete
  * and must not touch them, a shared host needs no writable folder, and a
  * database backup carries them along. A raster image is scaled down to
- * TARGET_HEIGHT on upload (GD), so any original fits and what is stored is
- * small; an SVG stays as it is. index.php delivers a file under its own
- * address (/logo?id=<id>); the bytes of an id never change, so the address
- * may be cached for good.
+ * TARGET_HEIGHT and re-encoded as WebP on upload (GD), so any original fits
+ * and what is stored is small; an SVG stays as it is. index.php delivers a
+ * file under its own address (/logo/<id>); the bytes of an id never change,
+ * so the address may be cached for good.
  *
  * Which logo the header shows is a setting (Settings::LOGO_ID) -- one at a
  * time, or none for the word mark.
@@ -25,6 +25,8 @@ final class Uploads
 
     /** Height a raster logo is scaled to: the header shows 48 CSS px, three times that keeps it sharp on any screen. */
     public const TARGET_HEIGHT = 144;
+    /** WebP quality of a stored raster image: high enough to keep the edges of a logo crisp, a third of the PNG's size. */
+    public const WEBP_QUALITY = 90;
     /** Pixel count above which an image is refused rather than decoded -- a guard for the memory, not a rule for users. */
     public const MAX_PIXELS = 50_000_000;
     /** Accepted image types (by content, not by file name). */
@@ -130,34 +132,39 @@ final class Uploads
             return $fail(t('The image has too many pixels to be processed ({w} × {h}).', ['w' => $width, 'h' => $height]));
         }
 
-        if ($height > self::TARGET_HEIGHT && function_exists('imagecreatefromstring')) {
-            $scaled = self::scale($data, $mime, $width, $height);
-            if ($scaled === null) {
+        // A WebP that is small enough already is stored as it is -- encoding
+        // it again would only lose a little more. Everything else goes
+        // through GD: scaled down if need be, and out as WebP.
+        $keep = $mime === 'image/webp' && $height <= self::TARGET_HEIGHT;
+        if (!$keep && function_exists('imagecreatefromstring')) {
+            $converted = self::convert($data, $mime, $width, $height);
+            if ($converted === null) {
                 return $fail(t('The image could not be processed – try a PNG.'));
             }
-            [$mime, $data, $width, $height] = $scaled;
+            [$mime, $data, $width, $height] = $converted;
         }
 
         return ['errors' => [], 'mime' => $mime, 'data' => $data, 'width' => $width, 'height' => $height];
     }
 
     /**
-     * Scale a raster image down to TARGET_HEIGHT, keeping the aspect ratio
-     * and the transparency. JPEG stays JPEG (it has no alpha anyway);
-     * everything else comes out as PNG, which keeps transparent backgrounds
-     * -- an animated GIF loses its animation, which a header logo does not
-     * need.
+     * Scale a raster image down to TARGET_HEIGHT if it is taller, keeping
+     * the aspect ratio and the transparency, and encode it as WebP
+     * (WEBP_QUALITY) -- a third of a PNG's size, alpha included. Without
+     * WebP support in GD the old rule applies: JPEG stays JPEG (it has no
+     * alpha anyway), everything else comes out as PNG. An animated GIF
+     * loses its animation, which a header logo does not need.
      *
      * @return array{0:string,1:string,2:int,3:int}|null mime, data, width, height
      */
-    private static function scale(string $data, string $mime, int $width, int $height): ?array
+    private static function convert(string $data, string $mime, int $width, int $height): ?array
     {
         $src = @imagecreatefromstring($data);
         if ($src === false) {
             return null;
         }
-        $newHeight = self::TARGET_HEIGHT;
-        $newWidth  = max(1, (int) round($width * $newHeight / $height));
+        $newHeight = min($height, self::TARGET_HEIGHT);
+        $newWidth  = $newHeight === $height ? $width : max(1, (int) round($width * $newHeight / $height));
 
         $dst = imagecreatetruecolor($newWidth, $newHeight);
         if ($dst === false) {
@@ -169,7 +176,10 @@ final class Uploads
         imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
         ob_start();
-        if ($mime === 'image/jpeg') {
+        if (function_exists('imagewebp')) {
+            $mime = 'image/webp';
+            imagewebp($dst, null, self::WEBP_QUALITY);
+        } elseif ($mime === 'image/jpeg') {
             imagejpeg($dst, null, 90);
         } else {
             $mime = 'image/png';

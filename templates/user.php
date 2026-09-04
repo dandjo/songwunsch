@@ -7,14 +7,14 @@ use Songwunsch\UserRepository;
 
 /** @var int $id                          0 = new user */
 /** @var array<string,mixed>|null $user   existing record */
-/** @var int $selfId                      id of the logged-in admin */
+/** @var int $selfId                      id of the signed-in admin */
+/** @var bool $onlyAdmin                  this user is the only active admin (then it is oneself): the role is fixed */
 /** @var array<string,string> $values */
 /** @var array<string,string> $errors */
 /** @var string $csrf */
 
 $e       = static fn (?string $v): string => Format::e($v);
 $isNew   = $id === 0;
-$isAdmin = $user !== null && (int) $user['is_admin'] === 1;
 $isSelf  = $user !== null && (int) $user['id'] === $selfId;
 $backUrl = url(['p' => 'users']);
 
@@ -31,6 +31,15 @@ $invalid = static fn (string $field): string => isset($errors[$field])
     : '';
 
 $checked = static fn (string $field): string => ($values[$field] ?? '') === '1' ? ' checked' : '';
+
+// Admin includes editor and moderator: with the admin box ticked the other
+// two are ticked and locked (app.js follows the box live; the server derives
+// the roles anyway, so the locked boxes need no hidden fields).
+$isAdmin = ($values['role_admin'] ?? '') === '1';
+
+// Boxes nobody may change here: one's own status, and the admin role while
+// one is the only active admin. Disabled boxes submit nothing -- a hidden
+// field keeps the value.
 ?>
 
 <div class="panel__head">
@@ -39,8 +48,6 @@ $checked = static fn (string $field): string => ($values[$field] ?? '') === '1' 
         <p class="muted">
             <?php if ($isNew): ?>
                 <?= $e(t('Pass on username and password – the new user can log in right away.')) ?>
-            <?php elseif ($isAdmin): ?>
-                <?= $e(t('The admin may do everything; their role boxes and status are therefore fixed. The admin role can be handed over to another user below.')) ?>
             <?php else: ?>
                 <?= $e(t('Changes to roles and status take effect immediately, even for a running session.')) ?>
             <?php endif; ?>
@@ -87,33 +94,38 @@ $checked = static fn (string $field): string => ($values[$field] ?? '') === '1' 
             <?= $fieldError('password2') ?>
         </div>
 
-        <fieldset class="field field--group">
+        <fieldset class="field field--group"<?= isset($errors['role_admin']) ? ' aria-describedby="err-role_admin"' : '' ?>>
             <legend><?= $e(t('Roles')) ?></legend>
             <label class="check">
-                <input type="checkbox" name="role_editor" value="1"<?= $checked('role_editor') ?><?= $isAdmin ? ' disabled' : '' ?>>
+                <input type="checkbox" name="role_admin" value="1" data-implies="role_editor role_moderator"<?= $checked('role_admin') ?><?= $onlyAdmin ? ' disabled' : '' ?>>
+                <span><strong><?= $e(t('Admin', [], 'role')) ?></strong> – <?= $e(t('manage users and hand out roles; includes Editor and Moderator')) ?></span>
+            </label>
+            <?php if ($onlyAdmin): ?>
+                <input type="hidden" name="role_admin" value="1">
+                <p class="field__hint"><?= $e(t('The only active admin keeps the role – make another user admin first.')) ?></p>
+            <?php endif; ?>
+            <label class="check">
+                <input type="checkbox" name="role_editor" value="1"<?= $isAdmin ? ' checked disabled' : $checked('role_editor') ?>>
                 <span><strong><?= $e(t('Editor', [], 'role')) ?></strong> – <?= $e(t('maintain the repertoire (add, edit, delete)')) ?></span>
             </label>
             <label class="check">
-                <input type="checkbox" name="role_moderator" value="1"<?= $checked('role_moderator') ?><?= $isAdmin ? ' disabled' : '' ?>>
+                <input type="checkbox" name="role_moderator" value="1"<?= $isAdmin ? ' checked disabled' : $checked('role_moderator') ?>>
                 <span><strong><?= $e(t('Moderator', [], 'role')) ?></strong> – <?= $e(t('edit the wish list, open and close the room')) ?></span>
             </label>
-            <?php if ($isAdmin): ?>
-                <p class="field__hint"><?= $e(t('As admin this user has every permission anyway.')) ?></p>
-                <?php /* Disabled boxes submit nothing -- hidden fields keep the values. */ ?>
-                <input type="hidden" name="role_editor" value="<?= $e($values['role_editor'] ?? '0') ?>">
-                <input type="hidden" name="role_moderator" value="<?= $e($values['role_moderator'] ?? '0') ?>">
-            <?php endif; ?>
+            <?= $fieldError('role_admin') ?>
         </fieldset>
 
-        <fieldset class="field field--group">
+        <fieldset class="field field--group"<?= isset($errors['active']) ? ' aria-describedby="err-active"' : '' ?>>
             <legend><?= $e(t('Status')) ?></legend>
             <label class="check">
-                <input type="checkbox" name="active" value="1"<?= $checked('active') ?><?= $isAdmin ? ' disabled' : '' ?>>
+                <input type="checkbox" name="active" value="1"<?= $checked('active') ?><?= $isSelf ? ' disabled' : '' ?>>
                 <span><strong><?= $e(t('Active')) ?></strong> – <?= $e(t('locked users cannot log in and are dropped from running sessions')) ?></span>
             </label>
-            <?php if ($isAdmin): ?>
+            <?php if ($isSelf): ?>
                 <input type="hidden" name="active" value="1">
+                <p class="field__hint"><?= $e(t('You cannot lock yourself.')) ?></p>
             <?php endif; ?>
+            <?= $fieldError('active') ?>
         </fieldset>
 
         <div class="panel__actions">
@@ -121,26 +133,4 @@ $checked = static fn (string $field): string => ($values[$field] ?? '') === '1' 
             <a class="link-button" href="<?= $e($backUrl) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
         </div>
     </form>
-
-    <?php if (!$isNew && !$isSelf && !$isAdmin && (int) $user['active'] === 1): ?>
-        <div class="panel__head transfer">
-            <div>
-                <h2><?= $e(t('Hand over admin role')) ?></h2>
-                <p class="muted">
-                    <?= t('Afterwards {name} manages the users and may do everything. You keep your other roles but lose access to this page – you only get it back if the new admin hands the role back.', [
-                        'name' => '<strong>' . $e((string) $user['username']) . '</strong>',
-                    ]) ?>
-                </p>
-            </div>
-            <div class="panel__actions">
-                <form method="post" action="<?= $e(url()) ?>"
-                      data-confirm="<?= $e(t('Really hand the admin role over to “{name}”?', ['name' => (string) $user['username']])) ?>">
-                    <input type="hidden" name="a" value="admin_transfer">
-                    <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                    <input type="hidden" name="id" value="<?= (int) $user['id'] ?>">
-                    <button type="submit" class="danger-button"><?= icon('key') ?><?= $e(t('Hand over admin role')) ?></button>
-                </form>
-            </div>
-        </div>
-    <?php endif; ?>
 </div>

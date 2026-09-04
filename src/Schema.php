@@ -41,33 +41,56 @@ final class Schema
         self::SUGGESTIONS => ['id', 'artist', 'title', 'suggester', 'created_at', 'room_id'],
         self::SETTINGS => ['name', 'value', 'updated_at'],
         self::THROTTLE => ['id', 'sender', 'created_at'],
-        self::USERS    => ['id', 'username', 'password_hash', 'is_admin', 'role_moderator', 'role_editor', 'active', 'created_at', 'updated_at'],
+        self::USERS    => ['id', 'username', 'password_hash', 'role_admin', 'role_moderator', 'role_editor', 'active', 'created_at', 'updated_at'],
         self::ROOMS    => ['id', 'slug', 'name', 'active', 'created_at', 'updated_at'],
         self::ROOM_SONGS => ['room_id', 'song_id'],
         self::UPLOADS  => ['id', 'kind', 'mime', 'data', 'width', 'height', 'created_at'],
     ];
 
     /**
-     * Columns added by later versions: table => column => ALTER TABLE. Applied
-     * when the table exists without the column, so an installation upgrades
-     * itself on the first request (needs the ALTER privilege once).
+     * Columns added by later versions: table => column => statements, run in
+     * order when the table exists without the column, so an installation
+     * upgrades itself on the first request (needs the ALTER privilege once).
+     * Usually a single ALTER TABLE; a column that replaces an older one also
+     * carries its data over and drops the old column.
      *
-     * @var array<string,array<string,string>>
+     * @var array<string,array<string,list<string>>>
      */
     private const ADDITIONS = [
         self::ROOMS => [
-            'active' => 'ALTER TABLE `rooms` ADD COLUMN `active` TINYINT UNSIGNED NOT NULL DEFAULT 1 '
+            'active' => [
+                'ALTER TABLE `rooms` ADD COLUMN `active` TINYINT UNSIGNED NOT NULL DEFAULT 1 '
                 . "COMMENT '0 = archived: hidden from the switcher and from guests, still reachable' AFTER `name`",
+            ],
         ],
         self::WISHES => [
-            'room_id' => 'ALTER TABLE `song_wishes` ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 '
+            'room_id' => [
+                'ALTER TABLE `song_wishes` ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 '
                 . "COMMENT 'rooms.id, 0 = default room' AFTER `position`, ADD KEY `idx_room_id` (`room_id`)",
-            'wisher'  => 'ALTER TABLE `song_wishes` ADD COLUMN `wisher` VARCHAR(64) NULL '
+            ],
+            'wisher'  => [
+                'ALTER TABLE `song_wishes` ADD COLUMN `wisher` VARCHAR(64) NULL '
                 . "COMMENT 'name the guest gave for the wish list, optional' AFTER `genre`",
+            ],
         ],
         self::SUGGESTIONS => [
-            'room_id' => 'ALTER TABLE `song_suggestions` ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 '
+            'room_id' => [
+                'ALTER TABLE `song_suggestions` ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 '
                 . "COMMENT 'rooms.id the suggestion was made in, 0 = main room; the adopted song joins that room' AFTER `created_at`",
+            ],
+        ],
+        self::USERS => [
+            // Admin used to be a single account: is_admin was 1 or NULL under a
+            // unique index. Now it is a role like the others, so the flag
+            // becomes role_admin, the one admin keeps the role (with the two
+            // roles it includes) and the old column goes (its unique index
+            // with it).
+            'role_admin' => [
+                'ALTER TABLE `users` ADD COLUMN `role_admin` TINYINT UNSIGNED NOT NULL DEFAULT 0 '
+                . "COMMENT 'admin: manages users and may do everything' AFTER `password_hash`",
+                'UPDATE `users` SET `role_admin` = 1, `role_moderator` = 1, `role_editor` = 1 WHERE `is_admin` = 1',
+                'ALTER TABLE `users` DROP COLUMN `is_admin`',
+            ],
         ],
     ];
 
@@ -141,15 +164,14 @@ final class Schema
                 `id`             INT UNSIGNED     NOT NULL AUTO_INCREMENT,
                 `username`       VARCHAR(64)      NOT NULL,
                 `password_hash`  VARCHAR(255)     NOT NULL,
-                `is_admin`       TINYINT UNSIGNED NULL COMMENT '1 for the single admin, otherwise NULL -- the unique index allows only one',
+                `role_admin`     TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'admin: manages users and may do everything',
                 `role_moderator` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'moderator: may edit the wish list',
                 `role_editor`    TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'editor: may maintain the song list',
                 `active`         TINYINT UNSIGNED NOT NULL DEFAULT 1,
                 `created_at`     DATETIME         NOT NULL,
                 `updated_at`     DATETIME         NOT NULL,
                 PRIMARY KEY (`id`),
-                UNIQUE KEY `uq_username` (`username`),
-                UNIQUE KEY `uq_admin` (`is_admin`)
+                UNIQUE KEY `uq_username` (`username`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             SQL,
         self::ROOMS => <<<'SQL'
@@ -228,7 +250,9 @@ final class Schema
             $missing = array_diff($required, $present[$table]);
             foreach ($missing as $i => $column) {
                 if (isset(self::ADDITIONS[$table][$column])) {
-                    $this->db->pdo()->exec(self::ADDITIONS[$table][$column]);
+                    foreach (self::ADDITIONS[$table][$column] as $statement) {
+                        $this->db->pdo()->exec($statement);
+                    }
                     unset($missing[$i]);
                 }
             }

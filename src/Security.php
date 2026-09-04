@@ -8,7 +8,7 @@ namespace Songwunsch;
  * Session, login against the `users` table, roles and CSRF protection.
  *
  * The session only holds the user id; the record is loaded fresh on every
- * request. When the admin changes roles or locks a user, that takes effect
+ * request. When an admin changes roles or locks a user, that takes effect
  * immediately -- even for a session that is already running.
  *
  * Areas for can():
@@ -17,6 +17,7 @@ namespace Songwunsch;
  *   'suggestions'  work the song suggestions  -- editor or admin
  *   'rooms'        manage rooms               -- editor or admin
  *   'users'        manage users               -- admin only
+ * The admin role includes the other two: whoever has it may do everything.
  *
  * Guest view: a signed-in user can look at the site the way a visitor
  * without a login sees it. While the view is on, user() and everything
@@ -29,10 +30,10 @@ final class Security
 {
     private const SESSION_NAME = 'songwunsch';
 
-    /** Hash used for unknown usernames so the check takes the same time. */
-    /** Password the example configuration ships with -- the admin is warned while it is still in use. */
+    /** Password the example configuration ships with -- whoever still uses it is warned. */
     public const DEFAULT_PASSWORD = 'Administrator';
 
+    /** Hash used for unknown usernames so the check takes the same time. */
     private const DUMMY_HASH = '$2y$12$yj8cmii9zUipXmvTfcFUR.kZlaxBEVjHAVciYdvUBmQCd0ZD6vRKm';
 
     /** @var array<string,mixed>|null|false false = not loaded yet */
@@ -143,19 +144,20 @@ final class Security
         return (string) ($this->user()['username'] ?? '');
     }
 
+    /** Does the logged-in user hold the admin role? */
     public function isAdmin(): bool
     {
-        return (int) ($this->user()['is_admin'] ?? 0) === 1;
+        return (int) ($this->user()['role_admin'] ?? 0) === 1;
     }
 
-    /** May the logged-in user access this area? The admin may do everything. */
+    /** May the logged-in user access this area? Admins may do everything. */
     public function can(string $area): bool
     {
         $user = $this->user();
         if ($user === null) {
             return false;
         }
-        if ((int) $user['is_admin'] === 1) {
+        if ((int) $user['role_admin'] === 1) {
             return true;
         }
 
@@ -201,13 +203,15 @@ final class Security
     }
 
     /**
-     * Is the signed-in admin still using the default password? Sessions
-     * opened before this check existed are verified once and remembered.
+     * Is the signed-in user still using the default password? The first
+     * admin starts out with it; an admin may also have handed it to a new
+     * user. Sessions opened before this check existed are verified once and
+     * remembered.
      */
     public function usesDefaultPassword(): bool
     {
         $user = $this->user();
-        if ($user === null || (int) $user['is_admin'] !== 1) {
+        if ($user === null) {
             return false;
         }
         if (!isset($_SESSION['default_password'])) {

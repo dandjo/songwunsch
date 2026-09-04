@@ -6,7 +6,7 @@ use Songwunsch\Format;
 use Songwunsch\UserRepository;
 
 /** @var array<int,array<string,mixed>> $rows */
-/** @var int $selfId  id of the logged-in admin */
+/** @var int $selfId  id of the signed-in admin */
 /** @var string $csrf */
 
 $e = static fn (?string $v): string => Format::e($v);
@@ -17,7 +17,7 @@ $e = static fn (?string $v): string => Format::e($v);
         <h1><?= $e(t('Users')) ?></h1>
         <p class="muted">
             <?= $e(tn('{n} user.', '{n} users.', count($rows))) ?>
-            <?= t('{editor} maintains the repertoire, {moderator} the wish list; the {admin} manages users and may do everything. There is exactly one admin; the role is handed over when editing a user.', [
+            <?= t('{editor} maintains the repertoire, {moderator} the wish list; {admin} manages users, hands out every role and may do everything. Roles can be combined; at least one active admin always remains.', [
                 'editor'    => '<strong>' . $e(t('Editor', [], 'role')) . '</strong>',
                 'moderator' => '<strong>' . $e(t('Moderator', [], 'role')) . '</strong>',
                 'admin'     => '<strong>' . $e(t('Admin', [], 'role')) . '</strong>',
@@ -44,7 +44,7 @@ $e = static fn (?string $v): string => Format::e($v);
         <tbody>
         <?php foreach ($rows as $row): ?>
             <?php
-            $isAdmin = (int) $row['is_admin'] === 1;
+            $isAdmin = (int) $row['role_admin'] === 1;
             $isSelf  = (int) $row['id'] === $selfId;
             $labels  = UserRepository::roleLabels($row);
             ?>
@@ -70,7 +70,8 @@ $e = static fn (?string $v): string => Format::e($v);
                     <?php endif; ?>
                 </td>
                 <?php /* Edit and Delete side by side 50/50 as icon buttons at the right
-                         edge -- the label stays for screen readers and as tooltip. */ ?>
+                         edge -- the label stays for screen readers and as tooltip.
+                         Nobody deletes themselves. */ ?>
                 <td class="cell-action">
                     <div class="row-actions">
                         <div class="row-actions__pair">
@@ -79,7 +80,7 @@ $e = static fn (?string $v): string => Format::e($v);
                                 <span class="button__label"><?= $e(t('Edit')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['username']) ?></span>
                             </a>
-                            <?php if (!$isAdmin): ?>
+                            <?php if (!$isSelf): ?>
                                 <form method="post" action="<?= $e(url()) ?>"
                                       data-confirm="<?= $e(t('Permanently delete user “{name}”?', ['name' => (string) $row['username']])) ?>">
                                     <input type="hidden" name="a" value="user_delete">

@@ -28,7 +28,7 @@ under `/rooms/<name>`, see [Rooms](#rooms).
 * **Song suggestions** (public) – whoever misses a song names artist and
   title; editors adopt a suggestion into the repertoire or delete it, see
   [Song suggestions](#song-suggestions).
-* **Users** (admin) – create accounts, assign roles, lock them; see
+* **Users** (admins) – create accounts, assign roles, lock them; see
   [Users and roles](#users-and-roles).
 
 No framework, no Composer dependencies, no external fonts or CDNs – the
@@ -127,9 +127,9 @@ remembered room or the start room takes over.
 | `/login` | Sign-in |
 | `/name` | The guest's name for the wish list – change or remove it |
 | `/song/new`, `/song/<id>` | Create or edit a song – editor; `/suggestions/<id>/adopt` adopts a suggestion into a new song |
-| `/users`, `/user/new`, `/user/<id>` | User management – admin |
+| `/users`, `/user/new`, `/user/<id>` | User management – admins |
 | `/user/<id>/settings` | Personal settings of the signed-in user (own id only; `/settings` redirects there) |
-| `/logos` | Header logos – admin, see [Logo](#logo) |
+| `/logos` | Header logos – admins, see [Logo](#logo) |
 | `/rooms` | List of rooms, each name leads into its room; moderators close and open rooms, editors create them here |
 | `/room/new`, `/room/<id>`, `/room/main` | Create or edit a room, rename the main room – editor |
 | `/logo/<id>` | An uploaded logo, see [Logo](#logo) |
@@ -191,8 +191,8 @@ repertoire, that is an additional Traefik router on `Path(`/`)` with a
    ```
 
    Put the printed hash into `config.php` under `auth.hash`, the username
-   under `auth.user`. From these the admin account is created on the first
-   sign-in; every further user is created by the admin inside the
+   under `auth.user`. From these the first admin account is created on the
+   first sign-in; every further user is created by an admin inside the
    application. The defaults are `Administrator` / `Administrator` –
    **change them before the first use.**
 
@@ -266,10 +266,10 @@ omitted.
 
 ## Logo
 
-The admin can put a logo in the header instead of the word mark
+Admins can put a logo in the header instead of the word mark
 “Songwunsch” and the claim; the room's name keeps its place beside it. Logos
 are managed on their own page, **Logos** (`/logos`, a tab next to *Users*,
-admin only): every logo ever uploaded is listed there with a preview at the
+admins only): every logo ever uploaded is listed there with a preview at the
 header's size, and exactly one is *live* at a time – or none, then the word
 mark shows. Upload, *Switch live*, *Delete*; a new upload goes live right
 away unless the box is unticked. The live logo is remembered in `settings`
@@ -278,12 +278,14 @@ under `logo_id`.
 Any image size works: on upload a raster image (PNG, JPEG, WebP, GIF) is
 scaled down to 144 px in height with GD – three times the 48 px the header
 shows (40 px on phones), so it stays sharp on every screen – and stored as
-PNG (JPEG stays JPEG); transparency is kept, an animated GIF loses its
-animation. An SVG is stored as it is. The type is checked from the file's
-content; an SVG with scripting is rejected (it is only ever shown through
-`<img>`, where scripts do not run). Without the GD extension the original is
-stored unchanged and scaled by CSS alone. The size limit is the server's
-`upload_max_filesize` (20 MB in the Docker stack).
+WebP (quality 90, about a third of a PNG's size); transparency is kept, an
+animated GIF loses its animation. A WebP that is already no taller than
+144 px is stored as it is. An SVG is stored as it is. The type is checked
+from the file's content; an SVG with scripting is rejected (it is only ever
+shown through `<img>`, where scripts do not run). Without WebP support in GD
+the image is stored as PNG (JPEG stays JPEG); without the GD extension the
+original is stored unchanged and scaled by CSS alone. The size limit is the
+server's `upload_max_filesize` (20 MB in the Docker stack).
 
 The files live in the `uploads` table, not on disk: the deployment syncs the
 code with `--delete`, a shared host may have no writable folder, and a
@@ -366,12 +368,12 @@ prerequisite; there is no detection or mapping of foreign tables.
 | `songs` | `id`, `artist`, `title`, `length_sec` (seconds, `NULL` = unknown), `genre` | Repertoire |
 | `song_wishes` | `id`, `song_id`, `artist`, `title`, `length_sec`, `genre`, `wisher`, `created_at`, `position`, `room_id` | Wish list, `wisher` = the guest's name if given, `room_id` 0 = main room |
 | `song_suggestions` | `id`, `artist`, `title`, `suggester`, `created_at`, `room_id` | Open song suggestions, see [Song suggestions](#song-suggestions); `suggester` = the guest's name if given, `room_id` = the room it was made in (0 = main room) |
-| `settings` | `name`, `value`, `updated_at` | Open/closed switch per room, marker of the admin's *Close all rooms*, daily secrets, personal settings |
+| `settings` | `name`, `value`, `updated_at` | Open/closed switch per room, marker of *Close all rooms*, daily secrets, personal settings |
 | `wish_throttle` | `id`, `sender`, `created_at` | Rate limiting, see [Protecting the wishing](#protecting-the-wishing) |
-| `users` | `id`, `username`, `password_hash`, `is_admin`, `role_moderator`, `role_editor`, `active`, `created_at`, `updated_at` | Staff accounts, see [Users and roles](#users-and-roles) |
+| `users` | `id`, `username`, `password_hash`, `role_admin`, `role_moderator`, `role_editor`, `active`, `created_at`, `updated_at` | Staff accounts, see [Users and roles](#users-and-roles) |
 | `rooms` | `id`, `slug`, `name`, `active`, `created_at`, `updated_at` | Rooms, see [Rooms](#rooms) |
 | `room_songs` | `room_id`, `song_id` | A room's song selection from `songs` |
-| `uploads` | `id`, `kind`, `mime`, `data`, `width`, `height`, `created_at` | The admin's header logos, see [Logo](#logo) – in the database, so the deployment cannot lose them |
+| `uploads` | `id`, `kind`, `mime`, `data`, `width`, `height`, `created_at` | The header logos, see [Logo](#logo) – in the database, so the deployment cannot lose them |
 
 A wish copies artist, title, length and genre; `song_id` is deliberately not a
 foreign key so that a deleted song does not take its wishes with it.
@@ -469,37 +471,45 @@ table and managed on the **Users** page.
 
 | Role | May |
 | --- | --- |
-| **Admin** | Create, edit, lock and delete users – and everything editors and moderators may do |
+| **Admin** | Create, edit, lock and delete users and hand out every role, the admin role included – and everything editors and moderators may do |
 | **Editor** | Maintain the repertoire: add, edit, delete titles; work the song suggestions; create, edit, delete rooms and manage their songs |
 | **Moderator** | Edit the wish list: sort, reorder, delete, clear; close and open the room (everyone may view the list) |
 
-Editor and moderator can be combined; a user without a role can sign in but
-only sees the public repertoire.
+The three roles are plain flags in the `users` table (`role_admin`,
+`role_editor`, `role_moderator`); a user without a role can sign in but only
+sees the public repertoire. Admin is a role like the others: any number of
+users can hold it, and every admin may give it to or take it from any user by
+ticking the box in the user form – themselves included. Admin includes editor
+and moderator: ticking *Admin* ticks the other two boxes and locks them (the
+server derives the roles as well, JavaScript or not), and they are stored
+along, so an admin who gives the role up keeps them. Editor and moderator
+combine freely.
 
-**Exactly one admin.** The database allows only one: `is_admin` is `1` or
-`NULL`, and a unique index permits only a single `1`. The admin role is
-therefore not assigned but **handed over** – on the edit page of another
-active user, with a confirmation. The previous admin keeps their other roles
-but loses user management. The admin can neither be deleted nor locked while
-they are admin.
+**Always one admin.** Nobody can lock or delete themselves, and the last
+active admin cannot give up the role – so somebody can always manage users.
+(Whoever is editing is an active admin, so the last one can only ever be
+oneself.) The user form fixes those boxes and says why, the list has no
+*Delete* for yourself, and saving checks again. An admin who gives up their
+own admin role is sent to the pages their remaining roles open; another admin
+can hand the role back.
 
 **First admin.** As long as the table is empty, the application creates the
-admin from `auth.user` and `auth.hash` in `config.php` on the first sign-in
-(or via `php tools/install.php`). After that only the table counts; the values
-in `config.php` have no effect any more. While the admin is still signed in
-with the shipped default password, every page shows a red notice with a link
-to their own user form. This is checked at sign-in (or once for an existing
-session) and remembered in the session; changing the password in the own form
-removes the notice.
+first admin from `auth.user` and `auth.hash` in `config.php` on the first
+sign-in (or via `php tools/install.php`). After that only the table counts;
+the values in `config.php` have no effect any more. While a signed-in user
+still has the shipped default password, every page shows a red notice with a
+link to *User settings*. This is checked at sign-in (or once for an existing
+session) and remembered in the session; changing the password removes the
+notice.
 
 **User settings.** Every signed-in user has a personal page under *User settings* in
 the account menu (top right). It shows the own username and roles with what
 each role may do, holds the password change and the delete confirmations;
-Roles and status cannot be touched on that page – the admin assigns them in
-the user form.
+Roles and status cannot be touched on that page – admins assign them in the
+user form.
 
-**Own password.** Under *User settings*, for the admin as well: the current
-password once, the new one twice, same rules as in the user form (where the
+**Own password.** Under *User settings*, for admins as well: the current
+password once, the new one twice, same rules as in the user form (where an
 admin can also set another user's password).
 
 **Sessions.** The session holds only the user ID; the record is loaded on
@@ -515,7 +525,7 @@ people processes personal data by doing so; role or function names (`dj1`,
 
 ## Maintaining the repertoire
 
-With the editor role (or as admin) every row of the repertoire additionally
+With the editor role (or the admin role) every row of the repertoire additionally
 carries *Edit* and *Delete*, and *Add song* stands above the list.
 
 **Entering the length.** The field accepts `3:45`, `1:02:03` or a plain number
@@ -580,7 +590,7 @@ timestamp), a per-session cooldown (`suggestion_cooldown_sec`, 10 s) and a
 cap on open suggestions (`suggestion_max_open`, 200; 0 = no cap), both in
 `config.php`.
 
-**Editors** (and the admin) additionally get a counter badge on the tab and
+**Editors** (and admins) additionally get a counter badge on the tab and
 two buttons on every row:
 
 * **Adopt** opens the *Add song* form as *Adopt suggestion*: artist and
@@ -669,7 +679,7 @@ the room can be wished for. Moderation applies to all rooms. When a room is
 deleted, its song selection and its wishes go with it.
 
 **Open and closed.** Every room, the main room included, is *open* or
-*closed*. Moderators (and the admin) switch it under *Rooms*: every row
+*closed*. Moderators (and admins) switch it under *Rooms*: every row
 carries *Close room* / *Open room* at the right, and a closed room is
 tagged *closed* there. While a room is closed the repertoire stays visible,
 but the audience can neither wish nor suggest a song there: the *Wish*
@@ -678,7 +688,7 @@ stands in the header of every page of the room – for moderators with an
 *Open room* button right in it. Internally this is the former pause switch
 (keys `wishes_paused` and `wishes_paused:<room id>` in `settings`).
 
-**Closing all rooms.** Under `/rooms`, left of *Add room*, the admin has the
+**Closing all rooms.** Under `/rooms`, left of *Add room*, admins have the
 switch *Close all rooms*. It closes the main room and every room, archived
 ones included, and remembers each room's previous state while doing so (key
 `wishes_paused_all` in `settings`). While that is in force the switch reads
@@ -688,9 +698,10 @@ in the meantime are left unchanged. Single rooms can be switched in the same
 list at any time.
 
 **Switching.** As soon as a room exists, the **room switcher** stands at the
-far left of the navigation: a tab with the name of the current room that, like
-the language menu, opens an overlay with all rooms (without JavaScript,
-`<details>`). The **Rooms** tab (`/rooms`) appears only for editors and admin;
+far left of the navigation, apart from the page tabs: a button labelled *You
+are here: <room>* that, like the language menu, opens an overlay with all
+rooms (without JavaScript, `<details>`). On phones it takes a row of its own
+above the tabs. The **Rooms** tab (`/rooms`) appears only for editors and admins;
 the page itself, where every name leads into its room, remains reachable for
 everyone.
 Inside a room its name stands in the header, and all links of the application
@@ -785,22 +796,22 @@ middleware or the hoster.
 | Delete a wish | Wish list → *Delete* in the row |
 | Delete everything | Wish list → *Clear list* |
 | Close or open a room | Moderator: Rooms → *Close room* / *Open room* in the row (no wishes and no suggestions while closed); a closed room's header notice has *Open room* as well |
-| Close all rooms | Admin: Rooms → *Close all rooms* / *Lift the closing of all rooms* |
+| Close all rooms | Admins: Rooms → *Close all rooms* / *Lift the closing of all rooms* |
 | Suggest a song | Suggestions → artist and title → *Suggest* (everyone, also without a login) |
 | Adopt a suggestion | Editor: Suggestions → *Adopt* in the row → add length and genre → *Add* |
 | Delete a suggestion | Editor: Suggestions → *Delete* in the row; *Clear list* deletes all |
 | Add a song | Editor: repertoire → *Add song* |
 | Change a song | Editor: *Edit* in the row |
 | Delete a song | Editor: *Delete* in the row (with confirmation) |
-| Change room | Room switcher at the far left of the navigation (shows the current room, opens the list) or Rooms → click the room's name; the choice is remembered in a cookie, see [Rooms](#rooms) |
+| Change room | Room switcher at the far left of the navigation, on phones above it (*You are here: <room>*, opens the list) or Rooms → click the room's name; the choice is remembered in a cookie, see [Rooms](#rooms) |
 | Create a room | Editor: Rooms → *Add room*, then *Manage* |
 | Manage a room's songs | Editor: *Manage* in the room or under Rooms |
-| Create a user | Admin: Users → *Add user* |
-| Hand over the admin role | Admin: Users → *Edit* → *Hand over admin role* |
+| Create a user | Admins: Users → *Add user* |
+| Make a user admin | Admins: Users → *Edit* → tick *Admin*; untick it to take the role away (the only active admin keeps it) |
 | Switch off delete confirmations | Signed in: account menu → User settings → *Delete confirmations*, per account and separately for songs, suggestions, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
-| Change your own password | Signed in (admin included): account menu → User settings → *Change password* (current password plus the new one twice) |
+| Change your own password | Signed in (admins included): account menu → User settings → *Change password* (current password plus the new one twice) |
 | See your own roles | Signed in: account menu → User settings, box *Your account* |
-| Put a logo in the header | Admin: *Logos* tab (`/logos`): upload, *Switch live*, see [Logo](#logo) |
+| Put a logo in the header | Admins: *Logos* tab (`/logos`): upload, *Switch live*, see [Logo](#logo) |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order
@@ -850,7 +861,7 @@ stack only adds height there and the text stays a tight, centred block.
   for moderators *Close room* / *Open room*, for editors *Manage* and the
   pair *Edit* / *Delete*; guests see no buttons.
 * **Users** – name, below it roles · status; the pair *Edit* / *Delete* on the
-  right (the admin only has *Edit*).
+  right (no *Delete* for yourself).
 * **Suggestions** – title, below it the artist and, if made in a room, the
   room as a tag; on the right the time received above who suggested, next
   to it *Adopt* above *Delete*. On phones time and name move to a third
@@ -883,9 +894,9 @@ src/WishGuard.php      Protection of wishing: limits, bot trap, pause
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
 src/RoomMemory.php     The room chosen last: cookie, once-per-session restore
 src/Settings.php       Key/value store in the settings table
-src/Uploads.php        The admin's header logos: check, store, deliver (uploads table)
+src/Uploads.php        The header logos: check, store, deliver (uploads table)
 src/Security.php       Session, login against users, roles, CSRF, wish brake
-src/UserRepository.php Users: create, edit, delete, hand over admin
+src/UserRepository.php Users: create, edit, delete, count the active admins
 src/RoomRepository.php Rooms: create, edit, delete, song selection from the master list
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()

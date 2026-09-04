@@ -118,6 +118,23 @@
             });
         });
 
+        // A role that includes others (admin): ticking it ticks and locks the
+        // named boxes; unticking frees them again. The server derives the
+        // same roles, so without JavaScript nothing is lost.
+        root.querySelectorAll('input[type="checkbox"][data-implies]').forEach(function (box) {
+            var names = box.getAttribute('data-implies').split(/\s+/);
+            var apply = function () {
+                names.forEach(function (name) {
+                    var other = box.form ? box.form.elements[name] : null;
+                    if (!other || other.type !== 'checkbox') { return; }
+                    if (box.checked) { other.checked = true; }
+                    other.disabled = box.checked;
+                });
+            };
+            box.addEventListener('change', apply);
+            apply();
+        });
+
         // Confirmation before deleting.
         root.querySelectorAll('form[data-confirm]').forEach(function (form) {
             form.addEventListener('submit', function (event) {

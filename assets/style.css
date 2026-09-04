@@ -475,16 +475,19 @@ code {
     border-color: var(--gold);
 }
 
-/* Room switcher: looks like a tab, opens a menu like the language switcher.
-   Sits first in the navigation, so the menu aligns to its left edge. */
-.roomswitch { position: relative; }
+/* Room switcher: "You are here: <room>", opens a menu like the language
+   switcher. Sits first in the navigation and floats at its left edge, the
+   auto margin keeps the page tabs at a distance, so it reads as a place
+   marker and not as one more tab -- tinted, not framed like the tabs. */
+.roomswitch { position: relative; margin-right: auto; }
 .roomswitch__toggle {
     display: inline-flex;
     align-items: center;
     gap: .4rem;
     padding: .55rem .85rem;
-    border: 1px solid var(--gold-deep);
+    border: 1px solid transparent;
     border-radius: var(--radius-sm);
+    background: var(--gold-tint);
     color: var(--gold);
     font-weight: 600;
     font-size: .82rem;
@@ -494,13 +497,24 @@ code {
 }
 .roomswitch__toggle::-webkit-details-marker { display: none; }
 .roomswitch__toggle:hover,
-.roomswitch[open] .roomswitch__toggle { color: var(--gold-bright); background: var(--gold-tint); }
+.roomswitch[open] .roomswitch__toggle { color: var(--gold-bright); border-color: var(--gold-deep); }
 .roomswitch__toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.roomswitch__toggle svg { flex: 0 0 auto; }
+/* The label is quiet, the room's name carries the weight. */
+.roomswitch__label { color: var(--text-muted); font-weight: 500; white-space: nowrap; }
 .roomswitch__current {
     max-width: 12rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+.roomswitch__title {
+    margin: .3rem .7rem .35rem;
+    color: var(--text-muted);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
 }
 .roomswitch__chevron { flex: 0 0 auto; transition: transform .15s; }
 .roomswitch[open] .roomswitch__chevron { transform: rotate(180deg); }
@@ -1168,6 +1182,16 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 @media (max-width: 720px) {
     .picker { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Phones: the room switcher takes a row of its own above the page tabs, as
+   wide as the header, the name filling the room between label and chevron.
+   Its overlay follows that width. */
+@media (max-width: 720px) {
+    .roomswitch { flex: 1 1 100%; margin-right: 0; }
+    .roomswitch__toggle { display: flex; width: 100%; }
+    .roomswitch__current { flex: 1 1 auto; max-width: none; }
+    .roomswitch__panel { right: 0; max-width: none; }
+}
 .picker__col { min-width: 0; }
 .picker__head {
     display: flex;
@@ -1488,9 +1512,6 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     background: var(--gold-tint-mid);
     color: var(--gold-bright);
 }
-
-/* Admin handover: its own block below the form, with a hairline above. */
-.transfer { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
 
 /* ---------- Bot trap ----------
    A field no human sees and no browser fills in. Whoever fills it is a

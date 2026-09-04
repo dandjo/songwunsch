@@ -8,7 +8,6 @@ use Songwunsch\Settings;
 /** @var Settings $settings */
 /** @var int $selfId          the signed-in user */
 /** @var list<string> $kinds  what this user may delete, see deletable_kinds() */
-/** @var bool $isAdmin         the admin's roles are not assigned by anyone */
 /** @var array<string,mixed> $account  the signed-in user's record */
 /** @var array<string,string> $errors  from the password form, after a redirect */
 /** @var string $csrf */
@@ -39,9 +38,10 @@ $rows = array_intersect_key([
 ], array_flip($kinds));
 
 // What each role may do, for the account box -- the same wording as the README.
+$isAdmin    = (int) ($account['role_admin'] ?? 0) === 1;
 $roleLabels = UserRepository::roleLabels($account);
 $roleNotes  = [
-    t('Admin', [], 'role')     => t('User management, plus everything editors and moderators may do.'),
+    t('Admin', [], 'role')     => t('Manage users and hand out roles, plus everything editors and moderators may do.'),
     t('Editor', [], 'role')    => t('Repertoire, song suggestions and rooms.'),
     t('Moderator', [], 'role') => t('Wish list: sort, delete, clear; close and open rooms.'),
 ];
@@ -68,16 +68,14 @@ $roleNotes  = [
             <?php endif; ?>
         </p>
         <?php if ($roleLabels === []): ?>
-            <p class="field__hint"><?= $e(t('Without a role you can sign in and see the public repertoire; roles are assigned by the admin.')) ?></p>
+            <p class="field__hint"><?= $e(t('Without a role you can sign in and see the public repertoire; roles are assigned by admins.')) ?></p>
         <?php else: ?>
             <ul class="field__hint">
                 <?php foreach ($roleLabels as $label): ?>
                     <li><strong><?= $e($label) ?></strong> – <?= $e($roleNotes[$label] ?? '') ?></li>
                 <?php endforeach; ?>
             </ul>
-            <?php if (!$isAdmin): ?>
-                <p class="field__hint"><?= $e(t('Roles are assigned by the admin.')) ?></p>
-            <?php endif; ?>
+            <p class="field__hint"><?= $e($isAdmin ? t('Roles are assigned under Users – yours too.') : t('Roles are assigned by admins.')) ?></p>
         <?php endif; ?>
     </div>
 </div>
