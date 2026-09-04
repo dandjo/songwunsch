@@ -75,16 +75,16 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
             <legend><?= $e(t('Suggest a song')) ?></legend>
             <div class="field-pair">
                 <div class="field">
-                    <label for="suggest-artist"><?= $e(t('Artist')) ?></label>
-                    <input type="text" id="suggest-artist" name="artist" value="<?= $e($values['artist'] ?? '') ?>"
-                           autocomplete="off" required<?= $attrs('artist', SuggestionRepository::MAX_ARTIST) ?>>
-                    <?= $fieldError('artist') ?>
-                </div>
-                <div class="field">
                     <label for="suggest-title"><?= $e(t('Title')) ?></label>
                     <input type="text" id="suggest-title" name="title" value="<?= $e($values['title'] ?? '') ?>"
                            autocomplete="off" required<?= $attrs('title', SuggestionRepository::MAX_TITLE) ?>>
                     <?= $fieldError('title') ?>
+                </div>
+                <div class="field">
+                    <label for="suggest-artist"><?= $e(t('Artist')) ?></label>
+                    <input type="text" id="suggest-artist" name="artist" value="<?= $e($values['artist'] ?? '') ?>"
+                           autocomplete="off" required<?= $attrs('artist', SuggestionRepository::MAX_ARTIST) ?>>
+                    <?= $fieldError('artist') ?>
                 </div>
             </div>
             <p class="field__hint">
