@@ -208,6 +208,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                     ['limits', ['limits'],             'sliders', t('Limits')],
                     ['pages',  ['pages', 'page_edit'], 'page',    t('Pages')],
                     ['footer', ['footer'],             'list',    t('Footer')],
+                    ['languages', ['languages'],       'globe',   t('Languages')],
                 ];
                 $adminOpen = in_array($page, array_merge(...array_column($adminItems, 1)), true);
                 ?>

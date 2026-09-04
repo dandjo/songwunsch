@@ -19,6 +19,7 @@ declare(strict_types=1);
  *   /admin/limits      limits on wishing and suggesting
  *   /admin/pages     | /admin/pages/new, /admin/pages/<id>/edit (CKEditor, one tab per language)
  *   /admin/footer      which pages the footer links, in which order
+ *   /admin/languages   the fallback order of the languages
  *   /admin           -> /admin/users
  *   /rooms/<slug>          a room's song list  -- same page as /, in the room
  *   /rooms/<slug>/wishes   a room's wish list  -- same page as /wishes
@@ -35,7 +36,7 @@ declare(strict_types=1);
  *                  | logo_upload | logo_activate | logo_delete    (admin)
  *                  | theme_save | limits_save                     (admin)
  *                  | page_save | page_delete                      (admin)
- *                  | pages_languages_move | pages_languages_reorder  fallback order of the languages (admin)
+ *                  | languages_move | languages_reorder            fallback order of the languages (admin)
  *                  | footer_add | footer_remove | footer_move | footer_reorder | footer_text_save (admin)
  *                  | pause_all                                    (admin)
  * Admins may do everything. ?lang=<code> switches the UI language.
@@ -147,6 +148,7 @@ $routes = [
     '/admin/pages'  => 'pages',
     '/admin/footer' => 'footer',
     '/admin/limits' => 'limits',
+    '/admin/languages' => 'languages',
 ];
 // Pages with an id in the path -- see url(): /song/<id>|new,
 // /admin/users/<id>/edit, /admin/users/new, /users/<id>/settings,
@@ -496,17 +498,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect(url(['p' => 'pages']));
                 // no break
 
-            case 'pages_languages_move':
+            // ---- The languages (admins) ------------------------------------
+
+            case 'languages_move':
                 // The fallback order of the languages: one step (up, down) or
                 // to the very end (top, bottom) -- the keyboard's way and the
                 // way without JavaScript.
                 require_role($security, 'users');
                 $dir = (string) ($_POST['dir'] ?? 'up');
                 $pageRepo->moveLanguage((string) ($_POST['code'] ?? ''), in_array($dir, ['up', 'down', 'top', 'bottom'], true) ? $dir : 'up');
-                redirect(url(['p' => 'pages']));
+                redirect(url(['p' => 'languages']));
                 // no break
 
-            case 'pages_languages_reorder':
+            case 'languages_reorder':
                 // "de,en,fr" -- the languages in their new order, from drag &
                 // drop (app.js, the same code as the wish list's).
                 require_role($security, 'users');
@@ -517,7 +521,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 flash($saved ? 'ok' : 'error', $saved ? t('Order saved.') : t('The order could not be saved.'));
-                redirect(url(['p' => 'pages']));
+                redirect(url(['p' => 'languages']));
                 // no break
 
             // ---- The footer (admins) ---------------------------------------
@@ -1436,6 +1440,17 @@ try {
             $view['template']  = 'pages';
             $view['q']         = $q;
             $view['rows']      = $pageRepo->all($q);
+            $view['languages'] = $translator->available();   // code => native name
+            $view['order']     = $pageRepo->languageOrder();    // the fallback order, codes
+            break;
+
+        case 'languages':
+            // Admins only: the languages of the menu in their fallback order
+            // -- drag & drop or arrow buttons, like the wish list.
+            require_role($security, 'users');
+
+            $view['title']     = t('Languages');
+            $view['template']  = 'languages';
             $view['languages'] = $translator->available();   // code => native name
             $view['order']     = $pageRepo->languageOrder();    // the fallback order, codes
             break;

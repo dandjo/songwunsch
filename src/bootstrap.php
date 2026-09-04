@@ -181,7 +181,7 @@ function url(array $params = []): string
         // /rooms/new, /rooms/<id>/edit; users and pages the same below /admin.
         $list    = match ($page) { 'user' => '/admin/users', 'room' => '/rooms', 'page_edit' => '/admin/pages' };
         $target .= $list . ($id > 0 ? '/' . $id . '/edit' : '/new');
-    } elseif (in_array($page, ['users', 'logos', 'theme', 'limits', 'pages', 'footer'], true)) {
+    } elseif (in_array($page, ['users', 'logos', 'theme', 'limits', 'pages', 'footer', 'languages'], true)) {
         $target .= '/admin/' . $page;
     } elseif ($page === 'logo') {
         $target .= '/logo/' . $id;
@@ -271,6 +271,8 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         // Suggestions: a light bulb -- the glass as an outline, the base solid.
         'bulb'   => '<path d="M5.7 10.4c0-1.7-2.4-2.5-2.4-5.1a4.7 4.7 0 0 1 9.4 0c0 2.6-2.4 3.4-2.4 5.1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.6 13h4.8M6.6 15.2h2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
         // Administration: a shield with a tick.
+        // Languages: a globe -- a circle with its equator and one meridian.
+        'globe'  => '<circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M1.8 8h12.4M8 1.8c2.3 2.2 2.3 10.2 0 12.4M8 1.8c-2.3 2.2-2.3 10.2 0 12.4" fill="none" stroke="currentColor" stroke-width="1.8"/>',
         'shield' => '<path d="M8 1.1 14.4 3.4v4.4c0 3.6-2.6 6.3-6.4 7.6C4.2 14.1 1.6 11.4 1.6 7.8V3.4z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M5.1 8.2l2 2 3.9-4.1" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>',
         // Design: a drop of paint -- one solid shape that stays legible at 14px,
         // where a palette's wells blur into a blob.

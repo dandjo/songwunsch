@@ -1345,8 +1345,8 @@ msgstr "Aucune page pour l’instant."
 
 
 
-msgid "Every page is open to everyone under its address and may link to any other – for an imprint, FAQs or a privacy notice. Which pages the footer links, and in which order, is set under {footer}."
-msgstr "Chaque page est accessible à tous sous son adresse et peut renvoyer à toute autre – pour des mentions légales, une FAQ ou une politique de confidentialité. Les pages que le pied de page relie, et dans quel ordre, se règlent sous {footer}."
+msgid "Every page is open to everyone under its address and may link to any other – for an imprint, FAQs or a privacy notice. Which pages the footer links, and in which order, is set under {footer}; the order of the language chips is the fallback order set under {languages}."
+msgstr "Chaque page est accessible à tous sous son adresse et peut renvoyer à toute autre – pour des mentions légales, une FAQ ou une politique de confidentialité. Les pages que le pied de page relie, et dans quel ordre, se règlent sous {footer} ; l’ordre des puces de langue est l’ordre de repli réglé sous {languages}."
 
 msgid "Everyone can read the page under its address as soon as it is saved. Whether the footer links it is decided under Footer."
 msgstr "Dès qu’elle est enregistrée, tout le monde peut lire la page sous son adresse. Sa présence dans le pied de page se décide sous Pied de page."
@@ -1470,9 +1470,6 @@ msgstr "Retirer {language}"
 
 msgid "Fallback order of the languages"
 msgstr "Ordre de repli des langues"
-
-msgid "Readers get a page in the language they chose in the language menu. Where the page lacks it, they get the first language of this order the page has. Drag a row or use its arrows."
-msgstr "Les lecteurs voient une page dans la langue choisie dans le menu des langues. Si la page ne l’a pas, ils voient la première langue de cet ordre que la page possède. Faites glisser une ligne ou utilisez ses flèches."
 
 msgid "Languages in their fallback order, changeable by drag & drop or arrow buttons"
 msgstr "Langues dans leur ordre de repli, modifiable par glisser-déposer ou par les flèches"
@@ -1674,3 +1671,22 @@ msgstr "Lignes par page"
 
 msgid "Repertoire, rooms, the room’s song picker and the suggestions show this many rows before the pager takes over."
 msgstr "Le répertoire, les salles, la sélection de morceaux d’une salle et les suggestions affichent ce nombre de lignes avant la pagination."
+
+# ---- Languages (Administration -> Languages) ----------------------------------
+
+msgid "{n} language is available."
+msgid_plural "{n} languages are available."
+msgstr[0] "{n} langue est disponible."
+msgstr[1] "{n} langues sont disponibles."
+
+msgid "Readers get pages and the footer line in the language they chose in the language menu. Where a text lacks it, they get the first language of this order the text has."
+msgstr "Les lecteurs voient les pages et la ligne du pied de page dans la langue choisie dans le menu des langues. Si un texte ne l’a pas, ils voient la première langue de cet ordre que le texte possède."
+
+msgid "A language is a file in the lang folder – see the README to add one."
+msgstr "Une langue est un fichier dans le dossier lang – le README explique comment en ajouter une."
+
+msgid "With one language there is nothing to order."
+msgstr "Avec une seule langue, il n’y a rien à ordonner."
+
+msgid "Drag a row or use its arrows."
+msgstr "Faites glisser une ligne ou utilisez ses flèches."

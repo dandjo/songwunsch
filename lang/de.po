@@ -1349,8 +1349,8 @@ msgstr "Noch keine Seite."
 
 
 
-msgid "Every page is open to everyone under its address and may link to any other – for an imprint, FAQs or a privacy notice. Which pages the footer links, and in which order, is set under {footer}."
-msgstr "Jede Seite ist unter ihrer Adresse für alle erreichbar und kann auf jede andere verlinken – für ein Impressum, FAQs oder eine Datenschutzerklärung. Welche Seiten der Footer in welcher Reihenfolge verlinkt, wird unter {footer} festgelegt."
+msgid "Every page is open to everyone under its address and may link to any other – for an imprint, FAQs or a privacy notice. Which pages the footer links, and in which order, is set under {footer}; the order of the language chips is the fallback order set under {languages}."
+msgstr "Jede Seite ist unter ihrer Adresse für alle erreichbar und kann auf jede andere verlinken – für ein Impressum, FAQs oder eine Datenschutzerklärung. Welche Seiten der Footer in welcher Reihenfolge verlinkt, wird unter {footer} festgelegt; die Reihenfolge der Sprach-Chips ist die Fallback-Reihenfolge aus {languages}."
 
 msgid "Everyone can read the page under its address as soon as it is saved. Whether the footer links it is decided under Footer."
 msgstr "Sobald die Seite gespeichert ist, kann jeder sie unter ihrer Adresse lesen. Ob der Footer sie verlinkt, wird unter Footer entschieden."
@@ -1474,9 +1474,6 @@ msgstr "{language} entfernen"
 
 msgid "Fallback order of the languages"
 msgstr "Fallback-Reihenfolge der Sprachen"
-
-msgid "Readers get a page in the language they chose in the language menu. Where the page lacks it, they get the first language of this order the page has. Drag a row or use its arrows."
-msgstr "Leser sehen eine Seite in der Sprache, die sie im Sprachmenü gewählt haben. Fehlt sie der Seite, sehen sie die erste Sprache dieser Reihenfolge, die die Seite hat. Zeile ziehen oder die Pfeile nutzen."
 
 msgid "Languages in their fallback order, changeable by drag & drop or arrow buttons"
 msgstr "Sprachen in ihrer Fallback-Reihenfolge, änderbar per Drag & Drop oder Pfeiltasten"
@@ -1678,3 +1675,22 @@ msgstr "Zeilen pro Seite"
 
 msgid "Repertoire, rooms, the room’s song picker and the suggestions show this many rows before the pager takes over."
 msgstr "Repertoire, Räume, die Songauswahl eines Raums und die Vorschläge zeigen so viele Zeilen, bevor geblättert wird."
+
+# ---- Languages (Administration -> Languages) ----------------------------------
+
+msgid "{n} language is available."
+msgid_plural "{n} languages are available."
+msgstr[0] "{n} Sprache ist verfügbar."
+msgstr[1] "{n} Sprachen sind verfügbar."
+
+msgid "Readers get pages and the footer line in the language they chose in the language menu. Where a text lacks it, they get the first language of this order the text has."
+msgstr "Leser sehen Seiten und die Footer-Zeile in der Sprache, die sie im Sprachmenü gewählt haben. Fehlt sie einem Text, sehen sie die erste Sprache dieser Reihenfolge, die der Text hat."
+
+msgid "A language is a file in the lang folder – see the README to add one."
+msgstr "Eine Sprache ist eine Datei im Ordner lang – wie eine dazukommt, steht in der README."
+
+msgid "With one language there is nothing to order."
+msgstr "Mit einer Sprache gibt es nichts zu ordnen."
+
+msgid "Drag a row or use its arrows."
+msgstr "Zeile ziehen oder die Pfeile nutzen."

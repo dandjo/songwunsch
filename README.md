@@ -146,6 +146,7 @@ remembered room or the start room takes over.
 | `/admin/logos` | Header logos – admins, see [Logo](#logo) |
 | `/admin/pages`, `/admin/pages/new`, `/admin/pages/<id>/edit` | The admins' pages: list, create, edit – admins, see [Pages and footer](#pages-and-footer) |
 | `/admin/footer` | Which pages the footer links, in which order – admins |
+| `/admin/languages` | The fallback order of the languages – admins, see [Languages](#languages) |
 | `/admin` | Leads to `/admin/users` |
 
 Sorting, search and page are appended as query parameters
@@ -153,7 +154,7 @@ Sorting, search and page are appended as query parameters
 records share a prefix: `/rooms` lists, `/rooms/new` creates, `/rooms/<id>/edit`
 edits, and `/rooms/<name>` is the room itself (so `new` and `main` are not
 available as room names). Everything the *Administration* menu leads to sits
-below `/admin` – users, logos, design, limits, pages, footer – while a page's
+below `/admin` – users, logos, design, limits, pages, footer, languages – while a page's
 public address stays `/pages/<name>`. Anything else is a 404; there are no redirects from
 addresses of earlier versions.
 
@@ -399,9 +400,9 @@ on the page, each headed by its language.
 
 Readers get a page in the language chosen in the switcher. Where the page
 lacks it, they get the first language of the **fallback order** the page has
-– the order is set at the bottom of the Pages list (admins), by dragging a
-row or with its arrow buttons, the same as the footer's order; a language
-that arrives later (a new `.po` file) joins the end. The title and body then
+– the order is set under *Administration → Languages* (`/admin/languages`),
+by dragging a row or with its arrow buttons, the same as the footer's order;
+a language that arrives later (a new `.po` file) joins the end. The title and body then
 carry `lang="…"` so screen readers and hyphenation know. The footer links, the
 Pages list and the admins' messages pick the title the same way. On the
 public page, an admin's *Edit* button opens the tab of the admin's interface
@@ -514,6 +515,15 @@ no personal data). Without a choice the browser's `Accept-Language` header
 decides, otherwise English. The choice also picks the language of the admins'
 pages, see [Pages in several languages](#pages-in-several-languages).
 
+**Fallback order.** Under *Administration → Languages* (`/admin/languages`)
+admins arrange the languages in the order a reader falls back through when a
+page has no version in their own language: the first language of that order
+the page has is the one they get. The order is changed by dragging a row or
+with the arrow buttons of every row (keyboard and no-JavaScript friendly) and
+lives in the `settings` table as `pages_languages`, codes separated by
+commas; a language not in the stored order joins the end. Which languages
+exist is not set here – that is the `lang/` folder.
+
 **Adding a language.** Dropping in a file is enough:
 
 ```bash
@@ -559,7 +569,7 @@ pre-escaped and the rest printed without escaping.
 
 All operating functions sit behind a sign-in. Users are stored in the `users`
 table and managed on the **Users** page (`/admin/users`). Admins reach their
-pages – *Users*, *Logos*, *Design*, *Limits*, *Pages*, *Footer* – through the
+pages – *Users*, *Logos*, *Design*, *Limits*, *Pages*, *Footer*, *Languages* – through the
 **Administration** menu in the navigation, a tab that opens a list; all of
 them live below `/admin`.
 
@@ -916,6 +926,7 @@ middleware or the hoster.
 | See your own roles | Signed in: account menu → User settings, box *Your account* |
 | Put a logo in the header | Admins: *Administration → Logos* (`/admin/logos`): upload, *Switch live*, see [Logo](#logo) |
 | Change the footer line | Admins: *Administration → Footer* (`/admin/footer`), *Your own line* below the picker |
+| Change the fallback order of the languages | Admins: *Administration → Languages* (`/admin/languages`), drag a row or use its arrows |
 | Change the colours | Admins: *Administration → Design* (`/admin/theme`): pick or type a colour per area, *Default* brings the built-in one back, see [Colours](#colours) |
 | Change the wish and suggestion limits | Admins: *Administration → Limits* (`/admin/limits`): open wishes per room, per-minute and per-hour limits, seconds between two wishes or suggestions and after the page load, duplicates, rows per page, see [Protecting the wishing](#protecting-the-wishing) |
 
@@ -1011,7 +1022,7 @@ src/RoomRepository.php Rooms: create, edit, delete, song selection from the mast
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter
-templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, theme, limits, pages, page_edit, page, footer, name, _name_form, _room_switches, error, _sortbar, _pager
+templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, theme, limits, pages, page_edit, page, footer, languages, name, _name_form, _room_switches, error, _sortbar, _pager
 assets/                style.css (dark interface), app.js, vendor/ckeditor5 (the page editor, see Pages and footer)
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)
