@@ -37,9 +37,20 @@ final class UserRepository
     }
 
     /** @return array<int,array<string,mixed>> alphabetically by username */
-    public function all(): array
+    /**
+     * Every user, by name -- or only those whose name contains $query.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function all(string $query = ''): array
     {
-        return $this->db->all(self::SELECT . ' ORDER BY username ASC');
+        $query = trim($query);
+        if ($query === '') {
+            return $this->db->all(self::SELECT . ' ORDER BY username ASC');
+        }
+        $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $query) . '%';
+
+        return $this->db->all(self::SELECT . ' WHERE username LIKE ? ORDER BY username ASC', [$like]);
     }
 
     public function count(): int

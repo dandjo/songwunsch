@@ -1297,9 +1297,12 @@ try {
             // Admins only: every page, with a mark on the ones the footer links.
             require_role($security, 'users');
 
+            $q = trim((string) ($_GET['q'] ?? ''));
+
             $view['title']    = t('Pages');
             $view['template'] = 'pages';
-            $view['rows']     = $pages->all();
+            $view['q']        = $q;
+            $view['rows']     = $pages->all($q);
             break;
 
         case 'footer':
@@ -1477,9 +1480,12 @@ try {
         case 'users':
             require_role($security, 'users');
 
+            $q = trim((string) ($_GET['q'] ?? ''));
+
             $view['title']    = t('Users');
             $view['template'] = 'users';
-            $view['rows']     = $users->all();
+            $view['q']        = $q;
+            $view['rows']     = $users->all($q);
             $view['selfId']   = (int) $security->user()['id'];
             break;
 

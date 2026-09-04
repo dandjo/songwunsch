@@ -9,7 +9,8 @@ use Songwunsch\Format;
  * address. Add, edit, delete; the footer is arranged on its own page
  * (Administration -> Footer).
  *
- * @var array<int,array<string,mixed>> $rows  the pages, by title
+ * @var array<int,array<string,mixed>> $rows  the pages by title, or those matching the search
+ * @var string $q                              the search, '' for all
  * @var string $csrf
  */
 
@@ -20,7 +21,7 @@ $e = static fn (?string $v): string => Format::e($v);
     <div>
         <h1><?= $e(t('Pages')) ?></h1>
         <p class="muted">
-            <?= $e(tn('{n} page.', '{n} pages.', count($rows))) ?>
+            <?= $e($q !== '' ? tn('{n} page found.', '{n} pages found.', count($rows)) : tn('{n} page.', '{n} pages.', count($rows))) ?>
             <?= t('Every page is open to everyone under its address and may link to any other – for an imprint, FAQs or a privacy notice. Which pages the footer links, and in which order, is set under {footer}.', [
                 'footer' => '<a href="' . $e(url(['p' => 'footer'])) . '">' . $e(t('Footer')) . '</a>',
             ]) ?>
@@ -32,8 +33,17 @@ $e = static fn (?string $v): string => Format::e($v);
     </div>
 </div>
 
+<form class="search" method="get" action="<?= $e(url(['p' => 'pages'])) ?>" role="search">
+    <label class="sr-only" for="q"><?= $e(t('Search pages')) ?></label>
+    <input type="search" id="q" name="q" value="<?= $e($q) ?>" placeholder="<?= $e(t('Title or machine name …')) ?>" autocomplete="off">
+    <button type="submit"><?= $e(t('Search')) ?></button>
+    <?php if ($q !== ''): ?>
+        <a class="search__reset" href="<?= $e(url(['p' => 'pages'])) ?>"><?= $e(t('reset')) ?></a>
+    <?php endif; ?>
+</form>
+
 <?php if ($rows === []): ?>
-    <p class="empty"><?= $e(t('No page yet.')) ?></p>
+    <p class="empty"><?= $e($q !== '' ? t('No page found. Try a different spelling?') : t('No page yet.')) ?></p>
 <?php else: ?>
 <div class="table-wrap">
     <table class="grid grid--pages">

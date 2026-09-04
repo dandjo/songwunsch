@@ -5,7 +5,8 @@ declare(strict_types=1);
 use Songwunsch\Format;
 use Songwunsch\UserRepository;
 
-/** @var array<int,array<string,mixed>> $rows */
+/** @var array<int,array<string,mixed>> $rows  the users, or those matching the search */
+/** @var string $q       the search, '' for all */
 /** @var int $selfId  id of the signed-in admin */
 /** @var string $csrf */
 
@@ -16,7 +17,7 @@ $e = static fn (?string $v): string => Format::e($v);
     <div>
         <h1><?= $e(t('Users')) ?></h1>
         <p class="muted">
-            <?= $e(tn('{n} user.', '{n} users.', count($rows))) ?>
+            <?= $e($q !== '' ? tn('{n} user found.', '{n} users found.', count($rows)) : tn('{n} user.', '{n} users.', count($rows))) ?>
             <?= t('{editor} maintains the repertoire, {moderator} the wish list; {admin} manages users, hands out every role and may do everything. Roles can be combined; at least one active admin always remains.', [
                 'editor'    => '<strong>' . $e(t('Editor', [], 'role')) . '</strong>',
                 'moderator' => '<strong>' . $e(t('Moderator', [], 'role')) . '</strong>',
@@ -30,6 +31,18 @@ $e = static fn (?string $v): string => Format::e($v);
     </div>
 </div>
 
+<form class="search" method="get" action="<?= $e(url(['p' => 'users'])) ?>" role="search">
+    <label class="sr-only" for="q"><?= $e(t('Search users')) ?></label>
+    <input type="search" id="q" name="q" value="<?= $e($q) ?>" placeholder="<?= $e(t('Username …')) ?>" autocomplete="off">
+    <button type="submit"><?= $e(t('Search')) ?></button>
+    <?php if ($q !== ''): ?>
+        <a class="search__reset" href="<?= $e(url(['p' => 'users'])) ?>"><?= $e(t('reset')) ?></a>
+    <?php endif; ?>
+</form>
+
+<?php if ($rows === []): ?>
+    <p class="empty"><?= $e(t('No user found. Try a different spelling?')) ?></p>
+<?php else: ?>
 <div class="table-wrap">
     <table class="grid grid--users">
         <caption class="sr-only"><?= $e(t('Users with roles and status')) ?></caption>
@@ -101,3 +114,4 @@ $e = static fn (?string $v): string => Format::e($v);
         </tbody>
     </table>
 </div>
+<?php endif; ?>

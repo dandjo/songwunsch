@@ -1428,3 +1428,31 @@ msgid "{n} page linked"
 msgid_plural "{n} pages linked"
 msgstr[0] "{n} page dans le pied de page"
 msgstr[1] "{n} pages dans le pied de page"
+
+msgid "Search users"
+msgstr "Rechercher des utilisateurs"
+
+msgid "Search pages"
+msgstr "Rechercher des pages"
+
+msgid "Username …"
+msgstr "Nom d’utilisateur …"
+
+msgid "Title or machine name …"
+msgstr "Titre ou nom machine …"
+
+msgid "No user found. Try a different spelling?"
+msgstr "Aucun utilisateur trouvé. Essayer une autre orthographe ?"
+
+msgid "No page found. Try a different spelling?"
+msgstr "Aucune page trouvée. Essayer une autre orthographe ?"
+
+msgid "{n} user found."
+msgid_plural "{n} users found."
+msgstr[0] "{n} utilisateur trouvé."
+msgstr[1] "{n} utilisateurs trouvés."
+
+msgid "{n} page found."
+msgid_plural "{n} pages found."
+msgstr[0] "{n} page trouvée."
+msgstr[1] "{n} pages trouvées."

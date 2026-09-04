@@ -599,15 +599,19 @@ msgstr ""
 msgid "No name given"
 msgstr ""
 
-#: templates/layout.php:314
+#: templates/layout.php:324
 msgid "No name yet"
+msgstr ""
+
+#: templates/pages.php:46
+msgid "No page found. Try a different spelling?"
 msgstr ""
 
 #: templates/footer.php:58
 msgid "No page yet – write one under Pages first."
 msgstr ""
 
-#: templates/pages.php:36
+#: templates/pages.php:46
 msgid "No page yet."
 msgstr ""
 
@@ -633,6 +637,10 @@ msgstr ""
 
 #: templates/suggestions.php:155
 msgid "No suggestions yet. The audience has everything it needs – or has not found the form."
+msgstr ""
+
+#: templates/users.php:44
+msgid "No user found. Try a different spelling?"
 msgstr ""
 
 #: templates/wishes.php:87
@@ -897,8 +905,12 @@ msgstr ""
 msgid "Save name"
 msgstr ""
 
-#: templates/home.php:85 templates/room_songs.php:80 templates/rooms.php:82 templates/suggestions.php:144
+#: templates/home.php:85 templates/pages.php:39 templates/room_songs.php:80 templates/rooms.php:82 templates/suggestions.php:144 templates/users.php:37
 msgid "Search"
+msgstr ""
+
+#: templates/pages.php:37
+msgid "Search pages"
 msgstr ""
 
 #: templates/rooms.php:80
@@ -913,19 +925,23 @@ msgstr ""
 msgid "Search suggestions"
 msgstr ""
 
-#: index.php:325
+#: templates/users.php:35
+msgid "Search users"
+msgstr ""
+
+#: index.php:292
 msgid "Session expired. Please reload the page."
 msgstr ""
 
-#: templates/layout.php:317
+#: templates/layout.php:327
 msgid "Set name"
 msgstr ""
 
-#: index.php:361
+#: index.php:328
 msgid "Settings saved."
 msgstr ""
 
-#: src/bootstrap.php:290 src/bootstrap.php:291
+#: src/bootstrap.php:295 src/bootstrap.php:296
 msgid "Show password"
 msgstr ""
 
@@ -1217,35 +1233,39 @@ msgstr ""
 msgid "This room has no songs yet."
 msgstr ""
 
-#: index.php:591 index.php:804 index.php:998 index.php:1035 index.php:1092 index.php:1611 src/RoomRepository.php:254
+#: index.php:562 index.php:775 index.php:969 index.php:1006 index.php:1063 index.php:1589 src/RoomRepository.php:254
 msgid "This room was not found."
 msgstr ""
 
-#: index.php:655 index.php:952 index.php:1423 src/SongRepository.php:230
+#: index.php:626 index.php:923 index.php:1397 src/SongRepository.php:230
 msgid "This song was not found."
 msgstr ""
 
-#: index.php:972 index.php:1429
+#: index.php:943 index.php:1403
 msgid "This suggestion was not found."
 msgstr ""
 
-#: index.php:1137 index.php:1199 index.php:1522
+#: index.php:1108 index.php:1170 index.php:1500
 msgid "This user was not found."
 msgstr ""
 
-#: src/UserRepository.php:120
+#: src/UserRepository.php:131
 msgid "This username is already taken."
 msgstr ""
 
-#: src/PageRepository.php:143 src/PageRepository.php:145 src/SongRepository.php:174 src/SuggestionRepository.php:104 templates/footer.php:63 templates/footer.php:95 templates/home.php:27 templates/page_edit.php:59 templates/pages.php:43 templates/room_songs.php:113 templates/room_songs.php:156 templates/song.php:79 templates/suggestions.php:78 templates/suggestions.php:164 templates/wishes.php:97 templates/wishes.php:131
+#: src/PageRepository.php:148 src/PageRepository.php:150 src/SongRepository.php:174 src/SuggestionRepository.php:104 templates/footer.php:63 templates/footer.php:95 templates/home.php:27 templates/page_edit.php:59 templates/pages.php:53 templates/room_songs.php:113 templates/room_songs.php:156 templates/song.php:79 templates/suggestions.php:78 templates/suggestions.php:164 templates/wishes.php:97 templates/wishes.php:131
 msgid "Title"
+msgstr ""
+
+#: templates/pages.php:38
+msgid "Title or machine name …"
 msgstr ""
 
 #: templates/wishes.php:63
 msgid "To reorder, switch to the {manual}."
 msgstr ""
 
-#: src/bootstrap.php:473 templates/room_songs.php:73
+#: src/bootstrap.php:478 templates/room_songs.php:73
 msgid "To the repertoire"
 msgstr ""
 
@@ -1261,47 +1281,51 @@ msgstr ""
 msgid "Uploaded logos"
 msgstr ""
 
-#: index.php:1497 templates/layout.php:289 templates/settings.php:52
+#: index.php:1472 templates/layout.php:299 templates/settings.php:52
 msgid "User settings"
 msgstr ""
 
-#: index.php:1175
+#: index.php:1146
 msgid "User “{name}” has been created."
 msgstr ""
 
-#: index.php:1205
+#: index.php:1176
 msgid "User “{name}” has been deleted."
 msgstr ""
 
-#: index.php:1188
+#: index.php:1159
 msgid "User “{name}” has been saved."
 msgstr ""
 
-#: src/UserRepository.php:112 templates/login.php:21 templates/user.php:65 templates/users.php:38
+#: src/UserRepository.php:123 templates/login.php:21 templates/user.php:65 templates/users.php:51
 msgid "Username"
 msgstr ""
 
-#: index.php:348
+#: index.php:315
 msgid "Username or password is incorrect."
 msgstr ""
 
-#: src/UserRepository.php:116
+#: templates/users.php:36
+msgid "Username …"
+msgstr ""
+
+#: src/UserRepository.php:127
 msgid "Username: letters, digits, dot, underscore, hyphen or @."
 msgstr ""
 
-#: src/UserRepository.php:114
+#: src/UserRepository.php:125
 msgid "Username: {min} to {max} characters."
 msgstr ""
 
-#: index.php:1508 templates/layout.php:195 templates/users.php:17
+#: index.php:1485 templates/layout.php:205 templates/users.php:18
 msgid "Users"
 msgstr ""
 
-#: templates/users.php:35
+#: templates/users.php:48
 msgid "Users with roles and status"
 msgstr ""
 
-#: templates/layout.php:300
+#: templates/layout.php:310
 msgid "View as guest"
 msgstr ""
 
@@ -1625,13 +1649,19 @@ msgid_plural "{n} pages available"
 msgstr[0] ""
 msgstr[1] ""
 
+#: templates/pages.php:24
+msgid "{n} page found."
+msgid_plural "{n} pages found."
+msgstr[0] ""
+msgstr[1] ""
+
 #: templates/footer.php:82
 msgid "{n} page linked"
 msgid_plural "{n} pages linked"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/pages.php:23
+#: templates/pages.php:24
 msgid "{n} page."
 msgid_plural "{n} pages."
 msgstr[0] ""
@@ -1709,7 +1739,13 @@ msgid_plural "{n} suggestions waiting."
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/users.php:19
+#: templates/users.php:20
+msgid "{n} user found."
+msgid_plural "{n} users found."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/users.php:20
 msgid "{n} user."
 msgid_plural "{n} users."
 msgstr[0] ""

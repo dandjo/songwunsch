@@ -25,21 +25,28 @@ final class PageRepository
     /** Address part: lower-case letters, digits and single hyphens, like a room's slug. */
     public const SLUG_PATTERN = '/^[a-z0-9]+(?:-[a-z0-9]+)*$/';
 
-    /** Words the address /pages/<...> uses for other things: /pages/new. */
-    public const RESERVED_SLUGS = ['new'];
-
     public function __construct(private readonly Database $db)
     {
     }
 
     /**
-     * Every page, by title.
+     * Every page, by title -- or only those whose title or machine name
+     * contains $query.
      *
      * @return array<int,array<string,mixed>>
      */
-    public function all(): array
+    public function all(string $query = ''): array
     {
-        return $this->db->all('SELECT * FROM ' . self::TABLE . ' ORDER BY title ASC, id ASC');
+        $query = trim($query);
+        if ($query === '') {
+            return $this->db->all('SELECT * FROM ' . self::TABLE . ' ORDER BY title ASC, id ASC');
+        }
+        $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $query) . '%';
+
+        return $this->db->all(
+            'SELECT * FROM ' . self::TABLE . ' WHERE title LIKE ? OR slug LIKE ? ORDER BY title ASC, id ASC',
+            [$like, $like],
+        );
     }
 
     /**
