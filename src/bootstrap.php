@@ -224,6 +224,9 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         // One step up / down: the same triangle as above, centred, without the bar.
         'up'        => '<path d="M8 3.85l5.2 8.3H2.8z" fill="currentColor"/>',
         'down'      => '<path d="M8 12.15L2.8 3.85h10.4z" fill="currentColor"/>',
+        // Account menu: a frame with an arrow going in (log in) or out (log out).
+        'login'  => '<path d="M9 2.5h3.5a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 8h7M6 4.8 9.2 8 6 11.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+        'logout' => '<path d="M7 2.5H3.5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1H7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 8H14M10.8 4.8 14 8l-3.2 3.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
         // Start room: a flag on a pole.
         'flag'   => '<path d="M3.2 14.5V1.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M4.6 2.2h8.6l-2.2 3.2 2.2 3.2H4.6z" fill="currentColor"/>',
         // Suggestions: a light bulb -- the glass as an outline, the base solid.

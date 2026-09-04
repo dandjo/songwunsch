@@ -117,12 +117,12 @@ final class UserRepository
             if ($existing === null) {
                 $errors['password'] = t('{field} is required.', ['field' => t('Password')]);
             }
-        } elseif (mb_strlen($password) < self::MIN_PASSWORD) {
-            $errors['password'] = t('Password: at least {min} characters.', ['min' => self::MIN_PASSWORD]);
-        } elseif ($password !== (string) ($input['password2'] ?? '')) {
-            $errors['password2'] = t('The two passwords do not match.');
         } else {
-            $values['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+            $check = $this->checkPassword($password, (string) ($input['password2'] ?? ''));
+            $errors += $check['errors'];
+            if ($check['hash'] !== null) {
+                $values['password_hash'] = $check['hash'];
+            }
         }
 
         $values['role_moderator'] = (($input['role_moderator'] ?? '') === '1') ? 1 : 0;
@@ -130,6 +130,33 @@ final class UserRepository
         $values['active']         = (($input['active'] ?? '') === '1') ? 1 : 0;
 
         return ['values' => $values, 'errors' => $errors];
+    }
+
+    /**
+     * The rules for a new password: long enough and typed twice the same.
+     * Shared by the admin's user form and the own-password form.
+     *
+     * @return array{errors:array<string,string>,hash:?string} hash only without errors
+     */
+    public function checkPassword(string $password, string $repeat): array
+    {
+        if (mb_strlen($password) < self::MIN_PASSWORD) {
+            return ['errors' => ['password' => t('Password: at least {min} characters.', ['min' => self::MIN_PASSWORD])], 'hash' => null];
+        }
+        if ($password !== $repeat) {
+            return ['errors' => ['password2' => t('The two passwords do not match.')], 'hash' => null];
+        }
+
+        return ['errors' => [], 'hash' => password_hash($password, PASSWORD_DEFAULT)];
+    }
+
+    /** A user changes their own password; roles and status stay as they are. */
+    public function setPassword(int $id, string $hash): void
+    {
+        $this->db->exec(
+            'UPDATE ' . self::TABLE . ' SET password_hash = ?, updated_at = ? WHERE id = ? LIMIT 1',
+            [$hash, date('Y-m-d H:i:s'), $id],
+        );
     }
 
     /**

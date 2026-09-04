@@ -279,6 +279,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect(url(['p' => 'settings']));
                 // no break
 
+            case 'password_save':
+                // A signed-in user changes their own password: the current one
+                // proves it is really them (a forgotten unlocked screen must
+                // not be enough). The admin has the full user form for this.
+                require_login($security);
+                $self = $security->user();
+                if ((int) $self['is_admin'] === 1) {
+                    redirect(url(['p' => 'user', 'id' => (int) $self['id']]));
+                }
+
+                $current = (string) ($_POST['current_password'] ?? '');
+                $new     = (string) ($_POST['password'] ?? '');
+                $errors  = [];
+                if (!password_verify($current, (string) $self['password_hash'])) {
+                    $errors['current_password'] = t('The current password is not right.');
+                }
+                $check = $new === ''
+                    ? ['errors' => ['password' => t('{field} is required.', ['field' => t('New password')])], 'hash' => null]
+                    : $users->checkPassword($new, (string) ($_POST['password2'] ?? ''));
+                $errors += $check['errors'];
+
+                if ($errors !== []) {
+                    // Passwords never go into the session -- only which field failed.
+                    remember_input([], $errors);
+                    flash('error', t('Please check the highlighted fields.'));
+                    redirect(url(['p' => 'settings']));
+                }
+
+                $users->setPassword((int) $self['id'], (string) $check['hash']);
+                $security->notePassword($new);
+                flash('ok', t('Your password has been changed.'));
+                redirect(url(['p' => 'settings']));
+                // no break
+
             case 'logout':
                 $security->logout();
                 redirect(url(['p' => 'songs']));
@@ -1111,6 +1145,10 @@ try {
             $view['template'] = 'settings';
             $view['selfId']   = (int) $security->user()['id'];
             $view['kinds']    = deletable_kinds($security);
+            // Own password: everyone but the admin, who has the user form.
+            $view['isAdmin']  = $security->isAdmin();
+            $view['account']  = $security->user();
+            $view['errors']   = remembered_input()['errors'] ?? [];
             break;
 
         case 'users':

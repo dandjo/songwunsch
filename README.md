@@ -437,6 +437,15 @@ to their own user form. This is checked at sign-in (or once for an existing
 session) and remembered in the session; changing the password in the own form
 removes the notice.
 
+**Settings.** Every signed-in user has a personal page under *Settings* in
+the account menu (top right). It shows the own username and roles with what
+each role may do, holds the password change and the delete confirmations.
+Roles and status cannot be touched there – the admin assigns them.
+
+**Own password.** Under *Settings*: the current password once, the new one
+twice, same rules as in the user form. The admin is sent to their own user
+form instead, which also holds the roles.
+
 **Sessions.** The session holds only the user ID; the record is loaded on
 every request. Changed roles apply immediately, a locked or deleted user is
 signed out with the next click. Passwords are stored with `password_hash()`
@@ -732,7 +741,9 @@ middleware or the hoster.
 | Manage a room's songs | Editor: *Manage* in the room or under Rooms |
 | Create a user | Admin: Users → *Add user* |
 | Hand over the admin role | Admin: Users → *Edit* → *Hand over admin role* |
-| Switch off delete confirmations | Signed in: Settings → *Delete confirmations*, per account and separately for songs, suggestions, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
+| Switch off delete confirmations | Signed in: account menu → Settings → *Delete confirmations*, per account and separately for songs, suggestions, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
+| Change your own password | Signed in: account menu → Settings → *Change password* (current password plus the new one twice); the admin uses their own user form instead |
+| See your own roles | Signed in: account menu → Settings, box *Your account* |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order

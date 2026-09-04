@@ -867,8 +867,8 @@ msgstr "Einstellungen gespeichert."
 msgid "Personal – these settings apply to your own account only."
 msgstr "Persönlich – diese Einstellungen gelten nur für das eigene Konto."
 
-msgid "Your account has no role that may delete anything, so there is nothing to set here."
-msgstr "Das Konto hat keine Rolle, die etwas löschen darf – hier gibt es daher nichts einzustellen."
+msgid "Your account has no role that may delete anything, so there is nothing else to set here."
+msgstr "Dein Konto hat keine Rolle, die etwas löschen darf – darüber hinaus gibt es hier nichts einzustellen."
 
 msgid "Delete confirmations"
 msgstr "Löschbestätigungen"
@@ -1176,3 +1176,43 @@ msgstr "Im Startraum landen Besucher, die die nackte Adresse aufrufen und noch k
 
 msgid "Visitors who open the bare address without having chosen a room yet land in “General”; As start room sends them into another room instead."
 msgstr "Besucher, die die nackte Adresse aufrufen und noch keinen Raum gewählt haben, landen in „Allgemein“; „Als Startraum“ schickt sie stattdessen in einen anderen Raum."
+
+msgid "Change password"
+msgstr "Passwort ändern"
+
+msgid "Current password"
+msgstr "Aktuelles Passwort"
+
+msgid "Enter your current password once and the new one twice. The new password applies from the next sign-in; this session stays."
+msgstr "Gib dein aktuelles Passwort einmal und das neue zweimal ein. Das neue Passwort gilt ab der nächsten Anmeldung; diese Sitzung bleibt bestehen."
+
+msgid "The current password is not right."
+msgstr "Das aktuelle Passwort stimmt nicht."
+
+msgid "Your password has been changed."
+msgstr "Dein Passwort wurde geändert."
+
+msgid "As admin you change your password in {link}."
+msgstr "Als Admin änderst du dein Passwort in {link}."
+
+msgid "your user form"
+msgstr "deinem Benutzerformular"
+
+msgid "User management, plus everything editors and moderators may do."
+msgstr "Benutzerverwaltung, dazu alles, was Editoren und Moderatoren dürfen."
+
+msgid "Repertoire, song suggestions and rooms."
+msgstr "Repertoire, Songvorschläge und Räume."
+
+msgid "Wish list: sort, delete, clear; close and open rooms."
+msgstr "Wunschliste: sortieren, löschen, leeren; Räume schließen und öffnen."
+
+msgid "Your account"
+msgstr "Dein Konto"
+
+msgid "Without a role you can sign in and see the public repertoire; roles are assigned by the admin."
+msgstr "Ohne Rolle kannst du dich anmelden und das öffentliche Repertoire sehen; Rollen vergibt der Admin."
+
+msgid "Roles are assigned by the admin."
+msgstr "Rollen vergibt der Admin."
+

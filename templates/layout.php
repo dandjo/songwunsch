@@ -153,10 +153,6 @@ foreach ($translator->available() as $code => $name) {
             <?php if ($security->can('users')): ?>
                 <a href="<?= $e(url(['p' => 'users'])) ?>"<?= in_array($page, ['users', 'user'], true) ? ' aria-current="page"' : '' ?>><?= icon('users') ?><?= $e(t('Users')) ?></a>
             <?php endif; ?>
-            <?php if ($security->isLoggedIn()): ?>
-                <?php /* Personal settings, for every signed-in user. */ ?>
-                <a href="<?= $e(url(['p' => 'settings'])) ?>"<?= $page === 'settings' ? ' aria-current="page"' : '' ?>><?= icon('gear') ?><?= $e(t('Settings')) ?></a>
-            <?php endif; ?>
         </nav>
 
         <?php /* Top right next to the word mark, outside the navigation so on
@@ -216,7 +212,16 @@ foreach ($translator->available() as $code => $name) {
                         <?php /* Staff wish too; the name from the cookie goes
                                  with their wishes like with anyone else's. */ ?>
                         <a class="account__item<?= $page === 'name' ? ' is-active' : '' ?>" href="<?= $e($nameHref) ?>"<?= $page === 'name' ? ' aria-current="page"' : '' ?>>
-                            <?= $e($guestName !== null ? t('Wishing as {name}', ['name' => $guestName]) : t('Name for wishes')) ?>
+                            <?php /* The name as a small chip, pre-escaped into the translation. */ ?>
+                            <?= icon('user', 14) ?><span class="account__label"><?= $guestName !== null
+                                ? t('Wishing as {name}', ['name' => '<span class="account__value">' . $e($guestName) . '</span>'])
+                                : $e(t('Name for wishes')) ?></span>
+                        </a>
+                        <?php /* Personal settings (password, delete confirmations)
+                                 -- they concern the account only, so they live here
+                                 and not among the page tabs. */ ?>
+                        <a class="account__item<?= $page === 'settings' ? ' is-active' : '' ?>" href="<?= $e(url(['p' => 'settings'])) ?>"<?= $page === 'settings' ? ' aria-current="page"' : '' ?>>
+                            <?= icon('gear', 14) ?><span class="account__label"><?= $e(t('Settings')) ?></span>
                         </a>
                         <?php /* See the site as a visitor without a login does
                                  -- to check what guests get -- and back. Posts
@@ -227,12 +232,12 @@ foreach ($translator->available() as $code => $name) {
                             <input type="hidden" name="on" value="<?= $guestView ? '0' : '1' ?>">
                             <input type="hidden" name="back" value="<?= $e($here) ?>">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                            <button type="submit" class="account__item<?= $guestView ? ' is-active' : '' ?>" aria-pressed="<?= $guestView ? 'true' : 'false' ?>"><?= $e(t('View as guest')) ?></button>
+                            <button type="submit" class="account__item<?= $guestView ? ' is-active' : '' ?>" aria-pressed="<?= $guestView ? 'true' : 'false' ?>"><?= icon('eye', 14) ?><span class="account__label"><?= $e(t('View as guest')) ?></span></button>
                         </form>
                         <form method="post" action="<?= $e(url()) ?>">
                             <input type="hidden" name="a" value="logout">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                            <button type="submit" class="account__item"><?= $e(t('Log out')) ?></button>
+                            <button type="submit" class="account__item"><?= icon('logout', 14) ?><span class="account__label"><?= $e(t('Log out')) ?></span></button>
                         </form>
                     <?php else: ?>
                         <?php /* A visitor heads the menu with the name they gave
@@ -244,9 +249,9 @@ foreach ($translator->available() as $code => $name) {
                             <p class="account__name account__name--none"><?= $e(t('No name yet')) ?></p>
                         <?php endif; ?>
                         <a class="account__item<?= $page === 'name' ? ' is-active' : '' ?>" href="<?= $e($nameHref) ?>"<?= $page === 'name' ? ' aria-current="page"' : '' ?>>
-                            <?= $e($guestName !== null ? t('Change name') : t('Set name')) ?>
+                            <?= icon('user', 14) ?><span class="account__label"><?= $e($guestName !== null ? t('Change name') : t('Set name')) ?></span>
                         </a>
-                        <a class="account__item<?= $page === 'login' ? ' is-active' : '' ?>" href="<?= $e(url(['p' => 'login'])) ?>"<?= $page === 'login' ? ' aria-current="page"' : '' ?>><?= $e(t('Log in')) ?></a>
+                        <a class="account__item<?= $page === 'login' ? ' is-active' : '' ?>" href="<?= $e(url(['p' => 'login'])) ?>"<?= $page === 'login' ? ' aria-current="page"' : '' ?>><?= icon('login', 14) ?><span class="account__label"><?= $e(t('Log in')) ?></span></a>
                     <?php endif; ?>
                 </div>
             </details>

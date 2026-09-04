@@ -863,8 +863,8 @@ msgstr "Paramètres enregistrés."
 msgid "Personal – these settings apply to your own account only."
 msgstr "Personnel – ces paramètres ne s’appliquent qu’à votre propre compte."
 
-msgid "Your account has no role that may delete anything, so there is nothing to set here."
-msgstr "Votre compte n’a aucun rôle autorisé à supprimer ; il n’y a donc rien à régler ici."
+msgid "Your account has no role that may delete anything, so there is nothing else to set here."
+msgstr "Votre compte n’a aucun rôle autorisé à supprimer quoi que ce soit ; il n’y a donc rien d’autre à régler ici."
 
 msgid "Delete confirmations"
 msgstr "Confirmations de suppression"
@@ -1172,3 +1172,43 @@ msgstr "La salle de départ accueille les visiteurs qui ouvrent l’adresse nue 
 
 msgid "Visitors who open the bare address without having chosen a room yet land in “General”; As start room sends them into another room instead."
 msgstr "Les visiteurs qui ouvrent l’adresse nue sans avoir encore choisi de salle arrivent dans « Général » ; « Salle de départ » les envoie dans une autre salle."
+
+msgid "Change password"
+msgstr "Changer le mot de passe"
+
+msgid "Current password"
+msgstr "Mot de passe actuel"
+
+msgid "Enter your current password once and the new one twice. The new password applies from the next sign-in; this session stays."
+msgstr "Saisissez une fois votre mot de passe actuel et deux fois le nouveau. Le nouveau mot de passe vaut dès la prochaine connexion ; cette session reste ouverte."
+
+msgid "The current password is not right."
+msgstr "Le mot de passe actuel n’est pas correct."
+
+msgid "Your password has been changed."
+msgstr "Votre mot de passe a été changé."
+
+msgid "As admin you change your password in {link}."
+msgstr "En tant qu’admin, vous changez votre mot de passe dans {link}."
+
+msgid "your user form"
+msgstr "votre formulaire utilisateur"
+
+msgid "User management, plus everything editors and moderators may do."
+msgstr "Gestion des utilisateurs, plus tout ce que peuvent faire les éditeurs et les modérateurs."
+
+msgid "Repertoire, song suggestions and rooms."
+msgstr "Liste de morceaux, suggestions et salles."
+
+msgid "Wish list: sort, delete, clear; close and open rooms."
+msgstr "Liste de souhaits : trier, supprimer, vider ; fermer et ouvrir les salles."
+
+msgid "Your account"
+msgstr "Votre compte"
+
+msgid "Without a role you can sign in and see the public repertoire; roles are assigned by the admin."
+msgstr "Sans rôle, vous pouvez vous connecter et voir la liste publique des morceaux ; les rôles sont attribués par l’admin."
+
+msgid "Roles are assigned by the admin."
+msgstr "Les rôles sont attribués par l’admin."
+
