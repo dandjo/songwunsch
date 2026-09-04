@@ -49,16 +49,6 @@ CREATE TABLE IF NOT EXISTS `song_wishes` (
     KEY `idx_room_id` (`room_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Upgrade of a song_wishes table from before rooms existed. The application
--- runs this itself on the first request when the column is missing
--- (src/Schema.php, ADDITIONS); by hand only if the web user may not ALTER:
---   ALTER TABLE `song_wishes`
---       ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id, 0 = default room' AFTER `position`,
---       ADD KEY `idx_room_id` (`room_id`);
--- Likewise for a table from before guests could give their name:
---   ALTER TABLE `song_wishes`
---       ADD COLUMN `wisher` VARCHAR(64) NULL COMMENT 'name the guest gave for the wish list, optional' AFTER `genre`;
-
 -- Song suggestions from the audience: artist and title of a song that is
 -- missing from the repertoire. The editor adopts a suggestion into `songs`
 -- (adding length and genre) or deletes it; either way it leaves this table.
@@ -76,11 +66,6 @@ CREATE TABLE IF NOT EXISTS `song_suggestions` (
     KEY `idx_created_at` (`created_at`),
     KEY `idx_artist_title` (`artist`, `title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Upgrade of a song_suggestions table from before the room was remembered
--- (the application does this itself, see above):
---   ALTER TABLE `song_suggestions`
---       ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id the suggestion was made in, 0 = main room' AFTER `created_at`;
 
 -- State that outlives requests: the moderator's pause switch, daily secrets
 -- of the wish guard.
@@ -123,14 +108,6 @@ CREATE TABLE IF NOT EXISTS `users` (
     UNIQUE KEY `uq_username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Upgrade of a users table from when there was exactly one admin (is_admin 1
--- or NULL under a unique index). The application does this itself on the
--- first request; by hand only if the web user may not ALTER:
---   ALTER TABLE `users`
---       ADD COLUMN `role_admin` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'admin: manages users and may do everything' AFTER `password_hash`;
---   UPDATE `users` SET `role_admin` = 1, `role_moderator` = 1, `role_editor` = 1 WHERE `is_admin` = 1;
---   ALTER TABLE `users` DROP COLUMN `is_admin`;
-
 -- Rooms: a capsule of song list and wish list with its own address
 -- /rooms/<slug>. The default room (/ and /wishes) is virtual -- id 0, no row,
 -- the whole master list -- and always there.
@@ -144,10 +121,6 @@ CREATE TABLE IF NOT EXISTS `rooms` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_slug` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Upgrade of a rooms table from before archiving existed (the application does
--- this itself, see above):
---   ALTER TABLE `rooms` ADD COLUMN `active` TINYINT UNSIGNED NOT NULL DEFAULT 1 AFTER `name`;
 
 -- Which songs of the master list a room offers.
 CREATE TABLE IF NOT EXISTS `room_songs` (

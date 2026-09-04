@@ -10,12 +10,14 @@ declare(strict_types=1);
  *   /wishes  public view, moderators edit     | /song   (editor)
  *   /suggestions  everyone suggests, editors adopt or delete
  *   /name    the visitor's name for wishes    | /settings -> /users/<own id>/settings
- *   /users   admin                            | /users/new, /users/<id>/edit (admin)
- *   /logos   admin: header logos
- *   /pages   admin: the pages, CRUD           | /pages/new, /pages/<id>/edit (admin, CKEditor)
  *   /pages/<slug>    a page for everyone (imprint, FAQ, ...)
- *   /footer  admin: which pages the footer links, in which order
  *   /rooms   list of rooms (public)           | /rooms/new, /rooms/<id>/edit, /rooms/main/edit (editor)
+ * Everything the Administration menu leads to sits below /admin (admins only):
+ *   /admin/users     | /admin/users/new, /admin/users/<id>/edit
+ *   /admin/logos       header logos
+ *   /admin/pages     | /admin/pages/new, /admin/pages/<id>/edit (CKEditor)
+ *   /admin/footer      which pages the footer links, in which order
+ *   /admin           -> /admin/users
  *   /rooms/<slug>          a room's song list  -- same page as /, in the room
  *   /rooms/<slug>/wishes   a room's wish list  -- same page as /wishes
  *   /rooms/<slug>/suggestions  suggest from inside the room: the adopted song joins it
@@ -33,8 +35,8 @@ declare(strict_types=1);
  *                  | footer_add | footer_remove | footer_move | footer_reorder (admin)
  *                  | pause_all                                    (admin)
  * Admins may do everything. ?lang=<code> switches the UI language.
- * The web server routes every address to this file (.htaccess); addresses of
- * earlier versions (index.php?p=...) are redirected permanently.
+ * The web server routes every address to this file (.htaccess); anything
+ * not listed here is a 404.
  *
  * Before the first data access of a request Schema::ensure() makes sure all
  * tables exist -- regardless of the environment the application runs in.
@@ -71,13 +73,12 @@ if (!is_file($configFile)) {
 /** @var array<string,mixed> $config */
 $config = require $configFile;
 
-// Fix the base path before the first URL is built. If an older config.php
-// lacks the value, the BASE_PATH environment variable still applies.
+// Fix the base path before the first URL is built. Without the value in
+// config.php the BASE_PATH environment variable applies.
 if (isset($config['base_path'])) {
     base_path((string) $config['base_path']);
 }
-// Cache buster for style.css and app.js; an older config.php without the
-// value simply gets no ?v= suffix.
+// Cache buster for style.css and app.js; without a value there is no ?v= suffix.
 asset_version((string) ($config['version'] ?? getenv('APP_VERSION') ?: ''));
 
 $db     = new Database($config['db']);
@@ -127,28 +128,24 @@ $routes = [
     '/wishes' => 'wishes',
     '/suggestions' => 'suggestions',
     '/login'  => 'login',
-    '/users'  => 'users',
     '/rooms'  => 'rooms',
     '/settings' => 'settings', // redirects to /users/<own id>/settings
-    '/logos'  => 'logos',
-    '/pages'  => 'pages',
-    '/footer' => 'footer',
     '/name'   => 'name',
+    // The Administration menu: admins only, all below /admin.
+    '/admin/users'  => 'users',
+    '/admin/logos'  => 'logos',
+    '/admin/pages'  => 'pages',
+    '/admin/footer' => 'footer',
 ];
-// Pages with an id in the path -- see url(): /song/<id>|new, /users/<id>/edit,
-// /users/new, /users/<id>/settings, /rooms/<id>/edit, /rooms/new,
-// /rooms/main/edit, /pages/<id>/edit, /pages/new, /logo/<id>,
-// /suggestions/<id>/adopt, /pages/<slug>. The matched values land in these
-// four.
+// Pages with an id in the path -- see url(): /song/<id>|new,
+// /admin/users/<id>/edit, /admin/users/new, /users/<id>/settings,
+// /rooms/<id>/edit, /rooms/new, /rooms/main/edit, /admin/pages/<id>/edit,
+// /admin/pages/new, /logo/<id>, /suggestions/<id>/adopt, /pages/<slug>. The
+// matched values land in these four.
 $routeId         = 0;     // 0 = new
 $routeMain       = false; // /rooms/main/edit: rename the main room
 $routeSuggestion = 0;     // /suggestions/<id>/adopt: the suggestion to adopt
 $routeSlug       = '';    // /pages/<slug>: the page to show
-// Addresses of earlier versions move permanently to the new form: the id in
-// the query string (/song?key=3, /user?id=2, /room?id=4, /room?main=1,
-// /logo?id=1), and the singular forms /user/<id>, /user/new,
-// /user/<id>/settings, /room/<id>, /room/new, /room/main.
-$legacy = ['/song' => 'song', '/user' => 'user', '/room' => 'room', '/logo' => 'logo'];
 // Inside a room: /rooms/<slug>, /rooms/<slug>/wishes, /rooms/<slug>/suggestions,
 // /rooms/<slug>/manage.
 $roomRoutes = ['' => 'songs', '/wishes' => 'wishes', '/suggestions' => 'suggestions', '/manage' => 'room_songs'];
@@ -162,28 +159,24 @@ $route       = rtrim($route, '/');
 
 $room = RoomRepository::defaultRoom();
 
-if ($route === '/index.php') {
-    // Address of an earlier version: index.php?p=wishes -> /wishes. Links
-    // and bookmarks move permanently; a POST to the old address still works.
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        redirect(url($_GET + ['room' => '']), 301);
-    }
-    $page = (string) ($_POST['p'] ?? 'songs');
-} elseif (isset($routes[$route])) {
+if (isset($routes[$route])) {
     $page = $routes[$route];
 } elseif (preg_match('#^/song/(new|[1-9][0-9]*)$#', $route, $m) === 1) {
     $page    = 'song';
     $routeId = $m[1] === 'new' ? 0 : (int) $m[1];
-} elseif (preg_match('#^/(users|rooms|pages)/new$#', $route, $m) === 1) {
+} elseif (preg_match('#^(/admin/users|/rooms|/admin/pages)/new$#', $route, $m) === 1) {
     // Create: the list's address plus /new. 'new' is therefore no room's
-    // and no page's machine name (reserved in the repositories).
-    $page = ['users' => 'user', 'rooms' => 'room', 'pages' => 'page_edit'][$m[1]];
-} elseif (preg_match('#^/(users|rooms|pages)/([1-9][0-9]*)/edit$#', $route, $m) === 1) {
-    // Edit: the list's address, the id, /edit. /rooms/<id>/edit and
-    // /pages/<id>/edit cannot be mistaken for a room or a page, whose
-    // addresses have no /edit.
-    $page    = ['users' => 'user', 'rooms' => 'room', 'pages' => 'page_edit'][$m[1]];
+    // machine name (reserved in RoomRepository); a page's address lives
+    // under /pages, apart from the form's /admin/pages/new.
+    $page = ['/admin/users' => 'user', '/rooms' => 'room', '/admin/pages' => 'page_edit'][$m[1]];
+} elseif (preg_match('#^(/admin/users|/rooms|/admin/pages)/([1-9][0-9]*)/edit$#', $route, $m) === 1) {
+    // Edit: the list's address, the id, /edit. /rooms/<id>/edit cannot be
+    // mistaken for a room, whose address has no /edit.
+    $page    = ['/admin/users' => 'user', '/rooms' => 'room', '/admin/pages' => 'page_edit'][$m[1]];
     $routeId = (int) $m[2];
+} elseif ($route === '/admin') {
+    // The menu's first entry.
+    redirect(url(['p' => 'users']));
 } elseif ($route === '/rooms/main/edit') {
     $page      = 'room';
     $routeMain = true;
@@ -198,36 +191,9 @@ if ($route === '/index.php') {
     // unknown slug is a 404 like any other unknown address.
     $page      = 'page';
     $routeSlug = $m[1];
-} elseif (preg_match('#^/(user|room)/(new|[1-9][0-9]*|main)(/settings)?$#', $route, $m) === 1) {
-    // The singular forms of an earlier version: /user/<id>, /user/new,
-    // /user/<id>/settings, /room/<id>, /room/new, /room/main.
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-        not_found();
-    }
-    $id = $m[2] === 'new' || $m[2] === 'main' ? 0 : (int) $m[2];
-    redirect(url([
-        'p'    => ($m[3] ?? '') !== '' ? 'settings' : $m[1],
-        'room' => '',
-        'id'   => $id > 0 ? $id : null,
-        'main' => $m[2] === 'main' ? 1 : null,
-        'back' => $_GET['back'] ?? null,
-    ]), 301);
 } elseif (preg_match('#^/suggestions/([1-9][0-9]*)/adopt$#', $route, $m) === 1) {
     $page            = 'song';
     $routeSuggestion = (int) $m[1];
-} elseif (isset($legacy[$route])) {
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-        not_found();
-    }
-    $id = (int) ($_GET['id'] ?? $_GET['key'] ?? 0);
-    redirect(url([
-        'p'          => $legacy[$route],
-        'room'       => '',
-        'id'         => $id > 0 ? $id : null,
-        'main'       => isset($_GET['main']) ? 1 : null,
-        'suggestion' => (int) ($_GET['suggestion'] ?? 0) > 0 ? (int) $_GET['suggestion'] : null,
-        'back'       => $_GET['back'] ?? null,
-    ]), 301);
 } elseif (preg_match('#^/rooms/([^/]+)(/[^/]*)?$#', $route, $m) === 1 && isset($roomRoutes[$m[2] ?? ''])) {
     // The slug is checked against RoomRepository::SLUG_PATTERN before any
     // query. An unknown or malformed room is no dead end: a link to a room
@@ -259,7 +225,7 @@ if ($route === '/index.php') {
 // start room the editors set (Rooms -> "As start room"), if there is one.
 $roomBound  = in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs'], true);
 $remembered = $roomMemory->slug();
-$bareMain   = $roomBound && (int) $room['id'] === RoomRepository::DEFAULT_ID && $route !== '/index.php';
+$bareMain   = $roomBound && (int) $room['id'] === RoomRepository::DEFAULT_ID;
 if ($remembered === null && $bareMain && $_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         $schema->ensure();
@@ -273,8 +239,7 @@ if ($remembered === null && $bareMain && $_SERVER['REQUEST_METHOD'] === 'GET') {
         redirect(url(array_merge(['p' => $page, 'room' => (string) $start['slug']], $_GET)));
     }
 }
-$useMemory  = $route !== '/index.php'
-    && $remembered !== null && $remembered !== ''
+$useMemory  = $remembered !== null && $remembered !== ''
     && (!$roomBound || (int) $room['id'] === RoomRepository::DEFAULT_ID);
 if ($useMemory) {
     try {
@@ -579,14 +544,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // the main room, which has none of its own: the memory is
                 // cleared, so / means the main room again. 'to' names the
                 // page to land on -- the same sub-page the visitor is on.
+                // From a page without a room in its address (users, admin,
+                // login, ...) 'back' names that page: only the remembered
+                // room changes, and the visitor stays where they are.
                 $to = (string) ($_POST['to'] ?? 'songs');
                 $to = in_array($to, ['songs', 'wishes', 'suggestions'], true) ? $to : 'songs';
                 $slug = (string) ($_POST['slug'] ?? '');
+                $stay = safe_target($_POST['back'] ?? null);
                 if ($slug === '') {
                     // The main room, chosen on purpose -- remembered as such,
                     // so the start room does not take over on the next visit.
                     $roomMemory->remember('');
-                    redirect(url(['p' => $to, 'room' => '']));
+                    redirect($stay ?? url(['p' => $to, 'room' => '']));
                 }
                 $target = $rooms->findBySlug($slug);
                 if ($target === null) {
@@ -594,7 +563,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect(url(['p' => 'rooms']));
                 }
                 $roomMemory->remember($slug);
-                redirect(url(['p' => $to, 'room' => $slug]));
+                redirect($stay ?? url(['p' => $to, 'room' => $slug]));
                 // no break
 
             case 'guest_view':
@@ -1488,7 +1457,8 @@ try {
             break;
 
         case 'settings':
-            // Every signed-in user, for their own account: /users/<own id>/settings.
+            // Every signed-in user, for their own account: /users/<own id>/settings
+            // -- not an admin page, so not below /admin.
             // Any other id -- and the bare /settings -- leads to the own page.
             require_login($security);
             $selfId = (int) $security->user()['id'];

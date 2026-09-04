@@ -133,12 +133,8 @@ remembered room or the start room takes over.
 | `/login` | Sign-in |
 | `/name` | The guest's name for the wish list – change or remove it |
 | `/song/new`, `/song/<id>` | Create or edit a song – editor; `/suggestions/<id>/adopt` adopts a suggestion into a new song |
-| `/users`, `/users/new`, `/users/<id>/edit` | User management – admins |
 | `/users/<id>/settings` | Personal settings of the signed-in user (own id only; `/settings` redirects there) |
-| `/logos` | Header logos – admins, see [Logo](#logo) |
-| `/pages`, `/pages/new`, `/pages/<id>/edit` | The admins' pages: list, create, edit – admins, see [Pages and footer](#pages-and-footer) |
 | `/pages/<name>` | A page for everyone (imprint, FAQ, …), in the footer or not |
-| `/footer` | Which pages the footer links, in which order – admins |
 | `/rooms` | List of rooms, each name leads into its room; moderators close and open rooms, editors create them here |
 | `/rooms/new`, `/rooms/<id>/edit`, `/rooms/main/edit` | Create or edit a room, rename the main room – editor |
 | `/logo/<id>` | An uploaded logo, see [Logo](#logo) |
@@ -146,15 +142,20 @@ remembered room or the start room takes over.
 | `/rooms/<name>/wishes` | Wish list of a room |
 | `/rooms/<name>/suggestions` | Suggest a song from inside a room – the adopted song joins the room |
 | `/rooms/<name>/manage` | Manage the room's songs (selection from the master list) – editor |
+| `/admin/users`, `/admin/users/new`, `/admin/users/<id>/edit` | User management – admins |
+| `/admin/logos` | Header logos – admins, see [Logo](#logo) |
+| `/admin/pages`, `/admin/pages/new`, `/admin/pages/<id>/edit` | The admins' pages: list, create, edit – admins, see [Pages and footer](#pages-and-footer) |
+| `/admin/footer` | Which pages the footer links, in which order – admins |
+| `/admin` | Leads to `/admin/users` |
 
 Sorting, search and page are appended as query parameters
 (`/wishes?sort=artist`), `?lang=<code>` switches the language. Lists and their
-records share a prefix: `/users` lists, `/users/new` creates, `/users/<id>/edit`
-edits – the same for rooms and pages, whose records also have a public address
-of their own (`/rooms/<name>`, `/pages/<name>`; `new` and, for rooms, `main`
-are therefore not available as names). Addresses of earlier versions
-(`index.php?p=wishes`, `/user/<id>`, `/room/main`) are redirected permanently
-(301) to the new form.
+records share a prefix: `/rooms` lists, `/rooms/new` creates, `/rooms/<id>/edit`
+edits, and `/rooms/<name>` is the room itself (so `new` and `main` are not
+available as room names). Everything the *Administration* menu leads to sits
+below `/admin` – users, logos, pages, footer – while a page's public address
+stays `/pages/<name>`. Anything else is a 404; there are no redirects from
+addresses of earlier versions.
 
 The value governs everything that contains an address: links and form
 targets, `assets/style.css` and `assets/app.js`, the redirects after every
@@ -281,7 +282,7 @@ omitted.
 
 Admins can put a logo in the header instead of the word mark
 “Songwunsch” and the claim; the room's name keeps its place beside it. Logos
-are managed on their own page, **Logos** (`/logos`, in the *Administration*
+are managed on their own page, **Logos** (`/admin/logos`, in the *Administration*
 menu, admins only): every logo ever uploaded is listed there with a preview at the
 header's size, and exactly one is *live* at a time – or none, then the word
 mark shows. Upload, *Switch live*, *Delete* (bin icon, like in every list); a
@@ -333,16 +334,16 @@ of the browser after a change.
 ## Pages and footer
 
 Admins write **pages** – an imprint, FAQs, a privacy notice – under
-*Administration → Pages* (`/pages`). A page has a title, a machine name that
-becomes its address, `/pages/<name>` (lower-case letters, digits, hyphens, like
-a room's; `new` is taken), and a body written in **CKEditor 5**: headings, paragraphs, bold
+*Administration → Pages* (`/admin/pages`). A page has a title, a machine name
+that becomes its address, `/pages/<name>` (lower-case letters, digits, hyphens,
+like a room's), and a body written in **CKEditor 5**: headings, paragraphs, bold
 and italic, lists, links, quotes, tables, horizontal lines, code, plus a
 source view. Every page is public under its address as soon as it is saved
 and may link to any other page by that address – the footer is not what makes
 a page reachable. Admins see an *Edit* button on the page itself.
 
 The **footer** at the bottom of every screen links the pages the admins put
-there, under *Administration → Footer* (`/footer`). The page is built like a
+there, under *Administration → Footer* (`/admin/footer`). The page is built like a
 room's song picker: two columns, left the pages the footer does not link,
 right the footer in its order; an arrow moves a page across (→ in, ← out; a
 page taken out keeps its address). On the right the order is changed by
@@ -456,14 +457,9 @@ changes one changes both.
 
 **Existing tables** are checked: if one of the expected columns is missing
 from an existing table, the application stops with a clear message instead of
-an SQL error in the middle of operation. The only exception are columns a
-newer version added (`Schema::ADDITIONS`, currently `song_wishes.room_id`,
-`song_wishes.wisher`, `song_suggestions.room_id` and `rooms.active`):
-`ensure()` creates those itself via `ALTER TABLE`, for which
-the database user needs `ALTER` once. Without that right the statement is
-available as a comment in `sql/schema.sql`. Tables from earlier versions
-(`musik_repertoire`, `song_wishes` with `song_ref` and `length_raw`) are not
-compatible – rename them, then the application creates the new ones.
+an SQL error in the middle of operation – rename or recreate the table from
+`sql/schema.sql`. There is no automatic migration of tables from earlier
+versions.
 
 ## Languages
 
@@ -524,9 +520,10 @@ pre-escaped and the rest printed without escaping.
 ## Users and roles
 
 All operating functions sit behind a sign-in. Users are stored in the `users`
-table and managed on the **Users** page. Admins reach their pages – *Users*,
-*Logos*, *Pages*, *Footer* – through the **Administration** menu in the
-navigation, a tab that opens a list.
+table and managed on the **Users** page (`/admin/users`). Admins reach their
+pages – *Users*, *Logos*, *Pages*, *Footer* – through the **Administration**
+menu in the navigation, a tab that opens a list; all of them live below
+`/admin`.
 
 | Role | May |
 | --- | --- |
@@ -870,7 +867,7 @@ middleware or the hoster.
 | Switch off delete confirmations | Signed in: account menu → User settings → *Delete confirmations*, per account and separately for songs, suggestions, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
 | Change your own password | Signed in (admins included): account menu → User settings → *Change password* (current password plus the new one twice) |
 | See your own roles | Signed in: account menu → User settings, box *Your account* |
-| Put a logo in the header | Admins: *Logos* tab (`/logos`): upload, *Switch live*, see [Logo](#logo) |
+| Put a logo in the header | Admins: *Administration → Logos* (`/admin/logos`): upload, *Switch live*, see [Logo](#logo) |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order

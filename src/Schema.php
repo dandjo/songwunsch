@@ -15,9 +15,8 @@ use RuntimeException;
  * request before the first data access:
  * a missing table is created -- whether the application runs in the Docker
  * stack, on a shared host or locally. Existing tables are checked for the
- * expected columns; a column that a later version added (ADDITIONS) is added
- * on the spot, anything else missing fails with a clear message instead of
- * an SQL error.
+ * expected columns; a missing column fails with a clear message instead of
+ * an SQL error in the middle of operation.
  *
  * sql/schema.sql contains the same statements for installations where the
  * web user is not allowed to CREATE TABLE.
@@ -47,53 +46,6 @@ final class Schema
         self::ROOM_SONGS => ['room_id', 'song_id'],
         self::UPLOADS  => ['id', 'kind', 'mime', 'data', 'width', 'height', 'created_at'],
         self::PAGES    => ['id', 'slug', 'title', 'body', 'footer_position', 'created_at', 'updated_at'],
-    ];
-
-    /**
-     * Columns added by later versions: table => column => statements, run in
-     * order when the table exists without the column, so an installation
-     * upgrades itself on the first request (needs the ALTER privilege once).
-     * Usually a single ALTER TABLE; a column that replaces an older one also
-     * carries its data over and drops the old column.
-     *
-     * @var array<string,array<string,list<string>>>
-     */
-    private const ADDITIONS = [
-        self::ROOMS => [
-            'active' => [
-                'ALTER TABLE `rooms` ADD COLUMN `active` TINYINT UNSIGNED NOT NULL DEFAULT 1 '
-                . "COMMENT '0 = archived: hidden from the switcher and from guests, still reachable' AFTER `name`",
-            ],
-        ],
-        self::WISHES => [
-            'room_id' => [
-                'ALTER TABLE `song_wishes` ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 '
-                . "COMMENT 'rooms.id, 0 = default room' AFTER `position`, ADD KEY `idx_room_id` (`room_id`)",
-            ],
-            'wisher'  => [
-                'ALTER TABLE `song_wishes` ADD COLUMN `wisher` VARCHAR(64) NULL '
-                . "COMMENT 'name the guest gave for the wish list, optional' AFTER `genre`",
-            ],
-        ],
-        self::SUGGESTIONS => [
-            'room_id' => [
-                'ALTER TABLE `song_suggestions` ADD COLUMN `room_id` INT UNSIGNED NOT NULL DEFAULT 0 '
-                . "COMMENT 'rooms.id the suggestion was made in, 0 = main room; the adopted song joins that room' AFTER `created_at`",
-            ],
-        ],
-        self::USERS => [
-            // Admin used to be a single account: is_admin was 1 or NULL under a
-            // unique index. Now it is a role like the others, so the flag
-            // becomes role_admin, the one admin keeps the role (with the two
-            // roles it includes) and the old column goes (its unique index
-            // with it).
-            'role_admin' => [
-                'ALTER TABLE `users` ADD COLUMN `role_admin` TINYINT UNSIGNED NOT NULL DEFAULT 0 '
-                . "COMMENT 'admin: manages users and may do everything' AFTER `password_hash`",
-                'UPDATE `users` SET `role_admin` = 1, `role_moderator` = 1, `role_editor` = 1 WHERE `is_admin` = 1',
-                'ALTER TABLE `users` DROP COLUMN `is_admin`',
-            ],
-        ],
     ];
 
     /** @var array<string,string> table => CREATE TABLE */
@@ -230,8 +182,7 @@ final class Schema
     }
 
     /**
-     * Create missing tables, add known new columns, check existing tables
-     * for their columns.
+     * Create missing tables, check existing tables for their columns.
      *
      * A single query against the INFORMATION_SCHEMA answers every question:
      * which tables exist and which columns they have.
@@ -264,18 +215,10 @@ final class Schema
             }
 
             $missing = array_diff($required, $present[$table]);
-            foreach ($missing as $i => $column) {
-                if (isset(self::ADDITIONS[$table][$column])) {
-                    foreach (self::ADDITIONS[$table][$column] as $statement) {
-                        $this->db->pdo()->exec($statement);
-                    }
-                    unset($missing[$i]);
-                }
-            }
             if ($missing !== []) {
                 throw new RuntimeException(t(
                     'Table "{table}" does not have the expected structure, the columns {columns} are missing. '
-                    . 'If it comes from an older version, rename it or recreate it from sql/schema.sql.',
+                    . 'Rename it or recreate it from sql/schema.sql.',
                     ['table' => $table, 'columns' => implode(', ', $missing)],
                 ));
             }

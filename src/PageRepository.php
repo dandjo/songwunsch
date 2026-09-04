@@ -127,8 +127,6 @@ final class PageRepository
             $errors['slug'] = t('Machine name: {min} to {max} characters.', ['min' => self::MIN_SLUG, 'max' => self::MAX_SLUG]);
         } elseif (preg_match(self::SLUG_PATTERN, $slug) !== 1) {
             $errors['slug'] = t('Machine name: lower-case letters a–z, digits and hyphens, e.g. “imprint”.');
-        } elseif (in_array($slug, self::RESERVED_SLUGS, true)) {
-            $errors['slug'] = t('This machine name is reserved.');
         } else {
             $other = $this->findBySlug($slug);
             if ($other !== null && ($existing === null || (int) $other['id'] !== (int) $existing['id'])) {

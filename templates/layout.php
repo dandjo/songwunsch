@@ -129,11 +129,17 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                     <?php endif; ?>
                     <ul class="roomswitch__menu" role="list">
                         <?php
-                        // Switching stays on the current sub-page when the target room
-                        // has it: wish list to wish list, song picker to song picker.
-                        // The main room has no picker; pages outside rooms (users,
-                        // login, ...) lead to the song list.
-                        $switchable = array_merge([RoomRepository::defaultRoom()], $roomList);
+                        // Switching stays where one is. On a page that carries its
+                        // room in the address (song list, wish list, suggestions,
+                        // song picker) the entries link to the same page of the
+                        // target room -- the main room has no picker and no address
+                        // of its own, so choosing it is a POST that clears the
+                        // remembered room (RoomMemory). On every other page (users,
+                        // rooms, admin, login, ...) the room is only the remembered
+                        // context: every entry is a POST that remembers the room and
+                        // comes back to this very address.
+                        $roomInAddress = in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs'], true);
+                        $switchable    = array_merge([RoomRepository::defaultRoom()], $roomList);
                         foreach ($switchable as $entry):
                             $active     = (int) $entry['id'] === (int) $room['id'];
                             $targetSlug = (string) ($entry['slug'] ?? '');
@@ -145,14 +151,14 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                             };
                         ?>
                             <li>
-                                <?php if ($targetSlug === ''): ?>
-                                    <?php /* The main room has no address of its own that could
-                                             be told apart from a bare visit, so choosing it is
-                                             a POST that clears the remembered room (RoomMemory). */ ?>
+                                <?php if ($targetSlug === '' || !$roomInAddress): ?>
                                     <form method="post" action="<?= $e($hereBase) ?>">
                                         <input type="hidden" name="a" value="room_switch">
-                                        <input type="hidden" name="slug" value="">
+                                        <input type="hidden" name="slug" value="<?= $e($targetSlug) ?>">
                                         <input type="hidden" name="to" value="<?= $e($switchPage) ?>">
+                                        <?php if (!$roomInAddress): ?>
+                                            <input type="hidden" name="back" value="<?= $e($here) ?>">
+                                        <?php endif; ?>
                                         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                         <button type="submit" class="roomswitch__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="true"' : '' ?>>
                                             <?= $e((string) $entry['name']) ?>

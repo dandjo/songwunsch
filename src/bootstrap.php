@@ -135,12 +135,15 @@ function current_room(?array $set = null): array
  * a slug for another room, '' for the default room.
  *
  * An id is part of the path, not of the query string. Lists and their
- * records share a prefix: /users, /users/new, /users/<id>/edit,
- * /users/<id>/settings; /rooms, /rooms/new, /rooms/<id>/edit,
- * /rooms/main/edit ('main' => 1, rename the main room); /pages, /pages/new,
- * /pages/<id>/edit (page_edit) and /pages/<slug> for readers ('p' => 'page',
- * 'slug' => ...). Also /song/<id>|new, /logo/<id> and 'suggestion' => <id>
- * for /suggestions/<id>/adopt.
+ * records share a prefix, and everything the Administration menu leads to
+ * sits below /admin: /admin/users, /admin/users/new, /admin/users/<id>/edit,
+ * /admin/logos, /admin/pages, /admin/pages/new, /admin/pages/<id>/edit
+ * (page_edit), /admin/footer. Public or for editors, without the prefix:
+ * /pages/<slug> for readers ('p' => 'page', 'slug' => ...), /rooms,
+ * /rooms/new, /rooms/<id>/edit, /rooms/main/edit ('main' => 1, rename the
+ * main room), /song/<id>|new, /logo/<id>, /users/<id>/settings (one's own
+ * settings, every signed-in user) and 'suggestion' => <id> for
+ * /suggestions/<id>/adopt.
  */
 function url(array $params = []): string
 {
@@ -174,9 +177,11 @@ function url(array $params = []): string
     } elseif ($page === 'song') {
         $target .= '/song/' . ($id > 0 ? $id : 'new');
     } elseif (in_array($page, ['user', 'room', 'page_edit'], true)) {
-        // /users/new, /users/<id>/edit; likewise rooms and pages.
-        $list    = match ($page) { 'user' => 'users', 'room' => 'rooms', 'page_edit' => 'pages' };
-        $target .= '/' . $list . ($id > 0 ? '/' . $id . '/edit' : '/new');
+        // /rooms/new, /rooms/<id>/edit; users and pages the same below /admin.
+        $list    = match ($page) { 'user' => '/admin/users', 'room' => '/rooms', 'page_edit' => '/admin/pages' };
+        $target .= $list . ($id > 0 ? '/' . $id . '/edit' : '/new');
+    } elseif (in_array($page, ['users', 'logos', 'pages', 'footer'], true)) {
+        $target .= '/admin/' . $page;
     } elseif ($page === 'logo') {
         $target .= '/logo/' . $id;
     } elseif ($page === 'page') {

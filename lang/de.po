@@ -430,8 +430,8 @@ msgstr "Prüfe die Zugangsdaten in der {config}. Die Tabellen legt die Anwendung
 msgid "Database connection failed: {code}"
 msgstr "Datenbankverbindung fehlgeschlagen: {code}"
 
-msgid "Table \"{table}\" does not have the expected structure, the columns {columns} are missing. If it comes from an older version, rename it or recreate it from sql/schema.sql."
-msgstr "Tabelle „{table}“ hat nicht die erwartete Struktur, es fehlen die Spalten {columns}. Stammt sie aus einer älteren Version, bitte umbenennen oder nach sql/schema.sql neu anlegen."
+msgid "Table \"{table}\" does not have the expected structure, the columns {columns} are missing. Rename it or recreate it from sql/schema.sql."
+msgstr "Tabelle „{table}“ hat nicht die erwartete Struktur, es fehlen die Spalten {columns}. Bitte umbenennen oder nach sql/schema.sql neu anlegen."
 
 # ---- Users --------------------------------------------------------------------------------
 

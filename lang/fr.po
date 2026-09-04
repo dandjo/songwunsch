@@ -426,8 +426,8 @@ msgstr "Vérifiez les identifiants de la base de données dans {config}. L’app
 msgid "Database connection failed: {code}"
 msgstr "Échec de la connexion à la base de données : {code}"
 
-msgid "Table \"{table}\" does not have the expected structure, the columns {columns} are missing. If it comes from an older version, rename it or recreate it from sql/schema.sql."
-msgstr "La table « {table} » n’a pas la structure attendue, les colonnes {columns} manquent. Si elle provient d’une ancienne version, renommez-la ou recréez-la à partir de sql/schema.sql."
+msgid "Table \"{table}\" does not have the expected structure, the columns {columns} are missing. Rename it or recreate it from sql/schema.sql."
+msgstr "La table « {table} » n’a pas la structure attendue, les colonnes {columns} manquent. Renommez-la ou recréez-la à partir de sql/schema.sql."
 
 # ---- Users ---------------------------------------------------------------------------
 

@@ -205,8 +205,7 @@ final class Security
     /**
      * Is the signed-in user still using the default password? The first
      * admin starts out with it; an admin may also have handed it to a new
-     * user. Sessions opened before this check existed are verified once and
-     * remembered.
+     * user. A session that has no note yet verifies once and remembers it.
      */
     public function usesDefaultPassword(): bool
     {
