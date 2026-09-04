@@ -1546,6 +1546,23 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     text-decoration: none;
 }
 .pager a:hover { background: var(--hover); border-color: var(--line); }
+/* On phones the words step back and the arrows carry the links; the names
+   stay for screen readers. Square targets, so the row keeps to one line. */
+@media (max-width: 560px) {
+    .pager { gap: .4rem; }
+    .pager a { min-width: 44px; padding: .35rem; justify-content: center; }
+    .pager a .button__glyph { margin: 0; }
+    .pager__label {
+        position: absolute;
+        width: 1px; height: 1px;
+        padding: 0; margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+    }
+}
 
 /* ---------- Login ---------- */
 
