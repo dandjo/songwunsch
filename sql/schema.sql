@@ -147,3 +147,18 @@ CREATE TABLE IF NOT EXISTS `room_songs` (
     PRIMARY KEY (`room_id`, `song_id`),
     KEY `idx_song_id` (`song_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Files the admin uploads (the header logos), kept in the database so the
+-- deployment and a missing writable folder cannot lose them. Which logo the
+-- header shows is the setting 'logo_id' (0 or absent = the word mark).
+CREATE TABLE IF NOT EXISTS `uploads` (
+    `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `kind`       VARCHAR(32)  NOT NULL COMMENT 'what the file is for: logo',
+    `mime`       VARCHAR(64)  NOT NULL,
+    `data`       MEDIUMBLOB   NOT NULL,
+    `width`      INT UNSIGNED NULL COMMENT 'pixels, NULL for SVG',
+    `height`     INT UNSIGNED NULL,
+    `created_at` DATETIME     NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_kind` (`kind`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -185,6 +185,26 @@ code {
     font-size: .78rem;
     letter-spacing: .14em;
 }
+/* The admin's logo instead of word mark and claim: as high as the two lines
+   were (3rem), the width follows; the room's name, if any, stands beside it.
+   On phones the logo shrinks a little with the header. */
+.dome__inner--logo {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+}
+.dome__brand--logo { flex: 0 1 auto; min-width: 0; line-height: 0; }
+.dome__brand--logo a { display: inline-block; max-width: 100%; }
+.dome__logo {
+    display: block;
+    height: 3rem;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: left center;
+}
+.dome__inner--logo .dome__room { margin: 0; flex: 0 1 auto; }
+
 /* Name of the current room -- takes the claim's place inside a room. */
 .dome__room {
     margin: .15rem 0 0;
@@ -1389,6 +1409,36 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 .field__legend { margin: 0 0 .5rem; font-size: 1rem; font-weight: 700; color: var(--text); }
 .field--group ul.field__hint { margin: .5rem 0 0; padding-left: 1.1rem; }
 .field--group ul.field__hint li { margin: .15rem 0; }
+/* Logos page: one card per logo -- the preview on the header's dark ground
+   at the header's size, the facts beside it, the switches at the right. The
+   live one is framed in gold. */
+.logo-list { list-style: none; margin: .5rem 0 0; padding: 0; display: grid; gap: .6rem; }
+.logo-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem 1rem;
+    padding: .6rem .75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+}
+.logo-card--active { border-color: var(--gold); }
+.logo-card__preview {
+    display: flex;
+    align-items: center;
+    min-width: 8rem;
+    max-width: 100%;
+    padding: .6rem .9rem;
+    border-radius: var(--radius-sm);
+    background: var(--shell);
+}
+.logo-card__preview img { display: block; height: 3rem; width: auto; max-width: 100%; }
+.logo-card__preview .dome__brand { font-size: 1.45rem; }
+.logo-card__meta { flex: 1 1 12rem; display: flex; flex-direction: column; gap: .15rem; font-size: .9rem; }
+.logo-card__actions { display: flex; align-items: center; gap: .5rem; margin-left: auto; }
+.logo-card__actions form { margin: 0; }
+.field input[type="file"] { padding: .45rem .8rem; }
 /* A closing remark after the list stands off from it. */
 .field--group ul.field__hint + .field__hint { margin-top: .9rem; }
 
@@ -1546,6 +1596,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
        mark a notch smaller. */
     .dome { gap: .5rem .75rem; }
     .dome__brand { font-size: 1.45rem; }
+    .dome__logo { height: 2.5rem; }
     .dome__claim { letter-spacing: .1em; }
     .panel { padding: .8rem .35rem 1rem; }
     .grid tbody tr, .grid tbody tr:nth-child(even) { padding: .65rem .65rem; }

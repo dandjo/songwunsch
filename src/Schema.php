@@ -11,7 +11,7 @@ use RuntimeException;
  *
  * Table and column names are a prerequisite and live in one place:
  * `songs`, `song_wishes`, `song_suggestions`, `settings`, `wish_throttle`,
- * `users`, `rooms`, `room_songs`. ensure() runs on every request before the
+ * `users`, `rooms`, `room_songs`, `uploads`. ensure() runs on every request before the
  * first data access:
  * a missing table is created -- whether the application runs in the Docker
  * stack, on a shared host or locally. Existing tables are checked for the
@@ -32,6 +32,7 @@ final class Schema
     public const USERS    = 'users';
     public const ROOMS    = 'rooms';
     public const ROOM_SONGS = 'room_songs';
+    public const UPLOADS  = 'uploads';
 
     /** @var array<string,array<int,string>> table => required columns */
     private const COLUMNS = [
@@ -43,6 +44,7 @@ final class Schema
         self::USERS    => ['id', 'username', 'password_hash', 'is_admin', 'role_moderator', 'role_editor', 'active', 'created_at', 'updated_at'],
         self::ROOMS    => ['id', 'slug', 'name', 'active', 'created_at', 'updated_at'],
         self::ROOM_SONGS => ['room_id', 'song_id'],
+        self::UPLOADS  => ['id', 'kind', 'mime', 'data', 'width', 'height', 'created_at'],
     ];
 
     /**
@@ -168,6 +170,19 @@ final class Schema
                 `song_id` INT UNSIGNED NOT NULL COMMENT 'songs.id -- the room picks from the master list',
                 PRIMARY KEY (`room_id`, `song_id`),
                 KEY `idx_song_id` (`song_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            SQL,
+        self::UPLOADS => <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `uploads` (
+                `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `kind`       VARCHAR(32)  NOT NULL COMMENT 'what the file is for: logo',
+                `mime`       VARCHAR(64)  NOT NULL,
+                `data`       MEDIUMBLOB   NOT NULL,
+                `width`      INT UNSIGNED NULL COMMENT 'pixels, NULL for SVG',
+                `height`     INT UNSIGNED NULL,
+                `created_at` DATETIME     NOT NULL,
+                PRIMARY KEY (`id`),
+                KEY `idx_kind` (`kind`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             SQL,
     ];

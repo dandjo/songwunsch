@@ -1188,12 +1188,6 @@ msgstr "Le mot de passe actuel n’est pas correct."
 msgid "Your password has been changed."
 msgstr "Votre mot de passe a été changé."
 
-msgid "As admin you change your password in {link}."
-msgstr "En tant qu’admin, vous changez votre mot de passe dans {link}."
-
-msgid "your user form"
-msgstr "votre formulaire utilisateur"
-
 msgid "User management, plus everything editors and moderators may do."
 msgstr "Gestion des utilisateurs, plus tout ce que peuvent faire les éditeurs et les modérateurs."
 
@@ -1217,4 +1211,106 @@ msgstr "Afficher le mot de passe"
 
 msgid "Hide password"
 msgstr "Masquer le mot de passe"
+
+msgid "A logo takes the place of the word mark “Songwunsch” and the claim at the top of every page; the room’s name keeps its spot. Exactly one logo is live at a time – or none, then the word mark shows."
+msgstr "Un logo remplace la marque « Songwunsch » et le slogan en haut de chaque page ; le nom de la salle garde sa place. Un seul logo est actif à la fois – ou aucun, et la marque s’affiche."
+
+msgid "Delete the live logo? The header shows the word mark again."
+msgstr "Supprimer le logo actif ? L’en-tête affichera de nouveau la marque."
+
+msgid "Delete this logo?"
+msgstr "Supprimer ce logo ?"
+
+msgid "live"
+msgstr "actif"
+
+msgid "Logo file"
+msgstr "Fichier du logo"
+
+msgid "Logo {id}"
+msgstr "Logo {id}"
+
+msgid "Logos"
+msgstr "Logos"
+
+msgid "No logo uploaded yet."
+msgstr "Aucun logo téléversé pour l’instant."
+
+msgid "Only PNG, JPEG, WebP, GIF or SVG images are accepted."
+msgstr "Seules les images PNG, JPEG, WebP, GIF ou SVG sont acceptées."
+
+msgid "Please choose a file first."
+msgstr "Veuillez d’abord choisir un fichier."
+
+msgid "SVG, {kb} KB"
+msgstr "SVG, {kb} Ko"
+
+msgid "Switch it live right away"
+msgstr "Activer tout de suite"
+
+msgid "Switch live"
+msgstr "Activer"
+
+msgid "The default without a logo, with the claim below."
+msgstr "Le réglage par défaut sans logo, avec le slogan en dessous."
+
+msgid "The header shows the word mark again."
+msgstr "L’en-tête affiche de nouveau la marque."
+
+msgid "The header shows this logo now."
+msgstr "L’en-tête affiche maintenant ce logo."
+
+msgid "The logo has been deleted."
+msgstr "Le logo a été supprimé."
+
+msgid "The logo has been deleted – the header shows the word mark again."
+msgstr "Le logo a été supprimé – l’en-tête affiche de nouveau la marque."
+
+msgid "The logo has been uploaded and is live in the header."
+msgstr "Le logo a été téléversé et est actif dans l’en-tête."
+
+msgid "The logo has been uploaded – switch it live below when you want it shown."
+msgstr "Le logo a été téléversé – activez-le ci-dessous quand vous voulez l’afficher."
+
+msgid "The SVG contains scripting and was rejected."
+msgstr "Le SVG contient du script et a été refusé."
+
+msgid "The upload failed – please try again."
+msgstr "Le téléversement a échoué – veuillez réessayer."
+
+msgid "This file is not a readable image."
+msgstr "Ce fichier n’est pas une image lisible."
+
+msgid "This logo was not found."
+msgstr "Ce logo n’a pas été trouvé."
+
+msgid "Upload a logo"
+msgstr "Téléverser un logo"
+
+msgid "Uploaded logos"
+msgstr "Logos téléversés"
+
+msgid "uploaded {when}"
+msgstr "téléversé {when}"
+
+msgid "Upload logo"
+msgstr "Téléverser le logo"
+
+msgid "{w} × {h} pixels, {kb} KB"
+msgstr "{w} × {h} pixels, {kb} Ko"
+
+msgid "Word mark"
+msgstr "Marque"
+
+msgid "The file is larger than the server accepts ({max})."
+msgstr "Le fichier dépasse ce que le serveur accepte ({max})."
+
+msgid "The image has too many pixels to be processed ({w} × {h})."
+msgstr "L’image a trop de pixels pour être traitée ({w} × {h})."
+
+msgid "The image could not be processed – try a PNG."
+msgstr "L’image n’a pas pu être traitée – essayez un PNG."
+
+msgid "The header shows the logo {h} pixels high. Any size works: on upload the image is scaled down to {target} pixels in height, which keeps it sharp on every screen; it should be at least that high itself. PNG or SVG with a transparent background look best; an SVG is kept as it is."
+msgstr "L’en-tête affiche le logo sur {h} pixels de haut. Toute taille convient : au téléversement, l’image est réduite à {target} pixels de haut, ce qui la garde nette sur tous les écrans ; elle devrait donc faire au moins cette hauteur. Un PNG ou un SVG à fond transparent rend le mieux ; un SVG est conservé tel quel."
 

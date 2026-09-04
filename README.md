@@ -128,6 +128,7 @@ remembered room or the start room takes over.
 | `/name` | The guest's name for the wish list – change or remove it |
 | `/song?key=<id>` | Create a song (`key=0`) or edit one – editor; `/song?suggestion=<id>` adopts a suggestion |
 | `/users`, `/user?id=<id>` | User management – admin |
+| `/logos` | Header logos – admin, see [Logo](#logo) |
 | `/rooms` | List of rooms, each name leads into its room; moderators close and open rooms, editors create them here |
 | `/room?id=<id>` | Create a room (`id=0`) or edit one – editor |
 | `/rooms/<name>` | Repertoire of a room |
@@ -261,6 +262,32 @@ showing the cached copy. Raise the value with every release – it may look like
 anything, `1.4.0` as well as `2026-09-03`. Without a value the suffix is
 omitted.
 
+## Logo
+
+The admin can put a logo in the header instead of the word mark
+“Songwunsch” and the claim; the room's name keeps its place beside it. Logos
+are managed on their own page, **Logos** (`/logos`, a tab next to *Users*,
+admin only): every logo ever uploaded is listed there with a preview at the
+header's size, and exactly one is *live* at a time – or none, then the word
+mark shows. Upload, *Switch live*, *Delete*; a new upload goes live right
+away unless the box is unticked. The live logo is remembered in `settings`
+under `logo_id`.
+
+Any image size works: on upload a raster image (PNG, JPEG, WebP, GIF) is
+scaled down to 144 px in height with GD – three times the 48 px the header
+shows (40 px on phones), so it stays sharp on every screen – and stored as
+PNG (JPEG stays JPEG); transparency is kept, an animated GIF loses its
+animation. An SVG is stored as it is. The type is checked from the file's
+content; an SVG with scripting is rejected (it is only ever shown through
+`<img>`, where scripts do not run). Without the GD extension the original is
+stored unchanged and scaled by CSS alone. The size limit is the server's
+`upload_max_filesize` (20 MB in the Docker stack).
+
+The files live in the `uploads` table, not on disk: the deployment syncs the
+code with `--delete`, a shared host may have no writable folder, and a
+database backup carries the logos along. A logo is served under
+`/logo?id=<id>` with a long cache lifetime – the bytes of an id never change.
+
 ## Footer
 
 `'footer'` in `config.php` (or `FOOTER_HTML` from the environment) is printed
@@ -304,7 +331,7 @@ The files sit directly in `public_html`, which matches the default
 
 ## Database
 
-The application works with eight fixed tables. Names and columns are a
+The application works with nine fixed tables. Names and columns are a
 prerequisite; there is no detection or mapping of foreign tables.
 
 | Table | Columns | Purpose |
@@ -317,6 +344,7 @@ prerequisite; there is no detection or mapping of foreign tables.
 | `users` | `id`, `username`, `password_hash`, `is_admin`, `role_moderator`, `role_editor`, `active`, `created_at`, `updated_at` | Staff accounts, see [Users and roles](#users-and-roles) |
 | `rooms` | `id`, `slug`, `name`, `active`, `created_at`, `updated_at` | Rooms, see [Rooms](#rooms) |
 | `room_songs` | `room_id`, `song_id` | A room's song selection from `songs` |
+| `uploads` | `id`, `kind`, `mime`, `data`, `width`, `height`, `created_at` | The admin's header logos, see [Logo](#logo) – in the database, so the deployment cannot lose them |
 
 A wish copies artist, title, length and genre; `song_id` is deliberately not a
 foreign key so that a deleted song does not take its wishes with it.
@@ -439,12 +467,13 @@ removes the notice.
 
 **Settings.** Every signed-in user has a personal page under *Settings* in
 the account menu (top right). It shows the own username and roles with what
-each role may do, holds the password change and the delete confirmations.
-Roles and status cannot be touched there – the admin assigns them.
+each role may do, holds the password change and the delete confirmations;
+Roles and status cannot be touched on that page – the admin assigns them in
+the user form.
 
-**Own password.** Under *Settings*: the current password once, the new one
-twice, same rules as in the user form. The admin is sent to their own user
-form instead, which also holds the roles.
+**Own password.** Under *Settings*, for the admin as well: the current
+password once, the new one twice, same rules as in the user form (where the
+admin can also set another user's password).
 
 **Sessions.** The session holds only the user ID; the record is loaded on
 every request. Changed roles apply immediately, a locked or deleted user is
@@ -742,8 +771,9 @@ middleware or the hoster.
 | Create a user | Admin: Users → *Add user* |
 | Hand over the admin role | Admin: Users → *Edit* → *Hand over admin role* |
 | Switch off delete confirmations | Signed in: account menu → Settings → *Delete confirmations*, per account and separately for songs, suggestions, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
-| Change your own password | Signed in: account menu → Settings → *Change password* (current password plus the new one twice); the admin uses their own user form instead |
+| Change your own password | Signed in (admin included): account menu → Settings → *Change password* (current password plus the new one twice) |
 | See your own roles | Signed in: account menu → Settings, box *Your account* |
+| Put a logo in the header | Admin: *Logos* tab (`/logos`): upload, *Switch live*, see [Logo](#logo) |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order
@@ -826,13 +856,14 @@ src/WishGuard.php      Protection of wishing: limits, bot trap, pause
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
 src/RoomMemory.php     The room chosen last: cookie, once-per-session restore
 src/Settings.php       Key/value store in the settings table
+src/Uploads.php        The admin's header logos: check, store, deliver (uploads table)
 src/Security.php       Session, login against users, roles, CSRF, wish brake
 src/UserRepository.php Users: create, edit, delete, hand over admin
 src/RoomRepository.php Rooms: create, edit, delete, song selection from the master list
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter
-templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, name, _name_form, error, _sortbar, _pager
+templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, name, _name_form, error, _sortbar, _pager
 assets/                style.css (dark interface), app.js
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)

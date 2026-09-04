@@ -41,6 +41,7 @@ use Songwunsch\RoomRepository;
 use Songwunsch\Schema;
 use Songwunsch\Security;
 use Songwunsch\Settings;
+use Songwunsch\Uploads;
 use Songwunsch\SongRepository;
 use Songwunsch\SuggestionRepository;
 use Songwunsch\Translator;
@@ -77,6 +78,7 @@ $suggestions = new SuggestionRepository($db);
 $users  = new UserRepository($db);
 $rooms  = new RoomRepository($db);
 $settings = new Settings($db);
+$uploads  = new Uploads($db);
 // $wishes and $guard are bound to the room and are created after routing.
 // The main room may carry a name of its own (Rooms -> Edit on the main room).
 try {
@@ -121,6 +123,8 @@ $routes = [
     '/rooms'  => 'rooms',
     '/room'   => 'room',
     '/settings' => 'settings',
+    '/logos'  => 'logos',
+    '/logo'   => 'logo',
     '/name'   => 'name',
 ];
 // Inside a room: /rooms/<slug>, /rooms/<slug>/wishes, /rooms/<slug>/suggestions,
@@ -279,15 +283,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect(url(['p' => 'settings']));
                 // no break
 
+            case 'logo_upload':
+                // Header logos, admin only. Kept in the database (Uploads);
+                // the new one may go live right away.
+                require_role($security, 'users');
+                $check = $uploads->check($_FILES['logo'] ?? []);
+                if ($check['errors'] !== []) {
+                    flash('error', implode(' ', $check['errors']));
+                    redirect(url(['p' => 'logos']));
+                }
+                $newId = $uploads->add(Uploads::LOGO, $check);
+                if ((string) ($_POST['activate'] ?? '') === '1') {
+                    $settings->set(Settings::LOGO_ID, (string) $newId);
+                    flash('ok', t('The logo has been uploaded and is live in the header.'));
+                } else {
+                    flash('ok', t('The logo has been uploaded – switch it live below when you want it shown.'));
+                }
+                redirect(url(['p' => 'logos']));
+                // no break
+
+            case 'logo_activate':
+                // Exactly one logo is live -- or none: id 0 brings the word mark back.
+                require_role($security, 'users');
+                $id = (int) ($_POST['id'] ?? 0);
+                if ($id > 0 && $uploads->info($id) === null) {
+                    flash('error', t('This logo was not found.'));
+                    redirect(url(['p' => 'logos']));
+                }
+                $settings->set(Settings::LOGO_ID, (string) $id);
+                flash('ok', $id > 0 ? t('The header shows this logo now.') : t('The header shows the word mark again.'));
+                redirect(url(['p' => 'logos']));
+                // no break
+
+            case 'logo_delete':
+                require_role($security, 'users');
+                $id = (int) ($_POST['id'] ?? 0);
+                if (!$uploads->delete($id)) {
+                    flash('error', t('This logo was not found.'));
+                    redirect(url(['p' => 'logos']));
+                }
+                if ((int) $settings->get(Settings::LOGO_ID, '0') === $id) {
+                    $settings->set(Settings::LOGO_ID, '0');
+                    flash('ok', t('The logo has been deleted – the header shows the word mark again.'));
+                } else {
+                    flash('ok', t('The logo has been deleted.'));
+                }
+                redirect(url(['p' => 'logos']));
+                // no break
+
             case 'password_save':
-                // A signed-in user changes their own password: the current one
-                // proves it is really them (a forgotten unlocked screen must
-                // not be enough). The admin has the full user form for this.
+                // A signed-in user -- the admin included -- changes their own
+                // password: the current one proves it is really them (a
+                // forgotten unlocked screen must not be enough).
                 require_login($security);
                 $self = $security->user();
-                if ((int) $self['is_admin'] === 1) {
-                    redirect(url(['p' => 'user', 'id' => (int) $self['id']]));
-                }
 
                 $current = (string) ($_POST['current_password'] ?? '');
                 $new     = (string) ($_POST['password'] ?? '');
@@ -1035,7 +1084,39 @@ try {
         && $nameCookie->shouldAsk()
         && in_array($page, ['songs', 'wishes', 'suggestions', 'rooms'], true);
 
+    // The live logo takes the word mark's place in the header (layout); a
+    // deleted one falls back to the word mark by itself.
+    $logoId       = (int) $settings->get(Settings::LOGO_ID, '0');
+    $view['logo'] = $logoId > 0 ? $uploads->info($logoId) : null;
+
     switch ($page) {
+        case 'logo':
+            // An uploaded logo as its own resource for <img src="/logo?id=…">.
+            // The bytes of an id never change, so the browser may keep them
+            // for good. nosniff and a CSP keep an SVG opened directly from
+            // doing anything but drawing.
+            $file = $uploads->load((int) ($_GET['id'] ?? 0));
+            if ($file === null) {
+                not_found();
+            }
+            header('Content-Type: ' . $file['mime']);
+            header('Content-Length: ' . (string) strlen($file['data']));
+            header('Cache-Control: public, max-age=31536000, immutable');
+            header('X-Content-Type-Options: nosniff');
+            header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'");
+            echo $file['data'];
+            exit;
+
+        case 'logos':
+            // Admin only: every uploaded logo, one of them live.
+            require_role($security, 'users');
+
+            $view['title']    = t('Logos');
+            $view['template'] = 'logos';
+            $view['logos']    = $uploads->all(Uploads::LOGO);
+            $view['activeId'] = $logoId;
+            break;
+
         case 'login':
             if ($security->isLoggedIn()) {
                 redirect(home_for($security));
@@ -1145,7 +1226,6 @@ try {
             $view['template'] = 'settings';
             $view['selfId']   = (int) $security->user()['id'];
             $view['kinds']    = deletable_kinds($security);
-            // Own password: everyone but the admin, who has the user form.
             $view['isAdmin']  = $security->isAdmin();
             $view['account']  = $security->user();
             $view['errors']   = remembered_input()['errors'] ?? [];

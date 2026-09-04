@@ -13,6 +13,9 @@ final class Settings
 {
     private const TABLE = '`' . Schema::SETTINGS . '`';
 
+    /** Id of the logo the header shows (uploads.id); '0' or absent = the word mark. */
+    public const LOGO_ID = 'logo_id';
+
     /** What a user can switch the delete confirmation off for -- each an area of Security::can(). */
     public const CONFIRM_DELETE = ['songs', 'suggestions', 'wishes', 'rooms'];
 

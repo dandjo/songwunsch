@@ -8,7 +8,7 @@ use Songwunsch\Settings;
 /** @var Settings $settings */
 /** @var int $selfId          the signed-in user */
 /** @var list<string> $kinds  what this user may delete, see deletable_kinds() */
-/** @var bool $isAdmin         the admin changes the password in their user form */
+/** @var bool $isAdmin         the admin's roles are not assigned by anyone */
 /** @var array<string,mixed> $account  the signed-in user's record */
 /** @var array<string,string> $errors  from the password form, after a redirect */
 /** @var string $csrf */
@@ -82,7 +82,6 @@ $roleNotes  = [
     </div>
 </div>
 
-<?php if (!$isAdmin): ?>
 <div class="login login--wide">
     <form method="post" action="<?= $e(url()) ?>" class="login__form">
         <input type="hidden" name="a" value="password_save">
@@ -129,11 +128,7 @@ $roleNotes  = [
         </div>
     </form>
 </div>
-<?php else: ?>
-    <p class="muted"><?= t('As admin you change your password in {link}.', [
-        'link' => '<a href="' . $e(url(['p' => 'user', 'id' => $selfId])) . '">' . $e(t('your user form')) . '</a>',
-    ]) ?></p>
-<?php endif; ?>
+
 
 <?php if ($rows === []): ?>
     <p class="muted"><?= $e(t('Your account has no role that may delete anything, so there is nothing else to set here.')) ?></p>

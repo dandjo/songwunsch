@@ -1192,12 +1192,6 @@ msgstr "Das aktuelle Passwort stimmt nicht."
 msgid "Your password has been changed."
 msgstr "Dein Passwort wurde geändert."
 
-msgid "As admin you change your password in {link}."
-msgstr "Als Admin änderst du dein Passwort in {link}."
-
-msgid "your user form"
-msgstr "deinem Benutzerformular"
-
 msgid "User management, plus everything editors and moderators may do."
 msgstr "Benutzerverwaltung, dazu alles, was Editoren und Moderatoren dürfen."
 
@@ -1221,4 +1215,106 @@ msgstr "Passwort anzeigen"
 
 msgid "Hide password"
 msgstr "Passwort verbergen"
+
+msgid "A logo takes the place of the word mark “Songwunsch” and the claim at the top of every page; the room’s name keeps its spot. Exactly one logo is live at a time – or none, then the word mark shows."
+msgstr "Ein Logo ersetzt die Wortmarke „Songwunsch“ und den Claim oben auf jeder Seite; der Raumname behält seinen Platz. Genau ein Logo ist jeweils scharf – oder keines, dann erscheint die Wortmarke."
+
+msgid "Delete the live logo? The header shows the word mark again."
+msgstr "Das scharfe Logo löschen? Der Kopf zeigt dann wieder die Wortmarke."
+
+msgid "Delete this logo?"
+msgstr "Dieses Logo löschen?"
+
+msgid "live"
+msgstr "scharf"
+
+msgid "Logo file"
+msgstr "Logodatei"
+
+msgid "Logo {id}"
+msgstr "Logo {id}"
+
+msgid "Logos"
+msgstr "Logos"
+
+msgid "No logo uploaded yet."
+msgstr "Noch kein Logo hochgeladen."
+
+msgid "Only PNG, JPEG, WebP, GIF or SVG images are accepted."
+msgstr "Nur Bilder als PNG, JPEG, WebP, GIF oder SVG werden angenommen."
+
+msgid "Please choose a file first."
+msgstr "Bitte zuerst eine Datei auswählen."
+
+msgid "SVG, {kb} KB"
+msgstr "SVG, {kb} KB"
+
+msgid "Switch it live right away"
+msgstr "Gleich scharf schalten"
+
+msgid "Switch live"
+msgstr "Scharf schalten"
+
+msgid "The default without a logo, with the claim below."
+msgstr "Der Standard ohne Logo, mit dem Claim darunter."
+
+msgid "The header shows the word mark again."
+msgstr "Der Kopf zeigt wieder die Wortmarke."
+
+msgid "The header shows this logo now."
+msgstr "Der Kopf zeigt jetzt dieses Logo."
+
+msgid "The logo has been deleted."
+msgstr "Das Logo wurde gelöscht."
+
+msgid "The logo has been deleted – the header shows the word mark again."
+msgstr "Das Logo wurde gelöscht – der Kopf zeigt wieder die Wortmarke."
+
+msgid "The logo has been uploaded and is live in the header."
+msgstr "Das Logo wurde hochgeladen und ist im Kopf scharf."
+
+msgid "The logo has been uploaded – switch it live below when you want it shown."
+msgstr "Das Logo wurde hochgeladen – unten scharf schalten, wenn es erscheinen soll."
+
+msgid "The SVG contains scripting and was rejected."
+msgstr "Das SVG enthält Skripte und wurde abgelehnt."
+
+msgid "The upload failed – please try again."
+msgstr "Der Upload ist fehlgeschlagen – bitte noch einmal versuchen."
+
+msgid "This file is not a readable image."
+msgstr "Diese Datei ist kein lesbares Bild."
+
+msgid "This logo was not found."
+msgstr "Dieses Logo wurde nicht gefunden."
+
+msgid "Upload a logo"
+msgstr "Logo hochladen"
+
+msgid "Uploaded logos"
+msgstr "Hochgeladene Logos"
+
+msgid "uploaded {when}"
+msgstr "hochgeladen {when}"
+
+msgid "Upload logo"
+msgstr "Logo hochladen"
+
+msgid "{w} × {h} pixels, {kb} KB"
+msgstr "{w} × {h} Pixel, {kb} KB"
+
+msgid "Word mark"
+msgstr "Wortmarke"
+
+msgid "The file is larger than the server accepts ({max})."
+msgstr "Die Datei ist größer, als der Server annimmt ({max})."
+
+msgid "The image has too many pixels to be processed ({w} × {h})."
+msgstr "Das Bild hat zu viele Pixel, um verarbeitet zu werden ({w} × {h})."
+
+msgid "The image could not be processed – try a PNG."
+msgstr "Das Bild konnte nicht verarbeitet werden – versuche es mit einem PNG."
+
+msgid "The header shows the logo {h} pixels high. Any size works: on upload the image is scaled down to {target} pixels in height, which keeps it sharp on every screen; it should be at least that high itself. PNG or SVG with a transparent background look best; an SVG is kept as it is."
+msgstr "Der Kopf zeigt das Logo {h} Pixel hoch. Jede Größe passt: Beim Hochladen wird das Bild auf {target} Pixel Höhe heruntergerechnet, damit es auf jedem Bildschirm scharf bleibt; mindestens so hoch sollte es selbst sein. PNG oder SVG mit transparentem Hintergrund wirken am besten; ein SVG bleibt, wie es ist."
 

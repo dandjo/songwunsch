@@ -24,6 +24,7 @@ use Songwunsch\Translator;
 /** @var bool $askName           first visit: ask for the name in a dialog */
 /** @var array{url:string,rev:string}|null $live  polling address and current revision, wish list and suggestions */
 /** @var string $footer  HTML for the footer from config.php ('footer'); empty = no footer */
+/** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
 
 $e      = static fn (?string $v): string => Format::e($v);
 $inRoom = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
@@ -58,11 +59,22 @@ foreach ($translator->available() as $code => $name) {
 
 <div class="cabinet">
     <header class="dome">
-        <div class="dome__inner">
-            <p class="dome__brand"><a href="<?= $e(url(['p' => 'songs'])) ?>">Song<span>wunsch</span></a></p>
+        <div class="dome__inner<?= $logo !== null ? ' dome__inner--logo' : '' ?>">
+            <?php if ($logo !== null): ?>
+                <?php /* The admin's logo takes the place of word mark and claim; CSS
+                         scales it to the header's height, width and height keep the
+                         layout still while it loads. In a room the room's name stands
+                         beside it. */ ?>
+                <p class="dome__brand dome__brand--logo">
+                    <a href="<?= $e(url(['p' => 'songs'])) ?>"><img class="dome__logo" src="<?= $e(url(['p' => 'logo', 'room' => '', 'id' => $logo['id']])) ?>" alt="Songwunsch"<?php
+                        if ($logo['width'] !== null && $logo['height'] !== null): ?> width="<?= (int) $logo['width'] ?>" height="<?= (int) $logo['height'] ?>"<?php endif; ?>></a>
+                </p>
+            <?php else: ?>
+                <p class="dome__brand"><a href="<?= $e(url(['p' => 'songs'])) ?>">Song<span>wunsch</span></a></p>
+            <?php endif; ?>
             <?php if ($inRoom): ?>
                 <p class="dome__room"><span class="sr-only"><?= $e(t('Room')) ?>: </span><?= $e((string) $room['name']) ?><?php if ((int) ($room['active'] ?? 1) === 0 && $security->can('rooms')): ?> <span class="tag"><?= $e(t('archived')) ?></span><?php endif; ?></p>
-            <?php else: ?>
+            <?php elseif ($logo === null): ?>
                 <p class="dome__claim"><?= $e(t('Pick your song – we will play it')) ?></p>
             <?php endif; ?>
         </div>
@@ -152,6 +164,7 @@ foreach ($translator->available() as $code => $name) {
             </a>
             <?php if ($security->can('users')): ?>
                 <a href="<?= $e(url(['p' => 'users'])) ?>"<?= in_array($page, ['users', 'user'], true) ? ' aria-current="page"' : '' ?>><?= icon('users') ?><?= $e(t('Users')) ?></a>
+                <a href="<?= $e(url(['p' => 'logos'])) ?>"<?= $page === 'logos' ? ' aria-current="page"' : '' ?>><?= icon('image') ?><?= $e(t('Logos')) ?></a>
             <?php endif; ?>
         </nav>
 
