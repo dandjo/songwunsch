@@ -487,14 +487,14 @@ msgstr "Au moins {n} caractères."
 msgid "Repeat password"
 msgstr "Répéter le mot de passe"
 
-msgid "maintain the repertoire (add, edit, delete)"
-msgstr "gérer le répertoire (ajouter, modifier, supprimer)"
+msgid "maintain the repertoire, work the song suggestions, create rooms and manage their songs"
+msgstr "gérer le répertoire, traiter les suggestions de chansons, créer des salles et gérer leurs chansons"
 
-msgid "edit the wish list, open and close the room"
-msgstr "gérer la liste de souhaits, ouvrir et fermer la salle"
+msgid "edit the wish list, close and open rooms"
+msgstr "gérer la liste de souhaits, fermer et ouvrir les salles"
 
-msgid "manage users and hand out roles; includes Editor and Moderator"
-msgstr "gérer les utilisateurs et attribuer les rôles ; inclut Rédaction et Modération"
+msgid "manage users and roles, logos, design, limits, pages, footer and languages; includes Editor and Moderator"
+msgstr "gérer les utilisateurs et les rôles, les logos, le design, les limites, les pages, le pied de page et les langues ; inclut Rédaction et Modération"
 
 msgid "The only active admin keeps the role – make another user admin first."
 msgstr "Le seul admin actif garde son rôle – nommez d’abord un autre utilisateur admin."

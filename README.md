@@ -580,7 +580,7 @@ them live below `/admin`.
 
 | Role | May |
 | --- | --- |
-| **Admin** | Create, edit, lock and delete users and hand out every role, the admin role included; manage the header logos, the pages and the footer – and everything editors and moderators may do |
+| **Admin** | Create, edit, lock and delete users and hand out every role, the admin role included; manage the header logos, the design, the limits, the pages, the footer and the fallback order of the languages – and everything editors and moderators may do |
 | **Editor** | Maintain the repertoire: add, edit, delete titles; work the song suggestions; create, edit, delete rooms and manage their songs |
 | **Moderator** | Edit the wish list: sort, reorder, delete, clear; close and open the room (everyone may view the list) |
 

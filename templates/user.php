@@ -98,7 +98,7 @@ $isAdmin = ($values['role_admin'] ?? '') === '1';
             <legend><?= $e(t('Roles')) ?></legend>
             <label class="check">
                 <input type="checkbox" name="role_admin" value="1" data-implies="role_editor role_moderator"<?= $checked('role_admin') ?><?= $onlyAdmin ? ' disabled' : '' ?>>
-                <span><strong><?= $e(t('Admin', [], 'role')) ?></strong> – <?= $e(t('manage users and hand out roles; includes Editor and Moderator')) ?></span>
+                <span><strong><?= $e(t('Admin', [], 'role')) ?></strong> – <?= $e(t('manage users and roles, logos, design, limits, pages, footer and languages; includes Editor and Moderator')) ?></span>
             </label>
             <?php if ($onlyAdmin): ?>
                 <input type="hidden" name="role_admin" value="1">
@@ -106,11 +106,11 @@ $isAdmin = ($values['role_admin'] ?? '') === '1';
             <?php endif; ?>
             <label class="check">
                 <input type="checkbox" name="role_editor" value="1"<?= $isAdmin ? ' checked disabled' : $checked('role_editor') ?>>
-                <span><strong><?= $e(t('Editor', [], 'role')) ?></strong> – <?= $e(t('maintain the repertoire (add, edit, delete)')) ?></span>
+                <span><strong><?= $e(t('Editor', [], 'role')) ?></strong> – <?= $e(t('maintain the repertoire, work the song suggestions, create rooms and manage their songs')) ?></span>
             </label>
             <label class="check">
                 <input type="checkbox" name="role_moderator" value="1"<?= $isAdmin ? ' checked disabled' : $checked('role_moderator') ?>>
-                <span><strong><?= $e(t('Moderator', [], 'role')) ?></strong> – <?= $e(t('edit the wish list, open and close the room')) ?></span>
+                <span><strong><?= $e(t('Moderator', [], 'role')) ?></strong> – <?= $e(t('edit the wish list, close and open rooms')) ?></span>
             </label>
             <?= $fieldError('role_admin') ?>
         </fieldset>
