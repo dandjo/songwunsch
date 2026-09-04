@@ -204,8 +204,8 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                 $adminItems = [
                     ['users',  ['users', 'user'],      'users',   t('Users')],
                     ['logos',  ['logos'],              'image',   t('Logos')],
-                    ['theme',  ['theme'],              'palette', t('Design')],
-                    ['limits', ['limits'],             'gauge',   t('Limits')],
+                    ['theme',  ['theme'],              'drop',    t('Design')],
+                    ['limits', ['limits'],             'sliders', t('Limits')],
                     ['pages',  ['pages', 'page_edit'], 'page',    t('Pages')],
                     ['footer', ['footer'],             'list',    t('Footer')],
                 ];

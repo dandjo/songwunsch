@@ -272,11 +272,11 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         'bulb'   => '<path d="M5.7 10.4c0-1.7-2.4-2.5-2.4-5.1a4.7 4.7 0 0 1 9.4 0c0 2.6-2.4 3.4-2.4 5.1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.6 13h4.8M6.6 15.2h2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
         // Administration: a shield with a tick.
         'shield' => '<path d="M8 1.1 14.4 3.4v4.4c0 3.6-2.6 6.3-6.4 7.6C4.2 14.1 1.6 11.4 1.6 7.8V3.4z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M5.1 8.2l2 2 3.9-4.1" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>',
-        // Design: a painter's palette -- a solid board, the thumb hole and three
-        // wells cut out, each big enough to stay open at 14px.
-        'palette' => '<path fill-rule="evenodd" d="M8 1.3C4 1.3 1.1 4.3 1.1 8c0 3.8 3 6.7 6.8 6.7 1.5 0 2.5-1 2.5-2.2 0-.7-.4-1.2-.8-1.7-.2-.3-.3-.6-.3-.9 0-.6.5-1 1.1-1h1.7c1.9 0 3-1.4 3-3C15.1 3.5 11.9 1.3 8 1.3zM5.1 4.6a1.8 1.8 0 1 0 0 3.6a1.8 1.8 0 1 0 0-3.6zM9.6 3.6a1.8 1.8 0 1 0 0 3.6a1.8 1.8 0 1 0 0-3.6zM4.9 9.1a1.8 1.8 0 1 0 0 3.6a1.8 1.8 0 1 0 0-3.6z" fill="currentColor"/>',
-        // Limits: a gauge -- half a dial, the needle swung to the right with clear air around it, a solid hub.
-        'gauge'  => '<path d="M2.2 11.5a5.8 5.8 0 0 1 11.6 0" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><path d="M8 11.5l3.6-4.6" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><circle cx="8" cy="11.5" r="1.9" fill="currentColor"/>',
+        // Design: a drop of paint -- one solid shape that stays legible at 14px,
+        // where a palette's wells blur into a blob.
+        'drop'    => '<path d="M8 1.4c2.5 3.3 4.9 6.1 4.9 8.7a4.9 4.9 0 0 1-9.8 0C3.1 7.5 5.5 4.7 8 1.4z" fill="currentColor"/>',
+        // Limits: three sliders -- rails with their knobs at different positions.
+        'sliders' => '<path d="M2 4h12M2 8h12M2 12h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="10.5" cy="4" r="2.2" fill="currentColor"/><circle cx="5.5" cy="8" r="2.2" fill="currentColor"/><circle cx="11" cy="12" r="2.2" fill="currentColor"/>',
         // Footer pages: a sheet with a folded corner and two lines of text.
         'page'   => '<path d="M3.5 1.8h6l3 3v9.4h-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9.5 1.8v3h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.8 8.2h4.4M5.8 11h4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
     ];
