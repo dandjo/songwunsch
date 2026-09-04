@@ -152,13 +152,24 @@ CREATE TABLE IF NOT EXISTS `uploads` (
 -- attributes on save.
 CREATE TABLE IF NOT EXISTS `pages` (
     `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `slug`       VARCHAR(64)  NOT NULL COMMENT 'machine name in the address: /pages/<slug>',
-    `title`      VARCHAR(128) NOT NULL COMMENT 'heading of the page and text of the footer link',
-    `body`       MEDIUMTEXT   NOT NULL COMMENT 'the content as HTML, cleaned on save (src/Html.php)',
+    `slug`       VARCHAR(64)  NOT NULL COMMENT 'machine name in the address: /pages/<slug>; title and body per language in page_translations',
     `footer_position` INT UNSIGNED NULL COMMENT 'place among the footer links; NULL = not linked in the footer',
     `created_at` DATETIME     NOT NULL,
     `updated_at` DATETIME     NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_slug` (`slug`),
     KEY `idx_footer_position` (`footer_position`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- A page's title and body, one row per language of the language menu. A page
+-- has at least one; a visitor gets the row in the chosen language, otherwise
+-- the first language of the fallback order (setting pages_languages, the
+-- admins arrange it under Pages) the page has.
+CREATE TABLE IF NOT EXISTS `page_translations` (
+    `page_id`    INT UNSIGNED NOT NULL COMMENT 'pages.id, no foreign key',
+    `lang`       VARCHAR(16)  NOT NULL COMMENT 'language code as in lang/<code>.po: en, de, pt-br',
+    `title`      VARCHAR(128) NOT NULL COMMENT 'heading of the page and text of the footer link, in this language',
+    `body`       MEDIUMTEXT   NOT NULL COMMENT 'the content as HTML in this language, cleaned on save (src/Html.php)',
+    `updated_at` DATETIME     NOT NULL,
+    PRIMARY KEY (`page_id`, `lang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

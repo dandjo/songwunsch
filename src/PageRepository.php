@@ -11,10 +11,22 @@ namespace Songwunsch;
  * that order (Administration -> Footer); a page without one is reachable
  * through its address alone. The body is HTML from the editor, reduced to an
  * allowed set of tags on save (Html::clean()).
+ *
+ * Languages: a page is its address (the pages table) plus a title and body
+ * per language of the language menu (page_translations, one row each). Every
+ * language is equal; a page needs at least one. A reader gets the row in the
+ * interface language and, where the page has none, the first language of the
+ * fallback order (LANGUAGES_KEY, an admin setting) the page does have. Every
+ * read method answers in the interface language that way, so the callers
+ * never see more than one title and body per page.
  */
 final class PageRepository
 {
-    private const TABLE = '`' . Schema::PAGES . '`';
+    private const TABLE    = '`' . Schema::PAGES . '`';
+    private const VERSIONS = '`' . Schema::PAGE_TRANSLATIONS . '`';
+
+    /** Setting: the fallback order of the languages, codes separated by commas. */
+    public const LANGUAGES_KEY = 'pages_languages';
 
     public const MIN_SLUG  = 2;
     public const MAX_SLUG  = 64;
@@ -25,13 +37,124 @@ final class PageRepository
     /** Address part: lower-case letters, digits and single hyphens, like a room's slug. */
     public const SLUG_PATTERN = '/^[a-z0-9]+(?:-[a-z0-9]+)*$/';
 
-    public function __construct(private readonly Database $db)
+    /** @var array<int,string>|null the fallback order, lazily read */
+    private ?array $order = null;
+
+    public function __construct(
+        private readonly Database $db,
+        private readonly Settings $settings,
+        private readonly Translator $translator,
+    ) {
+    }
+
+    // ---- The languages ---------------------------------------------------------
+
+    /**
+     * The fallback order: every language of the menu, the ones the admins
+     * ordered first, any newer one behind them in the menu's order. A
+     * reader's own language always comes before all of these.
+     *
+     * @return array<int,string> codes
+     */
+    public function languageOrder(): array
     {
+        if ($this->order !== null) {
+            return $this->order;
+        }
+
+        $available = array_keys($this->translator->available());
+        $stored    = array_filter(array_map('trim', explode(',', (string) $this->settings->get(self::LANGUAGES_KEY, ''))));
+        $order     = array_values(array_intersect($stored, $available));
+        foreach ($available as $code) {
+            if (!in_array($code, $order, true)) {
+                $order[] = $code;
+            }
+        }
+
+        return $this->order = $order;
     }
 
     /**
-     * Every page, by title -- or only those whose title or machine name
-     * contains $query.
+     * Store a new fallback order, "de,en,fr" from drag & drop or a move
+     * button. Unknown codes are ignored, languages left out keep their
+     * relative order behind the given ones. False if nothing usable came in.
+     *
+     * @param array<int,string> $codes
+     */
+    public function reorderLanguages(array $codes): bool
+    {
+        $known   = $this->languageOrder();
+        $ordered = [];
+        foreach ($codes as $code) {
+            $code = strtolower(trim((string) $code));
+            if (in_array($code, $known, true) && !in_array($code, $ordered, true)) {
+                $ordered[] = $code;
+            }
+        }
+        if ($ordered === []) {
+            return false;
+        }
+        foreach ($known as $code) {
+            if (!in_array($code, $ordered, true)) {
+                $ordered[] = $code;
+            }
+        }
+
+        $this->settings->set(self::LANGUAGES_KEY, implode(',', $ordered));
+        $this->order = $ordered;
+
+        return true;
+    }
+
+    /** Move a language one step ('up', 'down') or to an end ('top', 'bottom'). */
+    public function moveLanguage(string $code, string $dir): bool
+    {
+        $order = $this->languageOrder();
+        $index = array_search(strtolower($code), $order, true);
+        if ($index === false) {
+            return false;
+        }
+        $target = match ($dir) {
+            'top'    => 0,
+            'bottom' => count($order) - 1,
+            'down'   => $index + 1,
+            default  => $index - 1,
+        };
+        if ($target === $index || $target < 0 || $target >= count($order)) {
+            return false;
+        }
+
+        array_splice($order, $index, 1);
+        array_splice($order, $target, 0, [$code]);
+
+        return $this->reorderLanguages($order);
+    }
+
+    /**
+     * Pick the version a reader gets: their language, then the fallback
+     * order. Null only for a page without any version, which validate()
+     * does not let through.
+     *
+     * @param array<string,array<string,mixed>> $versions lang => row
+     * @return array<string,mixed>|null
+     */
+    private function pick(array $versions): ?array
+    {
+        foreach ([$this->translator->code(), ...$this->languageOrder()] as $code) {
+            if (isset($versions[$code])) {
+                return $versions[$code];
+            }
+        }
+
+        return $versions === [] ? null : reset($versions);
+    }
+
+    // ---- Reading ---------------------------------------------------------------
+
+    /**
+     * Every page, by title -- or only those whose title in any language or
+     * machine name contains $query. Each row carries title, body and lang of
+     * the version the reader gets, plus 'languages': the codes it has.
      *
      * @return array<int,array<string,mixed>>
      */
@@ -39,14 +162,15 @@ final class PageRepository
     {
         $query = trim($query);
         if ($query === '') {
-            return $this->db->all('SELECT * FROM ' . self::TABLE . ' ORDER BY title ASC, id ASC');
+            return $this->sorted($this->withVersions($this->db->all('SELECT * FROM ' . self::TABLE)));
         }
         $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $query) . '%';
 
-        return $this->db->all(
-            'SELECT * FROM ' . self::TABLE . ' WHERE title LIKE ? OR slug LIKE ? ORDER BY title ASC, id ASC',
+        return $this->sorted($this->withVersions($this->db->all(
+            'SELECT p.* FROM ' . self::TABLE . ' p
+             WHERE p.slug LIKE ? OR EXISTS (SELECT 1 FROM ' . self::VERSIONS . ' v WHERE v.page_id = p.id AND v.title LIKE ?)',
             [$like, $like],
-        );
+        )));
     }
 
     /**
@@ -56,9 +180,9 @@ final class PageRepository
      */
     public function inFooter(): array
     {
-        return $this->db->all(
+        return $this->withVersions($this->db->all(
             'SELECT * FROM ' . self::TABLE . ' WHERE footer_position IS NOT NULL ORDER BY footer_position ASC, id ASC',
-        );
+        ));
     }
 
     /**
@@ -69,34 +193,57 @@ final class PageRepository
      */
     public function outsideFooter(): array
     {
-        return $this->db->all(
-            'SELECT * FROM ' . self::TABLE . ' WHERE footer_position IS NULL ORDER BY title ASC, id ASC',
-        );
+        return $this->sorted($this->withVersions($this->db->all(
+            'SELECT * FROM ' . self::TABLE . ' WHERE footer_position IS NULL',
+        )));
     }
 
     /**
-     * The footer's links: id, slug and title, in order. Runs on every request,
-     * so it fetches nothing but these three columns.
+     * The footer's links: id, slug and title, in order -- the title in the
+     * reader's language, or the first of the fallback order. Runs on every
+     * request, so it is one query without the bodies.
      *
      * @return array<int,array{id:int,slug:string,title:string}>
      */
     public function footerLinks(): array
     {
         $rows = $this->db->all(
-            'SELECT id, slug, title FROM ' . self::TABLE . ' WHERE footer_position IS NOT NULL ORDER BY footer_position ASC, id ASC',
+            'SELECT p.id, p.slug, v.lang, v.title
+             FROM ' . self::TABLE . ' p
+             JOIN ' . self::VERSIONS . ' v ON v.page_id = p.id
+             WHERE p.footer_position IS NOT NULL ORDER BY p.footer_position ASC, p.id ASC',
         );
 
-        return array_map(static fn (array $row): array => [
-            'id'    => (int) $row['id'],
-            'slug'  => (string) $row['slug'],
-            'title' => (string) $row['title'],
-        ], $rows);
+        /** @var array<int,array{id:int,slug:string,versions:array<string,array<string,mixed>>}> $pages */
+        $pages = [];
+        foreach ($rows as $row) {
+            $id = (int) $row['id'];
+            $pages[$id] ??= ['id' => $id, 'slug' => (string) $row['slug'], 'versions' => []];
+            $pages[$id]['versions'][(string) $row['lang']] = $row;
+        }
+
+        $links = [];
+        foreach ($pages as $page) {
+            $version = $this->pick($page['versions']);
+            if ($version !== null) {
+                $links[] = ['id' => $page['id'], 'slug' => $page['slug'], 'title' => (string) $version['title']];
+            }
+        }
+
+        return $links;
     }
 
-    /** @return array<string,mixed>|null */
+    /**
+     * A page with the version the reader gets (title, body, lang) and the
+     * codes of all its languages.
+     *
+     * @return array<string,mixed>|null
+     */
     public function find(int $id): ?array
     {
-        return $id > 0 ? $this->db->one('SELECT * FROM ' . self::TABLE . ' WHERE id = ?', [$id]) : null;
+        $page = $id > 0 ? $this->db->one('SELECT * FROM ' . self::TABLE . ' WHERE id = ?', [$id]) : null;
+
+        return $page === null ? null : $this->withVersions([$page])[0];
     }
 
     /**
@@ -110,22 +257,97 @@ final class PageRepository
         if (preg_match(self::SLUG_PATTERN, $slug) !== 1) {
             return null;
         }
+        $page = $this->db->one('SELECT * FROM ' . self::TABLE . ' WHERE slug = ?', [$slug]);
 
-        return $this->db->one('SELECT * FROM ' . self::TABLE . ' WHERE slug = ?', [$slug]);
+        return $page === null ? null : $this->withVersions([$page])[0];
     }
 
     /**
-     * Check the form input. The body is cleaned here as well, so the values
+     * Every version of a page, for the form: lang => title, body.
+     *
+     * @return array<string,array{title:string,body:string}>
+     */
+    public function versions(int $pageId): array
+    {
+        $rows = $this->db->all('SELECT lang, title, body FROM ' . self::VERSIONS . ' WHERE page_id = ?', [$pageId]);
+
+        $byLang = [];
+        foreach ($rows as $row) {
+            $byLang[(string) $row['lang']] = ['title' => (string) $row['title'], 'body' => (string) $row['body']];
+        }
+
+        return $byLang;
+    }
+
+    /**
+     * Give page rows the version the reader gets -- title, body, lang -- and
+     * 'languages', the sorted codes of all versions. One query for all rows.
+     *
+     * @param array<int,array<string,mixed>> $pages
+     * @return array<int,array<string,mixed>>
+     */
+    private function withVersions(array $pages): array
+    {
+        if ($pages === []) {
+            return [];
+        }
+        $ids  = array_map(static fn (array $p): int => (int) $p['id'], $pages);
+        $rows = $this->db->all(
+            'SELECT * FROM ' . self::VERSIONS . ' WHERE page_id IN (' . implode(', ', array_fill(0, count($ids), '?')) . ') ORDER BY lang ASC',
+            $ids,
+        );
+
+        /** @var array<int,array<string,array<string,mixed>>> $versions page id => lang => row */
+        $versions = [];
+        foreach ($rows as $row) {
+            $versions[(int) $row['page_id']][(string) $row['lang']] = $row;
+        }
+
+        foreach ($pages as &$page) {
+            $own     = $versions[(int) $page['id']] ?? [];
+            $version = $this->pick($own);
+            $page['title']     = (string) ($version['title'] ?? '');
+            $page['body']      = (string) ($version['body'] ?? '');
+            $page['lang']      = (string) ($version['lang'] ?? $this->translator->code());
+            $page['languages'] = array_keys($own);
+        }
+        unset($page);
+
+        return $pages;
+    }
+
+    /**
+     * By the title the reader sees, then by id -- what ORDER BY title did
+     * while the title was one column.
+     *
+     * @param array<int,array<string,mixed>> $pages
+     * @return array<int,array<string,mixed>>
+     */
+    private function sorted(array $pages): array
+    {
+        usort($pages, static fn (array $a, array $b): int =>
+            strcmp(mb_strtolower((string) $a['title']), mb_strtolower((string) $b['title'])) ?: (int) $a['id'] <=> (int) $b['id']);
+
+        return $pages;
+    }
+
+    // ---- Writing ---------------------------------------------------------------
+
+    /**
+     * Check the form input: the address and, per language of the menu, title
+     * and body. A language with both left empty is simply not there; one
+     * with only one of them filled is an error; without a single language
+     * the page cannot be saved. Bodies are cleaned here, so the values
      * returned are exactly what gets stored.
      *
-     * @param array<string,string> $input     slug, title, body
+     * @param array{slug?:string,title?:array<string,string>,body?:array<string,string>} $input
      * @param array<string,mixed>|null $existing  the page being edited, null for a new one
-     * @return array{values:array<string,mixed>,errors:array<string,string>}
+     * @return array{values:array{slug?:string,versions:array<string,array{title:string,body:string}>},errors:array<string,string>}
      */
     public function validate(array $input, ?array $existing): array
     {
         $errors = [];
-        $values = [];
+        $values = ['versions' => []];
 
         $slug = mb_strtolower(trim((string) ($input['slug'] ?? '')));
         if ($slug === '') {
@@ -135,7 +357,7 @@ final class PageRepository
         } elseif (preg_match(self::SLUG_PATTERN, $slug) !== 1) {
             $errors['slug'] = t('Machine name: lower-case letters a–z, digits and hyphens, e.g. “imprint”.');
         } else {
-            $other = $this->findBySlug($slug);
+            $other = $this->db->one('SELECT id FROM ' . self::TABLE . ' WHERE slug = ?', [$slug]);
             if ($other !== null && ($existing === null || (int) $other['id'] !== (int) $existing['id'])) {
                 $errors['slug'] = t('This machine name is already taken.');
             } else {
@@ -143,59 +365,139 @@ final class PageRepository
             }
         }
 
-        $title = trim(preg_replace('/\s+/u', ' ', (string) ($input['title'] ?? '')) ?? '');
-        if ($title === '') {
-            $errors['title'] = t('{field} is required.', ['field' => t('Title')]);
-        } elseif (mb_strlen($title) > self::MAX_TITLE) {
-            $errors['title'] = t('{field} is too long: at most {max} characters.', ['field' => t('Title'), 'max' => self::MAX_TITLE]);
-        } else {
-            $values['title'] = $title;
+        $titles = is_array($input['title'] ?? null) ? $input['title'] : [];
+        $bodies = is_array($input['body'] ?? null) ? $input['body'] : [];
+
+        foreach (array_keys($this->translator->available()) as $code) {
+            $title = trim(preg_replace('/\s+/u', ' ', (string) ($titles[$code] ?? '')) ?? '');
+            $raw   = (string) ($bodies[$code] ?? '');
+            $body  = mb_strlen($raw) > self::MAX_BODY ? $raw : Html::clean($raw);
+            // A body without a word of text counts as empty -- the editor
+            // leaves "<p>&nbsp;</p>" behind.
+            $empty = trim(html_entity_decode(strip_tags($body), ENT_QUOTES | ENT_HTML5, 'UTF-8'), " \t\n\r\0\x0B\u{a0}") === '';
+
+            if ($title === '' && $empty) {
+                continue; // not in this language
+            }
+            if ($title === '') {
+                $errors['title.' . $code] = t('{field} is required.', ['field' => t('Title')]);
+            } elseif (mb_strlen($title) > self::MAX_TITLE) {
+                $errors['title.' . $code] = t('{field} is too long: at most {max} characters.', ['field' => t('Title'), 'max' => self::MAX_TITLE]);
+            }
+            if (mb_strlen($raw) > self::MAX_BODY) {
+                $errors['body.' . $code] = t('The content is too long: at most {max} characters of HTML.', ['max' => self::MAX_BODY]);
+            } elseif ($empty) {
+                $errors['body.' . $code] = t('{field} is required.', ['field' => t('Content')]);
+            }
+            if (!isset($errors['title.' . $code]) && !isset($errors['body.' . $code])) {
+                $values['versions'][$code] = ['title' => $title, 'body' => $body];
+            }
         }
 
-        $raw = (string) ($input['body'] ?? '');
-        if (mb_strlen($raw) > self::MAX_BODY) {
-            $errors['body'] = t('The content is too long: at most {max} characters of HTML.', ['max' => self::MAX_BODY]);
-        } else {
-            $body = Html::clean($raw);
-            // A page without a word of text is a dead link in the footer.
-            if (trim(html_entity_decode(strip_tags($body), ENT_QUOTES | ENT_HTML5, 'UTF-8'), " \t\n\r\0\x0B\u{a0}") === '') {
-                $errors['body'] = t('{field} is required.', ['field' => t('Content')]);
-            } else {
-                $values['body'] = $body;
-            }
+        if ($values['versions'] === [] && !array_filter(array_keys($errors), static fn (string $k): bool => str_starts_with($k, 'title.') || str_starts_with($k, 'body.'))) {
+            $errors['versions'] = t('Fill in the page in at least one language.');
         }
 
         return ['values' => $values, 'errors' => $errors];
     }
 
     /**
+     * The title a message names for these values: in the interface
+     * language, or the first of the fallback order.
+     *
+     * @param array<string,array{title:string,body:string}> $versions
+     */
+    public function titleOf(array $versions): string
+    {
+        return (string) ($this->pick($versions)['title'] ?? '');
+    }
+
+    /**
      * A new page starts outside the footer; the footer page adds it.
      *
-     * @param array<string,mixed> $values slug, title, body
+     * @param array{slug:string,versions:array<string,array{title:string,body:string}>} $values
      */
     public function create(array $values): int
     {
         $now = date('Y-m-d H:i:s');
-        $this->db->exec(
-            'INSERT INTO ' . self::TABLE . ' (slug, title, body, footer_position, created_at, updated_at) VALUES (?, ?, ?, NULL, ?, ?)',
-            [$values['slug'], $values['title'], $values['body'], $now, $now],
-        );
+        $pdo = $this->db->pdo();
+        $pdo->beginTransaction();
+        try {
+            $this->db->exec(
+                'INSERT INTO ' . self::TABLE . ' (slug, footer_position, created_at, updated_at) VALUES (?, NULL, ?, ?)',
+                [$values['slug'], $now, $now],
+            );
+            $id = (int) $pdo->lastInsertId();
+            $this->writeVersions($id, $values['versions'], $now);
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
 
-        return (int) $this->db->pdo()->lastInsertId();
+        return $id;
     }
 
-    /** @param array<string,mixed> $values slug, title, body */
+    /** @param array{slug:string,versions:array<string,array{title:string,body:string}>} $values */
     public function update(int $id, array $values): void
     {
-        $this->db->exec(
-            'UPDATE ' . self::TABLE . ' SET slug = ?, title = ?, body = ?, updated_at = ? WHERE id = ? LIMIT 1',
-            [$values['slug'], $values['title'], $values['body'], date('Y-m-d H:i:s'), $id],
-        );
+        $now = date('Y-m-d H:i:s');
+        $pdo = $this->db->pdo();
+        $pdo->beginTransaction();
+        try {
+            $this->db->exec(
+                'UPDATE ' . self::TABLE . ' SET slug = ?, updated_at = ? WHERE id = ? LIMIT 1',
+                [$values['slug'], $now, $id],
+            );
+            $this->db->exec('DELETE FROM ' . self::VERSIONS . ' WHERE page_id = ?', [$id]);
+            $this->writeVersions($id, $values['versions'], $now);
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
     }
 
+    /** @param array<string,array{title:string,body:string}> $versions */
+    private function writeVersions(int $pageId, array $versions, string $now): void
+    {
+        foreach ($versions as $code => $version) {
+            $this->db->exec(
+                'INSERT INTO ' . self::VERSIONS . ' (page_id, lang, title, body, updated_at) VALUES (?, ?, ?, ?, ?)',
+                [$pageId, $code, $version['title'], $version['body'], $now],
+            );
+        }
+    }
+
+    /**
+     * Take one language off a page -- unless it is the last one, since a
+     * page needs at least one. Readers in that language fall back to the
+     * next of the fallback order.
+     */
+    public function removeLanguage(int $id, string $code): bool
+    {
+        $code  = strtolower($code);
+        $count = (int) ($this->db->one('SELECT COUNT(*) AS n FROM ' . self::VERSIONS . ' WHERE page_id = ?', [$id])['n'] ?? 0);
+        if ($count < 2) {
+            return false;
+        }
+        $gone = $this->db->exec('DELETE FROM ' . self::VERSIONS . ' WHERE page_id = ? AND lang = ?', [$id, $code]) === 1;
+        if ($gone) {
+            $this->db->exec('UPDATE ' . self::TABLE . ' SET updated_at = ? WHERE id = ? LIMIT 1', [date('Y-m-d H:i:s'), $id]);
+        }
+
+        return $gone;
+    }
+
+    /** Deleting a page takes its languages with it. */
     public function delete(int $id): bool
     {
-        return $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE id = ? LIMIT 1', [$id]) === 1;
+        $gone = $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE id = ? LIMIT 1', [$id]) === 1;
+        if ($gone) {
+            $this->db->exec('DELETE FROM ' . self::VERSIONS . ' WHERE page_id = ?', [$id]);
+        }
+
+        return $gone;
     }
 
     // ---- The footer -----------------------------------------------------------

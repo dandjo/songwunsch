@@ -15,7 +15,7 @@ declare(strict_types=1);
  * Everything the Administration menu leads to sits below /admin (admins only):
  *   /admin/users     | /admin/users/new, /admin/users/<id>/edit
  *   /admin/logos       header logos
- *   /admin/pages     | /admin/pages/new, /admin/pages/<id>/edit (CKEditor)
+ *   /admin/pages     | /admin/pages/new, /admin/pages/<id>/edit (CKEditor, one tab per language)
  *   /admin/footer      which pages the footer links, in which order
  *   /admin           -> /admin/users
  *   /rooms/<slug>          a room's song list  -- same page as /, in the room
@@ -32,6 +32,7 @@ declare(strict_types=1);
  *                  | user_save | user_delete                      (admin)
  *                  | logo_upload | logo_activate | logo_delete    (admin)
  *                  | page_save | page_delete                      (admin)
+ *                  | pages_languages_move | pages_languages_reorder  fallback order of the languages (admin)
  *                  | footer_add | footer_remove | footer_move | footer_reorder (admin)
  *                  | pause_all                                    (admin)
  * Admins may do everything. ?lang=<code> switches the UI language.
@@ -89,7 +90,6 @@ $users  = new UserRepository($db);
 $rooms  = new RoomRepository($db);
 $settings = new Settings($db);
 $uploads  = new Uploads($db);
-$pages    = new PageRepository($db); // the admins' pages: imprint, FAQ, ...; some linked in the footer
 // $wishes and $guard are bound to the room and are created after routing.
 // The main room may carry a name of its own (Rooms -> Edit on the main room).
 try {
@@ -117,6 +117,9 @@ $lang       = $translator->detect(
 );
 $translator->load($lang);
 translator($translator);
+// The admins' pages: imprint, FAQ, ...; some linked in the footer. They answer
+// in the interface language, so they come after it is known.
+$pages = new PageRepository($db, $settings, $translator);
 
 // --- Route ---------------------------------------------------------------
 // The web server sends every address below the base path here (.htaccess).
@@ -378,9 +381,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             case 'page_save':
-                // A page: imprint, FAQ, ... Admins only. The body is HTML
-                // from the editor and is reduced to the allowed tags in
-                // validate() -- what is stored is what visitors get.
+                // A page: imprint, FAQ, ... Admins only. One form for every
+                // language of the menu: title[<code>] and body[<code>]; a
+                // language left empty is not part of the page. The bodies
+                // are HTML from the editor and are reduced to the allowed
+                // tags in validate() -- what is stored is what visitors get.
                 require_role($security, 'users');
                 $id       = (int) ($_POST['id'] ?? 0); // 0 = new page
                 $existing = $id > 0 ? $pages->find($id) : null;
@@ -390,10 +395,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect(url(['p' => 'pages']));
                 }
 
+                // "Remove <language>" on a tab: the language goes right away,
+                // nothing else of the form is saved. A page keeps at least one.
+                $remove = strtolower((string) ($_POST['remove_lang'] ?? ''));
+                if ($remove !== '' && $existing !== null) {
+                    $label = $translator->available()[$remove] ?? strtoupper($remove);
+                    if ($pages->removeLanguage($id, $remove)) {
+                        flash('ok', t('“{title}” is no longer available in {language}.', ['title' => (string) $existing['title'], 'language' => $label]));
+                    } else {
+                        flash('error', t('{language} could not be removed: a page needs at least one language.', ['language' => $label]));
+                    }
+                    redirect(url(['p' => 'page_edit', 'id' => $id]) . '#lang-' . rawurlencode($remove));
+                }
+
+                $strings = static fn (mixed $list): array => is_array($list)
+                    ? array_map(static fn (mixed $v): string => is_scalar($v) ? (string) $v : '', $list)
+                    : [];
                 $input = [
                     'slug'  => (string) ($_POST['slug'] ?? ''),
-                    'title' => (string) ($_POST['title'] ?? ''),
-                    'body'  => (string) ($_POST['body'] ?? ''),
+                    'title' => $strings($_POST['title'] ?? null),
+                    'body'  => $strings($_POST['body'] ?? null),
                 ];
                 $checked = $pages->validate($input, $existing);
                 $formUrl = url(['p' => 'page_edit', 'id' => $id > 0 ? $id : null]);
@@ -404,18 +425,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect($formUrl);
                 }
 
+                $title = $pages->titleOf($checked['values']['versions']);
                 if ($existing === null) {
                     $pages->create($checked['values']);
-                    flash('ok', t('Page “{title}” has been created. It is reachable under its address; the footer links it once you add it there.', ['title' => $checked['values']['title']]));
+                    flash('ok', t('Page “{title}” has been created. It is reachable under its address; the footer links it once you add it there.', ['title' => $title]));
                 } else {
                     $pages->update($id, $checked['values']);
-                    flash('ok', t('Page “{title}” has been saved.', ['title' => $checked['values']['title']]));
+                    flash('ok', t('Page “{title}” has been saved.', ['title' => $title]));
                 }
                 redirect(url(['p' => 'pages']));
                 // no break
 
             case 'page_delete':
-                // Deleting takes the page out of the footer as well.
+                // Deleting takes the page out of the footer as well, and its
+                // versions in other languages with it.
                 require_role($security, 'users');
                 $target = $pages->find((int) ($_POST['id'] ?? 0));
 
@@ -426,6 +449,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     flash('error', t('Deleting was not possible.'));
                 }
+                redirect(url(['p' => 'pages']));
+                // no break
+
+            case 'pages_languages_move':
+                // The fallback order of the languages: one step (up, down) or
+                // to the very end (top, bottom) -- the keyboard's way and the
+                // way without JavaScript.
+                require_role($security, 'users');
+                $dir = (string) ($_POST['dir'] ?? 'up');
+                $pages->moveLanguage((string) ($_POST['code'] ?? ''), in_array($dir, ['up', 'down', 'top', 'bottom'], true) ? $dir : 'up');
+                redirect(url(['p' => 'pages']));
+                // no break
+
+            case 'pages_languages_reorder':
+                // "de,en,fr" -- the languages in their new order, from drag &
+                // drop (app.js, the same code as the wish list's).
+                require_role($security, 'users');
+                $saved = $pages->reorderLanguages(explode(',', (string) ($_POST['order'] ?? '')));
+
+                if (wants_json()) {
+                    send_json(['ok' => $saved]);
+                }
+
+                flash($saved ? 'ok' : 'error', $saved ? t('Order saved.') : t('The order could not be saved.'));
                 redirect(url(['p' => 'pages']));
                 // no break
 
@@ -1301,10 +1348,12 @@ try {
 
             $q = trim((string) ($_GET['q'] ?? ''));
 
-            $view['title']    = t('Pages');
-            $view['template'] = 'pages';
-            $view['q']        = $q;
-            $view['rows']     = $pages->all($q);
+            $view['title']     = t('Pages');
+            $view['template']  = 'pages';
+            $view['q']         = $q;
+            $view['rows']      = $pages->all($q);
+            $view['languages'] = $translator->available();   // code => native name
+            $view['order']     = $pages->languageOrder();    // the fallback order, codes
             break;
 
         case 'footer':
@@ -1335,16 +1384,36 @@ try {
 
             $kept = remembered_input();
 
-            $view['title']    = $id === 0 ? t('Add page') : t('Edit page');
-            $view['template'] = 'page_edit';
-            $view['editor']   = true;
-            $view['id']       = $id;
-            $view['errors']   = $kept['errors'] ?? [];
-            $view['values']   = $kept['values'] ?? [
+            // The form holds every language of the menu; the saved ones fill
+            // their tabs. An error puts its tab in front, otherwise the
+            // interface language's if the page has it, otherwise the first
+            // the page has, otherwise the interface language's.
+            $versions  = $id > 0 ? $pages->versions($id) : [];
+            $errors    = $kept['errors'] ?? [];
+            $languages = $translator->available();
+            $withError = null;
+            foreach (array_keys($languages) as $code) {
+                if (isset($errors['title.' . $code]) || isset($errors['body.' . $code])) {
+                    $withError = $code;
+                    break;
+                }
+            }
+            $filled = array_values(array_intersect(array_keys($languages), array_keys($kept['values']['title'] ?? $versions)));
+
+            $view['title']     = $id === 0 ? t('Add page') : t('Edit page');
+            $view['template']  = 'page_edit';
+            $view['editor']    = true;
+            $view['id']        = $id;
+            $view['errors']    = $errors;
+            $view['values']    = $kept['values'] ?? [
                 'slug'  => (string) ($existing['slug'] ?? ''),
-                'title' => (string) ($existing['title'] ?? ''),
-                'body'  => (string) ($existing['body'] ?? ''),
+                'title' => array_map(static fn (array $v): string => $v['title'], $versions),
+                'body'  => array_map(static fn (array $v): string => $v['body'], $versions),
             ];
+            $view['languages'] = $languages;                    // code => native name, the tabs
+            $view['saved']     = array_keys($versions);         // codes the page is saved in (tab marks)
+            $view['activeLang'] = $withError
+                ?? (isset($versions[$translator->code()]) ? $translator->code() : ($filled[0] ?? $translator->code()));
             break;
 
         case 'page':
@@ -1354,6 +1423,8 @@ try {
                 not_found();
             }
 
+            // findBySlug() answers in the interface language, or in the first
+            // language of the fallback order the page has.
             $view['title']    = (string) $found['title'];
             $view['template'] = 'page';
             $view['content']  = $found;

@@ -364,8 +364,9 @@ and `colspan`/`rowspan` on cells. A link may point to a web, mail or phone
 address, an anchor or a path of this site – `javascript:` and `data:` are
 refused, `//host` as well. `h1` becomes `h2`, since the page's title is the
 `h1`. What visitors get is exactly what is stored, printed unescaped inside
-`<div class="prose">`. Pages live in the `pages` table; `footer_position`
-says whether and where a page is linked in the footer (`NULL` = not linked).
+`<div class="prose">`. Pages live in the `pages` table, their texts per
+language in `page_translations`; `footer_position` says whether and where a
+page is linked in the footer (`NULL` = not linked).
 
 CKEditor is bundled, not loaded from a CDN, so visitors' browsers talk to no
 third party: `assets/vendor/ckeditor5/` holds the browser build
@@ -376,6 +377,38 @@ the GPL 2 or later (the editor is configured with the `GPL` licence key),
 compatible with this project's GPL 3; the licence files sit next to it, the
 README there says how to update it. The editor's colours follow the site's
 theme through its custom properties (see the end of `style.css`).
+
+### Pages in several languages
+
+A page is its address plus a title and a body **per language of the
+switcher** – every language equal, none the original. The form shows a row of
+tabs, one per language (English, Deutsch, Français, … whatever `lang/*.po`
+provides), from the very first save on; each tab holds a title and a content
+field. A language left empty is simply not part of the page, a language with
+only one of the two filled in is an error, and a page needs at least one
+language. Tabs mark their state: a tick where the page is saved in that
+language, *missing* where it is not yet, an alert where the fields need a
+look. *Remove <language>* on a tab takes that language off the saved page at
+once, after a confirmation – nothing else of the form is saved by it, and the
+last language of a page cannot be removed. Without JavaScript all panels are
+on the page, each headed by its language.
+
+Readers get a page in the language chosen in the switcher. Where the page
+lacks it, they get the first language of the **fallback order** the page has
+– the order is set at the bottom of the Pages list (admins), by dragging a
+row or with its arrow buttons, the same as the footer's order; a language
+that arrives later (a new `.po` file) joins the end. The title and body then
+carry `lang="…"` so screen readers and hyphenation know. The footer links, the
+Pages list and the admins' messages pick the title the same way. On the
+public page, an admin's *Edit* button opens the tab of the admin's interface
+language – the one to fill in when the page fell back to another. The Pages
+list shows a chip per language and page, filled where the page has it and
+dashed where not, each leading to that tab.
+
+`pages` holds the address and the footer position, `page_translations` one
+row per page and language (`page_id`, `lang`, `title`, `body`). The fallback
+order is `pages_languages` in the `settings` table, codes separated by
+commas.
 
 The operator's own line remains: `'footer'` in `config.php` (or `FOOTER_HTML`
 from the environment) is printed below the page links – credits, an external
@@ -418,7 +451,7 @@ The files sit directly in `public_html`, which matches the default
 
 ## Database
 
-The application works with nine fixed tables. Names and columns are a
+The application works with eleven fixed tables. Names and columns are a
 prerequisite; there is no detection or mapping of foreign tables.
 
 | Table | Columns | Purpose |
@@ -432,6 +465,8 @@ prerequisite; there is no detection or mapping of foreign tables.
 | `rooms` | `id`, `slug`, `name`, `active`, `created_at`, `updated_at` | Rooms, see [Rooms](#rooms) |
 | `room_songs` | `room_id`, `song_id` | A room's song selection from `songs` |
 | `uploads` | `id`, `kind`, `mime`, `data`, `width`, `height`, `created_at` | The header logos, see [Logo](#logo) – in the database, so the deployment cannot lose them |
+| `pages` | `id`, `slug`, `footer_position`, `created_at`, `updated_at` | The admins' pages: address and footer place, see [Pages and footer](#pages-and-footer); `footer_position` `NULL` = not linked in the footer |
+| `page_translations` | `page_id`, `lang`, `title`, `body`, `updated_at` | A page's title and body per language, see [Pages in several languages](#pages-in-several-languages) |
 
 A wish copies artist, title, length and genre; `song_id` is deliberately not a
 foreign key so that a deleted song does not take its wishes with it.
@@ -474,7 +509,8 @@ code opens a menu of all available languages (a `<details>`, works without
 JavaScript). A click sets `?lang=<code>`; the choice is kept in the session
 and in a cookie valid for one year (`songwunsch_lang`, only the language code,
 no personal data). Without a choice the browser's `Accept-Language` header
-decides, otherwise English.
+decides, otherwise English. The choice also picks the language of the admins'
+pages, see [Pages in several languages](#pages-in-several-languages).
 
 **Adding a language.** Dropping in a file is enough:
 

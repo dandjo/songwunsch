@@ -11,8 +11,8 @@ use RuntimeException;
  *
  * Table and column names are a prerequisite and live in one place:
  * `songs`, `song_wishes`, `song_suggestions`, `settings`, `wish_throttle`,
- * `users`, `rooms`, `room_songs`, `uploads`, `pages`. ensure() runs on every
- * request before the first data access:
+ * `users`, `rooms`, `room_songs`, `uploads`, `pages`, `page_translations`.
+ * ensure() runs on every request before the first data access:
  * a missing table is created -- whether the application runs in the Docker
  * stack, on a shared host or locally. Existing tables are checked for the
  * expected columns; a missing column fails with a clear message instead of
@@ -33,6 +33,7 @@ final class Schema
     public const ROOM_SONGS = 'room_songs';
     public const UPLOADS  = 'uploads';
     public const PAGES    = 'pages';
+    public const PAGE_TRANSLATIONS = 'page_translations';
 
     /** @var array<string,array<int,string>> table => required columns */
     private const COLUMNS = [
@@ -45,7 +46,8 @@ final class Schema
         self::ROOMS    => ['id', 'slug', 'name', 'active', 'created_at', 'updated_at'],
         self::ROOM_SONGS => ['room_id', 'song_id'],
         self::UPLOADS  => ['id', 'kind', 'mime', 'data', 'width', 'height', 'created_at'],
-        self::PAGES    => ['id', 'slug', 'title', 'body', 'footer_position', 'created_at', 'updated_at'],
+        self::PAGES    => ['id', 'slug', 'footer_position', 'created_at', 'updated_at'],
+        self::PAGE_TRANSLATIONS => ['page_id', 'lang', 'title', 'body', 'updated_at'],
     ];
 
     /** @var array<string,string> table => CREATE TABLE */
@@ -164,15 +166,23 @@ final class Schema
         self::PAGES => <<<'SQL'
             CREATE TABLE IF NOT EXISTS `pages` (
                 `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                `slug`       VARCHAR(64)  NOT NULL COMMENT 'machine name in the address: /pages/<slug>',
-                `title`      VARCHAR(128) NOT NULL COMMENT 'heading of the page and text of the footer link',
-                `body`       MEDIUMTEXT   NOT NULL COMMENT 'the content as HTML, cleaned on save (src/Html.php)',
+                `slug`       VARCHAR(64)  NOT NULL COMMENT 'machine name in the address: /pages/<slug>; title and body per language in page_translations',
                 `footer_position` INT UNSIGNED NULL COMMENT 'place among the footer links; NULL = not linked in the footer',
                 `created_at` DATETIME     NOT NULL,
                 `updated_at` DATETIME     NOT NULL,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `uq_slug` (`slug`),
                 KEY `idx_footer_position` (`footer_position`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            SQL,
+        self::PAGE_TRANSLATIONS => <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `page_translations` (
+                `page_id`    INT UNSIGNED NOT NULL COMMENT 'pages.id, no foreign key',
+                `lang`       VARCHAR(16)  NOT NULL COMMENT 'language code as in lang/<code>.po: en, de, pt-br',
+                `title`      VARCHAR(128) NOT NULL COMMENT 'heading of the page and text of the footer link, in this language',
+                `body`       MEDIUMTEXT   NOT NULL COMMENT 'the content as HTML in this language, cleaned on save (src/Html.php)',
+                `updated_at` DATETIME     NOT NULL,
+                PRIMARY KEY (`page_id`, `lang`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             SQL,
     ];

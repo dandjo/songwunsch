@@ -1407,8 +1407,8 @@ msgstr "« {title} » ne figure plus dans le pied de page. Elle reste accessible
 msgid "This machine name is reserved."
 msgstr "Ce nom machine est réservé."
 
-msgid "Pages with their addresses"
-msgstr "Pages et leurs adresses"
+msgid "Pages with their addresses and languages"
+msgstr "Pages avec leurs adresses et leurs langues"
 
 msgid "Move pages with the arrows: to the right into the footer, to the left out of it. On the right, drag a row or use its arrows to change the order."
 msgstr "Déplacez les pages avec les flèches : vers la droite dans le pied de page, vers la gauche pour les en retirer. À droite, faites glisser une ligne ou utilisez ses flèches pour changer l’ordre."
@@ -1456,3 +1456,46 @@ msgid "{n} page found."
 msgid_plural "{n} pages found."
 msgstr[0] "{n} page trouvée."
 msgstr[1] "{n} pages trouvées."
+
+# ---- Pages in several languages (Administration -> Pages) ---------------------
+
+msgid "Fill in the page in the languages you like, one tab each; readers get it in their language, or in the first language of the fallback order the page has."
+msgstr "Remplissez la page dans les langues de votre choix, un onglet par langue ; les lecteurs la voient dans leur langue, sinon dans la première langue de l’ordre de repli que la page possède."
+
+msgid "Fill in the page in at least one language."
+msgstr "Remplissez la page dans au moins une langue."
+
+msgid "Remove {language}"
+msgstr "Retirer {language}"
+
+msgid "Fallback order of the languages"
+msgstr "Ordre de repli des langues"
+
+msgid "Readers get a page in the language they chose in the language menu. Where the page lacks it, they get the first language of this order the page has. Drag a row or use its arrows."
+msgstr "Les lecteurs voient une page dans la langue choisie dans le menu des langues. Si la page ne l’a pas, ils voient la première langue de cet ordre que la page possède. Faites glisser une ligne ou utilisez ses flèches."
+
+msgid "Languages in their fallback order, changeable by drag & drop or arrow buttons"
+msgstr "Langues dans leur ordre de repli, modifiable par glisser-déposer ou par les flèches"
+
+msgctxt "language tab"
+msgid "saved"
+msgstr "enregistré"
+
+msgctxt "language tab"
+msgid "needs a look"
+msgstr "à vérifier"
+msgid "Languages"
+msgstr "Langues"
+
+msgctxt "language tab"
+msgid "missing"
+msgstr "manque"
+
+msgid "Remove {language} from this page? Readers in {language} then get another language of the page. Changes not yet saved are lost."
+msgstr "Retirer {language} de cette page ? Les lecteurs en {language} verront alors une autre langue de la page. Les modifications non enregistrées seront perdues."
+
+msgid "{language} could not be removed: a page needs at least one language."
+msgstr "Impossible de retirer {language} : une page a besoin d’au moins une langue."
+
+msgid "“{title}” is no longer available in {language}."
+msgstr "« {title} » n’est plus disponible en {language}."

@@ -219,10 +219,18 @@
             });
         });
 
-        // Confirmation before deleting.
+        // Confirmation before deleting -- a whole form, or one button in a
+        // form that otherwise saves (a page's "Remove <language>").
         root.querySelectorAll('form[data-confirm]').forEach(function (form) {
             form.addEventListener('submit', function (event) {
                 if (!window.confirm(form.getAttribute('data-confirm'))) {
+                    event.preventDefault();
+                }
+            });
+        });
+        root.querySelectorAll('button[data-confirm]').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                if (!window.confirm(button.getAttribute('data-confirm'))) {
                     event.preventDefault();
                 }
             });
@@ -261,13 +269,96 @@
             });
         });
 
-        // Wish list and footer: order by drag & drop. Without JavaScript the
-        // arrow buttons remain the way to the same result -- they are also
-        // the keyboard access.
+        // Wish list, footer and the languages' fallback order: order by drag
+        // & drop. Without JavaScript the arrow buttons remain the way to the
+        // same result -- they are also the keyboard access.
         var board = root.querySelector('table[data-reorder]');
         if (board) {
             reorderable(board);
         }
+
+        // The page form: one panel per language, shown one at a time behind
+        // tabs. Without JavaScript the anchors lead to the panels, which are
+        // all on the page.
+        root.querySelectorAll('[data-tabs]').forEach(tabbed);
+    }
+
+    // ---- Tabs over the languages of a page ---------------------------------
+    // The anchors become tabs (role=tab, arrow keys move between them), the
+    // fieldsets tabpanels; only the selected panel is shown. The tab to start
+    // on comes from the address (#lang-<code>), otherwise from the server
+    // (data-tabs-active: the language with an error, or the one the page has).
+    function tabbed(box) {
+        var tabs = Array.prototype.slice.call(box.querySelectorAll('[data-tab]'));
+        var panels = Array.prototype.slice.call(box.querySelectorAll('[data-panel]'));
+        if (tabs.length < 2 || panels.length !== tabs.length) {
+            return;
+        }
+        var list = tabs[0].closest('ul');
+        var panelOf = function (code) {
+            return panels.find(function (panel) { return panel.getAttribute('data-panel') === code; });
+        };
+
+        box.classList.add('is-tabbed');
+        if (list) {
+            list.setAttribute('role', 'tablist');
+            list.querySelectorAll('li').forEach(function (li) { li.setAttribute('role', 'presentation'); });
+        }
+
+        var select = function (code, focus) {
+            tabs.forEach(function (tab) {
+                var own = tab.getAttribute('data-tab') === code;
+                tab.setAttribute('aria-selected', own ? 'true' : 'false');
+                tab.setAttribute('tabindex', own ? '0' : '-1');
+                if (own && focus) {
+                    tab.focus();
+                }
+            });
+            panels.forEach(function (panel) {
+                panel.hidden = panel.getAttribute('data-panel') !== code;
+            });
+        };
+
+        tabs.forEach(function (tab) {
+            var code = tab.getAttribute('data-tab');
+            var panel = panelOf(code);
+            tab.setAttribute('role', 'tab');
+            tab.setAttribute('aria-controls', panel.id);
+            panel.setAttribute('role', 'tabpanel');
+            panel.setAttribute('aria-labelledby', tab.id || (tab.id = 'tab-' + panel.id));
+
+            tab.addEventListener('click', function (event) {
+                event.preventDefault();
+                select(code, false);
+                if (window.history && history.replaceState) {
+                    history.replaceState(null, '', '#' + panel.id);
+                }
+            });
+            tab.addEventListener('keydown', function (event) {
+                var index = tabs.indexOf(tab);
+                var next = null;
+                if (event.key === 'ArrowRight' || event.key === 'ArrowDown') { next = tabs[(index + 1) % tabs.length]; }
+                if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') { next = tabs[(index - 1 + tabs.length) % tabs.length]; }
+                if (event.key === 'Home') { next = tabs[0]; }
+                if (event.key === 'End') { next = tabs[tabs.length - 1]; }
+                if (next) {
+                    event.preventDefault();
+                    select(next.getAttribute('data-tab'), true);
+                }
+            });
+        });
+
+        // A field the browser refuses to submit (maxlength, pattern) may sit
+        // in a hidden panel: bring that panel forward so the message shows.
+        panels.forEach(function (panel) {
+            panel.addEventListener('invalid', function () {
+                select(panel.getAttribute('data-panel'), false);
+            }, true);
+        });
+
+        var fromHash = location.hash.indexOf('#lang-') === 0 ? location.hash.slice(6) : '';
+        var start = panelOf(fromHash) ? fromHash : box.getAttribute('data-tabs-active');
+        select(panelOf(start) ? start : tabs[0].getAttribute('data-tab'), false);
     }
 
     function reorderable(board) {

@@ -9,9 +9,9 @@
  * borders and font weight. Deliberately no external fonts or CDNs (GDPR,
  * offline operation).
  *
- * One layout for every screen: the compact card layout that used to be the
- * phone view. There is no separate desktop table view; on wide screens the
- * cabinet is simply centred with a maximum width.
+ * One layout for every screen: compact cards. There is no separate desktop
+ * table view; on wide screens the cabinet is simply centred with a maximum
+ * width.
  */
 
 :root {
@@ -699,6 +699,57 @@ code {
 .panel__head--inline { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
 .panel__head--inline h1 { margin: 0; }
 
+/* ---------- Tabs: the languages of a page's form ----------
+   A row of links over one panel per language. Without JavaScript every panel
+   is on the page, headed by its language; app.js (is-tabbed) makes real tabs
+   of the links and shows one panel at a time, the current tab underlined in
+   gold. Each tab marks its state: a tick where the page is saved in that
+   language, a dashed chip where it is not yet, an alert where its fields
+   need a look. */
+.langtabs { margin: 1.5rem 0 0; }
+.tabs { margin: 0 0 1.25rem; border-bottom: 1px solid var(--line); }
+.tabs ul { display: flex; flex-wrap: wrap; gap: .25rem; margin: 0; padding: 0; list-style: none; }
+.tabs__item {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    margin-bottom: -1px;
+    padding: .55rem .9rem;
+    border-bottom: 2px solid transparent;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: .9rem;
+}
+.tabs__item:hover { color: var(--gold-bright); background: var(--gold-tint); }
+.tabs__item[aria-selected="true"] { color: var(--text); border-bottom-color: var(--gold); }
+.tabs__item .button__glyph { margin: 0; color: var(--ok); }
+.tabs__item .tag { font-size: .72rem; padding: .05em .5em; }
+.tabs__item.has-error { color: var(--danger); }
+.tabs__alert {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: var(--danger);
+    color: var(--text-strong);
+    font-size: .75rem;
+    font-weight: 700;
+}
+.langtabs__error { margin: -.75rem 0 1rem; }
+/* The panels: plain fieldsets. Without tabs each is headed by its language
+   and set apart from the next by a hairline; with tabs the heading is for
+   screen readers only, the tab names the panel. */
+.langpanel { margin: 0; padding: 0; border: 0; min-width: 0; }
+.langpanel + .langpanel { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.langpanel__legend { margin: 0 0 1rem; padding: 0; font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.is-tabbed .langpanel + .langpanel { margin-top: 0; padding-top: 0; border-top: 0; }
+.is-tabbed .langpanel__legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.langpanel__remove { margin: 0 0 1rem; display: flex; justify-content: flex-end; }
+
 /* ---------- Search ---------- */
 
 /* Its own full-width row below the head; the field grows, the button keeps
@@ -1029,6 +1080,13 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 .grid--pages .cell-action { grid-area: 1 / 3 / 6 / 4; margin: 0; }
 .grid--pages .address { font-size: .82rem; color: var(--text-muted); }
 .grid--pages .address:hover { color: var(--gold-bright); }
+/* The page's versions in other languages: one chip per language, right of the
+   address; a filled chip is a version there is, a dashed one is missing. */
+.grid--pages .cell-langs { grid-area: 3 / 2; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .3rem; margin-top: .2rem; }
+.grid--pages .cell-langs .tag { font-size: .72rem; padding: .1em .55em; }
+a.tag { text-decoration: none; }
+a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
+.tag--missing { border-style: dashed; border-color: var(--line); background: transparent; color: var(--text-muted); }
 
 /* ---------- Song suggestions: two lines per card, like the wish list ----------
      1) title                                  time received
@@ -1354,6 +1412,14 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     margin: 0;
 }
 .grid--picker--footer .cell-move form { margin: 0; display: flex; }
+
+/* The languages' fallback order (Pages): number and grip, the name, the four
+   move buttons at the right edge. */
+.grid--langs tbody tr { grid-template-columns: max-content minmax(0, 1fr) max-content; }
+.grid--langs .cell-rank  { grid-area: 1 / 1; display: flex; align-items: center; font-weight: 700; }
+.grid--langs .cell-title { grid-area: 1 / 2; }
+.grid--langs .cell-move  { grid-area: 1 / 3; display: flex; align-items: center; margin: 0; }
+.grid--langs .cell-move form { margin: 0; display: flex; }
 
 .arrow-button {
     display: inline-flex;
@@ -1961,6 +2027,7 @@ code.is-example { color: var(--text-muted); font-style: italic; }
 
 @media (forced-colors: active) {
     .wish-button, .delete-button, .link-button, .nav a, .account__item, .submenu__toggle { border: 1px solid ButtonText; }
+    .tabs__item[aria-selected="true"] { border-bottom-color: Highlight; }
 }
 
 /* ---------- A list below a form (suggestions) ----------

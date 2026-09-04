@@ -1411,8 +1411,8 @@ msgstr "„{title}“ ist nicht mehr im Footer verlinkt. Die Seite bleibt unter 
 msgid "This machine name is reserved."
 msgstr "Dieser Maschinenname ist reserviert."
 
-msgid "Pages with their addresses"
-msgstr "Seiten mit ihren Adressen"
+msgid "Pages with their addresses and languages"
+msgstr "Seiten mit ihren Adressen und Sprachen"
 
 msgid "Move pages with the arrows: to the right into the footer, to the left out of it. On the right, drag a row or use its arrows to change the order."
 msgstr "Verschiebe Seiten mit den Pfeilen: nach rechts in den Footer, nach links hinaus. Rechts ziehst du eine Zeile oder nutzt ihre Pfeile, um die Reihenfolge zu ändern."
@@ -1460,3 +1460,46 @@ msgid "{n} page found."
 msgid_plural "{n} pages found."
 msgstr[0] "{n} Seite gefunden."
 msgstr[1] "{n} Seiten gefunden."
+
+# ---- Pages in several languages (Administration -> Pages) ---------------------
+
+msgid "Fill in the page in the languages you like, one tab each; readers get it in their language, or in the first language of the fallback order the page has."
+msgstr "Fülle die Seite in den gewünschten Sprachen aus, je ein Reiter; Leser sehen sie in ihrer Sprache, sonst in der ersten Sprache der Fallback-Reihenfolge, die die Seite hat."
+
+msgid "Fill in the page in at least one language."
+msgstr "Fülle die Seite in mindestens einer Sprache aus."
+
+msgid "Remove {language}"
+msgstr "{language} entfernen"
+
+msgid "Fallback order of the languages"
+msgstr "Fallback-Reihenfolge der Sprachen"
+
+msgid "Readers get a page in the language they chose in the language menu. Where the page lacks it, they get the first language of this order the page has. Drag a row or use its arrows."
+msgstr "Leser sehen eine Seite in der Sprache, die sie im Sprachmenü gewählt haben. Fehlt sie der Seite, sehen sie die erste Sprache dieser Reihenfolge, die die Seite hat. Zeile ziehen oder die Pfeile nutzen."
+
+msgid "Languages in their fallback order, changeable by drag & drop or arrow buttons"
+msgstr "Sprachen in ihrer Fallback-Reihenfolge, änderbar per Drag & Drop oder Pfeiltasten"
+
+msgctxt "language tab"
+msgid "saved"
+msgstr "gespeichert"
+
+msgctxt "language tab"
+msgid "needs a look"
+msgstr "bitte prüfen"
+msgid "Languages"
+msgstr "Sprachen"
+
+msgctxt "language tab"
+msgid "missing"
+msgstr "fehlt"
+
+msgid "Remove {language} from this page? Readers in {language} then get another language of the page. Changes not yet saved are lost."
+msgstr "{language} von dieser Seite entfernen? Leser in {language} sehen dann eine andere Sprache der Seite. Noch nicht gespeicherte Änderungen gehen verloren."
+
+msgid "{language} could not be removed: a page needs at least one language."
+msgstr "{language} konnte nicht entfernt werden: Eine Seite braucht mindestens eine Sprache."
+
+msgid "“{title}” is no longer available in {language}."
+msgstr "„{title}“ gibt es nicht mehr in {language}."
