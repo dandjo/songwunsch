@@ -191,7 +191,8 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
     // earlier because solid ink reads larger than lines.
     $paths = [
         'plus'   => '<path d="M8 3.3v9.4M3.3 8h9.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>',
-        'pause'  => '<rect x="2.8" y="2.5" width="3.8" height="11" rx="1.2" fill="currentColor"/><rect x="9.4" y="2.5" width="3.8" height="11" rx="1.2" fill="currentColor"/>',
+        // Close a room: a stop sign -- an octagon with a bar.
+        'stop'   => '<path d="M5.6 2.2h4.8l3.4 3.4v4.8l-3.4 3.4H5.6l-3.4-3.4V5.6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><rect x="5" y="6.9" width="6" height="2.2" rx=".8" fill="currentColor"/>',
         'play'   => '<path d="M3.5 3.2v9.6a.8.8 0 0 0 1.2.7l8.4-4.8a.8.8 0 0 0 0-1.4L4.7 2.5a.8.8 0 0 0-1.2.7z" fill="currentColor"/>',
         'trash'  => '<path d="M5.8 1.2h4.4l.5 1.3h4v2H1.3v-2h4z" fill="currentColor"/><path fill-rule="evenodd" d="M2.3 5.7h11.4l-.9 8.2a1 1 0 0 1-1 .9H4.2a1 1 0 0 1-1-.9zM5.4 7.5h1.5v5.3H5.4zm3.7 0h1.5v5.3H9.1z" fill="currentColor"/>',
         'list'   => '<path d="M3.1 3.6h9.8M3.1 8h9.8M3.1 12.4h9.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',

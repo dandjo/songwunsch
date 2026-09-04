@@ -64,7 +64,7 @@ $hasActions = $canPause || $canEdit;
                         <?php if ($pausedAll): ?>
                             <?= icon('play') ?>
                         <?php else: ?>
-                            <?= icon('pause') ?>
+                            <?= icon('stop') ?>
                         <?php endif; ?>
                         <?= $e($pausedAll ? t('Lift the closing of all rooms') : t('Close all rooms')) ?>
                     </button>
@@ -170,7 +170,7 @@ $hasActions = $canPause || $canEdit;
                     <div class="row-actions">
                         <?php if ($canPause): ?>
                             <?php /* Close or open the room -- the moderator's switch,
-                                     for the main room as well. Pause bars while open,
+                                     for the main room as well. A stop sign while open,
                                      a play triangle while closed. */ ?>
                             <?php $closed = $pausedRooms[(int) $row['id']] ?? false; ?>
                             <form method="post" action="<?= $e(url()) ?>">
@@ -180,7 +180,7 @@ $hasActions = $canPause || $canEdit;
                                 <input type="hidden" name="state" value="<?= $closed ? '0' : '1' ?>">
                                 <input type="hidden" name="back" value="<?= $e($listUrl(['page' => $pageNo > 1 ? $pageNo : null])) ?>">
                                 <button type="submit" class="<?= $closed ? 'wish-button' : 'link-button' ?>" aria-pressed="<?= $closed ? 'true' : 'false' ?>">
-                                    <?= icon($closed ? 'play' : 'pause') ?>
+                                    <?= icon($closed ? 'play' : 'stop') ?>
                                     <span class="button__label"><?= $e($closed ? t('Open room') : t('Close room')) ?></span>
                                     <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                                 </button>

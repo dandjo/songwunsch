@@ -278,10 +278,11 @@ foreach ($translator->available() as $code => $name) {
             <?php /* A <div> like the guest notice: it may hold the form with
                      which a moderator opens the room right here. */ ?>
             <div class="dome__notice dome__notice--closed" role="status">
+                <?php /* A stop sign: an octagon with a bar. */ ?>
                 <svg class="dome__notice-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
-                    <circle cx="12" cy="12" r="11" fill="currentColor" opacity=".18"/>
-                    <rect x="8" y="7" width="3" height="10" rx="1" fill="currentColor"/>
-                    <rect x="13" y="7" width="3" height="10" rx="1" fill="currentColor"/>
+                    <path d="M7.8 1.5h8.4l6.3 6.3v8.4l-6.3 6.3H7.8l-6.3-6.3V7.8z" fill="currentColor" opacity=".18"/>
+                    <path d="M7.8 1.5h8.4l6.3 6.3v8.4l-6.3 6.3H7.8l-6.3-6.3V7.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <rect x="7" y="10.5" width="10" height="3" rx="1" fill="currentColor"/>
                 </svg>
                 <span>
                     <strong><?= t('{room} is closed right now.', [
@@ -297,7 +298,8 @@ foreach ($translator->available() as $code => $name) {
                         <input type="hidden" name="state" value="0">
                         <input type="hidden" name="back" value="<?= $e($here) ?>">
                         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                        <button type="submit" class="link-button"><?= icon('play') ?><?= $e(t('Open room')) ?></button>
+                        <?php /* Like "End guest view" in the guest notice, in the notice's own colour. */ ?>
+                        <button type="submit" class="link-button link-button--danger"><?= icon('play') ?><?= $e(t('Open room')) ?></button>
                     </form>
                 <?php endif; ?>
             </div>

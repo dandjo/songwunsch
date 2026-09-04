@@ -354,6 +354,16 @@ code {
 .dome__notice-action { margin: 0; flex: 0 0 auto; }
 .dome__notice--guest,
 .dome__notice--closed { flex-wrap: wrap; }
+/* Closed room: a stop sign in the danger colours -- the room turns away
+   wishes, which is more than a caution. */
+.dome__notice--closed {
+    border-color: var(--danger);
+    background: rgba(255, 111, 133, .12);
+    color: var(--danger);
+}
+.dome__notice--closed strong,
+.dome__notice--closed a { color: var(--danger); }
+.dome__notice--closed .dome__notice-room { background: rgba(255, 111, 133, .25); }
 /* The room's name inside the notice: a small chip, so it stands out without
    quotation marks that would differ per language. */
 .dome__notice-room {
@@ -1016,6 +1026,10 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     text-decoration: none;
 }
 .link-button:hover { background: rgba(230, 180, 80, .12); color: var(--gold-bright); }
+/* The same button in the danger colours, for actions inside a red notice
+   ("Open room" in the closed-room notice). */
+.link-button--danger { border-color: var(--danger-line); color: var(--danger); }
+.link-button--danger:hover { background: rgba(255, 111, 133, .12); color: #ffa3b3; }
 
 /* A button with a text label hides its icon -- it would only be decoration.
    An icon button does the reverse: the icon is shown, the label is kept for
