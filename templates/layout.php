@@ -26,7 +26,7 @@ use Songwunsch\Translator;
 /** @var string $footer  HTML for the footer from config.php ('footer'); empty = no footer */
 /** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
 /** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
-/** @var string $themeCss  :root colour overrides from config.php ('theme'), see Theme; '' = none */
+/** @var string $themeCss  :root colour overrides the admins set under Design, see Theme; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
 
 $e      = static fn (?string $v): string => Format::e($v);
@@ -68,8 +68,8 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
     <?php endif; ?>
     <link rel="stylesheet" href="<?= $e(asset('assets/style.css')) ?>">
     <?php if ($themeCss !== ''): ?>
-        <?php /* Configured colours override the stylesheet's :root tokens;
-                 the value is generated from validated hex colours only. */ ?>
+        <?php /* The colours set under Design override the stylesheet's :root
+                 tokens; the value is generated from validated hex colours only. */ ?>
         <style><?= $themeCss ?></style>
     <?php endif; ?>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎵</text></svg>">
@@ -202,10 +202,12 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                          active page while one of its entries is open. */ ?>
                 <?php
                 $adminItems = [
-                    ['users',  ['users', 'user'],      'users', t('Users')],
-                    ['logos',  ['logos'],              'image', t('Logos')],
-                    ['pages',  ['pages', 'page_edit'], 'page',  t('Pages')],
-                    ['footer', ['footer'],             'list',  t('Footer')],
+                    ['users',  ['users', 'user'],      'users',   t('Users')],
+                    ['logos',  ['logos'],              'image',   t('Logos')],
+                    ['theme',  ['theme'],              'palette', t('Design')],
+                    ['limits', ['limits'],             'gauge',   t('Limits')],
+                    ['pages',  ['pages', 'page_edit'], 'page',    t('Pages')],
+                    ['footer', ['footer'],             'list',    t('Footer')],
                 ];
                 $adminOpen = in_array($page, array_merge(...array_column($adminItems, 1)), true);
                 ?>

@@ -137,8 +137,9 @@ function current_room(?array $set = null): array
  * An id is part of the path, not of the query string. Lists and their
  * records share a prefix, and everything the Administration menu leads to
  * sits below /admin: /admin/users, /admin/users/new, /admin/users/<id>/edit,
- * /admin/logos, /admin/pages, /admin/pages/new, /admin/pages/<id>/edit
- * (page_edit), /admin/footer. Public or for editors, without the prefix:
+ * /admin/logos, /admin/theme, /admin/pages, /admin/pages/new,
+ * /admin/pages/<id>/edit (page_edit), /admin/footer, /admin/wish-limits
+ * ('limits'). Public or for editors, without the prefix:
  * /pages/<slug> for readers ('p' => 'page', 'slug' => ...), /rooms,
  * /rooms/new, /rooms/<id>/edit, /rooms/main/edit ('main' => 1, rename the
  * main room), /song/<id>|new, /logo/<id>, /users/<id>/settings (one's own
@@ -180,8 +181,10 @@ function url(array $params = []): string
         // /rooms/new, /rooms/<id>/edit; users and pages the same below /admin.
         $list    = match ($page) { 'user' => '/admin/users', 'room' => '/rooms', 'page_edit' => '/admin/pages' };
         $target .= $list . ($id > 0 ? '/' . $id . '/edit' : '/new');
-    } elseif (in_array($page, ['users', 'logos', 'pages', 'footer'], true)) {
+    } elseif (in_array($page, ['users', 'logos', 'theme', 'pages', 'footer'], true)) {
         $target .= '/admin/' . $page;
+    } elseif ($page === 'limits') {
+        $target .= '/admin/wish-limits';
     } elseif ($page === 'logo') {
         $target .= '/logo/' . $id;
     } elseif ($page === 'page') {
@@ -271,6 +274,10 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         'bulb'   => '<path d="M5.7 10.4c0-1.7-2.4-2.5-2.4-5.1a4.7 4.7 0 0 1 9.4 0c0 2.6-2.4 3.4-2.4 5.1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.6 13h4.8M6.6 15.2h2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
         // Administration: a shield with a tick.
         'shield' => '<path d="M8 1.1 14.4 3.4v4.4c0 3.6-2.6 6.3-6.4 7.6C4.2 14.1 1.6 11.4 1.6 7.8V3.4z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M5.1 8.2l2 2 3.9-4.1" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>',
+        // Design: a painter's palette -- the board as an outline, three dabs of paint.
+        'palette' => '<path d="M8 3C5.2 3 3 5.2 3 8s2.2 5 5 5c.9 0 1.5-.5 1.5-1.2 0-.5-.3-.8-.3-1.3 0-.6.5-1.1 1.2-1.1h1.2c1.2 0 2.2-1 2.2-2.2C13.8 4.9 11.2 3 8 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.7" cy="7.6" r="1.1" fill="currentColor"/><circle cx="7.7" cy="5.5" r="1.1" fill="currentColor"/><circle cx="10.4" cy="6.5" r="1.1" fill="currentColor"/>',
+        // Limits: a gauge -- half a dial with the needle towards the red end.
+        'gauge'  => '<path d="M2.5 11a5.5 5.5 0 0 1 11 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 11l3-4.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="8" cy="11" r="1.7" fill="currentColor"/>',
         // Footer pages: a sheet with a folded corner and two lines of text.
         'page'   => '<path d="M3.5 1.8h6l3 3v9.4h-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9.5 1.8v3h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.8 8.2h4.4M5.8 11h4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
     ];

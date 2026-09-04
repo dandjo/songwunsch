@@ -1503,3 +1503,143 @@ msgstr "{language} konnte nicht entfernt werden: Eine Seite braucht mindestens e
 
 msgid "“{title}” is no longer available in {language}."
 msgstr "„{title}“ gibt es nicht mehr in {language}."
+
+# ---- Design and wish limits (Administration) ----------------------------------
+
+msgid "Design"
+msgstr "Design"
+
+msgid "Colours"
+msgstr "Farben"
+
+msgid "Accent"
+msgstr "Akzent"
+
+msgid "Secondary"
+msgstr "Sekundär"
+
+msgid "Danger"
+msgstr "Gefahr"
+
+msgid "Success"
+msgstr "Erfolg"
+
+msgid "Background"
+msgstr "Hintergrund"
+
+msgid "Text"
+msgstr "Text"
+
+msgid "Buttons, the active tab, links, “wunsch” in the word mark and the gold notices."
+msgstr "Buttons, der aktive Reiter, Links, „wunsch“ in der Wortmarke und die goldenen Hinweise."
+
+msgid "Tags, the counters on the tabs, chips."
+msgstr "Tags, die Zähler an den Reitern, Chips."
+
+msgid "Closed rooms, delete buttons, warnings and errors."
+msgstr "Geschlossene Räume, Löschen-Buttons, Warnungen und Fehler."
+
+msgid "Confirmations."
+msgstr "Bestätigungen."
+
+msgid "The page ground; shell, panels, fields and lines are lightened steps of it."
+msgstr "Der Seitengrund; Rahmen, Flächen, Felder und Linien sind aufgehellte Stufen davon."
+
+msgid "The text; the muted text is a step towards the background."
+msgstr "Der Text; der gedämpfte Text ist eine Stufe zum Hintergrund hin."
+
+msgid "The interface is dark with gold for actions, violet for tags and counters, red for danger and green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it."
+msgstr "Die Oberfläche ist dunkel, mit Gold für Aktionen, Violett für Tags und Zähler, Rot für Gefahr und Grün für Erfolg. Jeder Bereich hat eine Grundfarbe; die nötigen Abstufungen – Hover, Rahmen, Hinweise – werden daraus abgeleitet."
+
+msgid "Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change."
+msgstr "Ein leeres Feld behält die eingebaute Farbe. Der Kontrast zum Hintergrund muss lesbar bleiben – nach einer Änderung mit den Barrierefreiheits-Werkzeugen des Browsers prüfen."
+
+msgid "Pick the colour: {area}"
+msgstr "Farbe wählen: {area}"
+
+msgid "Default"
+msgstr "Standard"
+
+msgid "Built-in: {colour}"
+msgstr "Eingebaut: {colour}"
+
+msgid "Please enter a colour as #rrggbb."
+msgstr "Bitte eine Farbe als #rrggbb eingeben."
+
+msgid "The colours have been saved."
+msgstr "Die Farben sind gespeichert."
+
+msgid "Limits"
+msgstr "Limits"
+
+msgid "Wishing and suggesting are public and need no sign-in – these limits keep scripts and over-eager guests from flooding the lists. They apply to every room alike; 0 switches a limit off."
+msgstr "Wünschen und Vorschlagen sind öffentlich und brauchen keine Anmeldung – diese Limits halten Skripte und übereifrige Gäste davon ab, die Listen zu fluten. Sie gelten für alle Räume gleich; 0 schaltet ein Limit ab."
+
+msgid "The bot hurdles in the forms – the hidden field and the minimum time after the page load – stay in place regardless."
+msgstr "Die Bot-Hürden in den Formularen – das unsichtbare Feld und die Mindestzeit nach dem Laden der Seite – bleiben davon unberührt."
+
+msgid "Wishing"
+msgstr "Wünschen"
+
+msgid "Suggesting"
+msgstr "Vorschlagen"
+
+msgid "Open wishes per room"
+msgstr "Offene Wünsche pro Raum"
+
+msgid "The room’s wish list is full at this many open wishes; guests are asked to try again later."
+msgstr "Bei so vielen offenen Wünschen ist die Wunschliste des Raums voll; Gäste werden gebeten, es später noch einmal zu versuchen."
+
+msgid "Wishes per minute, everyone"
+msgstr "Wünsche pro Minute, alle zusammen"
+
+msgid "Across all visitors of the site. Bounds the damage whatever the source."
+msgstr "Über alle Besucher der Seite. Begrenzt den Schaden, egal woher er kommt."
+
+msgid "Wishes per minute per sender"
+msgstr "Wünsche pro Minute je Absender"
+
+msgid "Senders are told apart by a daily pseudonym of their address, never by a stored IP."
+msgstr "Absender werden über ein tägliches Pseudonym ihrer Adresse unterschieden, nie über eine gespeicherte IP."
+
+msgid "Wishes per hour per sender"
+msgstr "Wünsche pro Stunde je Absender"
+
+msgid "The slower brake for the same sender."
+msgstr "Die langsamere Bremse für denselben Absender."
+
+msgid "Seconds between two wishes"
+msgstr "Sekunden zwischen zwei Wünschen"
+
+msgid "In the same browser session – a brake against double clicks."
+msgstr "In derselben Browser-Sitzung – eine Bremse gegen Doppelklicks."
+
+msgid "Allow duplicates"
+msgstr "Doppelte erlauben"
+
+msgid "a song may be wished again while it is still open on the list; otherwise the guest is told it is already there"
+msgstr "ein Song darf noch einmal gewünscht werden, während er offen auf der Liste steht; sonst erfährt der Gast, dass er schon drauf ist"
+
+msgid "Open suggestions"
+msgstr "Offene Vorschläge"
+
+msgid "For the whole site; the suggestions aim at the master list. The box is full at this many open suggestions."
+msgstr "Für die ganze Seite; die Vorschläge zielen auf die Stammliste. Bei so vielen offenen Vorschlägen ist der Briefkasten voll."
+
+msgid "Seconds between two suggestions"
+msgstr "Sekunden zwischen zwei Vorschlägen"
+
+msgid "In the same browser session."
+msgstr "In derselben Browser-Sitzung."
+
+msgid "Default: {n}."
+msgstr "Standard: {n}."
+
+msgid "Please enter a whole number."
+msgstr "Bitte eine ganze Zahl eingeben."
+
+msgid "Please enter a number between {min} and {max}."
+msgstr "Bitte eine Zahl zwischen {min} und {max} eingeben."
+
+msgid "The limits have been saved."
+msgstr "Die Limits sind gespeichert."

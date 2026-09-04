@@ -15,6 +15,8 @@ declare(strict_types=1);
  * Everything the Administration menu leads to sits below /admin (admins only):
  *   /admin/users     | /admin/users/new, /admin/users/<id>/edit
  *   /admin/logos       header logos
+ *   /admin/theme       the colours (Design)
+ *   /admin/wish-limits limits on wishing and suggesting (Limits)
  *   /admin/pages     | /admin/pages/new, /admin/pages/<id>/edit (CKEditor, one tab per language)
  *   /admin/footer      which pages the footer links, in which order
  *   /admin           -> /admin/users
@@ -31,6 +33,7 @@ declare(strict_types=1);
  *                  | room_songs_add | room_songs_remove           (editor)
  *                  | user_save | user_delete                      (admin)
  *                  | logo_upload | logo_activate | logo_delete    (admin)
+ *                  | theme_save | limits_save                     (admin)
  *                  | page_save | page_delete                      (admin)
  *                  | pages_languages_move | pages_languages_reorder  fallback order of the languages (admin)
  *                  | footer_add | footer_remove | footer_move | footer_reorder (admin)
@@ -46,6 +49,7 @@ declare(strict_types=1);
 use Songwunsch\Database;
 use Songwunsch\Format;
 use Songwunsch\GuestName;
+use Songwunsch\Limits;
 use Songwunsch\PageRepository;
 use Songwunsch\RoomMemory;
 use Songwunsch\RoomRepository;
@@ -89,6 +93,7 @@ $suggestions = new SuggestionRepository($db);
 $users  = new UserRepository($db);
 $rooms  = new RoomRepository($db);
 $settings = new Settings($db);
+$limits   = new Limits($settings); // wish and suggestion limits the admins set; read on first use
 $uploads  = new Uploads($db);
 // $wishes and $guard are bound to the room and are created after routing.
 // The main room may carry a name of its own (Rooms -> Edit on the main room).
@@ -137,8 +142,10 @@ $routes = [
     // The Administration menu: admins only, all below /admin.
     '/admin/users'  => 'users',
     '/admin/logos'  => 'logos',
+    '/admin/theme'  => 'theme',
     '/admin/pages'  => 'pages',
     '/admin/footer' => 'footer',
+    '/admin/wish-limits' => 'limits',
 ];
 // Pages with an id in the path -- see url(): /song/<id>|new,
 // /admin/users/<id>/edit, /admin/users/new, /users/<id>/settings,
@@ -272,7 +279,7 @@ $wishes = new WishRepository($db, $roomId);
 $guard  = new WishGuard(
     $db,
     $settings,
-    (array) ($config['wish_limits'] ?? []),
+    $limits,
     (bool) ($config['trust_proxy'] ?? false),
     (int) ($config['wish_min_form_sec'] ?? 2),
     $roomId,
@@ -330,6 +337,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 flash('ok', t('Settings saved.'));
                 redirect(url(['p' => 'settings', 'id' => $selfId]));
+                // no break
+
+            case 'theme_save':
+                // The site's colours (Design), admins only: one hex colour per
+                // area of use, or nothing for the built-in colour.
+                require_role($security, 'users');
+                $input = [];
+                foreach (Theme::AREAS as $area) {
+                    $input[$area] = (string) ($_POST[$area] ?? '');
+                }
+                $checked = Theme::validate($input);
+                if ($checked['errors'] !== []) {
+                    remember_input($input, $checked['errors']);
+                    flash('error', t('Please check the highlighted fields.'));
+                    redirect(url(['p' => 'theme']));
+                }
+                Theme::save($settings, $checked['values']);
+                flash('ok', t('The colours have been saved.'));
+                redirect(url(['p' => 'theme']));
+                // no break
+
+            case 'limits_save':
+                // Limits on wishing and suggesting, admins only, for every room.
+                require_role($security, 'users');
+                $input = [];
+                foreach (array_keys(Limits::FIELDS) as $name) {
+                    $input[$name] = (string) ($_POST[$name] ?? '');
+                }
+                $checked = $limits->validate($input);
+                if ($checked['errors'] !== []) {
+                    remember_input($input, $checked['errors']);
+                    flash('error', t('Please check the highlighted fields.'));
+                    redirect(url(['p' => 'limits']));
+                }
+                $limits->save($checked['values']);
+                flash('ok', t('The limits have been saved.'));
+                redirect(url(['p' => 'limits']));
                 // no break
 
             case 'logo_upload':
@@ -657,7 +701,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // no break
                 }
 
-                if ($security->throttled((int) $config['wish_cooldown_sec'])) {
+                if ($security->throttled($limits->get('wish_cooldown_sec'))) {
                     flash('error', t('One moment – please do not wish that quickly in a row.'));
                     redirect(back());
                 }
@@ -674,7 +718,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect(back());
                 }
 
-                if (!($config['allow_duplicates'] ?? false) && $wishes->isPending((int) $song['id'])) {
+                if (!$limits->allowDuplicates() && $wishes->isPending((int) $song['id'])) {
                     flash('info', t('“{title}” is already on the wish list.', ['title' => (string) $song['title']]));
                     redirect(back());
                 }
@@ -718,7 +762,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // no break
                 }
 
-                if ($security->throttled((int) ($config['suggestion_cooldown_sec'] ?? 10), 'suggestion')) {
+                if ($security->throttled($limits->get('suggestion_cooldown_sec'), 'suggestion')) {
                     flash('error', t('One moment – please do not suggest that quickly in a row.'));
                     redirect($suggestUrl);
                 }
@@ -735,7 +779,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect($suggestUrl);
                 }
 
-                $maxOpen = (int) ($config['suggestion_max_open'] ?? 200);
+                $maxOpen = $limits->get('suggestion_max_open');
                 if ($maxOpen > 0 && $suggestions->count() >= $maxOpen) {
                     remember_input($input, []);
                     flash('error', t('The suggestion box is full – please try again later.'));
@@ -826,7 +870,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $targetGuard = $targetId === $roomId ? $guard : new WishGuard(
                     $db,
                     $settings,
-                    (array) ($config['wish_limits'] ?? []),
+                    $limits,
                     (bool) ($config['trust_proxy'] ?? false),
                     (int) ($config['wish_min_form_sec'] ?? 2),
                     $targetId,
@@ -931,7 +975,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 $wishGuard = $wishRoomId === $roomId ? $guard : new WishGuard(
                                     $db,
                                     $settings,
-                                    (array) ($config['wish_limits'] ?? []),
+                                    $limits,
                                     (bool) ($config['trust_proxy'] ?? false),
                                     (int) ($config['wish_min_form_sec'] ?? 2),
                                     $wishRoomId,
@@ -1083,7 +1127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $roomGuard = new WishGuard(
                         $db,
                         $settings,
-                        (array) ($config['wish_limits'] ?? []),
+                        $limits,
                         (bool) ($config['trust_proxy'] ?? false),
                         (int) ($config['wish_min_form_sec'] ?? 2),
                         $id,
@@ -1257,7 +1301,7 @@ $view = [
     'footer'     => trim((string) ($config['footer'] ?? '')), // HTML from config.php, printed as is; empty = no footer
     'footerPages' => [],  // the admins' pages the footer links (Administration -> Footer), in order
     'editor'     => false, // load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page
-    'themeCss'   => Theme::css((array) ($config['theme'] ?? [])), // colour overrides from config.php, '' = stylesheet defaults
+    'themeCss'   => '',    // colour overrides the admins set under Design, '' = stylesheet defaults; filled below
 ];
 
 try {
@@ -1294,6 +1338,8 @@ try {
     // deleted one falls back to the word mark by itself.
     $logoId       = (int) $settings->get(Settings::LOGO_ID, '0');
     $view['logo'] = $logoId > 0 ? $uploads->info($logoId) : null;
+    // The colours set under Design, as a :root block over the stylesheet.
+    $view['themeCss'] = Theme::css(Theme::load($settings));
 
     switch ($page) {
         case 'logo':
@@ -1340,6 +1386,29 @@ try {
             $view['template'] = 'logos';
             $view['logos']    = $uploads->all(Uploads::LOGO);
             $view['activeId'] = $logoId;
+            break;
+
+        case 'theme':
+            // Admins only: the site's colours, one per area of use. After a
+            // failed save the typed values come back with their errors.
+            require_role($security, 'users');
+            $kept = remembered_input();
+
+            $view['title']    = t('Design');
+            $view['template'] = 'theme';
+            $view['values']   = $kept['values'] ?? Theme::load($settings);
+            $view['errors']   = $kept['errors'] ?? [];
+            break;
+
+        case 'limits':
+            // Admins only: the limits on wishing and suggesting.
+            require_role($security, 'users');
+            $kept = remembered_input();
+
+            $view['title']    = t('Limits');
+            $view['template'] = 'limits';
+            $view['values']   = $kept['values'] ?? array_map('strval', $limits->all());
+            $view['errors']   = $kept['errors'] ?? [];
             break;
 
         case 'pages':

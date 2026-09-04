@@ -118,6 +118,38 @@
             render();
         });
 
+        // Design: the colour picker and the hex field beside it follow each
+        // other; "Default" empties the field, which means the built-in
+        // colour. Picker and button appear only here, so without JavaScript
+        // the hex field stands alone.
+        root.querySelectorAll('[data-colour]').forEach(function (box) {
+            var text = box.querySelector('input[type="text"]');
+            var picker = box.querySelector('input[type="color"]');
+            var reset = box.querySelector('[data-colour-reset]');
+            if (!text || !picker || picker.hasAttribute('data-bound')) { return; }
+            picker.setAttribute('data-bound', '1');
+            var fallback = picker.getAttribute('data-default') || '#000000';
+            var expand = function (value) {
+                var m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(value.trim());
+                if (!m) { return null; }
+                var h = m[1].length === 3 ? m[1].replace(/./g, '$&$&') : m[1];
+                return '#' + h.toLowerCase();
+            };
+            var follow = function () { picker.value = expand(text.value) || fallback; };
+            picker.hidden = false;
+            picker.addEventListener('input', function () { text.value = picker.value; });
+            text.addEventListener('input', follow);
+            if (reset) {
+                reset.hidden = false;
+                reset.addEventListener('click', function () {
+                    text.value = '';
+                    follow();
+                    text.focus();
+                });
+            }
+            follow();
+        });
+
         // Password fields: the eye shows the typed password and hides it
         // again. The button is rendered hidden and only appears here, so
         // without JavaScript nothing dangles beside the field.

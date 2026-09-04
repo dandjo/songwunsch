@@ -6,8 +6,10 @@ namespace Songwunsch;
 
 /**
  * Small key/value store in the `settings` table for state that must outlive
- * sessions and requests: the moderator's pause switch and the rotating
- * secrets of the wish guard.
+ * sessions and requests: the moderator's pause switch, the rotating secrets
+ * of the wish guard, the live logo, and what the admins set in the
+ * Administration menu -- the colours (Theme, `theme.*`) and the wish limits
+ * (Limits, `limits.*`).
  */
 final class Settings
 {
@@ -28,6 +30,28 @@ final class Settings
         $row = $this->db->one('SELECT value FROM ' . self::TABLE . ' WHERE name = ?', [$name]);
 
         return $row === null ? $default : (string) $row['value'];
+    }
+
+    /**
+     * Every entry whose name starts with the prefix, the prefix stripped:
+     * 'theme.accent' => '#e6b450' becomes 'accent' => '#e6b450'. One query
+     * for a whole group of values (the colours, the limits).
+     *
+     * @return array<string,string>
+     */
+    public function withPrefix(string $prefix): array
+    {
+        $rows = $this->db->all(
+            'SELECT name, value FROM ' . self::TABLE . ' WHERE name LIKE ?',
+            [str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $prefix) . '%'],
+        );
+
+        $out = [];
+        foreach ($rows as $row) {
+            $out[substr((string) $row['name'], strlen($prefix))] = (string) $row['value'];
+        }
+
+        return $out;
     }
 
     public function set(string $name, string $value): void

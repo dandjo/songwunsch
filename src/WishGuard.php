@@ -7,8 +7,9 @@ namespace Songwunsch;
 /**
  * Protects public wishing against bots and flooding -- in layers:
  *
- *  1. Global limits: open wishes in total and wishes per minute across all
- *     visitors. Bounds the damage regardless of the source.
+ *  1. Global limits: open wishes in the room and wishes per minute across
+ *     all visitors. Bounds the damage regardless of the source. The numbers
+ *     are set by the admins (Limits).
  *  2. Per-sender limit without a plain IP: the key is an HMAC of the IP
  *     address with a secret that changes daily. Entries in `wish_throttle`
  *     live for an hour, the secret for a day -- after that nothing can be
@@ -38,30 +39,21 @@ final class WishGuard
     public const CHECK_FAST  = 'fast';  // too soon after the page load
     public const CHECK_STALE = 'stale'; // form too old
 
-    /** @var array<string,int> */
-    private readonly array $limits;
-
     private ?string $sender = null;
 
     /**
-     * @param array<string,int> $limits per_minute_total, per_minute_sender,
-     *                                  per_hour_sender, max_open -- 0 disables
-     *                                  the respective limit
+     * @param Limits $limits per_minute_total, per_minute_sender,
+     *                       per_hour_sender, max_open -- 0 disables the
+     *                       respective limit; set by the admins
      */
     public function __construct(
         private readonly Database $db,
         private readonly Settings $settings,
-        array $limits,
+        private readonly Limits $limits,
         private readonly bool $trustProxy,
         private readonly int $minFormSeconds,
         private readonly int $roomId = RoomRepository::DEFAULT_ID,
     ) {
-        $this->limits = [
-            'per_minute_total'  => max(0, (int) ($limits['per_minute_total'] ?? 0)),
-            'per_minute_sender' => max(0, (int) ($limits['per_minute_sender'] ?? 0)),
-            'per_hour_sender'   => max(0, (int) ($limits['per_hour_sender'] ?? 0)),
-            'max_open'          => max(0, (int) ($limits['max_open'] ?? 0)),
-        ];
     }
 
     // ---- Pause ------------------------------------------------------------
@@ -234,7 +226,7 @@ final class WishGuard
      */
     public function limitReached(int $openWishes): ?string
     {
-        $l = $this->limits;
+        $l = $this->limits->wish();
 
         if ($l['max_open'] > 0 && $openWishes >= $l['max_open']) {
             return t('The wish list is full – please try again later.');

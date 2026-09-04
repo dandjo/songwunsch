@@ -5,22 +5,102 @@ declare(strict_types=1);
 namespace Songwunsch;
 
 /**
- * Colours from config.php ('theme'): one colour per area of use -- accent,
- * secondary, danger, success, background, text. The stylesheet carries the
- * defaults as custom properties on :root; this class derives the shades and
- * tints the stylesheet uses (bright, deep, line, tint ...) from a configured
- * base colour and hands the layout a :root block that overrides them. What
- * is not configured is not emitted, so the stylesheet's own values apply.
+ * The site's colours, set by the admins under Administration -> Design and
+ * kept in the `settings` table as `theme.<area>`: one colour per area of
+ * use -- accent, secondary, danger, success, background, text. The
+ * stylesheet carries the defaults as custom properties on :root; this class
+ * derives the shades and tints the stylesheet uses (bright, deep, line,
+ * tint ...) from a configured base colour and hands the layout a :root block
+ * that overrides them. What is not configured is not emitted, so the
+ * stylesheet's own values apply.
  */
 final class Theme
 {
-    /** The configurable areas -- keys of config.php's 'theme'. */
+    public const PREFIX = 'theme.';
+
+    /** The configurable areas, in the order the Design page shows them. */
     public const AREAS = ['accent', 'secondary', 'danger', 'success', 'background', 'text'];
+
+    /** The stylesheet's own colours (assets/style.css, :root) -- for the Design page's pickers and hints. */
+    public const DEFAULTS = [
+        'accent'     => '#e6b450',
+        'secondary'  => '#8d7ce0',
+        'danger'     => '#ff6f85',
+        'success'    => '#4ed08c',
+        'background' => '#0d0e13',
+        'text'       => '#e9ebf1',
+    ];
+
+    /**
+     * The configured colours, area => '#rrggbb'; areas left at their default
+     * are ''. One query.
+     *
+     * @return array<string,string>
+     */
+    public static function load(Settings $settings): array
+    {
+        $stored = $settings->withPrefix(self::PREFIX);
+        $out    = [];
+        foreach (self::AREAS as $area) {
+            $rgb        = self::parse((string) ($stored[$area] ?? ''));
+            $out[$area] = $rgb === null ? '' : self::hex($rgb);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Check the Design form: every area either empty (the built-in colour)
+     * or a hex colour, normalised to lower-case '#rrggbb'.
+     *
+     * @param array<string,string> $input  area => what was typed
+     * @return array{values: array<string,string>, errors: array<string,string>}
+     */
+    public static function validate(array $input): array
+    {
+        $values = [];
+        $errors = [];
+        foreach (self::AREAS as $area) {
+            $raw = trim((string) ($input[$area] ?? ''));
+            if ($raw === '') {
+                $values[$area] = '';
+                continue;
+            }
+            $rgb = self::parse($raw[0] === '#' ? $raw : '#' . $raw);
+            if ($rgb === null) {
+                $errors[$area] = t('Please enter a colour as #rrggbb.');
+                continue;
+            }
+            $values[$area] = self::hex($rgb);
+        }
+
+        return ['values' => $values, 'errors' => $errors];
+    }
+
+    /**
+     * Store validated colours; an empty value drops the entry so the
+     * stylesheet's colour applies again.
+     *
+     * @param array<string,string> $values  from validate()
+     */
+    public static function save(Settings $settings, array $values): void
+    {
+        foreach (self::AREAS as $area) {
+            if (!isset($values[$area])) {
+                continue;
+            }
+            if ($values[$area] === '') {
+                $settings->delete(self::PREFIX . $area);
+            } else {
+                $settings->set(self::PREFIX . $area, $values[$area]);
+            }
+        }
+    }
 
     /**
      * CSS for the layout's <style>, '' when nothing is configured.
      *
-     * @param array<string,mixed> $theme  config.php 'theme'
+     * @param array<string,mixed> $theme  area => '#rrggbb' (see load()); '' or missing = default
      */
     public static function css(array $theme): string
     {

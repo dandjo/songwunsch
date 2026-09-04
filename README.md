@@ -153,8 +153,8 @@ Sorting, search and page are appended as query parameters
 records share a prefix: `/rooms` lists, `/rooms/new` creates, `/rooms/<id>/edit`
 edits, and `/rooms/<name>` is the room itself (so `new` and `main` are not
 available as room names). Everything the *Administration* menu leads to sits
-below `/admin` – users, logos, pages, footer – while a page's public address
-stays `/pages/<name>`. Anything else is a 404; there are no redirects from
+below `/admin` – users, logos, design, limits, pages, footer – while a page's
+public address stays `/pages/<name>`. Anything else is a 404; there are no redirects from
 addresses of earlier versions.
 
 The value governs everything that contains an address: links and form
@@ -310,26 +310,30 @@ database backup carries the logos along. A logo is served under
 
 The interface is dark with gold for actions, violet for tags and counters,
 red for danger and green for success. Each of these areas has one base colour
-that `config.php` (or the environment) can replace:
+that admins replace under **Design** (`/admin/theme`, in the *Administration*
+menu): a colour picker and a hex field per area that follow each other, a
+*Default* button that brings the built-in colour back. The values are kept in
+the `settings` table (`theme.<area>`), so they survive a deployment and travel
+with a database backup.
 
-| `theme` key | Environment | Used for | Default |
-| --- | --- | --- | --- |
-| `accent` | `THEME_ACCENT` | Buttons, active tab, links, "wunsch" in the word mark, gold notices | `#e6b450` |
-| `secondary` | `THEME_SECONDARY` | Tags, the counters on the tabs, chips | `#8d7ce0` |
-| `danger` | `THEME_DANGER` | Closed rooms, delete buttons, warnings, errors | `#ff6f85` |
-| `success` | `THEME_SUCCESS` | Confirmations | `#4ed08c` |
-| `background` | `THEME_BACKGROUND` | Page ground; shell, panels, fields and lines are lightened steps of it | `#0d0e13` |
-| `text` | `THEME_TEXT` | Text; the muted text is a step towards the background | `#e9ebf1` |
+| Area | Used for | Default |
+| --- | --- | --- |
+| Accent | Buttons, active tab, links, "wunsch" in the word mark, gold notices | `#e6b450` |
+| Secondary | Tags, the counters on the tabs, chips | `#8d7ce0` |
+| Danger | Closed rooms, delete buttons, warnings, errors | `#ff6f85` |
+| Success | Confirmations | `#4ed08c` |
+| Background | Page ground; shell, panels, fields and lines are lightened steps of it | `#0d0e13` |
+| Text | Text; the muted text is a step towards the background | `#e9ebf1` |
 
-Values are `#rrggbb` (or `#rgb`); anything else is ignored and the built-in
-colour stays. The stylesheet keeps every colour as a custom property on
-`:root` – the base colours and the shades derived from them (bright, deep,
-frame, hover tint, notice tint). `src/Theme.php` derives those shades from a
-configured base colour with the same ratios and the layout prints one
-`<style>:root{…}</style>` block that overrides the stylesheet; nothing is
-printed while nothing is configured. Keep the contrast readable – gold on a
-light background, say, will not do – and check with the accessibility tools
-of the browser after a change.
+Values are `#rrggbb` (or `#rgb`, the `#` may be left out); an empty field
+means the built-in colour. The stylesheet keeps every colour as a custom
+property on `:root` – the base colours and the shades derived from them
+(bright, deep, frame, hover tint, notice tint). `src/Theme.php` derives those
+shades from a configured base colour with the same ratios and the layout
+prints one `<style>:root{…}</style>` block that overrides the stylesheet;
+nothing is printed while nothing is configured. Keep the contrast readable –
+gold on a light background, say, will not do – and check with the
+accessibility tools of the browser after a change.
 
 ## Pages and footer
 
@@ -557,9 +561,9 @@ pre-escaped and the rest printed without escaping.
 
 All operating functions sit behind a sign-in. Users are stored in the `users`
 table and managed on the **Users** page (`/admin/users`). Admins reach their
-pages – *Users*, *Logos*, *Pages*, *Footer* – through the **Administration**
-menu in the navigation, a tab that opens a list; all of them live below
-`/admin`.
+pages – *Users*, *Logos*, *Design*, *Limits*, *Pages*, *Footer* – through the
+**Administration** menu in the navigation, a tab that opens a list; all of
+them live below `/admin`.
 
 | Role | May |
 | --- | --- |
@@ -679,9 +683,9 @@ Before a suggestion is stored, the application checks that the song is not
 already on the repertoire (then the guest is told to simply wish for it) and
 that it has not been suggested already – both compared case-insensitively.
 The form carries the same bot hurdles as wishing (honeypot, signed
-timestamp), a per-session cooldown (`suggestion_cooldown_sec`, 10 s) and a
-cap on open suggestions (`suggestion_max_open`, 200; 0 = no cap), both in
-`config.php`.
+timestamp), a per-session cooldown (10 s) and a cap on open suggestions (200;
+0 = no cap); admins set both under *Administration → Limits*, see
+[Protecting the wishing](#protecting-the-wishing).
 
 **Editors** (and admins) additionally get a counter badge on the tab and
 two buttons on every row:
@@ -843,17 +847,23 @@ Wishing is public and needs no sign-in – so it is the target for scripts that
 flood the list. `src/WishGuard.php` puts several layers in front of it, all
 without third-party services and without plain-text IPs:
 
-| Layer | What happens | Setting in `config.php` |
+| Layer | What happens | Where it is set |
 | --- | --- | --- |
 | Closed room | The moderator closes the room; the repertoire stays visible, the *Wish* buttons and the suggestion form disappear, a notice stands in the header of every page | *Close room* under Rooms |
-| Global limits | At most N open wishes, at most M wishes per minute across all visitors | `wish_limits.max_open`, `wish_limits.per_minute_total` |
-| Limit per sender | At most X per minute and Y per hour from the same address | `wish_limits.per_minute_sender`, `wish_limits.per_hour_sender` |
-| Brake per session | Minimum gap between two wishes in the same browser | `wish_cooldown_sec` |
+| Global limits | At most N open wishes per room, at most M wishes per minute across all visitors | *Limits*: open wishes per room, wishes per minute (everyone) |
+| Limit per sender | At most X per minute and Y per hour from the same address | *Limits*: wishes per minute / per hour per sender |
+| Brake per session | Minimum gap between two wishes in the same browser | *Limits*: seconds between two wishes |
+| Duplicates | A song that is already open on the list cannot be wished again – unless the switch allows it | *Limits*: allow duplicates |
 | Bot trap | Invisible form field; if it is filled, the wish is silently discarded and the sender sees a success message | – |
-| Minimum time | Signed timestamp in the form; submitting less than 2 s after the page load is rejected, the form expires after 6 h | `wish_min_form_sec` |
+| Minimum time | Signed timestamp in the form; submitting less than 2 s after the page load is rejected, the form expires after 6 h | `wish_min_form_sec` in `config.php` |
 
-A limit of `0` disables it. The defaults are 200 open wishes, 30 per minute in
-total, 3 per minute and 20 per hour per sender.
+Admins set the limits under **Limits** (`/admin/wish-limits`, in the
+*Administration* menu), for every room alike; the same page carries the two
+limits on [song suggestions](#song-suggestions). A limit of `0` disables it.
+The defaults are 200 open wishes per room, 30 per minute in total, 3 per
+minute and 20 per hour per sender, 5 s between two wishes; 200 open
+suggestions and 10 s between two of them. The values live in the `settings`
+table (`limits.<name>`, `src/Limits.php`).
 
 **Senders without storing IPs.** The per-sender limit needs one attribute per
 visitor. What is stored is not the IP address but an HMAC-SHA256 of the
@@ -905,6 +915,8 @@ middleware or the hoster.
 | Change your own password | Signed in (admins included): account menu → User settings → *Change password* (current password plus the new one twice) |
 | See your own roles | Signed in: account menu → User settings, box *Your account* |
 | Put a logo in the header | Admins: *Administration → Logos* (`/admin/logos`): upload, *Switch live*, see [Logo](#logo) |
+| Change the colours | Admins: *Administration → Design* (`/admin/theme`): pick or type a colour per area, *Default* brings the built-in one back, see [Colours](#colours) |
+| Change the wish and suggestion limits | Admins: *Administration → Limits* (`/admin/wish-limits`): open wishes per room, per-minute and per-hour limits, seconds between two wishes or suggestions, duplicates, see [Protecting the wishing](#protecting-the-wishing) |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order
@@ -984,6 +996,8 @@ src/SongRepository.php Repertoire: search, sort, paginate, maintain
 src/WishRepository.php Wish list: create, read, sort, delete
 src/SuggestionRepository.php  Song suggestions: validate, store, list, delete
 src/WishGuard.php      Protection of wishing: limits, bot trap, pause
+src/Limits.php         The limits on wishing and suggesting the admins set (Administration -> Limits)
+src/Theme.php          The colours the admins set (Administration -> Design): shades, the :root block
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
 src/RoomMemory.php     The room chosen last: cookie, once-per-session restore
 src/Settings.php       Key/value store in the settings table
@@ -996,7 +1010,7 @@ src/RoomRepository.php Rooms: create, edit, delete, song selection from the mast
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter
-templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, pages, page_edit, page, footer, name, _name_form, error, _sortbar, _pager
+templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, theme, limits, pages, page_edit, page, footer, name, _name_form, error, _sortbar, _pager
 assets/                style.css (dark interface), app.js, vendor/ckeditor5 (the page editor, see Pages and footer)
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)

@@ -43,12 +43,6 @@ services:
       BASE_PATH: ${BASE_PATH}
       SHOW_ERRORS: ${SHOW_ERRORS}
       FOOTER_HTML: ${FOOTER_HTML:-}
-      THEME_ACCENT: ${THEME_ACCENT:-}
-      THEME_SECONDARY: ${THEME_SECONDARY:-}
-      THEME_DANGER: ${THEME_DANGER:-}
-      THEME_SUCCESS: ${THEME_SUCCESS:-}
-      THEME_BACKGROUND: ${THEME_BACKGROUND:-}
-      THEME_TEXT: ${THEME_TEXT:-}
       # Traefik is the only way to the container, its X-Forwarded-For is
       # reliable -- the basis for the per-sender wish limit.
       TRUST_PROXY: '1'

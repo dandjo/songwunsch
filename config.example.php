@@ -65,36 +65,12 @@ return [
     // Example:  '<p>Powered by <a href="https://example.org" rel="noopener">example.org</a></p>'
     'footer' => $env('FOOTER_HTML', ''),
 
-    // --- Colours ----------------------------------------------------------
-    // One colour per area of use, as '#rrggbb'. Shades and tints (hover,
-    // frames, notices) are derived from it. Leave an entry empty to keep the
-    // built-in colour. Keep the contrast to the background readable.
-    'theme' => [
-        'accent'     => $env('THEME_ACCENT', ''),     // actions: buttons, active tab, links, "wunsch" in the word mark (default gold #e6b450)
-        'secondary'  => $env('THEME_SECONDARY', ''),  // tags, counters, chips (default violet #8d7ce0)
-        'danger'     => $env('THEME_DANGER', ''),     // closed rooms, delete buttons, warnings, errors (default red #ff6f85)
-        'success'    => $env('THEME_SUCCESS', ''),    // confirmations (default green #4ed08c)
-        'background' => $env('THEME_BACKGROUND', ''), // page ground; shell, panels, fields and lines are lightened steps of it (default #0d0e13)
-        'text'       => $env('THEME_TEXT', ''),       // text; the muted text is a step towards the background (default #e9ebf1)
-    ],
-
     // --- Behaviour --------------------------------------------------------
+    // The colours (Design) and the limits on wishing and suggesting (Limits)
+    // are set in the Administration menu, not here.
     'per_page'          => (int) $env('PER_PAGE', '50'), // songs per page
-    'wish_cooldown_sec' => 5,     // minimum gap between two wishes per session
-    'allow_duplicates'  => false, // may the same song be wished while still open?
-    // Song suggestions from the audience: open suggestions in total (0 = no
-    // limit) and the minimum gap between two suggestions per session.
-    'suggestion_max_open'     => 200,
-    'suggestion_cooldown_sec' => 10,
 
     // --- Wish protection (see src/WishGuard.php) --------------------------
-    // Limits; 0 disables the respective limit.
-    'wish_limits' => [
-        'max_open'          => 200, // open wishes in total
-        'per_minute_total'  => 30,  // wishes per minute across all visitors
-        'per_minute_sender' => 3,   // wishes per minute per sender
-        'per_hour_sender'   => 20,  // wishes per hour per sender
-    ],
     // Minimum time between page load and submit in seconds -- faster
     // submissions practically always come from scripts.
     'wish_min_form_sec' => 2,
