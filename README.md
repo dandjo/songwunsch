@@ -663,8 +663,8 @@ travels with the suggestion so the editors know who asked. Everyone sees the
 open suggestions below the form – oldest first, with the time received, the
 name of whoever suggested and the room's tag – and can search them by
 artist, title or name (several terms are combined with AND, like the song
-search). Long lists are paged like the repertoire (`per_page` in
-`config.php`). Only editors get the buttons.
+search). Long lists are paged like the repertoire (*Rows per page* under
+*Administration → Limits*). Only editors get the buttons.
 
 Suggestions aim at the master list, which every room picks from, and there
 is one list for the whole site. A suggestion made inside a room
@@ -853,15 +853,16 @@ without third-party services and without plain-text IPs:
 | Brake per session | Minimum gap between two wishes in the same browser | *Limits*: seconds between two wishes |
 | Duplicates | A song that is already open on the list cannot be wished again – unless the switch allows it | *Limits*: allow duplicates |
 | Bot trap | Invisible form field; if it is filled, the wish is silently discarded and the sender sees a success message | – |
-| Minimum time | Signed timestamp in the form; submitting less than 2 s after the page load is rejected, the form expires after 6 h | `wish_min_form_sec` in `config.php` |
+| Minimum time | Signed timestamp in the form; submitting sooner than N s after the page load is rejected, the form expires after 6 h | *Limits*: seconds after the page load |
 
 Admins set the limits under **Limits** (`/admin/limits`, in the
 *Administration* menu), for every room alike; the same page carries the two
 limits on [song suggestions](#song-suggestions). A limit of `0` disables it.
 The defaults are 200 open wishes per room, 30 per minute in total, 3 per
-minute and 20 per hour per sender, 5 s between two wishes; 200 open
-suggestions and 10 s between two of them. The values live in the `settings`
-table (`limits.<name>`, `src/Limits.php`).
+minute and 20 per hour per sender, 5 s between two wishes, 2 s after the
+page load; 200 open suggestions and 10 s between two of them. The same page
+sets the rows per page of the paged lists (50). The values live in the
+`settings` table (`limits.<name>`, `src/Limits.php`).
 
 **Senders without storing IPs.** The per-sender limit needs one attribute per
 visitor. What is stored is not the IP address but an HMAC-SHA256 of the
@@ -915,7 +916,7 @@ middleware or the hoster.
 | Put a logo in the header | Admins: *Administration → Logos* (`/admin/logos`): upload, *Switch live*, see [Logo](#logo) |
 | Change the footer line | Admins: *Administration → Footer* (`/admin/footer`), *Your own line* below the picker |
 | Change the colours | Admins: *Administration → Design* (`/admin/theme`): pick or type a colour per area, *Default* brings the built-in one back, see [Colours](#colours) |
-| Change the wish and suggestion limits | Admins: *Administration → Limits* (`/admin/limits`): open wishes per room, per-minute and per-hour limits, seconds between two wishes or suggestions, duplicates, see [Protecting the wishing](#protecting-the-wishing) |
+| Change the wish and suggestion limits | Admins: *Administration → Limits* (`/admin/limits`): open wishes per room, per-minute and per-hour limits, seconds between two wishes or suggestions and after the page load, duplicates, rows per page, see [Protecting the wishing](#protecting-the-wishing) |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order

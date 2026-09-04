@@ -59,14 +59,11 @@ return [
     'version' => $env('APP_VERSION', '1.0.0'),
 
     // --- Behaviour --------------------------------------------------------
-    // The colours (Design), the footer line (Footer) and the limits on wishing
-    // and suggesting (Limits) are set in the Administration menu, not here.
-    'per_page'          => (int) $env('PER_PAGE', '50'), // songs per page
+    // The colours (Design), the footer line (Footer), the limits on wishing
+    // and suggesting and the page size of the lists (Limits) are set in the
+    // Administration menu, not here.
 
     // --- Wish protection (see src/WishGuard.php) --------------------------
-    // Minimum time between page load and submit in seconds -- faster
-    // submissions practically always come from scripts.
-    'wish_min_form_sec' => 2,
     // When the application runs behind a reverse proxy (Traefik, nginx) the
     // visitor's IP is in X-Forwarded-For. Only enable this when the proxy is
     // the only way in -- otherwise senders could make up their address and

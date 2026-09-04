@@ -1700,7 +1700,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .check {
     display: flex;
     align-items: flex-start;
-    gap: .6rem;
+    gap: .9rem;
     margin: .35rem 0 .55rem;
     font-size: .93rem;
     line-height: 1.4;

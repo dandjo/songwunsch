@@ -282,7 +282,6 @@ $guard  = new WishGuard(
     $settings,
     $limits,
     (bool) ($config['trust_proxy'] ?? false),
-    (int) ($config['wish_min_form_sec'] ?? 2),
     $roomId,
 );
 
@@ -889,7 +888,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $settings,
                     $limits,
                     (bool) ($config['trust_proxy'] ?? false),
-                    (int) ($config['wish_min_form_sec'] ?? 2),
                     $targetId,
                 );
                 $paused = (($_POST['state'] ?? '0') === '1');
@@ -994,7 +992,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     $settings,
                                     $limits,
                                     (bool) ($config['trust_proxy'] ?? false),
-                                    (int) ($config['wish_min_form_sec'] ?? 2),
                                     $wishRoomId,
                                 );
                                 $wishGuard->touch();
@@ -1146,7 +1143,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $settings,
                         $limits,
                         (bool) ($config['trust_proxy'] ?? false),
-                        (int) ($config['wish_min_form_sec'] ?? 2),
                         $id,
                     );
                     $roomGuard->setPaused(true);
@@ -1599,7 +1595,7 @@ try {
             $canEdit = $security->can('suggestions');
             $kept    = remembered_input();
             $q       = trim((string) ($_GET['q'] ?? ''));
-            $perPage = max(10, (int) $config['per_page']);
+            $perPage = $limits->get('per_page');
             $pageNo  = max(1, (int) ($_GET['page'] ?? 1));
 
             $result = $suggestions->search($q, $pageNo, $perPage);
@@ -1699,7 +1695,7 @@ try {
             // Everyone sees the active rooms and may switch; editors also
             // manage them and may list archived rooms.
             $canEdit = $security->can('rooms');
-            $perPage = max(10, (int) $config['per_page']);
+            $perPage = $limits->get('per_page');
             $q       = trim((string) ($_GET['q'] ?? ''));
             // Editors see every room by default (archived ones tagged), guests
             // only the active ones -- whatever the parameter says.
@@ -1781,7 +1777,7 @@ try {
                 redirect(url(['p' => 'songs']));
             }
 
-            $perPage = max(10, (int) $config['per_page']);
+            $perPage = $limits->get('per_page');
             $sort    = (string) ($_GET['sort'] ?? 'artist');
             $dir     = (string) ($_GET['dir'] ?? 'asc');
             $q       = trim((string) ($_GET['q'] ?? ''));
@@ -1809,7 +1805,7 @@ try {
 
         case 'songs':
         default:
-            $perPage = max(10, (int) $config['per_page']);
+            $perPage = $limits->get('per_page');
             $sort    = (string) ($_GET['sort'] ?? 'artist');
             $dir     = (string) ($_GET['dir'] ?? 'asc');
             $q       = trim((string) ($_GET['q'] ?? ''));

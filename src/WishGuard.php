@@ -43,15 +43,14 @@ final class WishGuard
 
     /**
      * @param Limits $limits per_minute_total, per_minute_sender,
-     *                       per_hour_sender, max_open -- 0 disables the
-     *                       respective limit; set by the admins
+     *                       per_hour_sender, max_open, wish_min_form_sec --
+     *                       0 disables the respective limit; set by the admins
      */
     public function __construct(
         private readonly Database $db,
         private readonly Settings $settings,
         private readonly Limits $limits,
         private readonly bool $trustProxy,
-        private readonly int $minFormSeconds,
         private readonly int $roomId = RoomRepository::DEFAULT_ID,
     ) {
     }
@@ -215,7 +214,7 @@ final class WishGuard
             return self::CHECK_STALE;
         }
 
-        return $age < $this->minFormSeconds ? self::CHECK_FAST : self::CHECK_OK;
+        return $age < $this->limits->get('wish_min_form_sec') ? self::CHECK_FAST : self::CHECK_OK;
     }
 
     // ---- Limits -----------------------------------------------------------

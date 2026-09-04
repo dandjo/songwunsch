@@ -1571,8 +1571,8 @@ msgstr "Limites"
 msgid "Wishing and suggesting are public and need no sign-in – these limits keep scripts and over-eager guests from flooding the lists. They apply to every room alike; 0 switches a limit off."
 msgstr "Souhaiter et suggérer sont publics et ne demandent aucune connexion – ces limites empêchent les scripts et les invités trop zélés d’inonder les listes. Elles s’appliquent à toutes les salles ; 0 désactive une limite."
 
-msgid "The bot hurdles in the forms – the hidden field and the minimum time after the page load – stay in place regardless."
-msgstr "Les obstacles anti-robots des formulaires – le champ caché et le délai minimal après le chargement de la page – restent en place quoi qu’il arrive."
+msgid "The hidden field in the forms that only scripts fill stays in place regardless."
+msgstr "Le champ caché des formulaires, que seuls les scripts remplissent, reste en place quoi qu’il arrive."
 
 msgid "Wishing"
 msgstr "Souhaits"
@@ -1659,3 +1659,18 @@ msgstr "La ligne du pied de page a été enregistrée."
 
 msgid "The footer line has been removed."
 msgstr "La ligne du pied de page a été supprimée."
+
+msgid "Seconds after the page load"
+msgstr "Secondes après le chargement de la page"
+
+msgid "A wish or suggestion sent sooner than this after the page was loaded is rejected – scripts are that fast, people are not."
+msgstr "Un souhait ou une suggestion envoyé plus vite que cela après le chargement de la page est refusé – les scripts sont aussi rapides, pas les gens."
+
+msgid "Lists"
+msgstr "Listes"
+
+msgid "Rows per page"
+msgstr "Lignes par page"
+
+msgid "Repertoire, rooms, the room’s song picker and the suggestions show this many rows before the pager takes over."
+msgstr "Le répertoire, les salles, la sélection de morceaux d’une salle et les suggestions affichent ce nombre de lignes avant la pagination."

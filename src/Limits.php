@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace Songwunsch;
 
 /**
- * The limits on wishing and suggesting, set by the admins under
- * Administration -> Limits and kept in the `settings` table as
- * `limits.<name>`. What is not set has its default. The values used to live
- * in config.php ('wish_limits', 'wish_cooldown_sec', 'allow_duplicates',
- * 'suggestion_max_open', 'suggestion_cooldown_sec'); they apply to every
- * room alike.
+ * The limits on wishing and suggesting, plus the page size of the lists,
+ * set by the admins under Administration -> Limits and kept in the `settings`
+ * table as `limits.<name>`. What is not set has its default. The values used
+ * to live in config.php ('wish_limits', 'wish_cooldown_sec',
+ * 'allow_duplicates', 'suggestion_max_open', 'suggestion_cooldown_sec',
+ * 'wish_min_form_sec', 'per_page'); they apply to every room alike.
  *
- * WishGuard enforces the four per-minute / per-hour / open-wishes limits,
- * index.php the session cooldowns, the duplicate rule and the cap on open
- * suggestions. Loaded lazily and once per request.
+ * WishGuard enforces the four per-minute / per-hour / open-wishes limits and
+ * the minimum form time, index.php the session cooldowns, the duplicate rule,
+ * the cap on open suggestions and the page size. Loaded lazily and once per
+ * request.
  */
 final class Limits
 {
@@ -22,7 +23,8 @@ final class Limits
 
     /**
      * Every setting: default, smallest and largest allowed value. 0 switches
-     * a limit or a cooldown off; allow_duplicates is a switch (0/1).
+     * a limit or a cooldown off; allow_duplicates is a switch (0/1); per_page
+     * has a floor so a list never shows a handful of rows.
      *
      * @var array<string,array{0:int,1:int,2:int}>
      */
@@ -35,6 +37,8 @@ final class Limits
         'allow_duplicates'        => [0, 0, 1],        // may an open song be wished again?
         'suggestion_max_open'     => [200, 0, 100000], // open suggestions, site-wide
         'suggestion_cooldown_sec' => [10, 0, 3600],    // gap between two suggestions in one session
+        'wish_min_form_sec'       => [2, 0, 60],       // seconds between page load and submit below which a form counts as a script's
+        'per_page'                => [50, 10, 500],    // rows per page on the paged lists
     ];
 
     /** The fields WishGuard takes -- the former config.php 'wish_limits'. */

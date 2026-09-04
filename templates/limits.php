@@ -6,8 +6,8 @@ use Songwunsch\Format;
 use Songwunsch\Limits;
 
 /**
- * Admin only: the limits on wishing and suggesting, for every room alike.
- * Numbers with 0 = off; one switch for duplicates.
+ * Admin only: the limits on wishing and suggesting and the page size of the
+ * lists, for every room alike. Numbers with 0 = off; one switch for duplicates.
  *
  * @var array<string,string> $values  field => value as text; what was typed after a failed save
  * @var array<string,string> $errors  field => message, after a failed save
@@ -24,10 +24,14 @@ $groups = [
         'per_minute_sender' => [t('Wishes per minute per sender'),    t('Senders are told apart by a daily pseudonym of their address, never by a stored IP.')],
         'per_hour_sender'   => [t('Wishes per hour per sender'),      t('The slower brake for the same sender.')],
         'wish_cooldown_sec' => [t('Seconds between two wishes'),      t('In the same browser session – a brake against double clicks.')],
+        'wish_min_form_sec' => [t('Seconds after the page load'),     t('A wish or suggestion sent sooner than this after the page was loaded is rejected – scripts are that fast, people are not.')],
     ]],
     [t('Suggesting'), [
         'suggestion_max_open'     => [t('Open suggestions'),                t('For the whole site; the suggestions aim at the master list. The box is full at this many open suggestions.')],
         'suggestion_cooldown_sec' => [t('Seconds between two suggestions'), t('In the same browser session.')],
+    ]],
+    [t('Lists'), [
+        'per_page' => [t('Rows per page'), t('Repertoire, rooms, the room’s song picker and the suggestions show this many rows before the pager takes over.')],
     ]],
 ];
 
@@ -47,7 +51,7 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
         <h1><?= $e(t('Limits')) ?></h1>
         <p class="muted">
             <?= $e(t('Wishing and suggesting are public and need no sign-in – these limits keep scripts and over-eager guests from flooding the lists. They apply to every room alike; 0 switches a limit off.')) ?>
-            <?= $e(t('The bot hurdles in the forms – the hidden field and the minimum time after the page load – stay in place regardless.')) ?>
+            <?= $e(t('The hidden field in the forms that only scripts fill stays in place regardless.')) ?>
         </p>
     </div>
 </div>
