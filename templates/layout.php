@@ -239,7 +239,7 @@ foreach ($translator->available() as $code => $name) {
                         <?php /* Personal settings (password, delete confirmations)
                                  -- they concern the account only, so they live here
                                  and not among the page tabs. */ ?>
-                        <a class="account__item<?= $page === 'settings' ? ' is-active' : '' ?>" href="<?= $e(url(['p' => 'settings'])) ?>"<?= $page === 'settings' ? ' aria-current="page"' : '' ?>>
+                        <a class="account__item<?= $page === 'settings' ? ' is-active' : '' ?>" href="<?= $e(url(['p' => 'settings', 'id' => (int) $account['id']])) ?>"<?= $page === 'settings' ? ' aria-current="page"' : '' ?>>
                             <?= icon('gear', 14) ?><span class="account__label"><?= $e(t('Settings')) ?></span>
                         </a>
                         <?php /* See the site as a visitor without a login does

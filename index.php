@@ -118,16 +118,22 @@ $routes = [
     '/wishes' => 'wishes',
     '/suggestions' => 'suggestions',
     '/login'  => 'login',
-    '/song'   => 'song',
     '/users'  => 'users',
-    '/user'   => 'user',
     '/rooms'  => 'rooms',
-    '/room'   => 'room',
-    '/settings' => 'settings',
+    '/settings' => 'settings', // redirects to /user/<own id>/settings
     '/logos'  => 'logos',
-    '/logo'   => 'logo',
     '/name'   => 'name',
 ];
+// Pages with an id in the path -- see url(): /song/<id>|new, /user/<id>|new,
+// /room/<id>|new, /room/main, /user/<id>/settings, /logo/<id>,
+// /suggestions/<id>/adopt. The matched values land in these three.
+$routeId         = 0;     // 0 = new
+$routeMain       = false; // /room/main: rename the main room
+$routeSuggestion = 0;     // /suggestions/<id>/adopt: the suggestion to adopt
+// Addresses of an earlier version with the id in the query string
+// (/song?key=3, /user?id=2, /room?id=4, /room?main=1, /logo?id=1) move
+// permanently to the new form.
+$legacy = ['/song' => 'song', '/user' => 'user', '/room' => 'room', '/logo' => 'logo'];
 // Inside a room: /rooms/<slug>, /rooms/<slug>/wishes, /rooms/<slug>/suggestions,
 // /rooms/<slug>/manage.
 $roomRoutes = ['' => 'songs', '/wishes' => 'wishes', '/suggestions' => 'suggestions', '/manage' => 'room_songs'];
@@ -150,6 +156,34 @@ if ($route === '/index.php') {
     $page = (string) ($_POST['p'] ?? 'songs');
 } elseif (isset($routes[$route])) {
     $page = $routes[$route];
+} elseif (preg_match('#^/(song|user|room)/(new|[1-9][0-9]*)$#', $route, $m) === 1) {
+    $page    = $m[1];
+    $routeId = $m[2] === 'new' ? 0 : (int) $m[2];
+} elseif ($route === '/room/main') {
+    $page      = 'room';
+    $routeMain = true;
+} elseif (preg_match('#^/user/([1-9][0-9]*)/settings$#', $route, $m) === 1) {
+    $page    = 'settings';
+    $routeId = (int) $m[1];
+} elseif (preg_match('#^/logo/([1-9][0-9]*)$#', $route, $m) === 1) {
+    $page    = 'logo';
+    $routeId = (int) $m[1];
+} elseif (preg_match('#^/suggestions/([1-9][0-9]*)/adopt$#', $route, $m) === 1) {
+    $page            = 'song';
+    $routeSuggestion = (int) $m[1];
+} elseif (isset($legacy[$route])) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        not_found();
+    }
+    $id = (int) ($_GET['id'] ?? $_GET['key'] ?? 0);
+    redirect(url([
+        'p'          => $legacy[$route],
+        'room'       => '',
+        'id'         => $id > 0 ? $id : null,
+        'main'       => isset($_GET['main']) ? 1 : null,
+        'suggestion' => (int) ($_GET['suggestion'] ?? 0) > 0 ? (int) $_GET['suggestion'] : null,
+        'back'       => $_GET['back'] ?? null,
+    ]), 301);
 } elseif (preg_match('#^/rooms/([^/]+)(/[^/]*)?$#', $route, $m) === 1 && isset($roomRoutes[$m[2] ?? ''])) {
     // The slug is checked against RoomRepository::SLUG_PATTERN before any
     // query. An unknown or malformed room is no dead end: a link to a room
@@ -281,7 +315,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $settings->setConfirmDelete($selfId, $what, (string) ($_POST['confirm_' . $what] ?? '') === '1');
                 }
                 flash('ok', t('Settings saved.'));
-                redirect(url(['p' => 'settings']));
+                redirect(url(['p' => 'settings', 'id' => $selfId]));
                 // no break
 
             case 'logo_upload':
@@ -354,13 +388,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Passwords never go into the session -- only which field failed.
                     remember_input([], $errors);
                     flash('error', t('Please check the highlighted fields.'));
-                    redirect(url(['p' => 'settings']));
+                    redirect(url(['p' => 'settings', 'id' => (int) $self['id']]));
                 }
 
                 $users->setPassword((int) $self['id'], (string) $check['hash']);
                 $security->notePassword($new);
                 flash('ok', t('Your password has been changed.'));
-                redirect(url(['p' => 'settings']));
+                redirect(url(['p' => 'settings', 'id' => (int) $self['id']]));
                 // no break
 
             case 'logout':
@@ -685,7 +719,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $checked = $songs->validate($input);
                 $formUrl = url([
                     'p'          => 'song',
-                    'key'        => $key > 0 ? $key : null,
+                    'id'         => $key > 0 ? $key : null,
                     'suggestion' => $adopting > 0 ? $adopting : null,
                     'back'       => back(),
                 ]);
@@ -1055,6 +1089,7 @@ $view = [
     'guestName'  => $nameCookie->current(), // the visitor's name for wishes, account menu
     'askName'    => false, // first visit: ask for the name (dialog in the layout)
     'footer'     => trim((string) ($config['footer'] ?? '')), // HTML from config.php, printed as is; empty = no footer
+    'themeCss'   => Theme::css((array) ($config['theme'] ?? [])), // colour overrides from config.php, '' = stylesheet defaults
 ];
 
 try {
@@ -1089,15 +1124,14 @@ try {
     // deleted one falls back to the word mark by itself.
     $logoId       = (int) $settings->get(Settings::LOGO_ID, '0');
     $view['logo'] = $logoId > 0 ? $uploads->info($logoId) : null;
-    'themeCss'   => Theme::css((array) ($config['theme'] ?? [])), // colour overrides from config.php, '' = stylesheet defaults
 
     switch ($page) {
         case 'logo':
-            // An uploaded logo as its own resource for <img src="/logo?id=…">.
+            // An uploaded logo as its own resource for <img src="/logo/<id>">.
             // The bytes of an id never change, so the browser may keep them
             // for good. nosniff and a CSP keep an SVG opened directly from
             // doing anything but drawing.
-            $file = $uploads->load((int) ($_GET['id'] ?? 0));
+            $file = $uploads->load($routeId);
             if ($file === null) {
                 not_found();
             }
@@ -1146,7 +1180,7 @@ try {
 
         case 'song':
             require_role($security, 'songs');
-            $key  = (int) ($_GET['key'] ?? 0); // 0 = new song
+            $key  = $routeId; // 0 = new song
             $song = null;
             // Adopting a suggestion: a new song whose artist and title come
             // from the suggestion; the editor adds length and genre.
@@ -1158,8 +1192,8 @@ try {
                     flash('error', t('This song was not found.'));
                     redirect(url(['p' => 'songs']));
                 }
-            } elseif ((int) ($_GET['suggestion'] ?? 0) > 0) {
-                $adopt = $suggestions->find((int) $_GET['suggestion']);
+            } elseif ($routeSuggestion > 0) {
+                $adopt = $suggestions->find($routeSuggestion);
                 if ($adopt === null) {
                     flash('error', t('This suggestion was not found.'));
                     redirect(url(['p' => 'suggestions']));
@@ -1221,12 +1255,17 @@ try {
             break;
 
         case 'settings':
-            // Every signed-in user, for their own account.
+            // Every signed-in user, for their own account: /user/<own id>/settings.
+            // Any other id -- and the bare /settings -- leads to the own page.
             require_login($security);
+            $selfId = (int) $security->user()['id'];
+            if ($routeId !== $selfId) {
+                redirect(url(['p' => 'settings', 'id' => $selfId]));
+            }
 
             $view['title']    = t('Settings');
             $view['template'] = 'settings';
-            $view['selfId']   = (int) $security->user()['id'];
+            $view['selfId']   = $selfId;
             $view['kinds']    = deletable_kinds($security);
             $view['isAdmin']  = $security->isAdmin();
             $view['account']  = $security->user();
@@ -1244,7 +1283,7 @@ try {
 
         case 'user':
             require_role($security, 'users');
-            $id   = (int) ($_GET['id'] ?? 0); // 0 = new user
+            $id   = $routeId; // 0 = new user
             $user = null;
 
             if ($id > 0) {
@@ -1313,10 +1352,10 @@ try {
 
         case 'room':
             require_role($security, 'rooms');
-            $id   = (int) ($_GET['id'] ?? 0); // 0 = new room
+            $id   = $routeId; // 0 = new room
             $edit = null;
-            // ?main=1: rename the main room -- only its name, kept in the settings.
-            $main = isset($_GET['main']);
+            // /room/main: rename the main room -- only its name, kept in the settings.
+            $main = $routeMain;
 
             if ($main) {
                 $kept = remembered_input();

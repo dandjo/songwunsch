@@ -126,11 +126,13 @@ remembered room or the start room takes over.
 | `/suggestions` | Song suggestions: form and searchable list for everyone, buttons for editors |
 | `/login` | Sign-in |
 | `/name` | The guest's name for the wish list – change or remove it |
-| `/song?key=<id>` | Create a song (`key=0`) or edit one – editor; `/song?suggestion=<id>` adopts a suggestion |
-| `/users`, `/user?id=<id>` | User management – admin |
+| `/song/new`, `/song/<id>` | Create or edit a song – editor; `/suggestions/<id>/adopt` adopts a suggestion into a new song |
+| `/users`, `/user/new`, `/user/<id>` | User management – admin |
+| `/user/<id>/settings` | Personal settings of the signed-in user (own id only; `/settings` redirects there) |
 | `/logos` | Header logos – admin, see [Logo](#logo) |
 | `/rooms` | List of rooms, each name leads into its room; moderators close and open rooms, editors create them here |
-| `/room?id=<id>` | Create a room (`id=0`) or edit one – editor |
+| `/room/new`, `/room/<id>`, `/room/main` | Create or edit a room, rename the main room – editor |
+| `/logo/<id>` | An uploaded logo, see [Logo](#logo) |
 | `/rooms/<name>` | Repertoire of a room |
 | `/rooms/<name>/wishes` | Wish list of a room |
 | `/rooms/<name>/suggestions` | Suggest a song from inside a room – the adopted song joins the room |

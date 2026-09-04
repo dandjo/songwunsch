@@ -165,7 +165,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                                 <?php if ($security->can('songs')): ?>
                                     <div class="row-actions__pair">
                                         <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>"
-                                           href="<?= $e(url(['p' => 'song', 'key' => $rowKey, 'back' => $current])) ?>">
+                                           href="<?= $e(url(['p' => 'song', 'id' => $rowKey, 'back' => $current])) ?>">
                                             <?= icon('pencil') ?>
                                             <span class="button__label"><?= $e(t('Edit')) ?></span>
                                             <span class="sr-only">: <?= $e($rowLabel) ?></span>

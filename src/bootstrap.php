@@ -133,6 +133,11 @@ function current_room(?array $set = null): array
  * placed in the current room: /rooms/<slug>, /rooms/<slug>/wishes,
  * /rooms/<slug>/suggestions, /rooms/<slug>/manage. 'room' overrides that --
  * a slug for another room, '' for the default room.
+ *
+ * An id is part of the path, not of the query string: /song/<id>, /user/<id>,
+ * /room/<id> (without an id: /song/new, /user/new, /room/new), /logo/<id>,
+ * /user/<id>/settings; 'main' => 1 gives /room/main, 'suggestion' => <id>
+ * gives /suggestions/<id>/adopt.
  */
 function url(array $params = []): string
 {
@@ -140,7 +145,8 @@ function url(array $params = []): string
     $slug = array_key_exists('room', $params)
         ? (string) $params['room']
         : (string) (current_room()['slug'] ?? '');
-    unset($params['p'], $params['room']);
+    $id   = (int) ($params['id'] ?? 0);
+    unset($params['p'], $params['room'], $params['id']);
 
     $params = array_filter($params, static fn ($v): bool => $v !== null && $v !== '');
 
@@ -155,6 +161,19 @@ function url(array $params = []): string
             'suggestions' => $prefix . '/suggestions',
             'room_songs'  => $prefix . '/manage',
         };
+    } elseif ($page === 'song' && isset($params['suggestion'])) {
+        $target .= '/suggestions/' . (int) $params['suggestion'] . '/adopt';
+        unset($params['suggestion']);
+    } elseif ($page === 'room' && isset($params['main'])) {
+        $target .= '/room/main';
+        unset($params['main']);
+    } elseif (in_array($page, ['song', 'user', 'room'], true)) {
+        $target .= '/' . $page . '/' . ($id > 0 ? $id : 'new');
+    } elseif ($page === 'logo') {
+        $target .= '/logo/' . $id;
+    } elseif ($page === 'settings') {
+        // Without an id the page redirects to the signed-in user's own settings.
+        $target .= $id > 0 ? '/user/' . $id . '/settings' : '/settings';
     } else {
         $target .= '/' . $page;
     }
