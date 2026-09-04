@@ -295,10 +295,6 @@ code {
 .account__item.is-active { color: var(--gold); }
 .lang__menu a.is-active::after,
 .account__item.is-active::after { content: '✓'; margin-left: 1rem; font-size: .85em; }
-/* End guest view: gold like the other accents, because it is the way out
-   of a special state. */
-.account__item--accent { color: var(--gold); }
-.account__item--accent:hover { color: var(--gold-bright); }
 /* The signed-in name heads the account menu, muted, with a hairline below. */
 .account__name {
     margin: 0 0 .35rem;

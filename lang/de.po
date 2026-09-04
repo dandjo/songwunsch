@@ -920,9 +920,6 @@ msgstr "Namen speichern"
 msgid "Not now"
 msgstr "Jetzt nicht"
 
-msgid "Back"
-msgstr "Zurück"
-
 msgid "Hello {name}! Your wishes now carry your name."
 msgstr "Hallo {name}! Deine Wünsche tragen jetzt deinen Namen."
 

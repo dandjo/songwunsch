@@ -226,11 +226,7 @@ foreach ($translator->available() as $code => $name) {
                             <input type="hidden" name="on" value="<?= $guestView ? '0' : '1' ?>">
                             <input type="hidden" name="back" value="<?= $e($here) ?>">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                            <?php if ($guestView): ?>
-                                <button type="submit" class="account__item account__item--accent"><?= $e(t('End guest view')) ?></button>
-                            <?php else: ?>
-                                <button type="submit" class="account__item"><?= $e(t('View as guest')) ?></button>
-                            <?php endif; ?>
+                            <button type="submit" class="account__item<?= $guestView ? ' is-active' : '' ?>" aria-pressed="<?= $guestView ? 'true' : 'false' ?>"><?= $e(t('View as guest')) ?></button>
                         </form>
                         <form method="post" action="<?= $e(url()) ?>">
                             <input type="hidden" name="a" value="logout">
