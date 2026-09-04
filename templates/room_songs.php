@@ -119,17 +119,10 @@ $card = static function (array $row, string $action, string $arrow, string $verb
                 </table>
             </div>
 
-            <?php if ($pages > 1): ?>
-                <nav class="pager" aria-label="<?= $e(t('Pages')) ?>">
-                    <?php if ($pageNo > 1): ?>
-                        <a href="<?= $e(url(['p' => 'room_songs', 'q' => $q, 'page' => $pageNo - 1])) ?>" rel="prev">&larr; <?= $e(t('back')) ?></a>
-                    <?php endif; ?>
-                    <span><?= $e(t('Page {page} of {pages}', ['page' => $pageNo, 'pages' => $pages])) ?></span>
-                    <?php if ($pageNo < $pages): ?>
-                        <a href="<?= $e(url(['p' => 'room_songs', 'q' => $q, 'page' => $pageNo + 1])) ?>" rel="next"><?= $e(t('next')) ?> &rarr;</a>
-                    <?php endif; ?>
-                </nav>
-            <?php endif; ?>
+            <?php
+            $pageUrl = static fn (int $page): string => url(['p' => 'room_songs', 'q' => $q, 'page' => $page > 1 ? $page : null]);
+            require __DIR__ . '/_pager.php';
+            ?>
         <?php endif; ?>
     </section>
 

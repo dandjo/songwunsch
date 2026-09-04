@@ -199,6 +199,9 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         'note'   => '<path d="M6.3 11.8V2.9l7.4-1.6v9.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="3.8" cy="12.3" r="2.7" fill="currentColor"/><circle cx="12" cy="10.6" r="2.7" fill="currentColor"/>',
         'arrow-right' => '<path d="M2.6 8h10.2M8.6 3.6 13 8l-4.4 4.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
         'arrow-left'  => '<path d="M13.4 8H3.2M7.4 3.6 3 8l4.4 4.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+        // Pager: first / last page -- two chevrons, the same head as the arrows.
+        'chevrons-left'  => '<path d="M7.6 3.6 3.2 8l4.4 4.4M13 3.6 8.6 8l4.4 4.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+        'chevrons-right' => '<path d="M8.4 3.6 12.8 8l-4.4 4.4M3 3.6 7.4 8 3 12.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
         // Rooms: a door with a knob. Users: two people, one in front.
         'door'   => '<path d="M3 14V2h8v12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M1.5 14h13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="8.6" cy="8.2" r="1.3" fill="currentColor"/>',
         // A clock -- when the wish came in.

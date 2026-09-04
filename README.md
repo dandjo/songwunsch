@@ -809,7 +809,7 @@ src/RoomRepository.php Rooms: create, edit, delete, song selection from the mast
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter
-templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, name, _name_form, error, _sortbar
+templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, name, _name_form, error, _sortbar, _pager
 assets/                style.css (dark interface), app.js
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)

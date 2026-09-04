@@ -243,15 +243,8 @@ $hasActions = $canPause || $canEdit;
     </table>
 </div>
 
-<?php if ($pages > 1): ?>
-    <nav class="pager" aria-label="<?= $e(t('Pages')) ?>">
-        <?php if ($pageNo > 1): ?>
-            <a href="<?= $e($listUrl(['page' => $pageNo - 1 > 1 ? $pageNo - 1 : null])) ?>" rel="prev">&larr; <?= $e(t('back')) ?></a>
-        <?php endif; ?>
-        <span><?= $e(t('Page {page} of {pages}', ['page' => $pageNo, 'pages' => $pages])) ?></span>
-        <?php if ($pageNo < $pages): ?>
-            <a href="<?= $e($listUrl(['page' => $pageNo + 1])) ?>" rel="next"><?= $e(t('next')) ?> &rarr;</a>
-        <?php endif; ?>
-    </nav>
-<?php endif; ?>
+<?php
+$pageUrl = static fn (int $page): string => $listUrl(['page' => $page > 1 ? $page : null]);
+require __DIR__ . '/_pager.php';
+?>
 <?php endif; ?>

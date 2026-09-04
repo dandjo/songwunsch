@@ -182,6 +182,12 @@ msgstr "zurück"
 msgid "next"
 msgstr "weiter"
 
+msgid "first"
+msgstr "erste"
+
+msgid "last"
+msgstr "letzte"
+
 msgid "Page {page} of {pages}"
 msgstr "Seite {page} von {pages}"
 

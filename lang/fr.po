@@ -178,6 +178,12 @@ msgstr "précédent"
 msgid "next"
 msgstr "suivant"
 
+msgid "first"
+msgstr "première"
+
+msgid "last"
+msgstr "dernière"
+
 msgid "Page {page} of {pages}"
 msgstr "Page {page} sur {pages}"
 

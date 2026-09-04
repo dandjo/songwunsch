@@ -1263,6 +1263,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 
 .pager {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     gap: .6rem;
@@ -1273,6 +1274,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 .pager a {
     display: inline-flex;
     align-items: center;
+    gap: .35rem;
     min-height: 44px;
     padding: .35rem .9rem;
     border: 1px solid var(--line);
