@@ -220,6 +220,9 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         // Wish list: to the very top / bottom -- a bar with a filled triangle.
         'to-top'    => '<path d="M2.5 2.4h11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 5.2l5.2 8.3H2.8z" fill="currentColor"/>',
         'to-bottom' => '<path d="M2.5 13.6h11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 10.8L2.8 2.5h10.4z" fill="currentColor"/>',
+        // One step up / down: the same triangle as above, centred, without the bar.
+        'up'        => '<path d="M8 3.85l5.2 8.3H2.8z" fill="currentColor"/>',
+        'down'      => '<path d="M8 12.15L2.8 3.85h10.4z" fill="currentColor"/>',
         // Start room: a flag on a pole.
         'flag'   => '<path d="M3.2 14.5V1.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M4.6 2.2h8.6l-2.2 3.2 2.2 3.2H4.6z" fill="currentColor"/>',
         // Suggestions: a light bulb -- the glass as an outline, the base solid.

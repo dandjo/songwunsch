@@ -190,8 +190,8 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
                                     <?php
                                     $moves = [
                                         'top'    => [icon('to-top', 12), t('Move {label} to the top', ['label' => $label]), $index === 0],
-                                        'up'     => ['<span aria-hidden="true">▲</span>', t('Move {label} up', ['label' => $label]), $index === 0],
-                                        'down'   => ['<span aria-hidden="true">▼</span>', t('Move {label} down', ['label' => $label]), $index === $last],
+                                        'up'     => [icon('up', 12), t('Move {label} up', ['label' => $label]), $index === 0],
+                                        'down'   => [icon('down', 12), t('Move {label} down', ['label' => $label]), $index === $last],
                                         'bottom' => [icon('to-bottom', 12), t('Move {label} to the bottom', ['label' => $label]), $index === $last],
                                     ];
                                     foreach ($moves as $dir => [$glyph, $text, $disabled]):
