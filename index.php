@@ -1263,7 +1263,7 @@ try {
                 redirect(url(['p' => 'settings', 'id' => $selfId]));
             }
 
-            $view['title']    = t('Settings');
+            $view['title']    = t('User settings');
             $view['template'] = 'settings';
             $view['selfId']   = $selfId;
             $view['kinds']    = deletable_kinds($security);

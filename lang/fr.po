@@ -854,8 +854,8 @@ msgstr "{room} est fermée pour le moment."
 
 # ---- Settings -----------------------------------------------------------------------------
 
-msgid "Settings"
-msgstr "Paramètres"
+msgid "User settings"
+msgstr "Paramètres utilisateur"
 
 msgid "Settings saved."
 msgstr "Paramètres enregistrés."

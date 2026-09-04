@@ -492,13 +492,13 @@ to their own user form. This is checked at sign-in (or once for an existing
 session) and remembered in the session; changing the password in the own form
 removes the notice.
 
-**Settings.** Every signed-in user has a personal page under *Settings* in
+**User settings.** Every signed-in user has a personal page under *User settings* in
 the account menu (top right). It shows the own username and roles with what
 each role may do, holds the password change and the delete confirmations;
 Roles and status cannot be touched on that page – the admin assigns them in
 the user form.
 
-**Own password.** Under *Settings*, for the admin as well: the current
+**Own password.** Under *User settings*, for the admin as well: the current
 password once, the new one twice, same rules as in the user form (where the
 admin can also set another user's password).
 
@@ -591,7 +591,7 @@ two buttons on every row:
   and deletes the suggestion, all in one go; *Cancel* leaves everything as
   it was.
 * **Delete** drops the suggestion. It asks for confirmation unless the
-  editor switched that off under Settings; *Clear list* above the list
+  editor switched that off under User settings; *Clear list* above the list
   deletes every suggestion and always asks.
 
 ## Rooms
@@ -797,9 +797,9 @@ middleware or the hoster.
 | Manage a room's songs | Editor: *Manage* in the room or under Rooms |
 | Create a user | Admin: Users → *Add user* |
 | Hand over the admin role | Admin: Users → *Edit* → *Hand over admin role* |
-| Switch off delete confirmations | Signed in: account menu → Settings → *Delete confirmations*, per account and separately for songs, suggestions, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
-| Change your own password | Signed in (admin included): account menu → Settings → *Change password* (current password plus the new one twice) |
-| See your own roles | Signed in: account menu → Settings, box *Your account* |
+| Switch off delete confirmations | Signed in: account menu → User settings → *Delete confirmations*, per account and separately for songs, suggestions, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
+| Change your own password | Signed in (admin included): account menu → User settings → *Change password* (current password plus the new one twice) |
+| See your own roles | Signed in: account menu → User settings, box *Your account* |
 | Put a logo in the header | Admin: *Logos* tab (`/logos`): upload, *Switch live*, see [Logo](#logo) |
 
 The wish list starts in manual order – initially this equals the order of

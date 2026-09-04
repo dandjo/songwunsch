@@ -49,7 +49,7 @@ $roleNotes  = [
 
 <div class="panel__head">
     <div>
-        <h1><?= $e(t('Settings')) ?></h1>
+        <h1><?= $e(t('User settings')) ?></h1>
         <p class="muted"><?= $e(t('Personal – these settings apply to your own account only.')) ?></p>
     </div>
 </div>
