@@ -42,6 +42,7 @@ services:
       # it back in links, redirects and the session cookie.
       BASE_PATH: ${BASE_PATH}
       SHOW_ERRORS: ${SHOW_ERRORS}
+      FOOTER_HTML: ${FOOTER_HTML:-}
       # Traefik is the only way to the container, its X-Forwarded-For is
       # reliable -- the basis for the per-sender wish limit.
       TRUST_PROXY: '1'

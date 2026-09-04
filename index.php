@@ -970,6 +970,7 @@ $view = [
     'roomList'   => [],    // rooms for the switcher in the header
     'guestName'  => $nameCookie->current(), // the visitor's name for wishes, account menu
     'askName'    => false, // first visit: ask for the name (dialog in the layout)
+    'footer'     => trim((string) ($config['footer'] ?? '')), // HTML from config.php, printed as is; empty = no footer
 ];
 
 try {

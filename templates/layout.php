@@ -23,6 +23,7 @@ use Songwunsch\Translator;
 /** @var string|null $guestName  the visitor's name for wishes, from the cookie */
 /** @var bool $askName           first visit: ask for the name in a dialog */
 /** @var array{url:string,rev:string}|null $live  polling address and current revision, wish list and suggestions */
+/** @var string $footer  HTML for the footer from config.php ('footer'); empty = no footer */
 
 $e      = static fn (?string $v): string => Format::e($v);
 $inRoom = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
@@ -345,9 +346,11 @@ foreach ($translator->available() as $code => $name) {
         <?php require __DIR__ . '/' . $template . '.php'; ?>
     </main>
 
-    <footer class="base">
-        <p>Powered by <a href="https://magicmusic.at" rel="noopener">magicmusic.at</a></p>
-    </footer>
+    <?php if ($footer !== ''): ?>
+        <?php /* The operator's own line (credits, imprint link) -- HTML from
+                 config.php, deliberately printed unescaped. */ ?>
+        <footer class="base"><?= $footer ?></footer>
+    <?php endif; ?>
 </div>
 <?php /* One script for every page; each enhancement checks for its markup. */ ?>
 <script src="<?= $e(asset('assets/app.js')) ?>" defer></script>

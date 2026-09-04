@@ -261,6 +261,17 @@ showing the cached copy. Raise the value with every release – it may look like
 anything, `1.4.0` as well as `2026-09-03`. Without a value the suffix is
 omitted.
 
+## Footer
+
+`'footer'` in `config.php` (or `FOOTER_HTML` from the environment) is printed
+at the bottom of every page – credits, a link to an imprint. The value is HTML
+and goes out **unescaped**, so it is the operator's own markup only, never
+anything a visitor typed. Without a value there is no footer at all.
+
+```php
+'footer' => '<p>Powered by <a href="https://example.org" rel="noopener">example.org</a></p>',
+```
+
 ## Deployment
 
 `tools/deploy.sh` syncs the application folder to the host via `rsync` over
@@ -828,7 +839,9 @@ docker/                Dockerfile, php.ini, entrypoint, Traefik configuration
 
 * All database values go through prepared statements; table and column names
   are fixed in the code, sort parameters pass a whitelist.
-* Output consistently through `Format::e()` (`htmlspecialchars`).
+* Output consistently through `Format::e()` (`htmlspecialchars`). The one
+  deliberate exception is the footer from `config.php`, which is the
+  operator's own HTML, see [Footer](#footer).
 * Session cookie `HttpOnly` + `SameSite=Lax`, `Secure` as soon as HTTPS is
   active, `path` limited to the base path; `session_regenerate_id()` on
   sign-in. The two further cookies – the guest's name (`songwunsch_name`) and

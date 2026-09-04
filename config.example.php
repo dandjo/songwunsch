@@ -57,6 +57,13 @@ return [
     // every release (or set APP_VERSION in the environment).
     'version' => $env('APP_VERSION', '1.0.0'),
 
+    // --- Footer -----------------------------------------------------------
+    // A line at the bottom of every page: credits, an imprint link. HTML is
+    // printed as is (not escaped), so only put your own markup here, never
+    // anything from visitors. Empty (default): no footer at all.
+    // Example:  '<p>Powered by <a href="https://example.org" rel="noopener">example.org</a></p>'
+    'footer' => $env('FOOTER_HTML', ''),
+
     // --- Behaviour --------------------------------------------------------
     'per_page'          => (int) $env('PER_PAGE', '50'), // songs per page
     'wish_cooldown_sec' => 5,     // minimum gap between two wishes per session
