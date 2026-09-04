@@ -387,7 +387,8 @@ code {
     line-height: 1.4;
 }
 .dome__notice strong { color: var(--gold-bright); font-weight: 700; }
-.dome__notice span { color: var(--text); }
+/* The direct child only: the room chip inside it sets its own colour. */
+.dome__notice > span { color: var(--text); }
 .dome__notice a {
     color: var(--gold-bright);
     text-decoration: underline;
@@ -516,7 +517,7 @@ code {
     letter-spacing: .08em;
     text-transform: uppercase;
 }
-.roomswitch__chevron { flex: 0 0 auto; transition: transform .15s; }
+.roomswitch__chevron { transition: transform .15s; }
 .roomswitch[open] .roomswitch__chevron { transform: rotate(180deg); }
 .roomswitch__panel {
     position: absolute;
@@ -807,10 +808,9 @@ code {
 .grid td { padding: 0; border: 0; text-align: left; vertical-align: middle; min-width: 0; }
 
 .grid tbody tr {
-    display: flex;
+    /* The layout of a row -- columns, areas, gaps -- comes from the grid
+       variant (.grid--songs, .grid--wishes, ...); this is the card around it. */
     flex-wrap: wrap;
-    align-items: center;
-    gap: .25rem .6rem;
     margin-bottom: .55rem;
     padding: .7rem .75rem;
     border: 1px solid var(--line);
@@ -844,7 +844,7 @@ code {
 /* Title, artist, length and genre on one line, the actions right of them;
    the line wraps only when the card is too narrow. The title carries the
    weight; the artist steps back. Gold is reserved for actions. */
-.cell-title  { order: 1; width: auto; min-width: 0; font-size: 1.05rem; font-weight: 600; color: var(--text); }
+.cell-title  { order: 1; width: auto; font-size: 1.05rem; font-weight: 600; color: var(--text); }
 .cell-artist { order: 2; font-size: .9rem; color: var(--text-muted); }
 .cell-length,
 .cell-genre  { order: 3; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -883,9 +883,7 @@ code {
 .cell-action {
     order: 5;
     width: auto;
-    margin: 0 0 0 auto;
 }
-.cell-action form { margin: 0; }
 
 .tag {
     display: inline-block;
@@ -931,7 +929,7 @@ code {
 .grid--songs .cell-artist,
 .grid--songs .cell-length,
 .grid--songs .cell-genre  { margin-top: .25rem; }
-.grid--songs .cell-action { grid-area: 1 / 4 / 5 / 5; margin: 0; }
+.grid--songs .cell-action { grid-area: 1 / 4 / 5 / 5; }
 
 .grid--songs .cell-title,
 .grid--songs .cell-artist {
@@ -959,7 +957,7 @@ code {
 .grid--users .cell-length { grid-area: 3 / 2; }
 .grid--users .cell-genre,
 .grid--users .cell-length { margin-top: .25rem; }
-.grid--users .cell-action { grid-area: 1 / 3 / 5 / 4; margin: 0; }
+.grid--users .cell-action { grid-area: 1 / 3 / 5 / 4; }
 .grid--users .cell-title {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -989,7 +987,7 @@ code {
 .grid--rooms .cell-wishes { grid-area: 4 / 2; margin-top: .2rem; font-size: .85rem; white-space: nowrap; color: var(--text-muted); }
 /* A dot separates the two counts. */
 .grid--rooms .cell-wishes::before { content: '·'; margin-right: .6rem; }
-.grid--rooms .cell-action { grid-area: 1 / 3 / 6 / 4; margin: 0; }
+.grid--rooms .cell-action { grid-area: 1 / 3 / 6 / 4; }
 .grid--rooms .cell-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .grid--rooms .address { font-size: .82rem; color: var(--text-muted); }
 /* The room's name as the way in: reads as the title, lights up gold on hover.
@@ -1045,7 +1043,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 .grid--wishes .cell-length,
 .grid--wishes .cell-genre  { margin-top: .25rem; }
 .grid--wishes .cell-wisher { max-width: 12rem; }
-.grid--wishes .cell-action { grid-area: 1 / 6 / 5 / 7; margin: 0; }
+.grid--wishes .cell-action { grid-area: 1 / 6 / 5 / 7; }
 .grid--wishes .cell-action form { display: flex; }
 /* Delete spans the full width of the move buttons above it. */
 .grid--wishes .cell-action .delete-button { width: 100%; justify-content: center; }
@@ -1077,7 +1075,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 .grid--pages .cell-title  { grid-area: 2 / 1 / 3 / 3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .grid--pages .cell-genre  { grid-area: 3 / 1; margin-top: .2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .grid--pages .cell-length { grid-area: 4 / 1 / 5 / 3; margin-top: .2rem; font-size: .82rem; }
-.grid--pages .cell-action { grid-area: 1 / 3 / 6 / 4; margin: 0; }
+.grid--pages .cell-action { grid-area: 1 / 3 / 6 / 4; }
 .grid--pages .address { font-size: .82rem; color: var(--text-muted); }
 .grid--pages .address:hover { color: var(--gold-bright); }
 /* The page's versions in other languages: one chip per language, right of the
@@ -1119,7 +1117,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 }
 .grid--suggestions .cell-time   { font-size: .78rem; }
 .grid--suggestions .cell-wisher { max-width: 12rem; }
-.grid--suggestions .cell-action { grid-area: 1 / 4 / 5 / 5; margin: 0; }
+.grid--suggestions .cell-action { grid-area: 1 / 4 / 5 / 5; }
 .grid--suggestions .cell-title,
 .grid--suggestions .cell-artist {
     overflow: hidden;
@@ -1159,7 +1157,6 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     display: flex;
     gap: .2rem;
 }
-.move form { margin: 0; display: flex; }
 .move-button { display: inline-flex; align-items: center; justify-content: center; }
 .move-button .button__glyph { margin: 0; }
 
@@ -1250,14 +1247,10 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .link-button--danger { border-color: var(--danger-line); color: var(--danger); }
 .link-button--danger:hover { background: var(--danger-tint); color: var(--danger-bright); }
 
-/* A button with a text label hides its icon -- it would only be decoration.
-   An icon button does the reverse: the icon is shown, the label is kept for
-   screen readers only (the title attribute gives sighted users a tooltip). */
-.button__icon { display: none; line-height: 1; font-size: .95em; }
 /* Leading icon of a text button (plus on "Add ...", pause/play on the pause
-   switches): an SVG centres exactly, a text glyph would not. */
-/* Nudged up 1px: flexbox centres the icon on the line box, whose middle sits
-   below the centre of the capitals; the eye aligns to the capitals. */
+   switches): an SVG centres exactly, a text glyph would not. An icon button
+   shows the glyph alone and keeps its label for screen readers only (the
+   title attribute gives sighted users a tooltip). */
 .button__glyph { flex: 0 0 auto; }
 /* Half a rem between glyph and label (the button's gap plus this margin);
    the glyph tucks a little into the padding so the pair looks centred. */
@@ -1268,7 +1261,6 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 /* Icon-only buttons: the glyph is the whole content, centred as is. */
 .icon-button .button__glyph,
 .arrow-button .button__glyph { margin: 0; }
-.icon-button .button__icon { display: inline; font-size: 1.1em; }
 .icon-button .button__label {
     position: absolute;
     width: 1px;
@@ -1498,7 +1490,6 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 }
 .namebox__form .field { margin-bottom: 1.1rem; }
 .namebox__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
-.namebox__actions form { margin: 0; }
 /* "Not now" stands apart, below the real choice. */
 .namebox__skip { margin: .9rem 0 0; display: flex; justify-content: flex-end; }
 .namebox__skip .link-button { color: var(--text-muted); border-color: transparent; }
