@@ -1744,6 +1744,9 @@ try {
                 $view['template'] = 'room';
                 $view['id']       = 0;
                 $view['main']     = true;
+                $view['startRoomId'] = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
+                $view['roomClosed']  = $guard->pausedIn(RoomRepository::DEFAULT_ID);
+                $view['roomActive']  = true;
                 $view['errors']   = $kept['errors'] ?? [];
                 $view['values']   = $kept['values'] ?? ['name' => (string) $settings->get(RoomRepository::MAIN_NAME_KEY, '')];
                 break;
@@ -1763,6 +1766,10 @@ try {
             $view['template'] = 'room';
             $view['id']       = $id;
             $view['main']     = false;
+            // The switches beside the title (start room, close/open) -- for an existing room.
+            $view['startRoomId'] = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
+            $view['roomClosed']  = $id > 0 && $guard->pausedIn($id);
+            $view['roomActive']  = (int) ($edit['active'] ?? 1) === 1;
             $view['errors']   = $kept['errors'] ?? [];
             $view['values']   = $kept['values'] ?? [
                 'slug'   => (string) ($edit['slug'] ?? ''),
@@ -1815,6 +1822,7 @@ try {
 
             $view['title']     = t('Repertoire');
             $view['template']  = 'home';
+            $view['startRoomId'] = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
             $view['formToken'] = $view['paused'] ? '' : $guard->formToken();
             $view['repo']      = $songs;
             $view['rows']      = $result['rows'];

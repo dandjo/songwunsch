@@ -9,6 +9,9 @@ use Songwunsch\RoomRepository;
 /** @var bool $main                  rename the main room: only its name, no address, no status */
 /** @var array<string,string> $values */
 /** @var array<string,string> $errors */
+/** @var int $startRoomId   for the switches beside the title, see _room_switches.php */
+/** @var bool $roomClosed   wishing closed in this room */
+/** @var bool $roomActive   the stored state, not the form's input */
 /** @var string $csrf */
 
 $e       = static fn (?string $v): string => Format::e($v);
@@ -41,6 +44,18 @@ $invalid = static fn (string $field): string => isset($errors[$field])
             <?php endif; ?>
         </p>
     </div>
+    <?php if (!$isNew || $main): ?>
+        <?php /* The room's switches, as on its own pages: start room, close/open. */ ?>
+        <div class="panel__actions">
+            <?php
+            $switchId     = (int) $id;
+            $switchActive = $roomActive;
+            $switchClosed = $roomClosed;
+            $switchBack   = $main ? url(['p' => 'room', 'main' => 1]) : url(['p' => 'room', 'id' => $id]);
+            require __DIR__ . '/_room_switches.php';
+            ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 <div class="login login--wide">

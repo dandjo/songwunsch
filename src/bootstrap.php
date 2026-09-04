@@ -275,8 +275,8 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         // Design: a drop of paint -- one solid shape that stays legible at 14px,
         // where a palette's wells blur into a blob.
         'drop'    => '<path d="M8 1.4c2.5 3.3 4.9 6.1 4.9 8.7a4.9 4.9 0 0 1-9.8 0C3.1 7.5 5.5 4.7 8 1.4z" fill="currentColor"/>',
-        // Limits: three sliders -- rails with their knobs at different positions.
-        'sliders' => '<path d="M2 4h12M2 8h12M2 12h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="10.5" cy="4" r="2.2" fill="currentColor"/><circle cx="5.5" cy="8" r="2.2" fill="currentColor"/><circle cx="11" cy="12" r="2.2" fill="currentColor"/>',
+        // Limits: three upright sliders -- rails with their knobs at different heights.
+        'sliders' => '<path d="M4 2v12M8 2v12M12 2v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="4" cy="11" r="2.2" fill="currentColor"/><circle cx="8" cy="5.5" r="2.2" fill="currentColor"/><circle cx="12" cy="10.5" r="2.2" fill="currentColor"/>',
         // Footer pages: a sheet with a folded corner and two lines of text.
         'page'   => '<path d="M3.5 1.8h6l3 3v9.4h-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9.5 1.8v3h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.8 8.2h4.4M5.8 11h4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
     ];

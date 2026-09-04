@@ -19,6 +19,7 @@ use Songwunsch\SongRepository;
 /** @var bool $paused          wishing closed by the moderator */
 /** @var string $formToken     signed timestamp for the wish form */
 /** @var array<string,mixed> $room  current room */
+/** @var int $startRoomId          for the switches in the head, see _room_switches.php */
 
 $e        = static fn (?string $v): string => Format::e($v);
 $inRoom   = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
@@ -59,19 +60,28 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
         </p>
     </div>
 
-    <?php if ($inRoom && $security->can('rooms')): ?>
+    <?php if ($security->can('rooms') || $security->can('wishes') || (!$inRoom && $security->can('songs'))): ?>
+        <?php /* The room's switches (start room, close/open) and, at the right
+                 end, the main action: Manage in a room, Add song on the master list. */ ?>
         <div class="panel__actions">
-            <a class="link-button" href="<?= $e(url(['p' => 'room_songs'])) ?>">
-                <?= icon('note') ?>
-                <?= $e(t('Manage')) ?>
-            </a>
-        </div>
-    <?php elseif (!$inRoom && $security->can('songs')): ?>
-        <div class="panel__actions">
-            <a class="link-button" href="<?= $e(url(['p' => 'song', 'back' => $current])) ?>">
-                <?= icon('plus') ?>
-                <?= $e(t('Add song')) ?>
-            </a>
+            <?php
+            $switchId     = (int) $room['id'];
+            $switchActive = (int) ($room['active'] ?? 1) === 1;
+            $switchClosed = $paused;
+            $switchBack   = $current;
+            require __DIR__ . '/_room_switches.php';
+            ?>
+            <?php if ($inRoom && $security->can('rooms')): ?>
+                <a class="link-button" href="<?= $e(url(['p' => 'room_songs'])) ?>">
+                    <?= icon('note') ?>
+                    <?= $e(t('Manage')) ?>
+                </a>
+            <?php elseif (!$inRoom && $security->can('songs')): ?>
+                <a class="link-button" href="<?= $e(url(['p' => 'song', 'back' => $current])) ?>">
+                    <?= icon('plus') ?>
+                    <?= $e(t('Add song')) ?>
+                </a>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 </div>

@@ -746,8 +746,9 @@ language.
 
 **The start room.** Where a visitor without any remembered room lands when
 opening the bare address (`/`, `/wishes`, `/suggestions`): the main room by
-default, or the room an editor marked with *As start room* on its row under
-*Rooms* (key `start_room` in `settings`, tagged *start room* in the list).
+default, or the room an editor marked with *As start room* -- on its row under
+*Rooms*, on the room's own page or on its edit form (key `start_room` in
+`settings`, tagged *start room* in the list).
 Marking the main room clears the setting. An archived start room receives no
 visitors, a deleted one drops the setting. The start room only applies to a
 first visit: once a room is remembered – the main room included, chosen
@@ -897,7 +898,7 @@ middleware or the hoster.
 | Change the order | Wish list → drag the row (drag & drop) or the buttons on the right: to the top, ▲, ▼, to the bottom |
 | Delete a wish | Wish list → *Delete* in the row |
 | Delete everything | Wish list → *Clear list* |
-| Close or open a room | Moderator: Rooms → *Close room* / *Open room* in the row (no wishes and no suggestions while closed); a closed room's header notice has *Open room* as well |
+| Close or open a room | Moderator: Rooms → *Close room* / *Open room* in the row, the same button on the room's own page and its edit form (no wishes and no suggestions while closed); a closed room's header notice has *Open room* as well |
 | Close all rooms | Admins: Rooms → *Close all rooms* / *Lift the closing of all rooms* |
 | Suggest a song | Suggestions → artist and title → *Suggest* (everyone, also without a login) |
 | Adopt a suggestion | Editor: Suggestions → *Adopt* in the row → add length and genre → *Add* |
@@ -1010,7 +1011,7 @@ src/RoomRepository.php Rooms: create, edit, delete, song selection from the mast
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter
-templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, theme, limits, pages, page_edit, page, footer, name, _name_form, error, _sortbar, _pager
+templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, theme, limits, pages, page_edit, page, footer, name, _name_form, _room_switches, error, _sortbar, _pager
 assets/                style.css (dark interface), app.js, vendor/ckeditor5 (the page editor, see Pages and footer)
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)
