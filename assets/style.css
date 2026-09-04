@@ -1553,6 +1553,10 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
    right edge; the text cells shrink with an ellipsis so long names cannot
    push the stack off the card. */
 @media (max-width: 560px) {
+    /* With a logo the header is short on room: on phones the room's name
+       steps back -- the room switcher below still names the current room. */
+    .dome__inner--logo .dome__room { display: none; }
+
     /* The button stack keeps its place at the right edge of every card; the
        text cells shrink with an ellipsis. Only the wish list rearranges: a
        third line under the artist carries the time received and, flowing
