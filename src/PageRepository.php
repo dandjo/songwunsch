@@ -18,7 +18,8 @@ namespace Songwunsch;
  * interface language and, where the page has none, the first language of the
  * fallback order (LANGUAGES_KEY, an admin setting) the page does have. Every
  * read method answers in the interface language that way, so the callers
- * never see more than one title and body per page.
+ * never see more than one title and body per page. The operator's own
+ * footer line follows the same rule (footerLine()).
  */
 final class PageRepository
 {
@@ -147,6 +148,79 @@ final class PageRepository
         }
 
         return $versions === [] ? null : reset($versions);
+    }
+
+    // ---- The footer line -------------------------------------------------------
+
+    /**
+     * The operator's own footer line in every language it is written in:
+     * code => cleaned HTML, for the form. The one line of earlier versions
+     * (Settings::FOOTER_HTML, no language) counts as the first language of
+     * the fallback order until the form saves once.
+     *
+     * @return array<string,string>
+     */
+    public function footerLines(): array
+    {
+        $available = $this->translator->available();
+        $lines     = [];
+        foreach ($this->settings->withPrefix(Settings::FOOTER_HTML_PREFIX) as $code => $html) {
+            if (isset($available[$code]) && $html !== '') {
+                $lines[$code] = $html;
+            }
+        }
+        if ($lines === []) {
+            $legacy = (string) $this->settings->get(Settings::FOOTER_HTML, '');
+            $first  = $this->languageOrder()[0] ?? null;
+            if ($legacy !== '' && $first !== null) {
+                $lines[$first] = $legacy;
+            }
+        }
+
+        return $lines;
+    }
+
+    /**
+     * The footer line a reader gets: their language, then the fallback
+     * order -- html and the code it is written in. Null without any line.
+     *
+     * @return array{html:string,lang:string}|null
+     */
+    public function footerLine(): ?array
+    {
+        $lines = $this->footerLines();
+        foreach ([$this->translator->code(), ...$this->languageOrder()] as $code) {
+            if (isset($lines[$code])) {
+                return ['html' => $lines[$code], 'lang' => $code];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Store the footer line in every language of the menu: code => HTML
+     * from the editor, reduced to the allowed tags here; an empty one drops
+     * that language. The line of earlier versions goes with the first save.
+     * Returns the number of languages that have a line now.
+     *
+     * @param array<string,string> $htmlByCode
+     */
+    public function saveFooterLines(array $htmlByCode): int
+    {
+        $kept = 0;
+        foreach (array_keys($this->translator->available()) as $code) {
+            $html = Html::clean((string) ($htmlByCode[$code] ?? ''));
+            if ($html === '') {
+                $this->settings->delete(Settings::FOOTER_HTML_PREFIX . $code);
+            } else {
+                $this->settings->set(Settings::FOOTER_HTML_PREFIX . $code, $html);
+                $kept++;
+            }
+        }
+        $this->settings->delete(Settings::FOOTER_HTML);
+
+        return $kept;
     }
 
     // ---- Reading ---------------------------------------------------------------

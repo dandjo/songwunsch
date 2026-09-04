@@ -1649,8 +1649,8 @@ msgstr "Unter den Links steht deine eigene Zeile – Credits, ein Link zu deiner
 msgid "Your own line"
 msgstr "Deine eigene Zeile"
 
-msgid "Shown below the page links on every screen – credits, a link to your site. Bold, italic and links; leave it empty for no line."
-msgstr "Steht auf jedem Bildschirm unter den Seiten-Links – Credits, ein Link zu deiner Seite. Fett, kursiv und Links; leer lassen für keine Zeile."
+msgid "Shown below the page links on every screen – credits, a link to your site. Bold, italic and links; one tab per language, readers get their own or the first of the fallback order. Leave every tab empty for no line."
+msgstr "Steht auf jedem Bildschirm unter den Seiten-Links – Credits, ein Link zu deiner Seite. Fett, kursiv und Links; ein Reiter pro Sprache, Leser sehen ihre eigene oder die erste der Fallback-Reihenfolge. Alle Reiter leer lassen für keine Zeile."
 
 msgid "Powered by …"
 msgstr "Powered by …"

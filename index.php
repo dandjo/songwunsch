@@ -528,17 +528,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             case 'footer_text_save':
                 // The operator's own footer line -- credits, a link -- below
-                // the page links. Admins only; the HTML is reduced to what
-                // the pages may contain (Html), an empty line drops it.
+                // the page links, one per language of the menu (text[<code>])
+                // like a page's versions. Admins only; the HTML is reduced to
+                // what the pages may contain (Html), an empty language drops
+                // its line.
                 require_role($security, 'users');
-                $html = Html::clean((string) ($_POST['text'] ?? ''));
-                if ($html === '') {
-                    $settings->delete(Settings::FOOTER_HTML);
-                    flash('ok', t('The footer line has been removed.'));
-                } else {
-                    $settings->set(Settings::FOOTER_HTML, $html);
-                    flash('ok', t('The footer line has been saved.'));
-                }
+                $texts = is_array($_POST['text'] ?? null)
+                    ? array_map(static fn (mixed $v): string => is_scalar($v) ? (string) $v : '', $_POST['text'])
+                    : [];
+                $kept = $pageRepo->saveFooterLines($texts);
+                flash('ok', $kept === 0 ? t('The footer line has been removed.') : t('The footer line has been saved.'));
                 redirect(url(['p' => 'footer']));
                 // no break
 
@@ -1316,6 +1315,7 @@ $view = [
     'guestName'  => $nameCookie->current(), // the visitor's name for wishes, account menu
     'askName'    => false, // first visit: ask for the name (dialog in the layout)
     'footer'     => '',    // the operator's own footer line (Administration -> Footer), HTML printed as is; filled below
+    'footerLang' => '',    // the language that line is written in, '' when it is the interface language
     'footerPages' => [],  // the admins' pages the footer links (Administration -> Footer), in order
     'editor'     => false, // load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page
     'themeCss'   => '',    // colour overrides the admins set under Design, '' = stylesheet defaults; filled below
@@ -1345,7 +1345,9 @@ try {
     // The footer links the pages the admins put there, on every screen, and
     // carries the operator's own line below them.
     $view['footerPages'] = $pageRepo->footerLinks();
-    $view['footer']      = (string) $settings->get(Settings::FOOTER_HTML, '');
+    $footerLine          = $pageRepo->footerLine();
+    $view['footer']      = $footerLine['html'] ?? '';
+    $view['footerLang']  = $footerLine !== null && $footerLine['lang'] !== $translator->code() ? $footerLine['lang'] : '';
     // Visitors without a login are asked for their name once, on the public
     // pages where wishing happens. Staff in the guest view see it as well --
     // that is what the guest view is for.
@@ -1458,15 +1460,22 @@ try {
         case 'footer':
             // Admins only: which pages the footer links, in which order --
             // drag & drop or arrow buttons, like the wish list -- and which
-            // pages could be added; below that the operator's own line.
+            // pages could be added; below that the operator's own line, one
+            // tab per language like a page's form.
             require_role($security, 'users');
 
-            $view['title']      = t('Footer');
-            $view['template']   = 'footer';
-            $view['linked']     = $pageRepo->inFooter();
-            $view['available']  = $pageRepo->outsideFooter();
-            $view['footerText'] = $view['footer'];
-            $view['editor']     = true;
+            $footerTexts = $pageRepo->footerLines();
+            $languages   = $translator->available();
+
+            $view['title']       = t('Footer');
+            $view['template']    = 'footer';
+            $view['linked']      = $pageRepo->inFooter();
+            $view['available']   = $pageRepo->outsideFooter();
+            $view['footerTexts'] = $footerTexts;                 // code => cleaned HTML, the languages with a line
+            $view['languages']   = $languages;                   // code => native name, the tabs
+            // The tab to start on: the interface language's, or the first that has a line.
+            $view['activeLang']  = isset($footerTexts[$translator->code()]) ? $translator->code() : (array_key_first($footerTexts) ?? $translator->code());
+            $view['editor']      = true;
             break;
 
         case 'page_edit':

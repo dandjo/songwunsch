@@ -11,11 +11,14 @@ use Songwunsch\Format;
  * no JavaScript needed. The order on the right changes by drag & drop
  * (app.js, the wish list's code) or with the four move buttons of every row.
  * Pages themselves are written under Pages. Below the picker the operator's
- * own line: credits, a link -- a compact editor, the HTML reduced on saving.
+ * own line: credits, a link -- a compact editor per language behind tabs,
+ * the HTML reduced on saving.
  *
  * @var array<int,array<string,mixed>> $linked     pages in the footer, in order
  * @var array<int,array<string,mixed>> $available  pages outside the footer, by title
- * @var string $footerText  the operator's line as stored (cleaned HTML), '' = none
+ * @var array<string,string> $footerTexts  code => the operator's line as stored (cleaned HTML); only the languages that have one
+ * @var array<string,string> $languages    code => native name, the tabs
+ * @var string $activeLang                 the tab to show first
  * @var \Songwunsch\Translator $translator  for the editor's language
  * @var string $csrf
  */
@@ -146,9 +149,12 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
     </section>
 </div>
 
-<?php /* The operator's own line below the page links. Written in the same
-         editor as the pages, reduced to bold, italic and links; the server
-         cleans whatever arrives (Html), so the source view is safe too. */ ?>
+<?php /* The operator's own line below the page links, one per language of
+         the menu -- a row of tabs over a compact editor each, the same tabs
+         as the page form (app.js, data-tabs). Written in the same editor as
+         the pages, reduced to bold, italic and links; the server cleans
+         whatever arrives (Html), so the source view is safe too. A language
+         left empty has no line and falls back like a page. */ ?>
 <div class="login login--wide">
     <form method="post" action="<?= $e(url()) ?>" class="login__form">
         <input type="hidden" name="a" value="footer_text_save">
@@ -156,13 +162,39 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
 
         <fieldset class="field field--group">
             <legend><?= $e(t('Your own line')) ?></legend>
-            <p class="field__hint" id="hint-footer-text"><?= $e(t('Shown below the page links on every screen – credits, a link to your site. Bold, italic and links; leave it empty for no line.')) ?></p>
-            <div class="field field--editor field--editor--compact">
-                <label for="footer-text" class="sr-only"><?= $e(t('Your own line')) ?></label>
-                <textarea id="footer-text" name="text" rows="3" data-editor data-editor-compact
-                          data-editor-lang="<?= $e($translator->code()) ?>"
-                          data-editor-placeholder="<?= $e(t('Powered by …')) ?>"
-                          aria-describedby="hint-footer-text"><?= $e($footerText) ?></textarea>
+            <p class="field__hint" id="hint-footer-text"><?= $e(t('Shown below the page links on every screen – credits, a link to your site. Bold, italic and links; one tab per language, readers get their own or the first of the fallback order. Leave every tab empty for no line.')) ?></p>
+
+            <div class="langtabs" data-tabs data-tabs-active="<?= $e($activeLang) ?>">
+                <nav class="tabs" aria-label="<?= $e(t('Languages')) ?>">
+                    <ul role="list">
+                        <?php foreach ($languages as $code => $name): ?>
+                            <li>
+                                <a href="#lang-<?= $e($code) ?>" class="tabs__item" data-tab="<?= $e($code) ?>">
+                                    <span lang="<?= $e($code) ?>"><?= $e($name) ?></span>
+                                    <?php if (isset($footerTexts[$code])): ?>
+                                        <?= icon('check', 14, true) ?><span class="sr-only"><?= $e(t('saved', [], 'language tab')) ?></span>
+                                    <?php elseif ($footerTexts !== []): ?>
+                                        <span class="tag"><?= $e(t('missing', [], 'language tab')) ?></span>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </nav>
+
+                <?php foreach ($languages as $code => $name): ?>
+                    <?php $htmlCode = preg_replace('/[^a-z0-9]/', '-', $code) ?? $code; ?>
+                    <fieldset class="langpanel" id="lang-<?= $e($code) ?>" data-panel="<?= $e($code) ?>">
+                        <legend class="langpanel__legend"><span lang="<?= $e($code) ?>"><?= $e($name) ?></span></legend>
+                        <div class="field field--editor field--editor--compact">
+                            <label for="footer-text-<?= $e($htmlCode) ?>" class="sr-only"><?= $e(t('Your own line')) ?> (<span lang="<?= $e($code) ?>"><?= $e($name) ?></span>)</label>
+                            <textarea id="footer-text-<?= $e($htmlCode) ?>" name="text[<?= $e($code) ?>]" rows="3" data-editor data-editor-compact
+                                      data-editor-lang="<?= $e($translator->code()) ?>"
+                                      data-editor-placeholder="<?= $e(t('Powered by …')) ?>" lang="<?= $e($code) ?>"
+                                      aria-describedby="hint-footer-text"><?= $e($footerTexts[$code] ?? '') ?></textarea>
+                        </div>
+                    </fieldset>
+                <?php endforeach; ?>
             </div>
         </fieldset>
 

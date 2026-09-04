@@ -418,9 +418,14 @@ commas.
 The operator's own line – credits, a link to the operator's site – is written
 on the same page, *Your own line* below the picker, in a compact editor
 (bold, italic, links, source view) and printed below the page links on every
-screen. Saving reduces the HTML to what the pages may contain (`src/Html.php`);
-the value lives in the `settings` table (`footer_html`). Leave it empty for no
-line.
+screen. Like a page it is written **per language**, one tab each: readers get
+the line in their own language, otherwise in the first language of the
+fallback order that has one (with `lang="…"` on it), and a language left
+empty simply has no line of its own. Saving reduces the HTML to what the
+pages may contain (`src/Html.php`); the values live in the `settings` table
+as `footer_html.<code>`. A `footer_html` entry without a code, from earlier
+versions, is read as the first language of the fallback order until the form
+is saved once. Leave every tab empty for no line.
 
 ## Deployment
 

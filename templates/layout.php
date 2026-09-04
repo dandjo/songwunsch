@@ -24,6 +24,7 @@ use Songwunsch\Translator;
 /** @var bool $askName           first visit: ask for the name in a dialog */
 /** @var array{url:string,rev:string}|null $live  polling address and current revision, wish list and suggestions */
 /** @var string $footer  the operator's own footer line (Administration -> Footer), cleaned HTML; empty = none */
+/** @var string $footerLang  the language that line fell back to, '' when it is the interface language */
 /** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
 /** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
 /** @var string $themeCss  :root colour overrides the admins set under Design, see Theme; '' = none */
@@ -449,7 +450,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                 <?php /* The operator's own line (credits, a link), written under
                          Administration -> Footer and reduced to the allowed HTML
                          when saved (Html); deliberately printed unescaped. */ ?>
-                <div class="base__custom"><?= $footer ?></div>
+                <div class="base__custom"<?= $footerLang !== '' ? ' lang="' . $e($footerLang) . '"' : '' ?>><?= $footer ?></div>
             <?php endif; ?>
         </footer>
     <?php endif; ?>

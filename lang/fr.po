@@ -1645,8 +1645,8 @@ msgstr "Sous les liens se trouve votre propre ligne – crédits, un lien vers v
 msgid "Your own line"
 msgstr "Votre propre ligne"
 
-msgid "Shown below the page links on every screen – credits, a link to your site. Bold, italic and links; leave it empty for no line."
-msgstr "Affichée sous les liens des pages sur chaque écran – crédits, un lien vers votre site. Gras, italique et liens ; laissez vide pour aucune ligne."
+msgid "Shown below the page links on every screen – credits, a link to your site. Bold, italic and links; one tab per language, readers get their own or the first of the fallback order. Leave every tab empty for no line."
+msgstr "Affichée sous les liens des pages sur chaque écran – crédits, un lien vers votre site. Gras, italique et liens ; un onglet par langue, les lecteurs voient la leur ou la première de l’ordre de repli. Laissez tous les onglets vides pour aucune ligne."
 
 msgid "Powered by …"
 msgstr "Powered by …"
