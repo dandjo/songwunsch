@@ -272,10 +272,11 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         'bulb'   => '<path d="M5.7 10.4c0-1.7-2.4-2.5-2.4-5.1a4.7 4.7 0 0 1 9.4 0c0 2.6-2.4 3.4-2.4 5.1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.6 13h4.8M6.6 15.2h2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
         // Administration: a shield with a tick.
         'shield' => '<path d="M8 1.1 14.4 3.4v4.4c0 3.6-2.6 6.3-6.4 7.6C4.2 14.1 1.6 11.4 1.6 7.8V3.4z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M5.1 8.2l2 2 3.9-4.1" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>',
-        // Design: a painter's palette -- the board as an outline, three dabs of paint.
-        'palette' => '<path d="M8 3C5.2 3 3 5.2 3 8s2.2 5 5 5c.9 0 1.5-.5 1.5-1.2 0-.5-.3-.8-.3-1.3 0-.6.5-1.1 1.2-1.1h1.2c1.2 0 2.2-1 2.2-2.2C13.8 4.9 11.2 3 8 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.7" cy="7.6" r="1.1" fill="currentColor"/><circle cx="7.7" cy="5.5" r="1.1" fill="currentColor"/><circle cx="10.4" cy="6.5" r="1.1" fill="currentColor"/>',
-        // Limits: a gauge -- half a dial with the needle towards the red end.
-        'gauge'  => '<path d="M2.5 11a5.5 5.5 0 0 1 11 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 11l3-4.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="8" cy="11" r="1.7" fill="currentColor"/>',
+        // Design: a painter's palette -- a solid board with the thumb hole and
+        // four wells for the paint cut out, so it reads as heavy as the people.
+        'palette' => '<path fill-rule="evenodd" d="M8 1.4C4.1 1.4 1.2 4.3 1.2 8c0 3.7 3 6.6 6.7 6.6 1.3 0 2.2-.9 2.2-1.9 0-.6-.3-1-.6-1.4-.2-.3-.4-.6-.4-.9 0-.7.6-1.2 1.3-1.2h1.5c1.8 0 3-1.3 3-2.9C14.9 3.7 11.9 1.4 8 1.4zM8 3.3a1.35 1.35 0 1 0 0 2.7a1.35 1.35 0 1 0 0-2.7zM4.7 5.2a1.35 1.35 0 1 0 0 2.7a1.35 1.35 0 1 0 0-2.7zM11.3 5.2a1.35 1.35 0 1 0 0 2.7a1.35 1.35 0 1 0 0-2.7zM4.6 9.3a1.35 1.35 0 1 0 0 2.7a1.35 1.35 0 1 0 0-2.7z" fill="currentColor"/>',
+        // Limits: a gauge -- a thick half dial with the needle swung to the right, a solid hub.
+        'gauge'  => '<path d="M2.6 12a5.4 5.4 0 0 1 10.8 0" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><path d="M8 12l3.4-4.3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="8" cy="12" r="2.1" fill="currentColor"/>',
         // Footer pages: a sheet with a folded corner and two lines of text.
         'page'   => '<path d="M3.5 1.8h6l3 3v9.4h-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9.5 1.8v3h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.8 8.2h4.4M5.8 11h4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
     ];
