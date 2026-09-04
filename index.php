@@ -1065,6 +1065,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ((int) $settings->get(RoomRepository::START_ROOM_KEY, '0') === (int) $target['id']) {
                         $settings->delete(RoomRepository::START_ROOM_KEY);
                     }
+                    // Its pause switch and revision counter go with it.
+                    $guard->forgetRoom((int) $target['id']);
                     flash('ok', t('Room “{name}” has been deleted together with its wishes.', ['name' => (string) $target['name']]));
                 } else {
                     flash('error', t('Deleting was not possible.'));

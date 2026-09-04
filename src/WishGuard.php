@@ -164,6 +164,19 @@ final class WishGuard
         return self::pausedKeyFor($this->roomId);
     }
 
+    /**
+     * A deleted room takes its pause switch and its revision counter along,
+     * so nothing of it lingers in the settings.
+     */
+    public function forgetRoom(int $roomId): void
+    {
+        if ($roomId === RoomRepository::DEFAULT_ID) {
+            return;
+        }
+        $this->settings->delete(self::pausedKeyFor($roomId));
+        $this->settings->delete(self::REVISION_KEY . ':' . $roomId);
+    }
+
     private static function pausedKeyFor(int $roomId): string
     {
         return $roomId === RoomRepository::DEFAULT_ID ? self::PAUSED_KEY : self::PAUSED_KEY . ':' . $roomId;
