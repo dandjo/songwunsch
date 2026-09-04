@@ -24,6 +24,7 @@ use Songwunsch\Translator;
 /** @var bool $askName           first visit: ask for the name in a dialog */
 /** @var array{url:string,rev:string}|null $live  polling address and current revision, wish list and suggestions */
 /** @var string $footer  HTML for the footer from config.php ('footer'); empty = no footer */
+/** @var string $themeCss  :root colour overrides from config.php ('theme'), see Theme; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
 
 $e      = static fn (?string $v): string => Format::e($v);
@@ -50,6 +51,11 @@ foreach ($translator->available() as $code => $name) {
     <meta name="color-scheme" content="dark">
     <title><?= $e($title) ?><?= $inRoom ? ' · ' . $e((string) $room['name']) : '' ?> · Songwunsch</title>
     <link rel="stylesheet" href="<?= $e(asset('assets/style.css')) ?>">
+    <?php if ($themeCss !== ''): ?>
+        <?php /* Configured colours override the stylesheet's :root tokens;
+                 the value is generated from validated hex colours only. */ ?>
+        <style><?= $themeCss ?></style>
+    <?php endif; ?>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎵</text></svg>">
 </head>
 <?php /* data-live: the wish list and the suggestions poll this address for

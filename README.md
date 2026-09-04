@@ -286,7 +286,32 @@ stored unchanged and scaled by CSS alone. The size limit is the server's
 The files live in the `uploads` table, not on disk: the deployment syncs the
 code with `--delete`, a shared host may have no writable folder, and a
 database backup carries the logos along. A logo is served under
-`/logo?id=<id>` with a long cache lifetime – the bytes of an id never change.
+`/logo/<id>` with a long cache lifetime – the bytes of an id never change.
+
+## Colours
+
+The interface is dark with gold for actions, violet for tags and counters,
+red for danger and green for success. Each of these areas has one base colour
+that `config.php` (or the environment) can replace:
+
+| `theme` key | Environment | Used for | Default |
+| --- | --- | --- | --- |
+| `accent` | `THEME_ACCENT` | Buttons, active tab, links, "wunsch" in the word mark, gold notices | `#e6b450` |
+| `secondary` | `THEME_SECONDARY` | Tags, the counters on the tabs, chips | `#8d7ce0` |
+| `danger` | `THEME_DANGER` | Closed rooms, delete buttons, warnings, errors | `#ff6f85` |
+| `success` | `THEME_SUCCESS` | Confirmations | `#4ed08c` |
+| `background` | `THEME_BACKGROUND` | Page ground; shell, panels, fields and lines are lightened steps of it | `#0d0e13` |
+| `text` | `THEME_TEXT` | Text; the muted text is a step towards the background | `#e9ebf1` |
+
+Values are `#rrggbb` (or `#rgb`); anything else is ignored and the built-in
+colour stays. The stylesheet keeps every colour as a custom property on
+`:root` – the base colours and the shades derived from them (bright, deep,
+frame, hover tint, notice tint). `src/Theme.php` derives those shades from a
+configured base colour with the same ratios and the layout prints one
+`<style>:root{…}</style>` block that overrides the stylesheet; nothing is
+printed while nothing is configured. Keep the contrast readable – gold on a
+light background, say, will not do – and check with the accessibility tools
+of the browser after a change.
 
 ## Footer
 

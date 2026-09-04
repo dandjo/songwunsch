@@ -41,6 +41,7 @@ use Songwunsch\RoomRepository;
 use Songwunsch\Schema;
 use Songwunsch\Security;
 use Songwunsch\Settings;
+use Songwunsch\Theme;
 use Songwunsch\Uploads;
 use Songwunsch\SongRepository;
 use Songwunsch\SuggestionRepository;
@@ -1088,6 +1089,7 @@ try {
     // deleted one falls back to the word mark by itself.
     $logoId       = (int) $settings->get(Settings::LOGO_ID, '0');
     $view['logo'] = $logoId > 0 ? $uploads->info($logoId) : null;
+    'themeCss'   => Theme::css((array) ($config['theme'] ?? [])), // colour overrides from config.php, '' = stylesheet defaults
 
     switch ($page) {
         case 'logo':

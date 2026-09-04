@@ -25,21 +25,41 @@
     --line:         #2b2e39;
     --line-soft:    rgba(255, 255, 255, .06);
 
-    /* Accents: gold for actions, violet secondary */
+    /* Accents: gold for actions, violet secondary, red for danger, green
+       for success. Every shade and tint below derives from its base colour;
+       config.php ('theme') may replace a base colour per area of use, then
+       src/Theme.php recomputes the derived ones and overrides this block. */
     --gold:         #e6b450;
     --gold-bright:  #f4cd7d;
     --gold-deep:    #7d5c14;
+    --gold-wash:        rgba(230, 180, 80, .06);  /* faint row highlight */
+    --gold-tint:        rgba(230, 180, 80, .12);  /* hover of gold-framed buttons */
+    --gold-tint-mid:    rgba(230, 180, 80, .14);  /* notices */
+    --gold-tint-strong: rgba(230, 180, 80, .22);  /* chips inside notices */
     --violet:       #8d7ce0;
+    --violet-bright: #b3a6ea;
     --violet-soft:  rgba(141, 124, 224, .13);
     --violet-line:  rgba(141, 124, 224, .32);
     --chrome:       #c7cad4;
 
     --text:         #e9ebf1;
     --text-muted:   #969cab;
+    --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
     --danger:       #ff6f85;
+    --danger-bright: #ffa3b3;
     --danger-deep:  #a8283f;
     --danger-line:  #5f2735;
+    --danger-tint:        rgba(255, 111, 133, .12);
+    --danger-tint-strong: rgba(255, 111, 133, .25);
+    --danger-glow:        rgba(255, 111, 133, .15);
     --ok:           #4ed08c;
+
+    /* Neutral overlays: hover and pressed states on dark surfaces, the
+       backdrop behind the name dialog. */
+    --hover-soft:   rgba(255, 255, 255, .04);
+    --hover:        rgba(255, 255, 255, .06);
+    --hover-strong: rgba(255, 255, 255, .1);
+    --backdrop:     rgba(6, 7, 10, .72);
 
     /* Rounding is functional, not decorative: buttons and fields 8px,
        surfaces 12px, the shell 16px. The pill shape is reserved for chips. */
@@ -50,7 +70,7 @@
 
     --shadow-deep:  0 12px 32px rgba(0, 0, 0, .4);
     --shadow-soft:  0 1px 2px rgba(0, 0, 0, .2);
-    --glow-gold:    0 0 0 3px rgba(230, 180, 80, .2);
+    --glow-gold:    0 0 0 3px var(--gold-tint-strong);
 
     /* Side spacing shared by header and panel content, so the word mark and
        the page title sit on the same vertical line. */
@@ -247,7 +267,7 @@ code {
 .lang__toggle:hover,
 .lang[open] .lang__toggle,
 .account__toggle:hover,
-.account[open] .account__toggle { color: var(--text); background: rgba(255, 255, 255, .05); }
+.account[open] .account__toggle { color: var(--text); background: var(--hover-soft); }
 .lang__toggle:focus-visible,
 .account__toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .lang__icon,
@@ -310,7 +330,7 @@ code {
     text-align: left;
 }
 .lang__menu a:hover,
-.account__item:hover { background: rgba(255, 255, 255, .06); }
+.account__item:hover { background: var(--hover); }
 .lang__menu a.is-active,
 .account__item.is-active { color: var(--gold); }
 .lang__menu a.is-active::after,
@@ -328,8 +348,8 @@ code {
     display: inline-block;
     padding: 0 .45em;
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, .1);
-    color: #fff;
+    background: var(--hover-strong);
+    color: var(--text-strong);
     font-weight: 700;
 }
 /* The signed-in name heads the account menu, muted, with a hairline below. */
@@ -361,7 +381,7 @@ code {
     padding: .6rem .75rem;
     border: 1px solid var(--gold);
     border-radius: var(--radius-sm);
-    background: rgba(230, 180, 80, .14);
+    background: var(--gold-tint-mid);
     color: var(--gold-bright);
     font-size: .88rem;
     line-height: 1.4;
@@ -374,11 +394,11 @@ code {
     text-underline-offset: .2em;
 }
 .dome__notice a:hover,
-.dome__notice a:focus-visible { color: #fff; }
+.dome__notice a:focus-visible { color: var(--text-strong); }
 /* Warning variant (default admin password): the danger colours. */
 .dome__notice--warn {
     border-color: var(--danger);
-    background: rgba(255, 111, 133, .12);
+    background: var(--danger-tint);
     color: var(--danger);
 }
 .dome__notice--warn strong,
@@ -395,20 +415,20 @@ code {
    wishes, which is more than a caution. */
 .dome__notice--closed {
     border-color: var(--danger);
-    background: rgba(255, 111, 133, .12);
+    background: var(--danger-tint);
     color: var(--danger);
 }
 .dome__notice--closed strong,
 .dome__notice--closed a { color: var(--danger); }
-.dome__notice--closed .dome__notice-room { background: rgba(255, 111, 133, .25); }
+.dome__notice--closed .dome__notice-room { background: var(--danger-tint-strong); }
 /* The room's name inside the notice: a small chip, so it stands out without
    quotation marks that would differ per language. */
 .dome__notice-room {
     display: inline-block;
     padding: 0 .45em;
     border-radius: var(--radius-sm);
-    background: rgba(230, 180, 80, .22);
-    color: #fff;
+    background: var(--gold-tint-strong);
+    color: var(--text-strong);
     font-weight: 700;
     white-space: nowrap;
 }
@@ -445,7 +465,7 @@ code {
 .nav a:hover,
 .nav .link-button:hover {
     color: var(--gold-bright);
-    background: rgba(230, 180, 80, .12);
+    background: var(--gold-tint);
     border-color: var(--gold-deep);
 }
 /* The active page carries the accent, not every button. */
@@ -474,7 +494,7 @@ code {
 }
 .roomswitch__toggle::-webkit-details-marker { display: none; }
 .roomswitch__toggle:hover,
-.roomswitch[open] .roomswitch__toggle { color: var(--gold-bright); background: rgba(230, 180, 80, .12); }
+.roomswitch[open] .roomswitch__toggle { color: var(--gold-bright); background: var(--gold-tint); }
 .roomswitch__toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .roomswitch__current {
     max-width: 12rem;
@@ -534,7 +554,7 @@ code {
    it must read exactly like the links around it. */
 .nav button.roomswitch__item { background: none; font: inherit; font-size: .9rem; font-weight: 500; text-align: left; cursor: pointer; }
 .roomswitch__menu form { margin: 0; }
-.nav .roomswitch__item:hover { background: rgba(255, 255, 255, .06); border-color: transparent; }
+.nav .roomswitch__item:hover { background: var(--hover); border-color: transparent; }
 .nav .roomswitch__item.is-active { color: var(--gold); background: transparent; }
 .nav .roomswitch__item.is-active::after { content: '✓'; margin-left: 1rem; font-size: .85em; }
 
@@ -664,7 +684,7 @@ code {
     border-radius: var(--radius);
     background: var(--surface);
 }
-.grid tbody tr:hover { background: rgba(255, 255, 255, .04); }
+.grid tbody tr:hover { background: var(--hover-soft); }
 
 /* A song card that wishes on click (app.js adds .is-clickable): the whole
    card answers to the pointer -- gold frame and shadow on hover, the Wish
@@ -680,7 +700,7 @@ code {
 .grid tbody tr.is-clickable:focus-within {
     border-color: var(--gold);
     box-shadow: 0 0 0 1px var(--gold), 0 6px 18px rgba(0, 0, 0, .35);
-    background: rgba(230, 180, 80, .06);
+    background: var(--gold-wash);
 }
 .grid tbody tr.is-clickable:hover .wish-button,
 .grid tbody tr.is-clickable.is-pressed .wish-button,
@@ -740,7 +760,7 @@ code {
     border: 1px solid var(--violet-line);
     border-radius: var(--radius-pill);
     background: var(--violet-soft);
-    color: #b3a6ea;
+    color: var(--violet-bright);
     font-size: .82rem;
     white-space: nowrap;
 }
@@ -987,7 +1007,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     padding: 0;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, .04);
+    background: var(--hover-soft);
     color: var(--gold);
     font: inherit;
     font-size: .75rem;
@@ -1046,13 +1066,13 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 .danger-button {
     min-height: 34px;
     border: 1px solid var(--danger-line);
-    background: rgba(255, 111, 133, .1);
+    background: var(--danger-tint);
     color: var(--danger);
 }
 .delete-button:hover,
 .danger-button:hover {
     background: var(--danger-deep);
-    color: #fff;
+    color: var(--text-strong);
     border-color: var(--danger-deep);
 }
 
@@ -1062,11 +1082,11 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     color: var(--gold);
     text-decoration: none;
 }
-.link-button:hover { background: rgba(230, 180, 80, .12); color: var(--gold-bright); }
+.link-button:hover { background: var(--gold-tint); color: var(--gold-bright); }
 /* The same button in the danger colours, for actions inside a red notice
    ("Open room" in the closed-room notice). */
 .link-button--danger { border-color: var(--danger-line); color: var(--danger); }
-.link-button--danger:hover { background: rgba(255, 111, 133, .12); color: #ffa3b3; }
+.link-button--danger:hover { background: var(--danger-tint); color: var(--danger-bright); }
 
 /* A button with a text label hides its icon -- it would only be decoration.
    An icon button does the reverse: the icon is shown, the label is kept for
@@ -1215,7 +1235,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 }
 .arrow-button:hover { background: var(--gold); border-color: var(--gold); color: var(--base); }
 .arrow-button--remove { border-color: var(--danger-line); color: var(--danger); }
-.arrow-button--remove:hover { background: var(--danger-deep); border-color: var(--danger-deep); color: #fff; }
+.arrow-button--remove:hover { background: var(--danger-deep); border-color: var(--danger-deep); color: var(--text-strong); }
 
 /* ---------- Sort bar ---------- */
 
@@ -1263,7 +1283,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     color: var(--text);
     box-shadow: var(--shadow-deep);
 }
-.namebox::backdrop { background: rgba(6, 7, 10, .72); backdrop-filter: blur(2px); }
+.namebox::backdrop { background: var(--backdrop); backdrop-filter: blur(2px); }
 .namebox[open]:not(:modal) { position: relative; width: auto; margin: 0 0 1.25rem; }
 .namebox__title {
     margin: 0 0 1rem;
@@ -1328,7 +1348,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     border-radius: var(--radius-sm);
     text-decoration: none;
 }
-.pager a:hover { background: rgba(255, 255, 255, .06); border-color: var(--line); }
+.pager a:hover { background: var(--hover); border-color: var(--line); }
 
 /* ---------- Login ---------- */
 
@@ -1380,7 +1400,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 
 .field input[aria-invalid="true"] {
     border-color: var(--danger);
-    box-shadow: 0 0 0 3px rgba(255, 111, 133, .15);
+    box-shadow: 0 0 0 3px var(--danger-glow);
 }
 .field__hint  { margin: .35rem 0 0; font-size: .82rem; color: var(--muted); }
 .field__error { margin: .35rem 0 0; font-size: .85rem; font-weight: 600; color: var(--danger); }
@@ -1465,7 +1485,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 
 .tag--gold {
     border-color: var(--gold);
-    background: rgba(230, 180, 80, .14);
+    background: var(--gold-tint-mid);
     color: var(--gold-bright);
 }
 
