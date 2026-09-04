@@ -100,6 +100,24 @@
             }
         });
 
+        // Machine names (rooms, pages): the address in the hint below the
+        // field follows what is typed, lower-cased like the server stores
+        // it; while the field is empty the example stands in.
+        root.querySelectorAll('[data-slug-preview]').forEach(function (out) {
+            var field = document.getElementById(out.getAttribute('data-slug-preview'));
+            if (!field || out.hasAttribute('data-bound')) { return; }
+            out.setAttribute('data-bound', '1');
+            var base = out.getAttribute('data-slug-base') || '';
+            var example = out.getAttribute('data-slug-example') || '';
+            var render = function () {
+                var slug = field.value.trim().toLowerCase();
+                out.textContent = base + (slug !== '' ? slug : example);
+                out.classList.toggle('is-example', slug === '');
+            };
+            field.addEventListener('input', render);
+            render();
+        });
+
         // Password fields: the eye shows the typed password and hides it
         // again. The button is rendered hidden and only appears here, so
         // without JavaScript nothing dangles beside the field.
@@ -133,6 +151,72 @@
             };
             box.addEventListener('change', apply);
             apply();
+        });
+
+        // Footer pages: CKEditor takes the place of the content textarea
+        // (Administration -> Footer -> Edit). The bundle in
+        // assets/vendor/ckeditor5 is loaded by the layout on that page only
+        // and defines window.CKEDITOR; the translation file, when bundled,
+        // registers itself under window.CKEDITOR_TRANSLATIONS. The editor
+        // writes its HTML back into the textarea when the form is submitted;
+        // without JavaScript the textarea shows the HTML as it is, and the
+        // server reduces whatever arrives to the allowed tags anyway.
+        root.querySelectorAll('textarea[data-editor]').forEach(function (field) {
+            var CK = window.CKEDITOR;
+            if (!CK || !CK.ClassicEditor || field.hasAttribute('data-bound')) { return; }
+            field.setAttribute('data-bound', '1');
+
+            var lang = field.getAttribute('data-editor-lang') || 'en';
+            var translated = window.CKEDITOR_TRANSLATIONS && window.CKEDITOR_TRANSLATIONS[lang];
+
+            CK.ClassicEditor.create(field, {
+                licenseKey: 'GPL',
+                language: translated ? lang : 'en',
+                placeholder: field.getAttribute('data-editor-placeholder') || '',
+                plugins: [
+                    CK.Essentials, CK.Paragraph, CK.Heading, CK.Bold, CK.Italic, CK.Underline,
+                    CK.Strikethrough, CK.Subscript, CK.Superscript, CK.Code, CK.RemoveFormat,
+                    CK.Link, CK.List, CK.BlockQuote, CK.HorizontalLine,
+                    CK.Table, CK.TableToolbar, CK.Autoformat, CK.PasteFromOffice, CK.SourceEditing
+                ],
+                toolbar: {
+                    items: [
+                        'heading', '|',
+                        'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'code', 'removeFormat', '|',
+                        'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', 'horizontalLine', '|',
+                        'undo', 'redo', '|', 'sourceEditing'
+                    ],
+                    shouldNotGroupWhenFull: false
+                },
+                // The page's own title is the h1; the content starts below it.
+                heading: {
+                    options: [
+                        { model: 'paragraph', title: 'Paragraph', 'class': 'ck-heading_paragraph' },
+                        { model: 'heading2', view: 'h2', title: 'Heading 2', 'class': 'ck-heading_heading2' },
+                        { model: 'heading3', view: 'h3', title: 'Heading 3', 'class': 'ck-heading_heading3' },
+                        { model: 'heading4', view: 'h4', title: 'Heading 4', 'class': 'ck-heading_heading4' }
+                    ]
+                },
+                link: {
+                    defaultProtocol: 'https://',
+                    addTargetToExternalLinks: true
+                },
+                table: {
+                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
+                }
+            }).then(function (editor) {
+                // The editor is created after the browser's own validation
+                // marked the field; the label now points at the editing area.
+                var label = document.querySelector('label[for="' + field.id + '"]');
+                var editable = editor.ui.view.editable.element;
+                if (label && editable) {
+                    editable.setAttribute('aria-labelledby', label.id || (label.id = field.id + '-label'));
+                }
+            }).catch(function (error) {
+                // The plain textarea stays usable.
+                field.removeAttribute('data-bound');
+                if (window.console) { console.error(error); }
+            });
         });
 
         // Confirmation before deleting.
@@ -177,9 +261,9 @@
             });
         });
 
-        // Wish list: order by drag & drop. Without JavaScript the arrow
-        // buttons remain the way to the same result -- they are also the
-        // keyboard access.
+        // Wish list and footer: order by drag & drop. Without JavaScript the
+        // arrow buttons remain the way to the same result -- they are also
+        // the keyboard access.
         var board = root.querySelector('table[data-reorder]');
         if (board) {
             reorderable(board);
@@ -222,8 +306,9 @@
                 return row.getAttribute('data-id');
             });
 
+            // The wish list posts 'reorder', the footer 'footer_reorder'.
             var payload = new URLSearchParams();
-            payload.set('a', 'reorder');
+            payload.set('a', board.getAttribute('data-reorder-action') || 'reorder');
             payload.set('csrf', board.getAttribute('data-csrf'));
             payload.set('order', ids.join(','));
 

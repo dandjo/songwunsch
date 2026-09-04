@@ -9,9 +9,13 @@ declare(strict_types=1);
  *   /        songs (start, public)            | /login
  *   /wishes  public view, moderators edit     | /song   (editor)
  *   /suggestions  everyone suggests, editors adopt or delete
- *   /name    the visitor's name for wishes    | /settings (signed in)
- *   /users   admin                            | /user   (admin)
- *   /rooms   list of rooms (public)           | /room   (editor: create/edit)
+ *   /name    the visitor's name for wishes    | /settings -> /users/<own id>/settings
+ *   /users   admin                            | /users/new, /users/<id>/edit (admin)
+ *   /logos   admin: header logos
+ *   /pages   admin: the pages, CRUD           | /pages/new, /pages/<id>/edit (admin, CKEditor)
+ *   /pages/<slug>    a page for everyone (imprint, FAQ, ...)
+ *   /footer  admin: which pages the footer links, in which order
+ *   /rooms   list of rooms (public)           | /rooms/new, /rooms/<id>/edit, /rooms/main/edit (editor)
  *   /rooms/<slug>          a room's song list  -- same page as /, in the room
  *   /rooms/<slug>/wishes   a room's wish list  -- same page as /wishes
  *   /rooms/<slug>/suggestions  suggest from inside the room: the adopted song joins it
@@ -24,6 +28,9 @@ declare(strict_types=1);
  *                  | room_save | room_delete | main_room_save | room_start (editor)
  *                  | room_songs_add | room_songs_remove           (editor)
  *                  | user_save | user_delete                      (admin)
+ *                  | logo_upload | logo_activate | logo_delete    (admin)
+ *                  | page_save | page_delete                      (admin)
+ *                  | footer_add | footer_remove | footer_move | footer_reorder (admin)
  *                  | pause_all                                    (admin)
  * Admins may do everything. ?lang=<code> switches the UI language.
  * The web server routes every address to this file (.htaccess); addresses of
@@ -36,6 +43,7 @@ declare(strict_types=1);
 use Songwunsch\Database;
 use Songwunsch\Format;
 use Songwunsch\GuestName;
+use Songwunsch\PageRepository;
 use Songwunsch\RoomMemory;
 use Songwunsch\RoomRepository;
 use Songwunsch\Schema;
@@ -80,6 +88,7 @@ $users  = new UserRepository($db);
 $rooms  = new RoomRepository($db);
 $settings = new Settings($db);
 $uploads  = new Uploads($db);
+$pages    = new PageRepository($db); // the admins' pages: imprint, FAQ, ...; some linked in the footer
 // $wishes and $guard are bound to the room and are created after routing.
 // The main room may carry a name of its own (Rooms -> Edit on the main room).
 try {
@@ -120,19 +129,25 @@ $routes = [
     '/login'  => 'login',
     '/users'  => 'users',
     '/rooms'  => 'rooms',
-    '/settings' => 'settings', // redirects to /user/<own id>/settings
+    '/settings' => 'settings', // redirects to /users/<own id>/settings
     '/logos'  => 'logos',
+    '/pages'  => 'pages',
+    '/footer' => 'footer',
     '/name'   => 'name',
 ];
-// Pages with an id in the path -- see url(): /song/<id>|new, /user/<id>|new,
-// /room/<id>|new, /room/main, /user/<id>/settings, /logo/<id>,
-// /suggestions/<id>/adopt. The matched values land in these three.
+// Pages with an id in the path -- see url(): /song/<id>|new, /users/<id>/edit,
+// /users/new, /users/<id>/settings, /rooms/<id>/edit, /rooms/new,
+// /rooms/main/edit, /pages/<id>/edit, /pages/new, /logo/<id>,
+// /suggestions/<id>/adopt, /pages/<slug>. The matched values land in these
+// four.
 $routeId         = 0;     // 0 = new
-$routeMain       = false; // /room/main: rename the main room
+$routeMain       = false; // /rooms/main/edit: rename the main room
 $routeSuggestion = 0;     // /suggestions/<id>/adopt: the suggestion to adopt
-// Addresses of an earlier version with the id in the query string
-// (/song?key=3, /user?id=2, /room?id=4, /room?main=1, /logo?id=1) move
-// permanently to the new form.
+$routeSlug       = '';    // /pages/<slug>: the page to show
+// Addresses of earlier versions move permanently to the new form: the id in
+// the query string (/song?key=3, /user?id=2, /room?id=4, /room?main=1,
+// /logo?id=1), and the singular forms /user/<id>, /user/new,
+// /user/<id>/settings, /room/<id>, /room/new, /room/main.
 $legacy = ['/song' => 'song', '/user' => 'user', '/room' => 'room', '/logo' => 'logo'];
 // Inside a room: /rooms/<slug>, /rooms/<slug>/wishes, /rooms/<slug>/suggestions,
 // /rooms/<slug>/manage.
@@ -156,18 +171,47 @@ if ($route === '/index.php') {
     $page = (string) ($_POST['p'] ?? 'songs');
 } elseif (isset($routes[$route])) {
     $page = $routes[$route];
-} elseif (preg_match('#^/(song|user|room)/(new|[1-9][0-9]*)$#', $route, $m) === 1) {
-    $page    = $m[1];
-    $routeId = $m[2] === 'new' ? 0 : (int) $m[2];
-} elseif ($route === '/room/main') {
+} elseif (preg_match('#^/song/(new|[1-9][0-9]*)$#', $route, $m) === 1) {
+    $page    = 'song';
+    $routeId = $m[1] === 'new' ? 0 : (int) $m[1];
+} elseif (preg_match('#^/(users|rooms|pages)/new$#', $route, $m) === 1) {
+    // Create: the list's address plus /new. 'new' is therefore no room's
+    // and no page's machine name (reserved in the repositories).
+    $page = ['users' => 'user', 'rooms' => 'room', 'pages' => 'page_edit'][$m[1]];
+} elseif (preg_match('#^/(users|rooms|pages)/([1-9][0-9]*)/edit$#', $route, $m) === 1) {
+    // Edit: the list's address, the id, /edit. /rooms/<id>/edit and
+    // /pages/<id>/edit cannot be mistaken for a room or a page, whose
+    // addresses have no /edit.
+    $page    = ['users' => 'user', 'rooms' => 'room', 'pages' => 'page_edit'][$m[1]];
+    $routeId = (int) $m[2];
+} elseif ($route === '/rooms/main/edit') {
     $page      = 'room';
     $routeMain = true;
-} elseif (preg_match('#^/user/([1-9][0-9]*)/settings$#', $route, $m) === 1) {
+} elseif (preg_match('#^/users/([1-9][0-9]*)/settings$#', $route, $m) === 1) {
     $page    = 'settings';
     $routeId = (int) $m[1];
 } elseif (preg_match('#^/logo/([1-9][0-9]*)$#', $route, $m) === 1) {
     $page    = 'logo';
     $routeId = (int) $m[1];
+} elseif (preg_match('#^/pages/([^/]+)$#', $route, $m) === 1 && preg_match(PageRepository::SLUG_PATTERN, $m[1]) === 1) {
+    // The page itself is looked up below, once the database is known; an
+    // unknown slug is a 404 like any other unknown address.
+    $page      = 'page';
+    $routeSlug = $m[1];
+} elseif (preg_match('#^/(user|room)/(new|[1-9][0-9]*|main)(/settings)?$#', $route, $m) === 1) {
+    // The singular forms of an earlier version: /user/<id>, /user/new,
+    // /user/<id>/settings, /room/<id>, /room/new, /room/main.
+    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        not_found();
+    }
+    $id = $m[2] === 'new' || $m[2] === 'main' ? 0 : (int) $m[2];
+    redirect(url([
+        'p'    => ($m[3] ?? '') !== '' ? 'settings' : $m[1],
+        'room' => '',
+        'id'   => $id > 0 ? $id : null,
+        'main' => $m[2] === 'main' ? 1 : null,
+        'back' => $_GET['back'] ?? null,
+    ]), 301);
 } elseif (preg_match('#^/suggestions/([1-9][0-9]*)/adopt$#', $route, $m) === 1) {
     $page            = 'song';
     $routeSuggestion = (int) $m[1];
@@ -269,7 +313,9 @@ $guard  = new WishGuard(
 if (isset($_GET['lang'])) {
     // Remember the choice and drop the parameter from the address.
     $translator->remember($lang, base_path() . '/', Security::isHttps());
-    redirect(url(['p' => $page] + array_diff_key($_GET, ['lang' => true])));
+    // 'slug' keeps a reader's page (/pages/<slug>) on its address; url()
+    // ignores it everywhere else.
+    redirect(url(['p' => $page, 'slug' => $routeSlug] + array_diff_key($_GET, ['lang' => true])));
 }
 
 $action = (string) ($_POST['a'] ?? '');
@@ -281,7 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             send_json(['ok' => false, 'error' => t('Session expired. Please reload the page.')], 403);
         }
         flash('error', t('The session has expired. Please try again.'));
-        redirect(url(['p' => $page]));
+        redirect(url(['p' => $page, 'slug' => $routeSlug]));
     }
 
     try {
@@ -364,6 +410,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     flash('ok', t('The logo has been deleted.'));
                 }
                 redirect(url(['p' => 'logos']));
+                // no break
+
+            case 'page_save':
+                // A page: imprint, FAQ, ... Admins only. The body is HTML
+                // from the editor and is reduced to the allowed tags in
+                // validate() -- what is stored is what visitors get.
+                require_role($security, 'users');
+                $id       = (int) ($_POST['id'] ?? 0); // 0 = new page
+                $existing = $id > 0 ? $pages->find($id) : null;
+
+                if ($id > 0 && $existing === null) {
+                    flash('error', t('This page was not found.'));
+                    redirect(url(['p' => 'pages']));
+                }
+
+                $input = [
+                    'slug'  => (string) ($_POST['slug'] ?? ''),
+                    'title' => (string) ($_POST['title'] ?? ''),
+                    'body'  => (string) ($_POST['body'] ?? ''),
+                ];
+                $checked = $pages->validate($input, $existing);
+                $formUrl = url(['p' => 'page_edit', 'id' => $id > 0 ? $id : null]);
+
+                if ($checked['errors'] !== []) {
+                    remember_input($input, $checked['errors']);
+                    flash('error', t('Please check the highlighted fields.'));
+                    redirect($formUrl);
+                }
+
+                if ($existing === null) {
+                    $pages->create($checked['values']);
+                    flash('ok', t('Page “{title}” has been created. It is reachable under its address; the footer links it once you add it there.', ['title' => $checked['values']['title']]));
+                } else {
+                    $pages->update($id, $checked['values']);
+                    flash('ok', t('Page “{title}” has been saved.', ['title' => $checked['values']['title']]));
+                }
+                redirect(url(['p' => 'pages']));
+                // no break
+
+            case 'page_delete':
+                // Deleting takes the page out of the footer as well.
+                require_role($security, 'users');
+                $target = $pages->find((int) ($_POST['id'] ?? 0));
+
+                if ($target === null) {
+                    flash('error', t('This page was not found.'));
+                } elseif ($pages->delete((int) $target['id'])) {
+                    flash('ok', t('Page “{title}” has been deleted.', ['title' => (string) $target['title']]));
+                } else {
+                    flash('error', t('Deleting was not possible.'));
+                }
+                redirect(url(['p' => 'pages']));
+                // no break
+
+            // ---- The footer (admins) ---------------------------------------
+
+            case 'footer_add':
+                // Link a page at the end of the footer.
+                require_role($security, 'users');
+                $target = $pages->find((int) ($_POST['id'] ?? 0));
+                if ($target === null) {
+                    flash('error', t('This page was not found.'));
+                } else {
+                    $pages->addToFooter((int) $target['id']);
+                    flash('ok', t('“{title}” is linked in the footer now.', ['title' => (string) $target['title']]));
+                }
+                redirect(url(['p' => 'footer']));
+                // no break
+
+            case 'footer_remove':
+                // Take a page out of the footer; it keeps its address.
+                require_role($security, 'users');
+                $target = $pages->find((int) ($_POST['id'] ?? 0));
+                if ($target === null) {
+                    flash('error', t('This page was not found.'));
+                } else {
+                    $pages->removeFromFooter((int) $target['id']);
+                    flash('ok', t('“{title}” is no longer linked in the footer. It stays reachable under its address.', ['title' => (string) $target['title']]));
+                }
+                redirect(url(['p' => 'footer']));
+                // no break
+
+            case 'footer_move':
+                // One step (up, down) or to the very end (top, bottom) -- the
+                // keyboard's way and the way without JavaScript.
+                require_role($security, 'users');
+                $dir = (string) ($_POST['dir'] ?? 'up');
+                $pages->moveInFooter((int) ($_POST['id'] ?? 0), in_array($dir, ['up', 'down', 'top', 'bottom'], true) ? $dir : 'up');
+                redirect(url(['p' => 'footer']));
+                // no break
+
+            case 'footer_reorder':
+                // "3,7,1" -- the footer's links in their new order, from drag
+                // & drop (app.js, the same code as the wish list's).
+                require_role($security, 'users');
+                $count = $pages->reorderFooter(array_filter(array_map(
+                    'intval',
+                    explode(',', (string) ($_POST['order'] ?? '')),
+                )));
+
+                if (wants_json()) {
+                    send_json(['ok' => $count > 0, 'count' => $count]);
+                }
+
+                flash($count > 0 ? 'ok' : 'error', $count > 0
+                    ? t('Order saved.')
+                    : t('The order could not be saved.'));
+                redirect(url(['p' => 'footer']));
                 // no break
 
             case 'password_save':
@@ -459,7 +613,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Stay on the page -- unless it is one a guest may not see;
                 // then the song list, like for any stranger. The form posts
                 // to the current page, so $page is the one being looked at.
-                $public = in_array($page, ['songs', 'wishes', 'suggestions', 'rooms', 'login'], true);
+                $public = in_array($page, ['songs', 'wishes', 'suggestions', 'rooms', 'login', 'page'], true);
                 redirect($on && !$public ? url(['p' => 'songs']) : back(url(['p' => $page])));
                 // no break
 
@@ -1062,7 +1216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch (Throwable $e) {
         flash('error', t('An error occurred: {detail}', ['detail' => error_detail($e, $config, $security)]));
-        redirect(url(['p' => $page]));
+        redirect(url(['p' => $page, 'slug' => $routeSlug]));
     }
 }
 
@@ -1083,6 +1237,8 @@ $view = [
     'guestName'  => $nameCookie->current(), // the visitor's name for wishes, account menu
     'askName'    => false, // first visit: ask for the name (dialog in the layout)
     'footer'     => trim((string) ($config['footer'] ?? '')), // HTML from config.php, printed as is; empty = no footer
+    'footerPages' => [],  // the admins' pages the footer links (Administration -> Footer), in order
+    'editor'     => false, // load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page
     'themeCss'   => Theme::css((array) ($config['theme'] ?? [])), // colour overrides from config.php, '' = stylesheet defaults
 ];
 
@@ -1107,6 +1263,8 @@ try {
         $view['live'] = ['url' => url(['p' => $page, 'poll' => 1]), 'rev' => $liveToken];
     }
     $view['roomList'] = $rooms->names();
+    // The footer links the pages the admins put there, on every screen.
+    $view['footerPages'] = $pages->footerLinks();
     // Visitors without a login are asked for their name once, on the public
     // pages where wishing happens. Staff in the guest view see it as well --
     // that is what the guest view is for.
@@ -1164,6 +1322,68 @@ try {
             $view['template'] = 'logos';
             $view['logos']    = $uploads->all(Uploads::LOGO);
             $view['activeId'] = $logoId;
+            break;
+
+        case 'pages':
+            // Admins only: every page, with a mark on the ones the footer links.
+            require_role($security, 'users');
+
+            $view['title']    = t('Pages');
+            $view['template'] = 'pages';
+            $view['rows']     = $pages->all();
+            break;
+
+        case 'footer':
+            // Admins only: which pages the footer links, in which order --
+            // drag & drop or arrow buttons, like the wish list -- and which
+            // pages could be added.
+            require_role($security, 'users');
+
+            $view['title']     = t('Footer');
+            $view['template']  = 'footer';
+            $view['linked']    = $pages->inFooter();
+            $view['available'] = $pages->outsideFooter();
+            break;
+
+        case 'page_edit':
+            // Add or edit a page; the body is written in CKEditor.
+            require_role($security, 'users');
+            $id       = $routeId; // 0 = new page
+            $existing = null;
+
+            if ($id > 0) {
+                $existing = $pages->find($id);
+                if ($existing === null) {
+                    flash('error', t('This page was not found.'));
+                    redirect(url(['p' => 'pages']));
+                }
+            }
+
+            $kept = remembered_input();
+
+            $view['title']    = $id === 0 ? t('Add page') : t('Edit page');
+            $view['template'] = 'page_edit';
+            $view['editor']   = true;
+            $view['id']       = $id;
+            $view['errors']   = $kept['errors'] ?? [];
+            $view['values']   = $kept['values'] ?? [
+                'slug'  => (string) ($existing['slug'] ?? ''),
+                'title' => (string) ($existing['title'] ?? ''),
+                'body'  => (string) ($existing['body'] ?? ''),
+            ];
+            break;
+
+        case 'page':
+            // A page for everyone: /pages/<slug> -- in the footer or not.
+            $found = $pages->findBySlug($routeSlug);
+            if ($found === null) {
+                not_found();
+            }
+
+            $view['title']    = (string) $found['title'];
+            $view['template'] = 'page';
+            $view['content']  = $found;
+            $view['canEdit']  = $security->can('users');
             break;
 
         case 'login':
@@ -1268,7 +1488,7 @@ try {
             break;
 
         case 'settings':
-            // Every signed-in user, for their own account: /user/<own id>/settings.
+            // Every signed-in user, for their own account: /users/<own id>/settings.
             // Any other id -- and the bare /settings -- leads to the own page.
             require_login($security);
             $selfId = (int) $security->user()['id'];
@@ -1373,7 +1593,7 @@ try {
             require_role($security, 'rooms');
             $id   = $routeId; // 0 = new room
             $edit = null;
-            // /room/main: rename the main room -- only its name, kept in the settings.
+            // /rooms/main/edit: rename the main room -- only its name, kept in the settings.
             $main = $routeMain;
 
             if ($main) {

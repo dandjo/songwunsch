@@ -1312,3 +1312,123 @@ msgstr "Das Bild konnte nicht verarbeitet werden – versuche es mit einem PNG."
 msgid "The header shows the logo {h} pixels high. Any size works: on upload the image is scaled down to {target} pixels in height, which keeps it sharp on every screen; it should be at least that high itself. PNG or SVG with a transparent background look best; an SVG is kept as it is."
 msgstr "Der Kopf zeigt das Logo {h} Pixel hoch. Jede Größe passt: Beim Hochladen wird das Bild auf {target} Pixel Höhe heruntergerechnet, damit es auf jedem Bildschirm scharf bleibt; mindestens so hoch sollte es selbst sein. PNG oder SVG mit transparentem Hintergrund wirken am besten; ein SVG bleibt, wie es ist."
 
+# ---- Pages and footer (Administration) --------------------------------------
+
+msgid "Administration"
+msgstr "Administration"
+
+msgid "Footer"
+msgstr "Footer"
+
+msgid "Add page"
+msgstr "Seite anlegen"
+
+msgid "Edit page"
+msgstr "Seite bearbeiten"
+
+msgid "Content"
+msgstr "Inhalt"
+
+msgid "Last change"
+msgstr "Letzte Änderung"
+
+msgid "changed {when}"
+msgstr "geändert {when}"
+
+msgid "No."
+msgstr "Nr."
+
+msgid "{n} page."
+msgid_plural "{n} pages."
+msgstr[0] "{n} Seite."
+msgstr[1] "{n} Seiten."
+
+msgid "No page yet."
+msgstr "Noch keine Seite."
+
+
+
+
+msgid "Every page is open to everyone under its address and may link to any other – for an imprint, FAQs or a privacy notice. Which pages the footer links, and in which order, is set under {footer}."
+msgstr "Jede Seite ist unter ihrer Adresse für alle erreichbar und kann auf jede andere verlinken – für ein Impressum, FAQs oder eine Datenschutzerklärung. Welche Seiten der Footer in welcher Reihenfolge verlinkt, wird unter {footer} festgelegt."
+
+msgid "Everyone can read the page under its address as soon as it is saved. Whether the footer links it is decided under Footer."
+msgstr "Sobald die Seite gespeichert ist, kann jeder sie unter ihrer Adresse lesen. Ob der Footer sie verlinkt, wird unter Footer entschieden."
+
+msgid "The heading of the page and the text of its link in the footer, e.g. “Imprint”."
+msgstr "Die Überschrift der Seite und der Text ihres Links im Footer, z. B. „Impressum“."
+
+msgid "Machine name: lower-case letters a–z, digits and hyphens, e.g. “imprint”."
+msgstr "Maschinenname: Kleinbuchstaben a–z, Ziffern und Bindestriche, z. B. „impressum“."
+
+msgid "Write here …"
+msgstr "Hier schreiben …"
+
+msgid "Headings, paragraphs, lists, links, tables and quotes are kept; anything else – scripts, styles, pictures – is removed when the page is saved. A link to another page is its address, e.g. {example}."
+msgstr "Überschriften, Absätze, Listen, Links, Tabellen und Zitate bleiben erhalten; alles andere – Skripte, Styles, Bilder – wird beim Speichern entfernt. Ein Link auf eine andere Seite ist deren Adresse, z. B. {example}."
+
+msgid "The content is too long: at most {max} characters of HTML."
+msgstr "Der Inhalt ist zu lang: höchstens {max} Zeichen HTML."
+
+msgid "This page was not found."
+msgstr "Diese Seite wurde nicht gefunden."
+
+msgid "Page “{title}” has been created. It is reachable under its address; the footer links it once you add it there."
+msgstr "Seite „{title}“ wurde angelegt. Sie ist unter ihrer Adresse erreichbar; der Footer verlinkt sie, sobald du sie dort hinzufügst."
+
+msgid "Page “{title}” has been saved."
+msgstr "Seite „{title}“ wurde gespeichert."
+
+msgid "Page “{title}” has been deleted."
+msgstr "Seite „{title}“ wurde gelöscht."
+
+msgid "Permanently delete page “{title}”?"
+msgstr "Seite „{title}“ endgültig löschen?"
+
+
+
+
+
+msgid "No page yet – write one under Pages first."
+msgstr "Noch keine Seite – lege zuerst unter Seiten eine an."
+
+msgid "Every page is in the footer."
+msgstr "Jede Seite ist im Footer."
+
+msgid "Footer links in their order, changeable by drag & drop or arrow buttons"
+msgstr "Footer-Links in ihrer Reihenfolge, änderbar per Drag & Drop oder Pfeiltasten"
+
+msgid "Pages not linked in the footer"
+msgstr "Seiten, die nicht im Footer verlinkt sind"
+
+
+msgid "“{title}” is linked in the footer now."
+msgstr "„{title}“ ist jetzt im Footer verlinkt."
+
+msgid "“{title}” is no longer linked in the footer. It stays reachable under its address."
+msgstr "„{title}“ ist nicht mehr im Footer verlinkt. Die Seite bleibt unter ihrer Adresse erreichbar."
+
+msgid "This machine name is reserved."
+msgstr "Dieser Maschinenname ist reserviert."
+
+msgid "Pages with their addresses"
+msgstr "Seiten mit ihren Adressen"
+
+msgid "Move pages with the arrows: to the right into the footer, to the left out of it. On the right, drag a row or use its arrows to change the order."
+msgstr "Verschiebe Seiten mit den Pfeilen: nach rechts in den Footer, nach links hinaus. Rechts ziehst du eine Zeile oder nutzt ihre Pfeile, um die Reihenfolge zu ändern."
+
+msgid "Nothing yet – the footer stays empty until a page is moved here."
+msgstr "Noch nichts – der Footer bleibt leer, bis eine Seite hierher verschoben wird."
+
+msgid "{n} of {total} pages are linked in the footer."
+msgstr "{n} von {total} Seiten sind im Footer verlinkt."
+
+msgid "{n} page available"
+msgid_plural "{n} pages available"
+msgstr[0] "{n} Seite verfügbar"
+msgstr[1] "{n} Seiten verfügbar"
+
+msgid "{n} page linked"
+msgid_plural "{n} pages linked"
+msgstr[0] "{n} Seite verlinkt"
+msgstr[1] "{n} Seiten verlinkt"

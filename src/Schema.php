@@ -11,8 +11,8 @@ use RuntimeException;
  *
  * Table and column names are a prerequisite and live in one place:
  * `songs`, `song_wishes`, `song_suggestions`, `settings`, `wish_throttle`,
- * `users`, `rooms`, `room_songs`, `uploads`. ensure() runs on every request before the
- * first data access:
+ * `users`, `rooms`, `room_songs`, `uploads`, `pages`. ensure() runs on every
+ * request before the first data access:
  * a missing table is created -- whether the application runs in the Docker
  * stack, on a shared host or locally. Existing tables are checked for the
  * expected columns; a column that a later version added (ADDITIONS) is added
@@ -33,6 +33,7 @@ final class Schema
     public const ROOMS    = 'rooms';
     public const ROOM_SONGS = 'room_songs';
     public const UPLOADS  = 'uploads';
+    public const PAGES    = 'pages';
 
     /** @var array<string,array<int,string>> table => required columns */
     private const COLUMNS = [
@@ -45,6 +46,7 @@ final class Schema
         self::ROOMS    => ['id', 'slug', 'name', 'active', 'created_at', 'updated_at'],
         self::ROOM_SONGS => ['room_id', 'song_id'],
         self::UPLOADS  => ['id', 'kind', 'mime', 'data', 'width', 'height', 'created_at'],
+        self::PAGES    => ['id', 'slug', 'title', 'body', 'footer_position', 'created_at', 'updated_at'],
     ];
 
     /**
@@ -205,6 +207,20 @@ final class Schema
                 `created_at` DATETIME     NOT NULL,
                 PRIMARY KEY (`id`),
                 KEY `idx_kind` (`kind`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            SQL,
+        self::PAGES => <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `pages` (
+                `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `slug`       VARCHAR(64)  NOT NULL COMMENT 'machine name in the address: /pages/<slug>',
+                `title`      VARCHAR(128) NOT NULL COMMENT 'heading of the page and text of the footer link',
+                `body`       MEDIUMTEXT   NOT NULL COMMENT 'the content as HTML, cleaned on save (src/Html.php)',
+                `footer_position` INT UNSIGNED NULL COMMENT 'place among the footer links; NULL = not linked in the footer',
+                `created_at` DATETIME     NOT NULL,
+                `updated_at` DATETIME     NOT NULL,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uq_slug` (`slug`),
+                KEY `idx_footer_position` (`footer_position`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             SQL,
     ];

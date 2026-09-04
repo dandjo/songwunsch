@@ -171,3 +171,21 @@ CREATE TABLE IF NOT EXISTS `uploads` (
     PRIMARY KEY (`id`),
     KEY `idx_kind` (`kind`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Pages the admins write -- an imprint, FAQs, a privacy notice. Every page is
+-- public under /page/<slug> and may link to any other; the ones with a
+-- footer_position are linked at the bottom of every screen, in that order.
+-- The body is HTML from the editor, reduced to an allowed set of tags and
+-- attributes on save.
+CREATE TABLE IF NOT EXISTS `pages` (
+    `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `slug`       VARCHAR(64)  NOT NULL COMMENT 'machine name in the address: /pages/<slug>',
+    `title`      VARCHAR(128) NOT NULL COMMENT 'heading of the page and text of the footer link',
+    `body`       MEDIUMTEXT   NOT NULL COMMENT 'the content as HTML, cleaned on save (src/Html.php)',
+    `footer_position` INT UNSIGNED NULL COMMENT 'place among the footer links; NULL = not linked in the footer',
+    `created_at` DATETIME     NOT NULL,
+    `updated_at` DATETIME     NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_slug` (`slug`),
+    KEY `idx_footer_position` (`footer_position`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

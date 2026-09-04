@@ -30,9 +30,15 @@ under `/rooms/<name>`, see [Rooms](#rooms).
   [Song suggestions](#song-suggestions).
 * **Users** (admins) – create accounts, assign roles, lock them; see
   [Users and roles](#users-and-roles).
+* **Pages and footer** (admins) – an imprint, FAQs or a privacy notice,
+  written in CKEditor, public under `/pages/<name>`; the footer links the
+  pages the admins put there, in their order. See
+  [Pages and footer](#pages-and-footer).
 
 No framework, no Composer dependencies, no external fonts or CDNs – the
-application runs on any hosting with PHP 8.1+ and PDO/MySQL.
+application runs on any hosting with PHP 8.1+ and PDO/MySQL. The one bundled
+library is CKEditor 5 for the page editor (`assets/vendor/ckeditor5`, loaded
+on that one admin page only).
 
 The interface is written in English and translated through `.po` files;
 German and French are included, further languages are one file away. See
@@ -127,11 +133,14 @@ remembered room or the start room takes over.
 | `/login` | Sign-in |
 | `/name` | The guest's name for the wish list – change or remove it |
 | `/song/new`, `/song/<id>` | Create or edit a song – editor; `/suggestions/<id>/adopt` adopts a suggestion into a new song |
-| `/users`, `/user/new`, `/user/<id>` | User management – admins |
-| `/user/<id>/settings` | Personal settings of the signed-in user (own id only; `/settings` redirects there) |
+| `/users`, `/users/new`, `/users/<id>/edit` | User management – admins |
+| `/users/<id>/settings` | Personal settings of the signed-in user (own id only; `/settings` redirects there) |
 | `/logos` | Header logos – admins, see [Logo](#logo) |
+| `/pages`, `/pages/new`, `/pages/<id>/edit` | The admins' pages: list, create, edit – admins, see [Pages and footer](#pages-and-footer) |
+| `/pages/<name>` | A page for everyone (imprint, FAQ, …), in the footer or not |
+| `/footer` | Which pages the footer links, in which order – admins |
 | `/rooms` | List of rooms, each name leads into its room; moderators close and open rooms, editors create them here |
-| `/room/new`, `/room/<id>`, `/room/main` | Create or edit a room, rename the main room – editor |
+| `/rooms/new`, `/rooms/<id>/edit`, `/rooms/main/edit` | Create or edit a room, rename the main room – editor |
 | `/logo/<id>` | An uploaded logo, see [Logo](#logo) |
 | `/rooms/<name>` | Repertoire of a room |
 | `/rooms/<name>/wishes` | Wish list of a room |
@@ -139,9 +148,13 @@ remembered room or the start room takes over.
 | `/rooms/<name>/manage` | Manage the room's songs (selection from the master list) – editor |
 
 Sorting, search and page are appended as query parameters
-(`/wishes?sort=artist`), `?lang=<code>` switches the language. Addresses of
-earlier versions (`index.php?p=wishes`) are redirected permanently (301) to
-the new form.
+(`/wishes?sort=artist`), `?lang=<code>` switches the language. Lists and their
+records share a prefix: `/users` lists, `/users/new` creates, `/users/<id>/edit`
+edits – the same for rooms and pages, whose records also have a public address
+of their own (`/rooms/<name>`, `/pages/<name>`; `new` and, for rooms, `main`
+are therefore not available as names). Addresses of earlier versions
+(`index.php?p=wishes`, `/user/<id>`, `/room/main`) are redirected permanently
+(301) to the new form.
 
 The value governs everything that contains an address: links and form
 targets, `assets/style.css` and `assets/app.js`, the redirects after every
@@ -268,11 +281,11 @@ omitted.
 
 Admins can put a logo in the header instead of the word mark
 “Songwunsch” and the claim; the room's name keeps its place beside it. Logos
-are managed on their own page, **Logos** (`/logos`, a tab next to *Users*,
-admins only): every logo ever uploaded is listed there with a preview at the
+are managed on their own page, **Logos** (`/logos`, in the *Administration*
+menu, admins only): every logo ever uploaded is listed there with a preview at the
 header's size, and exactly one is *live* at a time – or none, then the word
-mark shows. Upload, *Switch live*, *Delete*; a new upload goes live right
-away unless the box is unticked. The live logo is remembered in `settings`
+mark shows. Upload, *Switch live*, *Delete* (bin icon, like in every list); a
+new upload goes live right away unless the box is unticked. The live logo is remembered in `settings`
 under `logo_id`.
 
 Any image size works: on upload a raster image (PNG, JPEG, WebP, GIF) is
@@ -317,12 +330,56 @@ printed while nothing is configured. Keep the contrast readable – gold on a
 light background, say, will not do – and check with the accessibility tools
 of the browser after a change.
 
-## Footer
+## Pages and footer
 
-`'footer'` in `config.php` (or `FOOTER_HTML` from the environment) is printed
-at the bottom of every page – credits, a link to an imprint. The value is HTML
-and goes out **unescaped**, so it is the operator's own markup only, never
-anything a visitor typed. Without a value there is no footer at all.
+Admins write **pages** – an imprint, FAQs, a privacy notice – under
+*Administration → Pages* (`/pages`). A page has a title, a machine name that
+becomes its address, `/pages/<name>` (lower-case letters, digits, hyphens, like
+a room's; `new` is taken), and a body written in **CKEditor 5**: headings, paragraphs, bold
+and italic, lists, links, quotes, tables, horizontal lines, code, plus a
+source view. Every page is public under its address as soon as it is saved
+and may link to any other page by that address – the footer is not what makes
+a page reachable. Admins see an *Edit* button on the page itself.
+
+The **footer** at the bottom of every screen links the pages the admins put
+there, under *Administration → Footer* (`/footer`). The page is built like a
+room's song picker: two columns, left the pages the footer does not link,
+right the footer in its order; an arrow moves a page across (→ in, ← out; a
+page taken out keeps its address). On the right the order is changed by
+dragging a row – the same drag & drop as on the wish list, saved in the
+background – or with the four move buttons of every row (to the top, up,
+down, to the bottom), which also work by keyboard and without JavaScript.
+The page being read is highlighted among the links. With no page in the
+footer and no `footer` value (below) there is no footer at all.
+
+The body is stored as HTML, but not as it arrives: on save `src/Html.php`
+reduces it to an allowed set of elements (`p`, `br`, `h2`–`h4`, `strong`,
+`em`, `u`, `s`, `sub`, `sup`, `code`, `pre`, `hr`, `blockquote`, `ul`, `ol`,
+`li`, `a`, `table` and its parts, `figure`, `figcaption`). Unknown elements
+lose their tags and keep their text; scripts, styles, frames, forms and
+pictures go with their content; attributes are dropped except `href` and
+`target="_blank"` on links (which gets `rel="noopener"`), `start` on lists
+and `colspan`/`rowspan` on cells. A link may point to a web, mail or phone
+address, an anchor or a path of this site – `javascript:` and `data:` are
+refused, `//host` as well. `h1` becomes `h2`, since the page's title is the
+`h1`. What visitors get is exactly what is stored, printed unescaped inside
+`<div class="prose">`. Pages live in the `pages` table; `footer_position`
+says whether and where a page is linked in the footer (`NULL` = not linked).
+
+CKEditor is bundled, not loaded from a CDN, so visitors' browsers talk to no
+third party: `assets/vendor/ckeditor5/` holds the browser build
+(`ckeditor5.umd.js`, about 1.9 MB, `ckeditor5.css`) and the German and French
+interface translations; a language without a translation file gets the
+English interface. Only the page form loads it. CKEditor 5 is licensed under
+the GPL 2 or later (the editor is configured with the `GPL` licence key),
+compatible with this project's GPL 3; the licence files sit next to it, the
+README there says how to update it. The editor's colours follow the site's
+theme through its custom properties (see the end of `style.css`).
+
+The operator's own line remains: `'footer'` in `config.php` (or `FOOTER_HTML`
+from the environment) is printed below the page links – credits, an external
+link. The value is HTML and goes out **unescaped**, so it is the operator's
+own markup only, never anything a visitor typed.
 
 ```php
 'footer' => '<p>Powered by <a href="https://example.org" rel="noopener">example.org</a></p>',
@@ -467,11 +524,13 @@ pre-escaped and the rest printed without escaping.
 ## Users and roles
 
 All operating functions sit behind a sign-in. Users are stored in the `users`
-table and managed on the **Users** page.
+table and managed on the **Users** page. Admins reach their pages – *Users*,
+*Logos*, *Pages*, *Footer* – through the **Administration** menu in the
+navigation, a tab that opens a list.
 
 | Role | May |
 | --- | --- |
-| **Admin** | Create, edit, lock and delete users and hand out every role, the admin role included – and everything editors and moderators may do |
+| **Admin** | Create, edit, lock and delete users and hand out every role, the admin role included; manage the header logos, the pages and the footer – and everything editors and moderators may do |
 | **Editor** | Maintain the repertoire: add, edit, delete titles; work the song suggestions; create, edit, delete rooms and manage their songs |
 | **Moderator** | Edit the wish list: sort, reorder, delete, clear; close and open the room (everyone may view the list) |
 
@@ -627,8 +686,8 @@ without the songs already in the room, on the right the room's list. An arrow
 to the right takes a song into the room, an arrow to the left removes it
 again; a search field filters both columns, *Add all …* and *Remove all …*
 move the whole search result. On narrow screens the columns stack. In the
-room's repertoire the editor's delete button reads *Remove* – the song only
-leaves the room. Songs are edited exclusively in the master list; a song
+room's repertoire the editor's delete button (the same bin) reads *Remove* –
+the song only leaves the room. Songs are edited exclusively in the master list; a song
 deleted there disappears from all rooms.
 
 **Archiving.** Every room is *active* or *archived* (column `active`,
@@ -895,14 +954,16 @@ src/GuestName.php      The guest's name for the wish list: cookie, tidying, firs
 src/RoomMemory.php     The room chosen last: cookie, once-per-session restore
 src/Settings.php       Key/value store in the settings table
 src/Uploads.php        The header logos: check, store, deliver (uploads table)
+src/PageRepository.php Pages: validate, store, list; which are in the footer, in which order
+src/Html.php           Reduce a page's HTML to the allowed elements and attributes
 src/Security.php       Session, login against users, roles, CSRF, wish brake
 src/UserRepository.php Users: create, edit, delete, count the active admins
 src/RoomRepository.php Rooms: create, edit, delete, song selection from the master list
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter
-templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, name, _name_form, error, _sortbar, _pager
-assets/                style.css (dark interface), app.js
+templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, pages, page_edit, page, footer, name, _name_form, error, _sortbar, _pager
+assets/                style.css (dark interface), app.js, vendor/ckeditor5 (the page editor, see Pages and footer)
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)
 tools/hash.php         Create a password hash
@@ -920,9 +981,11 @@ docker/                Dockerfile, php.ini, entrypoint, Traefik configuration
 
 * All database values go through prepared statements; table and column names
   are fixed in the code, sort parameters pass a whitelist.
-* Output consistently through `Format::e()` (`htmlspecialchars`). The one
-  deliberate exception is the footer from `config.php`, which is the
-  operator's own HTML, see [Footer](#footer).
+* Output consistently through `Format::e()` (`htmlspecialchars`). Two
+  deliberate exceptions: the footer line from `config.php`, which is the
+  operator's own HTML, and the body of a page, which admins write and which
+  is reduced to text-structure elements and safe links before it is stored,
+  see [Pages and footer](#pages-and-footer).
 * Session cookie `HttpOnly` + `SameSite=Lax`, `Secure` as soon as HTTPS is
   active, `path` limited to the base path; `session_regenerate_id()` on
   sign-in. The two further cookies – the guest's name (`songwunsch_name`) and

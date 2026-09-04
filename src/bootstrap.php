@@ -134,10 +134,13 @@ function current_room(?array $set = null): array
  * /rooms/<slug>/suggestions, /rooms/<slug>/manage. 'room' overrides that --
  * a slug for another room, '' for the default room.
  *
- * An id is part of the path, not of the query string: /song/<id>, /user/<id>,
- * /room/<id> (without an id: /song/new, /user/new, /room/new), /logo/<id>,
- * /user/<id>/settings; 'main' => 1 gives /room/main, 'suggestion' => <id>
- * gives /suggestions/<id>/adopt.
+ * An id is part of the path, not of the query string. Lists and their
+ * records share a prefix: /users, /users/new, /users/<id>/edit,
+ * /users/<id>/settings; /rooms, /rooms/new, /rooms/<id>/edit,
+ * /rooms/main/edit ('main' => 1, rename the main room); /pages, /pages/new,
+ * /pages/<id>/edit (page_edit) and /pages/<slug> for readers ('p' => 'page',
+ * 'slug' => ...). Also /song/<id>|new, /logo/<id> and 'suggestion' => <id>
+ * for /suggestions/<id>/adopt.
  */
 function url(array $params = []): string
 {
@@ -146,7 +149,8 @@ function url(array $params = []): string
         ? (string) $params['room']
         : (string) (current_room()['slug'] ?? '');
     $id   = (int) ($params['id'] ?? 0);
-    unset($params['p'], $params['room'], $params['id']);
+    $pageSlug = (string) ($params['slug'] ?? '');
+    unset($params['p'], $params['room'], $params['id'], $params['slug']);
 
     $params = array_filter($params, static fn ($v): bool => $v !== null && $v !== '');
 
@@ -165,15 +169,21 @@ function url(array $params = []): string
         $target .= '/suggestions/' . (int) $params['suggestion'] . '/adopt';
         unset($params['suggestion']);
     } elseif ($page === 'room' && isset($params['main'])) {
-        $target .= '/room/main';
+        $target .= '/rooms/main/edit';
         unset($params['main']);
-    } elseif (in_array($page, ['song', 'user', 'room'], true)) {
-        $target .= '/' . $page . '/' . ($id > 0 ? $id : 'new');
+    } elseif ($page === 'song') {
+        $target .= '/song/' . ($id > 0 ? $id : 'new');
+    } elseif (in_array($page, ['user', 'room', 'page_edit'], true)) {
+        // /users/new, /users/<id>/edit; likewise rooms and pages.
+        $list    = match ($page) { 'user' => 'users', 'room' => 'rooms', 'page_edit' => 'pages' };
+        $target .= '/' . $list . ($id > 0 ? '/' . $id . '/edit' : '/new');
     } elseif ($page === 'logo') {
         $target .= '/logo/' . $id;
+    } elseif ($page === 'page') {
+        $target .= '/pages/' . rawurlencode($pageSlug);
     } elseif ($page === 'settings') {
         // Without an id the page redirects to the signed-in user's own settings.
-        $target .= $id > 0 ? '/user/' . $id . '/settings' : '/settings';
+        $target .= $id > 0 ? '/users/' . $id . '/settings' : '/settings';
     } else {
         $target .= '/' . $page;
     }
@@ -254,6 +264,10 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         'flag'   => '<path d="M3.2 14.5V1.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M4.6 2.2h8.6l-2.2 3.2 2.2 3.2H4.6z" fill="currentColor"/>',
         // Suggestions: a light bulb -- the glass as an outline, the base solid.
         'bulb'   => '<path d="M5.7 10.4c0-1.7-2.4-2.5-2.4-5.1a4.7 4.7 0 0 1 9.4 0c0 2.6-2.4 3.4-2.4 5.1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.6 13h4.8M6.6 15.2h2.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+        // Administration: a shield with a tick.
+        'shield' => '<path d="M8 1.1 14.4 3.4v4.4c0 3.6-2.6 6.3-6.4 7.6C4.2 14.1 1.6 11.4 1.6 7.8V3.4z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M5.1 8.2l2 2 3.9-4.1" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>',
+        // Footer pages: a sheet with a folded corner and two lines of text.
+        'page'   => '<path d="M3.5 1.8h6l3 3v9.4h-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9.5 1.8v3h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.8 8.2h4.4M5.8 11h4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
     ];
 
     if (!isset($paths[$name])) {

@@ -24,6 +24,8 @@ use Songwunsch\Translator;
 /** @var bool $askName           first visit: ask for the name in a dialog */
 /** @var array{url:string,rev:string}|null $live  polling address and current revision, wish list and suggestions */
 /** @var string $footer  HTML for the footer from config.php ('footer'); empty = no footer */
+/** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
+/** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
 /** @var string $themeCss  :root colour overrides from config.php ('theme'), see Theme; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
 
@@ -34,14 +36,24 @@ $inRoom = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
 // where $security->user() and everything else answer as for a stranger.
 $account   = $security->account();
 $guestView = $security->guestView();
-// Where a switch of the view leads back to: the current address.
-$here      = url(array_merge(['p' => $page], $_GET));
+// The current page as url() parameters -- a page for readers needs its
+// machine name as well, or url() would yield the admins' list. Forms that
+// must land back on the current page post here; $here adds the query string.
+$hereParams = ['p' => $page] + ($page === 'page' ? ['slug' => (string) ($content['slug'] ?? '')] : []);
+$hereBase   = url($hereParams);
+$here       = url(array_merge($hereParams, $_GET));
 
 // Language switcher: the current address with ?lang=<code> added.
 $langLinks = [];
 foreach ($translator->available() as $code => $name) {
-    $langLinks[$code] = ['name' => $name, 'href' => url(array_merge(['p' => $page], $_GET, ['lang' => $code]))];
+    $langLinks[$code] = ['name' => $name, 'href' => url(array_merge($hereParams, $_GET, ['lang' => $code]))];
 }
+
+// CKEditor speaks the site's language when its translation file is bundled;
+// otherwise the interface stays English (built in).
+$editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translations/' . $translator->code() . '.umd.js')
+    ? $translator->code()
+    : null;
 ?>
 <!doctype html>
 <html lang="<?= $e($translator->htmlLang()) ?>">
@@ -50,6 +62,10 @@ foreach ($translator->available() as $code => $name) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title><?= $e($title) ?><?= $inRoom ? ' · ' . $e((string) $room['name']) : '' ?> · Songwunsch</title>
+    <?php if ($editor): ?>
+        <?php /* Before style.css, whose dark overrides for the editor must win. */ ?>
+        <link rel="stylesheet" href="<?= $e(asset('assets/vendor/ckeditor5/ckeditor5.css')) ?>">
+    <?php endif; ?>
     <link rel="stylesheet" href="<?= $e(asset('assets/style.css')) ?>">
     <?php if ($themeCss !== ''): ?>
         <?php /* Configured colours override the stylesheet's :root tokens;
@@ -133,7 +149,7 @@ foreach ($translator->available() as $code => $name) {
                                     <?php /* The main room has no address of its own that could
                                              be told apart from a bare visit, so choosing it is
                                              a POST that clears the remembered room (RoomMemory). */ ?>
-                                    <form method="post" action="<?= $e(url(['p' => $page])) ?>">
+                                    <form method="post" action="<?= $e($hereBase) ?>">
                                         <input type="hidden" name="a" value="room_switch">
                                         <input type="hidden" name="slug" value="">
                                         <input type="hidden" name="to" value="<?= $e($switchPage) ?>">
@@ -174,8 +190,37 @@ foreach ($translator->available() as $code => $name) {
                 <?php endif; ?>
             </a>
             <?php if ($security->can('users')): ?>
-                <a href="<?= $e(url(['p' => 'users'])) ?>"<?= in_array($page, ['users', 'user'], true) ? ' aria-current="page"' : '' ?>><?= icon('users') ?><?= $e(t('Users')) ?></a>
-                <a href="<?= $e(url(['p' => 'logos'])) ?>"<?= $page === 'logos' ? ' aria-current="page"' : '' ?>><?= icon('image') ?><?= $e(t('Logos')) ?></a>
+                <?php /* Administration: the admins' pages behind one tab that
+                         opens a menu -- a <details> like the room switcher, so
+                         it works without JavaScript. The tab lights up like an
+                         active page while one of its entries is open. */ ?>
+                <?php
+                $adminItems = [
+                    ['users',  ['users', 'user'],      'users', t('Users')],
+                    ['logos',  ['logos'],              'image', t('Logos')],
+                    ['pages',  ['pages', 'page_edit'], 'page',  t('Pages')],
+                    ['footer', ['footer'],             'list',  t('Footer')],
+                ];
+                $adminOpen = in_array($page, array_merge(...array_column($adminItems, 1)), true);
+                ?>
+                <details class="submenu">
+                    <summary class="submenu__toggle"<?= $adminOpen ? ' aria-current="page"' : '' ?>>
+                        <?= icon('shield') ?><?= $e(t('Administration')) ?>
+                        <svg class="submenu__chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
+                            <path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </summary>
+                    <ul class="submenu__menu" role="list">
+                        <?php foreach ($adminItems as [$target, $pagesOf, $glyph, $label]): ?>
+                            <?php $active = in_array($page, $pagesOf, true); ?>
+                            <li>
+                                <a href="<?= $e(url(['p' => $target])) ?>" class="submenu__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="page"' : '' ?>>
+                                    <?= icon($glyph, 14) ?><span class="submenu__label"><?= $e($label) ?></span>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </details>
             <?php endif; ?>
         </nav>
 
@@ -251,7 +296,7 @@ foreach ($translator->available() as $code => $name) {
                                  -- to check what guests get -- and back. Posts
                                  to the current page so the server knows where
                                  the switch happened. */ ?>
-                        <form method="post" action="<?= $e(url(['p' => $page])) ?>">
+                        <form method="post" action="<?= $e($hereBase) ?>">
                             <input type="hidden" name="a" value="guest_view">
                             <input type="hidden" name="on" value="<?= $guestView ? '0' : '1' ?>">
                             <input type="hidden" name="back" value="<?= $e($here) ?>">
@@ -293,7 +338,7 @@ foreach ($translator->available() as $code => $name) {
                     <strong><?= $e(t('Guest view.')) ?></strong>
                     <?= $e(t('You see the site as a visitor without a login does.')) ?>
                 </span>
-                <form method="post" action="<?= $e(url(['p' => $page])) ?>" class="dome__notice-action">
+                <form method="post" action="<?= $e($hereBase) ?>" class="dome__notice-action">
                     <input type="hidden" name="a" value="guest_view">
                     <input type="hidden" name="on" value="0">
                     <input type="hidden" name="back" value="<?= $e($here) ?>">
@@ -322,7 +367,7 @@ foreach ($translator->available() as $code => $name) {
                         : t('The repertoire stays visible – wishing and suggesting will be back later.')) ?>
                 </span>
                 <?php if ($security->can('wishes')): ?>
-                    <form method="post" action="<?= $e(url(['p' => $page])) ?>" class="dome__notice-action">
+                    <form method="post" action="<?= $e($hereBase) ?>" class="dome__notice-action">
                         <input type="hidden" name="a" value="pause">
                         <input type="hidden" name="state" value="0">
                         <input type="hidden" name="back" value="<?= $e($here) ?>">
@@ -377,12 +422,37 @@ foreach ($translator->available() as $code => $name) {
         <?php require __DIR__ . '/' . $template . '.php'; ?>
     </main>
 
-    <?php if ($footer !== ''): ?>
-        <?php /* The operator's own line (credits, imprint link) -- HTML from
-                 config.php, deliberately printed unescaped. */ ?>
-        <footer class="base"><?= $footer ?></footer>
+    <?php if ($footerPages !== [] || $footer !== ''): ?>
+        <footer class="base">
+            <?php if ($footerPages !== []): ?>
+                <?php /* The pages the admins put into the footer (Administration ->
+                         Footer), in their order. The page being read is marked. */ ?>
+                <nav class="base__pages" aria-label="<?= $e(t('Footer')) ?>">
+                    <ul role="list">
+                        <?php foreach ($footerPages as $entry): ?>
+                            <?php $reading = $page === 'page' && (string) ($content['slug'] ?? '') === $entry['slug']; ?>
+                            <li><a href="<?= $e(url(['p' => 'page', 'slug' => $entry['slug']])) ?>"<?= $reading ? ' aria-current="page"' : '' ?>><?= $e($entry['title']) ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </nav>
+            <?php endif; ?>
+            <?php if ($footer !== ''): ?>
+                <?php /* The operator's own line (credits, imprint link) -- HTML from
+                         config.php, deliberately printed unescaped. */ ?>
+                <div class="base__custom"><?= $footer ?></div>
+            <?php endif; ?>
+        </footer>
     <?php endif; ?>
 </div>
+<?php if ($editor): ?>
+    <?php /* CKEditor for the page form -- only here, so guests never load it.
+             Deferred scripts run in document order: the editor and its
+             translation are ready before app.js sets it up. */ ?>
+    <script src="<?= $e(asset('assets/vendor/ckeditor5/ckeditor5.umd.js')) ?>" defer></script>
+    <?php if ($editorLang !== null): ?>
+        <script src="<?= $e(asset('assets/vendor/ckeditor5/translations/' . $editorLang . '.umd.js')) ?>" defer></script>
+    <?php endif; ?>
+<?php endif; ?>
 <?php /* One script for every page; each enhancement checks for its markup. */ ?>
 <script src="<?= $e(asset('assets/app.js')) ?>" defer></script>
 </body>

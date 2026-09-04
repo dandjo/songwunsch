@@ -66,9 +66,11 @@ $invalid = static fn (string $field): string => isset($errors[$field])
                    required autocomplete="off" autocapitalize="none" spellcheck="false"
                    minlength="<?= RoomRepository::MIN_SLUG ?>" maxlength="<?= RoomRepository::MAX_SLUG ?>"
                    pattern="[a-z0-9]+(-[a-z0-9]+)*"<?= $invalid('slug') ?>>
+            <?php /* The address follows what is typed (app.js); until something is
+                     typed an example stands in. */ ?>
             <p class="field__hint" id="hint-slug">
                 <?= $e(t('Part of the address: lower-case letters a–z, digits and hyphens.')) ?>
-                <code><?= $e(url(['p' => 'songs', 'room' => ($values['slug'] ?? '') !== '' ? $values['slug'] : 'sommerfest-2026'])) ?></code>
+                <code data-slug-preview="slug" data-slug-base="<?= $e(substr(url(['p' => 'songs', 'room' => 'x']), 0, -1)) ?>" data-slug-example="sommerfest-2026"><?= $e(url(['p' => 'songs', 'room' => ($values['slug'] ?? '') !== '' ? $values['slug'] : 'sommerfest-2026'])) ?></code>
             </p>
             <?= $fieldError('slug') ?>
         </div>

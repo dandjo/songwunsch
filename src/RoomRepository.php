@@ -28,6 +28,9 @@ final class RoomRepository
     /** Lower-case letters, digits and single hyphens in between -- safe in a path without encoding. */
     public const SLUG_PATTERN = '/^[a-z0-9]+(?:-[a-z0-9]+)*$/';
 
+    /** Words the address /rooms/<...> uses for other things: /rooms/new, /rooms/main/edit. */
+    public const RESERVED_SLUGS = ['new', 'main'];
+
     private const SELECT = 'SELECT id, slug, name, active, created_at, updated_at FROM ' . self::TABLE;
 
     /** Filters of the room list: only active rooms, only archived ones, or every room. */
@@ -205,6 +208,8 @@ final class RoomRepository
             $errors['slug'] = t('Machine name: {min} to {max} characters.', ['min' => self::MIN_SLUG, 'max' => self::MAX_SLUG]);
         } elseif (preg_match(self::SLUG_PATTERN, $slug) !== 1) {
             $errors['slug'] = t('Machine name: lower-case letters a–z, digits and hyphens, e.g. “sommerfest-2026”.');
+        } elseif (in_array($slug, self::RESERVED_SLUGS, true)) {
+            $errors['slug'] = t('This machine name is reserved.');
         } else {
             $other = $this->findBySlug($slug);
             if ($other !== null && ($existing === null || (int) $other['id'] !== (int) $existing['id'])) {
