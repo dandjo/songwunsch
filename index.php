@@ -991,6 +991,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'title'  => (string) ($_POST['title'] ?? ''),
                     'length' => (string) ($_POST['length'] ?? ''),
                     'genre'  => (string) ($_POST['genre'] ?? ''),
+                    // Where an adopted wish queues; anything but 'bottom' is
+                    // the top. Kept in the input so a failed save remembers
+                    // the choice; validate() only looks at the song fields.
+                    'wish_position' => ($_POST['wish_position'] ?? '') === 'bottom' ? 'bottom' : 'top',
                 ];
                 $checked = $songs->validate($input);
                 $formUrl = url([
@@ -1033,7 +1037,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $wishRoomId = $joinRoom !== null ? (int) $joinRoom['id'] : RoomRepository::DEFAULT_ID;
                             $newSong    = $songs->find($newId);
                             if ($newSong !== null) {
-                                (new WishRepository($db, $wishRoomId))->add($newSong, (string) ($adopted['suggester'] ?? ''));
+                                $wishList = new WishRepository($db, $wishRoomId);
+                                $wishList->add($newSong, (string) ($adopted['suggester'] ?? ''));
+                                // add() appends, which is the bottom. The top
+                                // is the default because the editor adopts a
+                                // suggestion right when it comes up, and the
+                                // audience should see it played soon.
+                                if ($input['wish_position'] === 'top') {
+                                    $wishList->moveToEnd((int) $db->pdo()->lastInsertId(), true);
+                                }
                                 $wishGuard = $wishRoomId === $roomId ? $guard : new WishGuard(
                                     $db,
                                     $settings,
@@ -1690,6 +1702,9 @@ try {
                 'length' => Format::lengthInput($song['length_sec'] ?? null),
                 'genre'  => (string) ($song['genre'] ?? ''),
             ];
+            // Where an adopted wish queues: the top unless the editor chose
+            // the bottom before a save failed.
+            $view['values']['wish_position'] = ($view['values']['wish_position'] ?? '') === 'bottom' ? 'bottom' : 'top';
             break;
 
         case 'suggestions':

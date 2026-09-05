@@ -1774,10 +1774,10 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
    stands directly below the legend, off the fields that follow. */
 .field--group > .field__hint { margin: 0 0 1rem; }
 
-/* A checkbox with its label in one line. Inside a .field the generic
-   ".field label" rule (block, small, bold) has the higher specificity, so
-   the selector names that case as well -- otherwise the flex layout and
-   its gap never apply and the text sticks to the box. */
+/* A checkbox or radio button with its label in one line. Inside a .field
+   the generic ".field label" rule (block, small, bold) has the higher
+   specificity, so the selector names that case as well -- otherwise the
+   flex layout and its gap never apply and the text sticks to the box. */
 .check,
 .field .check {
     display: flex;
@@ -1790,7 +1790,8 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     color: var(--text-muted);
     cursor: pointer;
 }
-.check input[type="checkbox"] {
+.check input[type="checkbox"],
+.check input[type="radio"] {
     flex: 0 0 auto;
     width: 1.15rem;
     height: 1.15rem;
