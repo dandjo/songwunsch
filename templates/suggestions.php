@@ -92,7 +92,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
             </div>
             <p class="field__hint">
                 <?php if ($guestName !== null): ?>
-                    <?= $e(t('Your name, {name}, goes with the suggestion so the editors know who asked.', ['name' => $guestName])) ?>
+                    <?= $e(t('Your name, {name}, goes with the suggestion and is shown publicly in the list of suggestions – anyone who opens this site can see it.', ['name' => $guestName])) ?>
                 <?php else: ?>
                     <?= $e(t('The suggestion is passed on without a name; set one in the account menu if you like.')) ?>
                 <?php endif; ?>

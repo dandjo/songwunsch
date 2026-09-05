@@ -1686,7 +1686,7 @@ msgid "Your name on the wish list:"
 msgstr ""
 
 #: templates/suggestions.php:95
-msgid "Your name, {name}, goes with the suggestion so the editors know who asked."
+msgid "Your name, {name}, goes with the suggestion and is shown publicly in the list of suggestions – anyone who opens this site can see it."
 msgstr ""
 
 #: templates/footer.php:164 templates/footer.php:190

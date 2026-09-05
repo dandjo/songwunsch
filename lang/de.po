@@ -985,8 +985,8 @@ msgstr "Song vorschlagen"
 msgid "Suggest"
 msgstr "Vorschlagen"
 
-msgid "Your name, {name}, goes with the suggestion so the editors know who asked."
-msgstr "Dein Name, {name}, geht mit dem Vorschlag mit – so weiß die Redaktion, wer gefragt hat."
+msgid "Your name, {name}, goes with the suggestion and is shown publicly in the list of suggestions – anyone who opens this site can see it."
+msgstr "Dein Name, {name}, geht mit dem Vorschlag mit und steht öffentlich in der Vorschlagsliste – jeder, der diese Seite aufruft, kann ihn sehen."
 
 msgid "The suggestion is passed on without a name; set one in the account menu if you like."
 msgstr "Der Vorschlag geht ohne Namen weiter; einen Namen kannst du im Konto-Menü festlegen."
