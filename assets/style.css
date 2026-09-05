@@ -704,9 +704,6 @@ code {
 .panel__head p { margin: 0; max-width: 60ch; font-size: .93rem; }
 .panel__actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: flex-end; }
 .panel__actions form { margin: 0; }
-/* A head without a description: title and actions share one row. */
-.panel__head--inline { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-.panel__head--inline h1 { margin: 0; }
 
 /* ---------- Tabs: the languages of a page's form ----------
    A row of links over one panel per language. Without JavaScript every panel

@@ -27,9 +27,9 @@ $textLang = (string) $content['lang'] !== $translator->code() ? ' lang="' . $e((
 $editUrl = url(['p' => 'page_edit', 'id' => (int) $content['id']]) . '#lang-' . rawurlencode($translator->code());
 ?>
 
-<?php /* No description under the title, so the admins' Edit stands beside it
-         (panel__head--inline) instead of on a row of its own. */ ?>
-<div class="panel__head panel__head--inline">
+<?php /* The head as on every page: the title, the admins' Edit at the top
+         right beside it on wide screens, below it on phones. */ ?>
+<div class="panel__head">
     <div>
         <h1<?= $textLang ?>><?= $e((string) $content['title']) ?></h1>
     </div>
