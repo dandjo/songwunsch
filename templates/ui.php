@@ -38,7 +38,7 @@ $groups = [
     [t('Live updates'), [
         'poll_wishes_sec'      => [t('Wish list: seconds between two checks'),   t('Every open wish list asks the server this often whether a wish arrived, a row moved or was deleted, and redraws itself. 0 switches the live update off; the page is then current after a reload.')],
         'poll_suggestions_sec' => [t('Suggestions: seconds between two checks'), t('The same for the list of suggestions.')],
-        'poll_room_sec'        => [t('Room state: seconds between two checks'),  t('The song list asks this often whether the room was closed or opened, so the Wish buttons disappear and reappear for everyone without a reload. 0 switches that off.')],
+        'poll_room_sec'        => [t('Room state: seconds between two checks'),  t('Every page asks this often whether the room was closed or opened, so the notice in the header – and on the song list the Wish buttons – appear and disappear for everyone without a reload. 0 switches that off.')],
     ]],
 ];
 

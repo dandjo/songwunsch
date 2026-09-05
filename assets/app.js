@@ -734,19 +734,10 @@
             });
         };
 
-        // Swap the fetched page's content in. False when it is not one of
-        // ours (no .cabinet): the caller then loads it the normal way.
-        var render = function (html, used) {
-            var fresh = new DOMParser().parseFromString(html, 'text/html');
-            var cabinet = fresh.querySelector('.cabinet');
-            if (!cabinet || needsMore(fresh)) {
-                return false;
-            }
-            var focus = remember(used);
-            document.querySelector('.cabinet').innerHTML = cabinet.innerHTML;
-            document.title = fresh.title;
-            // The body's data attributes belong to the page: the endpoint of
-            // its room, the live address, token and interval, the messages.
+        // The body's data attributes belong to the page: the endpoint of
+        // its room, the live address, token, interval and scope, the
+        // messages. Taken over from the fetched document.
+        var adoptBodyData = function (fresh) {
             Array.prototype.slice.call(document.body.attributes).forEach(function (attr) {
                 if (attr.name.indexOf('data-') === 0) {
                     document.body.removeAttribute(attr.name);
@@ -758,6 +749,37 @@
                 }
             });
             endpoint = document.body.getAttribute('data-endpoint') || '/';
+        };
+
+        // Renew the header alone from the fetched page: the room's notice
+        // appears or goes, the menus are drawn afresh, the content -- a form
+        // someone may be filling in -- stays as it is. False when the page
+        // is not one of ours.
+        var renderHeader = function (html) {
+            var fresh = new DOMParser().parseFromString(html, 'text/html');
+            var dome = fresh.querySelector('.dome');
+            var current = document.querySelector('.dome');
+            if (!dome || !current) {
+                return false;
+            }
+            current.replaceWith(document.importNode(dome, true));
+            adoptBodyData(fresh);
+            enhance(document.querySelector('.dome'));
+            return true;
+        };
+
+        // Swap the fetched page's content in. False when it is not one of
+        // ours (no .cabinet): the caller then loads it the normal way.
+        var render = function (html, used) {
+            var fresh = new DOMParser().parseFromString(html, 'text/html');
+            var cabinet = fresh.querySelector('.cabinet');
+            if (!cabinet || needsMore(fresh)) {
+                return false;
+            }
+            var focus = remember(used);
+            document.querySelector('.cabinet').innerHTML = cabinet.innerHTML;
+            document.title = fresh.title;
+            adoptBodyData(fresh);
             // The name dialog's inline script (layout) does not run on a
             // swap; make it modal here.
             document.querySelectorAll('dialog[data-namebox][open]').forEach(function (dialog) {
@@ -943,21 +965,34 @@
                 return request(window.location.href).then(function (result) {
                     return samePage(result.url) && render(result.html);
                 });
+            },
+            // Fetch this page again and renew only its header (the live
+            // update of the room's state on pages that are not lists).
+            refreshHeader: function () {
+                if (loading) {
+                    return Promise.resolve(false);
+                }
+                return request(window.location.href).then(function (result) {
+                    return samePage(result.url) && renderHeader(result.html);
+                });
             }
         };
     }());
 
     // ---- Live update: poll the revision, reload the page's content --------
-    // The song list, the wish list and the suggestions carry data-live (the
-    // poll address), data-live-rev (the token they were rendered with) and
-    // data-live-interval (seconds between two polls, set under Interface per
-    // case; a case set to 0 carries no data-live at all). Every interval the
-    // token is fetched -- a few bytes; only when it moved on is the page
-    // fetched again and its content swapped in, so everyone sees a wish
-    // arrive, a row move or the room close without touching reload. The
-    // song list's token is the room's state alone, so a wish does not
-    // reload it. Hidden tabs do not poll; a drag in progress postpones the
-    // swap.
+    // Every page carries data-live (the poll address), data-live-rev (the
+    // token it was rendered with), data-live-interval (seconds between two
+    // polls, set under Interface per case; a case set to 0 carries no
+    // data-live at all) and data-live-scope. Every interval the token is
+    // fetched -- a few bytes; only when it moved on is the page fetched
+    // again. On the lists (scope "page": song list, wish list, suggestions)
+    // the content is swapped in, so everyone sees a wish arrive, a row move
+    // or the room close without touching reload; the song list's token is
+    // the room's state alone, so a wish does not reload it. Everywhere else
+    // (scope "header") the token is the room's state and only the header is
+    // renewed, so the closed-room notice follows the moderator while a form
+    // being filled in keeps its input. Hidden tabs do not poll; a drag in
+    // progress or an open header menu postpones the swap.
     var live = (function () {
         var failures = 0;
         var timer = null;
@@ -968,9 +1003,20 @@
             return { check: function () {} };
         }
 
+        // On a list the whole content is drawn anew; elsewhere
+        // (data-live-scope="header") the header alone, so a form being
+        // filled in keeps its input.
+        var headerOnly = function () {
+            return document.body.getAttribute('data-live-scope') === 'header';
+        };
+        // A header menu that is open would snap shut with the swap: wait.
+        var menuOpen = function () {
+            return document.querySelector('.dome details[open]') !== null;
+        };
+
         var swap = function () {
             busy = true;
-            page.refresh().then(function (swapped) {
+            (headerOnly() ? page.refreshHeader() : page.refresh()).then(function (swapped) {
                 if (swapped) {
                     var status = document.getElementById('live-status');
                     if (status) {
@@ -988,7 +1034,7 @@
             if (busy || document.hidden) {
                 return;
             }
-            if (pending && !dragging) {
+            if (pending && !dragging && !menuOpen()) {
                 pending = false;
                 swap();
                 return;
@@ -1010,7 +1056,7 @@
                 // The revision shown is read afresh: a soft navigation may
                 // have exchanged the content meanwhile.
                 if (data && typeof data.rev === 'string' && data.rev !== document.body.getAttribute('data-live-rev')) {
-                    if (dragging) {
+                    if (dragging || menuOpen()) {
                         pending = true;
                     } else {
                         swap();

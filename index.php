@@ -1398,7 +1398,7 @@ $view = [
     'toastSec'   => $ui->get('toast_sec'), // how long a pop-up message stays, 0 = until dismissed
     'wishCount'  => null,
     'suggestionCount' => null, // badge on the Suggestions tab, editors only
-    'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ..., 'interval' => seconds], song list, wish list, suggestions
+    'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ..., 'interval' => seconds, 'scope' => 'page'|'header'], see below
     'paused'     => false, // wishing closed by the moderator -- notice in the header
     'roomList'   => [],    // rooms for the switcher in the header
     'ownRooms'   => [],    // guests: the unlisted rooms they entered, "Your rooms" in the switcher
@@ -1421,23 +1421,30 @@ try {
     // revision, since closing the room hides their form as well. The song
     // list polls the room's state only -- closed or open -- so the Wish
     // buttons and the header's notice follow the moderator, while a wish
-    // arriving leaves the list alone. How often a page asks is set under
-    // Interface, one interval per case; 0 switches the case off: its pages
-    // carry no live address and do not poll. The poll itself answers all the
-    // same, so a page opened before the switch keeps working until it loads
-    // again.
-    [$liveToken, $liveInterval] = match ($page) {
-        'songs'       => [$guard->isPaused() ? '1' : '0', $ui->get('poll_room_sec')],
-        'wishes'      => [(string) $guard->revision(), $ui->get('poll_wishes_sec')],
-        'suggestions' => [$settings->get(SuggestionRepository::REVISION_KEY, '0') . '.' . $guard->revision(), $ui->get('poll_suggestions_sec')],
-        default       => [null, 0],
+    // arriving leaves the list alone. Every other page that shows the header
+    // polls the room's state as well, but on a change renews the header
+    // alone ('scope' => 'header'): the closed-room notice appears or goes
+    // while a form being filled in stays untouched. How often a page asks is
+    // set under Interface, one interval per case; 0 switches the case off:
+    // its pages carry no live address and do not poll. The poll itself
+    // answers all the same, so a page opened before the switch keeps working
+    // until it loads again. Resources without a header (a logo, a QR image)
+    // have no token.
+    $roomState = $guard->isPaused() ? '1' : '0';
+    [$liveToken, $liveInterval, $liveScope] = match (true) {
+        $page === 'songs'       => [$roomState, $ui->get('poll_room_sec'), 'page'],
+        $page === 'wishes'      => [(string) $guard->revision(), $ui->get('poll_wishes_sec'), 'page'],
+        $page === 'suggestions' => [$settings->get(SuggestionRepository::REVISION_KEY, '0') . '.' . $guard->revision(), $ui->get('poll_suggestions_sec'), 'page'],
+        $page === 'logo' || $routeFormat !== '' => [null, 0, 'page'],
+        default                 => [$roomState, $ui->get('poll_room_sec'), 'header'],
     };
     if ($liveToken !== null && isset($_GET['poll'])) {
         header('Cache-Control: no-store');
         send_json(['rev' => $liveToken]);
     }
     if ($liveToken !== null && $liveInterval > 0) {
-        $view['live'] = ['url' => url(['p' => $page, 'poll' => 1]), 'rev' => $liveToken, 'interval' => $liveInterval];
+        // The poll address is this page's own, ids and all (see $hereParams).
+        $view['live'] = ['url' => url($hereParams + ['poll' => 1]), 'rev' => $liveToken, 'interval' => $liveInterval, 'scope' => $liveScope];
     }
     // The room switcher: guests get the listed rooms only, plus the unlisted
     // rooms they entered through their address, under "Your rooms". Rooms

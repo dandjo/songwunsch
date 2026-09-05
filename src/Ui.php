@@ -28,7 +28,7 @@ final class Ui extends NumberSettings
         'toast_sec'            => [5, 0, 60],   // seconds a pop-up message (the result of an action) stays; 0 = until dismissed
         'poll_wishes_sec'      => [4, 0, 300],  // seconds between two polls of the wish list; 0 = no live update
         'poll_suggestions_sec' => [4, 0, 300],  // ... of the suggestions
-        'poll_room_sec'        => [10, 0, 300], // ... of the room's state (closed or open) on the song list
+        'poll_room_sec'        => [10, 0, 300], // ... of the room's state (closed or open): the song list, and the header's notice everywhere else
     ];
 
     /** The message duration lived under the limits until it moved here. */

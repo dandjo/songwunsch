@@ -365,8 +365,9 @@ messages always stay until dismissed; notices that belong to the page one
 lands on stand at the top of the content and stay as well.
 
 **Live updates.** One interval per case, in seconds between two checks: the
-wish list (default 4), the suggestions (4) and the room's state on the song
-list (10) – see *Live updates* under [Usage](#usage) for what each case does.
+wish list (default 4), the suggestions (4) and the room's state (10) on the
+song list and, for the notice in the header, on every other page – see *Live
+updates* under [Usage](#usage) for what each case does.
 `0` switches that case off; the page is then current after a reload.
 
 ## Pages and footer
@@ -1042,7 +1043,11 @@ raises a revision counter in the `settings` table (`wishes_rev`,
 only the difference matters). The song list polls the room's state instead –
 closed or open – so the *Wish* buttons disappear and the closed-room notice
 appears the moment the moderator closes the room, and both come back when it
-opens; a wish arriving leaves the song list alone. An open page polls
+opens; a wish arriving leaves the song list alone. Every other page – the
+rooms, a form, an admin page – polls the room's state as well, and on a
+change renews only the header, so the closed-room notice follows the
+moderator everywhere while a form being filled in keeps its input; an open
+header menu postpones that. An open page polls
 `?poll=1` on its own address, a JSON answer of a few bytes, and only when the
 token moved on does it fetch the page again and swap its content in – focus
 and scroll position stay, a drag in progress postpones the swap, hidden tabs

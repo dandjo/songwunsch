@@ -24,7 +24,7 @@ use Songwunsch\Translator;
 /** @var array<int,array<string,mixed>> $ownRooms  guests: the unlisted rooms they entered, "Your rooms" in the switcher */
 /** @var string|null $guestName  the visitor's name for wishes, from the cookie */
 /** @var bool $askName           first visit: ask for the name in a dialog */
-/** @var array{url:string,rev:string,interval:int}|null $live  live update (app.js): polling address, the token the page was rendered with, seconds between two polls (Ui); song list, wish list, suggestions */
+/** @var array{url:string,rev:string,interval:int,scope:string}|null $live  live update (app.js): polling address, the token the page was rendered with, seconds between two polls (Ui), and what a change renews -- 'page' (song list, wish list, suggestions) or 'header' (every other page: the room's notice) */
 /** @var string $footer  the operator's own footer line (Administration -> Footer), cleaned HTML; empty = none */
 /** @var string $footerLang  the language that line fell back to, '' when it is the interface language */
 /** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
@@ -81,10 +81,11 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
          on the way (soft navigation). data-live: the song list, the wish
          list and the suggestions poll this address every data-live-interval
          seconds for their token and reload themselves when it moved on
-         (app.js); data-msg-updated is announced then. On the song list the
-         token is the room's state, so a swap means the room was closed or
-         opened -- the message says which, as the fresh page carries it. */ ?>
-<body data-endpoint="<?= $e(url()) ?>" data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>" data-toast-sec="<?= (int) $toastSec ?>" data-msg-dismiss="<?= $e(t('Dismiss')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-live-interval="<?= (int) $live['interval'] ?>" data-msg-updated="<?= $e($page !== 'songs'
+         (app.js); data-msg-updated is announced then. On the song list and
+         wherever only the header is renewed (data-live-scope) the token is
+         the room's state, so a swap means the room was closed or opened --
+         the message says which, as the fresh page carries it. */ ?>
+<body data-endpoint="<?= $e(url()) ?>" data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>" data-toast-sec="<?= (int) $toastSec ?>" data-msg-dismiss="<?= $e(t('Dismiss')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-live-interval="<?= (int) $live['interval'] ?>" data-live-scope="<?= $e($live['scope']) ?>" data-msg-updated="<?= $e($page !== 'songs' && $live['scope'] !== 'header'
     ? t('The list has been updated.')
     : ($paused
         ? t('{room} is closed right now.', ['room' => (string) $room['name']])
