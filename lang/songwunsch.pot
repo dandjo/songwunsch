@@ -512,7 +512,7 @@ msgid "In the same browser session."
 msgstr ""
 
 #: templates/_name_form.php:35
-msgid "It appears on the wish list next to every song you wish for, visible to everyone in the room."
+msgid "It appears on the public wish list next to every song you wish for – anyone who opens this site can see it, not only the guests in the room."
 msgstr ""
 
 #: templates/_name_form.php:36

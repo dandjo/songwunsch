@@ -896,8 +896,8 @@ msgstr "Dein Name"
 msgid "First name or nickname"
 msgstr "Vorname oder Spitzname"
 
-msgid "It appears on the wish list next to every song you wish for, visible to everyone in the room."
-msgstr "Er erscheint in der Wunschliste neben jedem Song, den du dir wünschst – sichtbar für alle im Raum."
+msgid "It appears on the public wish list next to every song you wish for – anyone who opens this site can see it, not only the guests in the room."
+msgstr "Er erscheint in der öffentlichen Wunschliste neben jedem Song, den du dir wünschst – jeder, der diese Seite aufruft, kann ihn sehen, nicht nur die Gäste im Raum."
 
 msgid "It is kept in this browser for a year and can be changed any time in the account menu at the top right."
 msgstr "Er wird ein Jahr lang in diesem Browser gemerkt und lässt sich jederzeit im Konto-Menü oben rechts ändern."
