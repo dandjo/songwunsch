@@ -34,7 +34,7 @@ declare(strict_types=1);
  *                  | room_songs_add | room_songs_remove           (editor)
  *                  | user_save | user_delete                      (admin)
  *                  | logo_upload | logo_activate | logo_delete    (admin)
- *                  | theme_save | limits_save                     (admin)
+ *                  | colors_save | limits_save                    (admin)
  *                  | page_save | page_delete                      (admin)
  *                  | languages_move | languages_reorder            fallback order of the languages (admin)
  *                  | footer_add | footer_remove | footer_move | footer_reorder | footer_text_save (admin)
@@ -58,7 +58,7 @@ use Songwunsch\RoomRepository;
 use Songwunsch\Schema;
 use Songwunsch\Security;
 use Songwunsch\Settings;
-use Songwunsch\Theme;
+use Songwunsch\Colors;
 use Songwunsch\Uploads;
 use Songwunsch\SongRepository;
 use Songwunsch\SuggestionRepository;
@@ -341,21 +341,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect(url(['p' => 'settings', 'id' => $selfId]));
                 // no break
 
-            case 'theme_save':
+            case 'colors_save':
                 // The site's colours (Colours), admins only: one hex colour per
                 // area of use, or nothing for the built-in colour.
                 require_role($security, 'users');
                 $input = [];
-                foreach (Theme::AREAS as $area) {
+                foreach (Colors::AREAS as $area) {
                     $input[$area] = (string) ($_POST[$area] ?? '');
                 }
-                $checked = Theme::validate($input);
+                $checked = Colors::validate($input);
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
                     flash('error', t('Please check the highlighted fields.'));
                     redirect(url(['p' => 'colors']));
                 }
-                Theme::save($settings, $checked['values']);
+                Colors::save($settings, $checked['values']);
                 flash('ok', t('The colours have been saved.'));
                 redirect(url(['p' => 'colors']));
                 // no break
@@ -1318,7 +1318,7 @@ $view = [
     'footerLang' => '',    // the language that line is written in, '' when it is the interface language
     'footerPages' => [],  // the admins' pages the footer links (Administration -> Footer), in order
     'editor'     => false, // load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page
-    'themeCss'   => '',    // colour overrides the admins set under Colours, '' = stylesheet defaults; filled below
+    'colorsCss'  => '',    // colour overrides the admins set under Colours, '' = stylesheet defaults; filled below
 ];
 
 try {
@@ -1360,7 +1360,7 @@ try {
     $logoId       = (int) $settings->get(Settings::LOGO_ID, '0');
     $view['logo'] = $logoId > 0 ? $uploads->info($logoId) : null;
     // The colours set under Colours, as a :root block over the stylesheet.
-    $view['themeCss'] = Theme::css(Theme::load($settings));
+    $view['colorsCss'] = Colors::css(Colors::load($settings));
 
     switch ($page) {
         case 'logo':
@@ -1417,7 +1417,7 @@ try {
 
             $view['title']    = t('Colours');
             $view['template'] = 'colors';
-            $view['values']   = $kept['values'] ?? Theme::load($settings);
+            $view['values']   = $kept['values'] ?? Colors::load($settings);
             $view['errors']   = $kept['errors'] ?? [];
             break;
 

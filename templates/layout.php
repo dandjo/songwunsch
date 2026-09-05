@@ -27,7 +27,7 @@ use Songwunsch\Translator;
 /** @var string $footerLang  the language that line fell back to, '' when it is the interface language */
 /** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
 /** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
-/** @var string $themeCss  :root colour overrides the admins set under Colours, see Theme; '' = none */
+/** @var string $colorsCss :root colour overrides the admins set under Colours, see Colors; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
 
 $e      = static fn (?string $v): string => Format::e($v);
@@ -68,10 +68,10 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
         <link rel="stylesheet" href="<?= $e(asset('assets/vendor/ckeditor5/ckeditor5.css')) ?>">
     <?php endif; ?>
     <link rel="stylesheet" href="<?= $e(asset('assets/style.css')) ?>">
-    <?php if ($themeCss !== ''): ?>
+    <?php if ($colorsCss !== ''): ?>
         <?php /* The colours set under Colours override the stylesheet's :root
                  tokens; the value is generated from validated hex colours only. */ ?>
-        <style><?= $themeCss ?></style>
+        <style><?= $colorsCss ?></style>
     <?php endif; ?>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎵</text></svg>">
 </head>

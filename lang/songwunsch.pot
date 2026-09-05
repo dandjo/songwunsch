@@ -887,7 +887,7 @@ msgstr ""
 msgid "Please choose a file first."
 msgstr ""
 
-#: src/Theme.php:71
+#: src/Colors.php:71
 msgid "Please enter a colour as #rrggbb."
 msgstr ""
 

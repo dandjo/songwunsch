@@ -6,7 +6,7 @@ namespace Songwunsch;
 
 /**
  * The site's colours, set by the admins under Administration -> Colours and
- * kept in the `settings` table as `theme.<area>`: one colour per area of
+ * kept in the `settings` table as `colors.<area>`: one colour per area of
  * use -- accent, secondary, danger, success, background, text. The
  * stylesheet carries the defaults as custom properties on :root; this class
  * derives the shades and tints the stylesheet uses (bright, deep, line,
@@ -14,9 +14,9 @@ namespace Songwunsch;
  * that overrides them. What is not configured is not emitted, so the
  * stylesheet's own values apply.
  */
-final class Theme
+final class Colors
 {
-    public const PREFIX = 'theme.';
+    public const PREFIX = 'colors.';
 
     /** The configurable areas, in the order the Colours page shows them. */
     public const AREAS = ['accent', 'secondary', 'danger', 'success', 'background', 'text'];
@@ -100,14 +100,14 @@ final class Theme
     /**
      * CSS for the layout's <style>, '' when nothing is configured.
      *
-     * @param array<string,mixed> $theme  area => '#rrggbb' (see load()); '' or missing = default
+     * @param array<string,mixed> $colors area => '#rrggbb' (see load()); '' or missing = default
      */
-    public static function css(array $theme): string
+    public static function css(array $colors): string
     {
         $vars = [];
         $rgb  = [];
         foreach (self::AREAS as $area) {
-            $parsed = self::parse((string) ($theme[$area] ?? ''));
+            $parsed = self::parse((string) ($colors[$area] ?? ''));
             if ($parsed !== null) {
                 $rgb[$area] = $parsed;
             }

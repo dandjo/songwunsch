@@ -27,8 +27,8 @@
 
     /* Accents: gold for actions, violet secondary, red for danger, green
        for success. Every shade and tint below derives from its base colour;
-       config.php ('theme') may replace a base colour per area of use, then
-       src/Theme.php recomputes the derived ones and overrides this block. */
+       the Colours page may replace a base colour per area of use, then
+       src/Colors.php recomputes the derived ones and overrides this block. */
     --gold:         #e6b450;
     --gold-bright:  #f4cd7d;
     --gold-deep:    #7d5c14;

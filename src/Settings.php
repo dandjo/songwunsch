@@ -8,7 +8,7 @@ namespace Songwunsch;
  * Small key/value store in the `settings` table for state that must outlive
  * sessions and requests: the moderator's pause switch, the rotating secrets
  * of the wish guard, the live logo, and what the admins set in the
- * Administration menu -- the colours (Theme, `theme.*`) and the wish limits
+ * Administration menu -- the colours (Colors, `colors.*`) and the wish limits
  * (Limits, `limits.*`).
  */
 final class Settings
@@ -45,7 +45,7 @@ final class Settings
 
     /**
      * Every entry whose name starts with the prefix, the prefix stripped:
-     * 'theme.accent' => '#e6b450' becomes 'accent' => '#e6b450'. One query
+     * 'colors.accent' => '#e6b450' becomes 'accent' => '#e6b450'. One query
      * for a whole group of values (the colours, the limits).
      *
      * @return array<string,string>

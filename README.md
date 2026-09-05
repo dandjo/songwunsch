@@ -314,7 +314,7 @@ red for danger and green for success. Each of these areas has one base colour
 that admins replace under **Colours** (`/admin/colors`, in the *Administration*
 menu): a colour picker and a hex field per area that follow each other, a
 *Default* button that brings the built-in colour back. The values are kept in
-the `settings` table (`theme.<area>`), so they survive a deployment and travel
+the `settings` table (`colors.<area>`), so they survive a deployment and travel
 with a database backup.
 
 | Area | Used for | Default |
@@ -329,7 +329,7 @@ with a database backup.
 Values are `#rrggbb` (or `#rgb`, the `#` may be left out); an empty field
 means the built-in colour. The stylesheet keeps every colour as a custom
 property on `:root` – the base colours and the shades derived from them
-(bright, deep, frame, hover tint, notice tint). `src/Theme.php` derives those
+(bright, deep, frame, hover tint, notice tint). `src/Colors.php` derives those
 shades from a configured base colour with the same ratios and the layout
 prints one `<style>:root{…}</style>` block that overrides the stylesheet;
 nothing is printed while nothing is configured. Keep the contrast readable –
@@ -381,7 +381,7 @@ English interface. Only the page form loads it. CKEditor 5 is licensed under
 the GPL 2 or later (the editor is configured with the `GPL` licence key),
 compatible with this project's GPL 3; the licence files sit next to it, the
 README there says how to update it. The editor's colours follow the site's
-theme through its custom properties (see the end of `style.css`).
+colours through its custom properties (see the end of `style.css`).
 
 ### Pages in several languages
 
@@ -1014,7 +1014,7 @@ src/WishRepository.php Wish list: create, read, sort, delete
 src/SuggestionRepository.php  Song suggestions: validate, store, list, delete
 src/WishGuard.php      Protection of wishing: limits, bot trap, pause
 src/Limits.php         The limits on wishing and suggesting the admins set (Administration -> Limits)
-src/Theme.php          The colours the admins set (Administration -> Colours): shades, the :root block
+src/Colors.php         The colours the admins set (Administration -> Colours): shades, the :root block
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
 src/RoomMemory.php     The room chosen last: cookie, once-per-session restore
 src/Settings.php       Key/value store in the settings table

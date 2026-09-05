@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Songwunsch\Format;
-use Songwunsch\Theme;
+use Songwunsch\Colors;
 
 /**
  * Admin only: the site's colours -- one base colour per area of use, picked
@@ -50,26 +50,26 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
 
 <div class="login login--wide">
     <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="theme_save">
+        <input type="hidden" name="a" value="colors_save">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
         <fieldset class="field field--group">
             <legend><?= $e(t('Colours')) ?></legend>
             <div class="field-pair">
-                <?php foreach (Theme::AREAS as $area): ?>
+                <?php foreach (Colors::AREAS as $area): ?>
                     <?php [$label, $where] = $areas[$area]; ?>
-                    <?php $default = Theme::DEFAULTS[$area]; ?>
+                    <?php $default = Colors::DEFAULTS[$area]; ?>
                     <?php $value = (string) ($values[$area] ?? ''); ?>
                     <div class="field">
-                        <label for="theme-<?= $e($area) ?>"><?= $e($label) ?></label>
+                        <label for="colors-<?= $e($area) ?>"><?= $e($label) ?></label>
                         <?php /* The picker and the "Default" button are rendered hidden and
                                  appear with JavaScript (app.js); without it the hex field
                                  stands alone and does the job. */ ?>
                         <div class="colour" data-colour>
-                            <input type="color" value="<?= $e(Theme::parse($value) !== null ? $value : $default) ?>" hidden
+                            <input type="color" value="<?= $e(Colors::parse($value) !== null ? $value : $default) ?>" hidden
                                    data-default="<?= $e($default) ?>"
                                    aria-label="<?= $e(t('Pick the colour: {area}', ['area' => $label])) ?>">
-                            <input type="text" id="theme-<?= $e($area) ?>" name="<?= $e($area) ?>" value="<?= $e($value) ?>"
+                            <input type="text" id="colors-<?= $e($area) ?>" name="<?= $e($area) ?>" value="<?= $e($value) ?>"
                                    placeholder="<?= $e($default) ?>" maxlength="7" autocomplete="off" spellcheck="false"
                                    pattern="#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})"
                                    aria-describedby="<?= $e($describedBy($area)) ?>"<?= isset($errors[$area]) ? ' aria-invalid="true"' : '' ?>>
