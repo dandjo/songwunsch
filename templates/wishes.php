@@ -18,10 +18,6 @@ $e       = static fn (?string $v): string => Format::e($v);
 $inRoom  = (int) $room['id'] !== \Songwunsch\RoomRepository::DEFAULT_ID;
 $current = url(['p' => 'wishes', 'sort' => $sort, 'dir' => $dir]);
 
-// How often an open song was wished is for the staff: everyone signed in
-// gets the column, guests do not see the cell at all.
-$showCount = $security->isLoggedIn();
-
 // Reordering only makes sense in manual order -- with any other sorting the
 // display would not follow the stored rank. Guests always see manual order.
 $manual = $sort === 'manual' && $dir === 'asc';
@@ -140,9 +136,7 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
                          right-aligned on wide screens, side by side on phones.
                          The sort bar above offers both sortings. */ ?>
                 <th scope="col"><?= $e(t('Received')) ?>, <?= $e(t('From')) ?></th>
-                <?php if ($showCount): ?>
-                    <th scope="col" class="cell-count"><span class="sr-only"><?= $e(t('Times wished')) ?></span></th>
-                <?php endif; ?>
+                <th scope="col" class="cell-count"><span class="sr-only"><?= $e(t('Times wished')) ?></span></th>
                 <?php if ($canEdit): ?>
                     <th scope="col"><span class="sr-only"><?= $e(t('Actions')) ?></span></th>
                 <?php endif; ?>
@@ -180,22 +174,20 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
                             <span class="sr-only"><?= $e(t('No name given')) ?></span>
                         <?php endif; ?>
                     </td>
-                    <?php if ($showCount): ?>
-                        <?php /* How often the song was wished while this entry has been
-                                 open. A first wish shows nothing -- the badge appears
-                                 from the second on. The cell is always there so the
-                                 card's columns stay put. */ ?>
-                        <?php $wished = (int) ($row['wished'] ?? 1); ?>
-                        <td class="cell-count">
-                            <?php if ($wished > 1): ?>
-                                <?php $wishedText = tn('wished {n} time', 'wished {n} times', $wished); ?>
-                                <span class="wish-count" title="<?= $e($wishedText) ?>">
-                                    <span aria-hidden="true"><?= $wished ?>×</span>
-                                    <span class="sr-only"><?= $e($wishedText) ?></span>
-                                </span>
-                            <?php endif; ?>
-                        </td>
-                    <?php endif; ?>
+                    <?php /* How often the song was wished while this entry has been
+                             open -- for everyone, the audience included. A first wish
+                             shows nothing; the badge appears from the second on. The
+                             cell is always there so the card's columns stay put. */ ?>
+                    <?php $wished = (int) ($row['wished'] ?? 1); ?>
+                    <td class="cell-count">
+                        <?php if ($wished > 1): ?>
+                            <?php $wishedText = tn('wished {n} time', 'wished {n} times', $wished); ?>
+                            <span class="wish-count" title="<?= $e($wishedText) ?>">
+                                <span aria-hidden="true"><?= $wished ?>×</span>
+                                <span class="sr-only"><?= $e($wishedText) ?></span>
+                            </span>
+                        <?php endif; ?>
+                    </td>
                     <?php if ($canEdit): ?>
                         <?php /* One stack at the right edge, spanning the whole card:
                                  the move buttons (manual order only) above Delete. */ ?>

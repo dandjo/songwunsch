@@ -1062,7 +1062,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     justify-content: flex-end;
 }
 /* The count itself: a solid violet disc like the counter in the navigation,
-   but big enough to be read from the stage -- the staff decides by it. */
+   but big enough to be read from the stage -- the audience sees it too. */
 .wish-count {
     display: inline-flex;
     align-items: center;

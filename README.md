@@ -993,7 +993,7 @@ middleware or the hoster.
 | Sign in / sign out | Account menu (person icon) top right next to the language menu; when signed in it shows the name and *Log out* |
 | See the site as a guest | Signed in: account menu → *View as guest*; a notice in the header and *End guest view* lead back. Meanwhile pages, controls and actions behave exactly as for a visitor without a login |
 | Sort | Sort bar above the list, a second click reverses the direction |
-| Wish | *Wish* button in the row (or a click on the row). A song that is already on the wish list is not added twice: the wish counts on the existing entry, and signed-in users see the number on its card (*3×*) |
+| Wish | *Wish* button in the row (or a click on the row). A song that is already on the wish list is not added twice: the wish counts on the existing entry, and everyone sees the number on its card (*3×*) |
 | Change the order | Wish list → drag the row (drag & drop) or the buttons on the right: to the top, ▲, ▼, to the bottom |
 | Delete a wish | Wish list → *Delete* in the row |
 | Delete everything | Wish list → *Clear list* |
@@ -1097,10 +1097,10 @@ stack only adds height there and the text stays a tight, centred block.
   line, like on the wish list.
 * **Wish list** – position on the left, title, below it artist · length ·
   genre; on the right, right-aligned in one column, the time received (clock
-  glyph and stamp) above who wished (person glyph and name, if given); for
-  signed-in users a violet disc with how often the song was wished (*3×*, from
-  the second wish on), and next to it the four move buttons (to the top, ▲,
-  ▼, to the bottom) above
+  glyph and stamp) above who wished (person glyph and name, if given); a
+  violet disc with how often the song was wished (*3×*, from the second wish
+  on, for everyone), and for moderators next to it the four move buttons
+  (to the top, ▲, ▼, to the bottom) above
   *Delete* (bin, as wide as the button row). On phones the four become a
   2×2 block, "to the top" under ▲ and "to the bottom" under ▼, and
   the time received moves to a third line under the artist, the name right of
