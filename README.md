@@ -154,7 +154,7 @@ Sorting, search and page are appended as query parameters
 records share a prefix: `/rooms` lists, `/rooms/new` creates, `/rooms/<id>/edit`
 edits, and `/rooms/<name>` is the room itself (so `new` and `main` are not
 available as room names). Everything the *Administration* menu leads to sits
-below `/admin` – languages, users, logos, colours, limits, pages, footer – while a page's
+below `/admin` – languages, users, logos, interface, limits, pages, footer – while a page's
 public address stays `/pages/<name>`. Anything else is a 404; there are no redirects from
 addresses of earlier versions.
 
@@ -324,15 +324,20 @@ code with `--delete`, a shared host may have no writable folder, and a
 database backup carries the logos along. A logo is served under
 `/logo/<id>` with a long cache lifetime – the bytes of an id never change.
 
-## Colours
+## Interface
 
-The interface is dark with gold for actions, violet for tags and counters,
-red for danger and green for success. Each of these areas has one base colour
-that admins replace under **Colours** (`/admin/colors`, in the *Administration*
-menu): a colour picker and a hex field per area that follow each other, a
-*Default* button that brings the built-in colour back. The values are kept in
-the `settings` table (`colors.<area>`), so they survive a deployment and travel
-with a database backup.
+Under **Interface** (`/admin/ui`, in the *Administration* menu) admins set how
+the interface looks and behaves, for every visitor and every room alike: the
+colours, how long a message stays, and how often the lists look for changes.
+The values are kept in the `settings` table (`colors.<area>` for the colours,
+`ui.<name>` for the rest, `src/Colors.php` and `src/Ui.php`), so they survive
+a deployment and travel with a database backup.
+
+**Colours.** The interface is dark with gold for actions, violet for tags and
+counters, red for danger and green for success. Each of these areas has one
+base colour that admins replace: a colour picker and a hex field per area
+that follow each other, a *Default* button that brings the built-in colour
+back.
 
 | Area | Used for | Default |
 | --- | --- | --- |
@@ -352,6 +357,17 @@ prints one `<style>:root{…}</style>` block that overrides the stylesheet;
 nothing is printed while nothing is configured. Keep the contrast readable –
 gold on a light background, say, will not do – and check with the
 accessibility tools of the browser after a change.
+
+**Messages.** The result of an action – a wish is in, a song was added, a row
+was deleted – pops up at the bottom edge and disappears after *Seconds a
+message is shown* (default 5; 0 keeps it until it is dismissed). Error
+messages always stay until dismissed; notices that belong to the page one
+lands on stand at the top of the content and stay as well.
+
+**Live updates.** One interval per case, in seconds between two checks: the
+wish list (default 4), the suggestions (4) and the room's state on the song
+list (10) – see *Live updates* under [Usage](#usage) for what each case does.
+`0` switches that case off; the page is then current after a reload.
 
 ## Pages and footer
 
@@ -591,13 +607,13 @@ pre-escaped and the rest printed without escaping.
 
 All operating functions sit behind a sign-in. Users are stored in the `users`
 table and managed on the **Users** page (`/admin/users`). Admins reach their
-pages – *Languages*, *Users*, *Logos*, *Colours*, *Limits*, *Pages*, *Footer* – through the
+pages – *Languages*, *Users*, *Logos*, *Interface*, *Limits*, *Pages*, *Footer* – through the
 **Administration** menu in the navigation, a tab that opens a list; all of
 them live below `/admin`.
 
 | Role | May |
 | --- | --- |
-| **Admin** | Create, edit, lock and delete users and hand out every role, the admin role included; manage the header logos, the colours, the limits, the pages, the footer and the fallback order of the languages – and everything editors and moderators may do |
+| **Admin** | Create, edit, lock and delete users and hand out every role, the admin role included; manage the header logos, the interface (colours, messages, live updates), the limits, the pages, the footer and the fallback order of the languages – and everything editors and moderators may do |
 | **Editor** | Maintain the repertoire: add, edit, delete titles; work the song suggestions; create, edit, delete rooms and manage their songs |
 | **Moderator** | Edit the wish list: sort, reorder, delete, clear; close and open the room (everyone may view the list) |
 
@@ -1087,8 +1103,10 @@ src/SongRepository.php Repertoire: search, sort, paginate, maintain
 src/WishRepository.php Wish list: create, read, sort, delete
 src/SuggestionRepository.php  Song suggestions: validate, store, list, delete
 src/WishGuard.php      Protection of wishing: limits, bot trap, pause
+src/NumberSettings.php Whole-number settings under one prefix: defaults, ranges, validate, save (base of Limits and Ui)
 src/Limits.php         The limits on wishing and suggesting the admins set (Administration -> Limits)
-src/Colors.php         The colours the admins set (Administration -> Colours): shades, the :root block
+src/Ui.php             Message duration and live-update intervals the admins set (Administration -> Interface)
+src/Colors.php         The colours the admins set (Administration -> Interface): shades, the :root block
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
 src/QrCode.php         QR codes of the room addresses, made here: encoding, Reed-Solomon, masks, SVG and PNG
 src/RoomMemory.php     The room chosen last and the unlisted rooms a guest entered: two cookies
@@ -1102,7 +1120,7 @@ src/RoomRepository.php Rooms: create, edit, delete, song selection from the mast
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter
-templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, room_qr, login, settings, logos, colors, limits, pages, page_edit, page, footer, languages, name, _name_form, _room_switches, error, _sortbar, _pager
+templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, room_qr, login, settings, logos, ui, limits, pages, page_edit, page, footer, languages, name, _name_form, _room_switches, error, _sortbar, _pager
 assets/                style.css (dark interface), app.js, vendor/ckeditor5 (the page editor, see Pages and footer)
 robots.txt             what search engines may index: the start page and the pages, not the rooms, lists and operating pages
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
