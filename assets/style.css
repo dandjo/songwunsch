@@ -1498,7 +1498,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .namebox__form .field { margin-bottom: 1.1rem; }
 /* Save and "Not now" / Cancel side by side, like the actions of every form;
    the skip form itself holds nothing visible. */
-.namebox__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.namebox__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .6rem; }
 .namebox__skip { margin: 0; }
 
 /* ---------- Messages ---------- */
