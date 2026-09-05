@@ -1558,9 +1558,6 @@ msgstr "Eingebaut: {colour}"
 msgid "Please enter a colour as #rrggbb."
 msgstr "Bitte eine Farbe als #rrggbb eingeben."
 
-msgid "The colours have been saved."
-msgstr "Die Farben sind gespeichert."
-
 msgid "Limits"
 msgstr "Limits"
 
@@ -1605,12 +1602,6 @@ msgstr "Sekunden zwischen zwei Wünschen"
 
 msgid "In the same browser session – a brake against double clicks."
 msgstr "In derselben Browser-Sitzung – eine Bremse gegen Doppelklicks."
-
-msgid "Allow duplicates"
-msgstr "Doppelte erlauben"
-
-msgid "a song may be wished again while it is still open on the list; otherwise the guest is told it is already there"
-msgstr "ein Song darf noch einmal gewünscht werden, während er offen auf der Liste steht; sonst erfährt der Gast, dass er schon drauf ist"
 
 msgid "Open suggestions"
 msgstr "Offene Vorschläge"
@@ -1743,7 +1734,7 @@ msgstr "Deine Räume"
 msgid "The page could not be updated – please reload it."
 msgstr "Die Seite konnte nicht aktualisiert werden – bitte lade sie neu."
 
-# ---- Pop-up messages (Limits, app.js) ------------------------------------------
+# ---- Pop-up messages (Interface, app.js) ---------------------------------------
 
 msgid "Messages"
 msgstr "Meldungen"
@@ -1756,3 +1747,35 @@ msgstr "Das Ergebnis einer Aktion – ein Wunsch ist drin, ein Song wurde hinzug
 
 msgid "Dismiss"
 msgstr "Schließen"
+
+# ---- Interface (Administration -> Interface) -----------------------------------
+
+msgid "Interface"
+msgstr "Oberfläche"
+
+msgid "The interface settings have been saved."
+msgstr "Die Einstellungen der Oberfläche wurden gespeichert."
+
+msgid "The colours of the interface, how long a message stays and how often the lists look for changes – for every visitor and every room alike."
+msgstr "Die Farben der Oberfläche, wie lange eine Meldung stehen bleibt und wie oft die Listen nach Änderungen sehen – für alle Besucher und alle Räume gleich."
+
+msgid "Live updates"
+msgstr "Live-Aktualisierung"
+
+msgid "Wish list: seconds between two checks"
+msgstr "Wunschliste: Sekunden zwischen zwei Abfragen"
+
+msgid "Every open wish list asks the server this often whether a wish arrived, a row moved or was deleted, and redraws itself. 0 switches the live update off; the page is then current after a reload."
+msgstr "Jede geöffnete Wunschliste fragt so oft beim Server nach, ob ein Wunsch eingegangen ist, eine Zeile verschoben oder gelöscht wurde, und zeichnet sich neu. 0 schaltet die Live-Aktualisierung ab; die Seite ist dann erst nach dem Neuladen aktuell."
+
+msgid "Suggestions: seconds between two checks"
+msgstr "Vorschläge: Sekunden zwischen zwei Abfragen"
+
+msgid "The same for the list of suggestions."
+msgstr "Dasselbe für die Liste der Vorschläge."
+
+msgid "Room state: seconds between two checks"
+msgstr "Raumstatus: Sekunden zwischen zwei Abfragen"
+
+msgid "The song list asks this often whether the room was closed or opened, so the Wish buttons disappear and reappear for everyone without a reload. 0 switches that off."
+msgstr "Die Songliste fragt so oft nach, ob der Raum geschlossen oder geöffnet wurde, damit die Wünschen-Buttons bei allen ohne Neuladen verschwinden und wieder erscheinen. 0 schaltet das ab."

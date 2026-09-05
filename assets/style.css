@@ -1770,6 +1770,9 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .colour__reset:hover { background: var(--hover); color: var(--text); }
 /* A closing remark after the list stands off from it. */
 .field--group ul.field__hint + .field__hint { margin-top: .9rem; }
+/* An introduction to a whole group (the colours on the Interface page)
+   stands directly below the legend, off the fields that follow. */
+.field--group > .field__hint { margin: 0 0 1rem; }
 
 /* A checkbox with its label in one line. Inside a .field the generic
    ".field label" rule (block, small, bold) has the higher specificity, so
