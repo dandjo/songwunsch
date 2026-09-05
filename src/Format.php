@@ -27,12 +27,13 @@ final class Format
      * Length for display. The database holds seconds (INT); the helper also
      * accepts '00:03:45' or 'mm:ss' so it works for form input as well.
      * Anything recognisable is normalised to m:ss, everything else is passed
-     * through unchanged.
+     * through unchanged. An unknown length is an empty string: the cards show
+     * nothing in its place.
      */
     public static function length(mixed $raw): string
     {
         if ($raw === null || $raw === '') {
-            return '–';
+            return '';
         }
 
         if (is_int($raw) || (is_string($raw) && ctype_digit($raw))) {
@@ -103,15 +104,13 @@ final class Format
             return '';
         }
 
-        $shown = self::length($raw);
-
-        return $shown === '–' ? '' : $shown;
+        return self::length($raw);
     }
 
     private static function fromSeconds(int $seconds): string
     {
         if ($seconds <= 0) {
-            return '–';
+            return '';
         }
 
         $hours   = intdiv($seconds, 3600);

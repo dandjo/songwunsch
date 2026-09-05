@@ -137,8 +137,6 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                     <td class="cell-genre">
                         <?php if ($row['genre'] !== null && $row['genre'] !== ''): ?>
                             <span class="tag"><?= $e((string) $row['genre']) ?></span>
-                        <?php else: ?>
-                            <span class="muted">–</span>
                         <?php endif; ?>
                     </td>
                     <?php if ($hasActions): ?>

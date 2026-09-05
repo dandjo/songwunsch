@@ -153,8 +153,6 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
                     <td class="cell-genre">
                         <?php if (($row['genre'] ?? '') !== ''): ?>
                             <span class="tag"><?= $e((string) $row['genre']) ?></span>
-                        <?php else: ?>
-                            <span class="muted">–</span>
                         <?php endif; ?>
                     </td>
                     <?php /* Time received and, below or beside it, who wished --
