@@ -96,6 +96,10 @@ $invalid = static fn (string $field): string => isset($errors[$field])
                 <input type="checkbox" name="active" value="1"<?= ($values['active'] ?? '1') === '1' ? ' checked' : '' ?>>
                 <span><strong><?= $e(t('Active')) ?></strong> – <?= $e(t('archived rooms leave the room switcher and the guests’ list but stay reachable through their address')) ?></span>
             </label>
+            <label class="check">
+                <input type="checkbox" name="listed" value="1"<?= ($values['listed'] ?? '0') === '1' ? ' checked' : '' ?>>
+                <span><strong><?= $e(t('Listed')) ?></strong> – <?= $e(t('guests see the room in the room switcher and the list of rooms; an unlisted room is reached through its address or QR code only – keep private events unlisted, above all when the name says whose event it is')) ?></span>
+            </label>
         </fieldset>
         <?php endif; ?>
 

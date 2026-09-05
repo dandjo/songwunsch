@@ -240,7 +240,9 @@ disallowed: the rooms (`/rooms…`, a room is often named after the hosts of a
 private event), the wish lists and suggestions (`/wishes`, `/suggestions`, they
 show the names guests gave), the name form and the operating pages behind the
 sign-in (`/login`, `/settings`, `/users`, `/admin`, `/song`). This keeps
-well-behaved crawlers away; it is not access control. A `robots.txt` is always
+well-behaved crawlers away; it is not access control – and the start page
+still shows the room switcher, so keep private rooms *unlisted* (see
+[Rooms](#rooms)). A `robots.txt` is always
 read from the domain root, so the file only works with the application at the
 root – under a sub-path merge its lines into the domain's own `robots.txt`
 with the sub-path in front of every address.
@@ -766,6 +768,22 @@ room under `/rooms`, archived ones tagged, and filter by *All*, *Active* and
 paginates like the repertoire. From seven rooms on, the room switcher's overlay
 shows a filter field that hides entries as you type (JavaScript; without it
 the full list stays).
+
+**Listing.** Every room is also *listed* or *unlisted* (column `listed`,
+checkbox in the edit form). Guests – visitors who are not signed in – see only
+listed rooms in the room switcher and under `/rooms`; the room tags on the
+public list of suggestions name listed rooms only, plus the room the guest is
+in. An unlisted room is reached through its address or QR code alone, which is
+the right setting for private events – a room is often named after the hosts,
+and `robots.txt` keeps crawlers off the room pages but not off a list on the
+start page. Signed-in users see every active room. A new room starts unlisted.
+Installations from before this switch add the column and keep their rooms
+visible:
+
+```sql
+ALTER TABLE rooms ADD COLUMN listed TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER active;
+UPDATE rooms SET listed = 1;
+```
 
 **The main room's name.** The main room has no row and no address part of
 its own, but it can be renamed: editors find *Rename* on its row under

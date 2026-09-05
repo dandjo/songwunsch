@@ -1,16 +1,3 @@
-# Songwunsch -- what search engines may index.
-#
-# The start page (the repertoire) and the pages -- imprint, privacy notice,
-# FAQ -- are public information. Everything that carries names stays out:
-# the rooms (a room is often named after the hosts of a private event), the
-# wish lists and the suggestions (they show the names guests gave), the name
-# form and the operating pages behind the sign-in. This keeps well-behaved
-# crawlers away; it is not access control.
-#
-# Works only with the application at the domain root, since a robots.txt is
-# always read from /robots.txt. Under a sub-path, merge these lines into the
-# domain's own robots.txt with the sub-path in front of every address.
-
 User-agent: *
 Disallow: /rooms
 Disallow: /wishes

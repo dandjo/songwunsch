@@ -1688,3 +1688,17 @@ msgstr "Mit einer Sprache gibt es nichts zu ordnen."
 
 msgid "Drag a row or use its arrows."
 msgstr "Zeile ziehen oder die Pfeile nutzen."
+
+# ---- Listed rooms (Rooms) -------------------------------------------------------
+
+msgid "Listed"
+msgstr "Gelistet"
+
+msgid "guests see the room in the room switcher and the list of rooms; an unlisted room is reached through its address or QR code only – keep private events unlisted, above all when the name says whose event it is"
+msgstr "Gäste sehen den Raum im Raumwechsler und in der Raumliste; ein nicht gelisteter Raum ist nur über seine Adresse oder den QR-Code erreichbar – private Feste nicht listen, vor allem wenn der Name verrät, wessen Fest es ist"
+
+msgid "unlisted"
+msgstr "nicht gelistet"
+
+msgid "Unlisted rooms are reached through their address only: guests see them neither here nor in the room switcher."
+msgstr "Nicht gelistete Räume sind nur über ihre Adresse erreichbar: Gäste sehen sie weder hier noch im Raumwechsler."

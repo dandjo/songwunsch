@@ -108,8 +108,9 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                          "You are here: <room>" so the name reads as a place, not as
                          a page. On phones it takes a row of its own above the tabs,
                          on wider screens it stands at the left, apart from them
-                         (CSS). Lists the main room and every room; works without
-                         JavaScript. The visible text is the accessible name. */ ?>
+                         (CSS). Lists the main room and every active room -- for
+                         guests only the listed ones; works without JavaScript.
+                         The visible text is the accessible name. */ ?>
                 <details class="roomswitch">
                     <summary class="roomswitch__toggle">
                         <?= icon('door') ?><span class="roomswitch__label"><?= $e(t('You are here')) ?>:</span>

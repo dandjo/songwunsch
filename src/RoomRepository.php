@@ -13,6 +13,12 @@ use RuntimeException;
  *
  * The default room is virtual: id 0, no row, the master list itself. It is
  * what / and /wishes show and is always there. Wishes carry room_id 0 for it.
+ *
+ * Two switches per room: `active` (archived rooms leave the switcher and the
+ * list for everyone) and `listed` (unlisted rooms are hidden from guests --
+ * visitors who are not signed in -- and reached through their address only;
+ * signed-in users see every active room). A room is often named after the
+ * hosts of a private event, so a new room starts unlisted.
  */
 final class RoomRepository
 {
@@ -31,7 +37,7 @@ final class RoomRepository
     /** Words the address /rooms/<...> uses for other things: /rooms/new, /rooms/main/edit. */
     public const RESERVED_SLUGS = ['new', 'main'];
 
-    private const SELECT = 'SELECT id, slug, name, active, created_at, updated_at FROM ' . self::TABLE;
+    private const SELECT = 'SELECT id, slug, name, active, listed, created_at, updated_at FROM ' . self::TABLE;
 
     /** Filters of the room list: only active rooms, only archived ones, or every room. */
     public const FILTERS = ['active', 'archived', 'all'];
@@ -82,11 +88,12 @@ final class RoomRepository
     /**
      * One page of rooms with their song and open-wish counts, by name.
      *
-     * @param  string $query  search in name and slug
-     * @param  string $filter one of FILTERS
+     * @param  string $query      search in name and slug
+     * @param  string $filter     one of FILTERS
+     * @param  bool   $listedOnly guests: only rooms with the listed switch on
      * @return array{rows: array<int,array<string,mixed>>, total: int}
      */
-    public function search(string $query, string $filter, int $page, int $perPage): array
+    public function search(string $query, string $filter, int $page, int $perPage, bool $listedOnly = false): array
     {
         $t  = self::TABLE;
         $rs = self::SONGS;
@@ -99,6 +106,9 @@ final class RoomRepository
             $conditions[] = 'r.active = 1';
         } elseif ($filter === 'archived') {
             $conditions[] = 'r.active = 0';
+        }
+        if ($listedOnly) {
+            $conditions[] = 'r.listed = 1';
         }
 
         $query = trim($query);
@@ -113,7 +123,7 @@ final class RoomRepository
         $offset = max(0, ($page - 1) * $perPage);
 
         $rows = $this->db->all(
-            "SELECT r.id, r.slug, r.name, r.active, r.created_at, r.updated_at,
+            "SELECT r.id, r.slug, r.name, r.active, r.listed, r.created_at, r.updated_at,
                     (SELECT COUNT(*) FROM {$rs} s WHERE s.room_id = r.id) AS song_count,
                     (SELECT COUNT(*) FROM {$w} x WHERE x.room_id = r.id) AS wish_count
              FROM {$t} r {$where}
@@ -128,25 +138,32 @@ final class RoomRepository
     /**
      * Id, slug and name of every active room, by name -- for the room
      * switcher in the header, on every page. Archived rooms stay reachable
-     * through their address but are not offered.
+     * through their address but are not offered; for guests the unlisted
+     * ones are left out as well.
      *
+     * @param  bool $listedOnly guests: only rooms with the listed switch on
      * @return array<int,array<string,mixed>>
      */
-    public function names(): array
+    public function names(bool $listedOnly = false): array
     {
-        return $this->db->all('SELECT id, slug, name FROM ' . self::TABLE . ' WHERE active = 1 ORDER BY name ASC, id ASC');
+        $where = $listedOnly ? 'WHERE active = 1 AND listed = 1' : 'WHERE active = 1';
+
+        return $this->db->all('SELECT id, slug, name FROM ' . self::TABLE . ' ' . $where . ' ORDER BY name ASC, id ASC');
     }
 
     /**
-     * Display name of every room, active and archived, by id -- for tagging
-     * rows (the suggestions) with the room they belong to.
+     * Display name by id of every room, archived ones too -- for tags on
+     * rows that name their room. For guests the unlisted rooms are left out,
+     * so their names do not show up on the public lists.
      *
+     * @param  bool $listedOnly guests: only rooms with the listed switch on
      * @return array<int,string>
      */
-    public function namesById(): array
+    public function namesById(bool $listedOnly = false): array
     {
         $names = [];
-        foreach ($this->db->all('SELECT id, name FROM ' . self::TABLE) as $row) {
+        $where = $listedOnly ? ' WHERE listed = 1' : '';
+        foreach ($this->db->all('SELECT id, name FROM ' . self::TABLE . $where) as $row) {
             $names[(int) $row['id']] = (string) $row['name'];
         }
 
@@ -229,8 +246,11 @@ final class RoomRepository
         }
 
         // Archived rooms leave the switcher and the guests' list; a new room
-        // starts active.
+        // starts active. Unlisted rooms are hidden from guests and reached
+        // through their address only; the form decides, a new room starts
+        // unlisted.
         $values['active'] = (($input['active'] ?? '') === '1') ? 1 : 0;
+        $values['listed'] = (($input['listed'] ?? '') === '1') ? 1 : 0;
 
         return ['values' => $values, 'errors' => $errors];
     }
@@ -240,8 +260,8 @@ final class RoomRepository
     {
         $now = date('Y-m-d H:i:s');
         $this->db->exec(
-            'INSERT INTO ' . self::TABLE . ' (slug, name, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
-            [$values['slug'], $values['name'], $values['active'] ?? 1, $now, $now],
+            'INSERT INTO ' . self::TABLE . ' (slug, name, active, listed, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+            [$values['slug'], $values['name'], $values['active'] ?? 1, $values['listed'] ?? 0, $now, $now],
         );
 
         return (int) $this->db->pdo()->lastInsertId();
@@ -255,8 +275,8 @@ final class RoomRepository
         }
 
         $this->db->exec(
-            'UPDATE ' . self::TABLE . ' SET slug = ?, name = ?, active = ?, updated_at = ? WHERE id = ? LIMIT 1',
-            [$values['slug'], $values['name'], $values['active'] ?? 1, date('Y-m-d H:i:s'), $id],
+            'UPDATE ' . self::TABLE . ' SET slug = ?, name = ?, active = ?, listed = ?, updated_at = ? WHERE id = ? LIMIT 1',
+            [$values['slug'], $values['name'], $values['active'] ?? 1, $values['listed'] ?? 0, date('Y-m-d H:i:s'), $id],
         );
     }
 

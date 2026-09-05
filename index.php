@@ -1119,6 +1119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'slug'   => (string) ($_POST['slug'] ?? ''),
                     'name'   => (string) ($_POST['name'] ?? ''),
                     'active' => (string) ($_POST['active'] ?? ''),
+                    'listed' => (string) ($_POST['listed'] ?? ''),
                 ];
                 $checked = $rooms->validate($input, $existing);
                 $formUrl = url(['p' => 'room', 'id' => $id > 0 ? $id : null]);
@@ -1341,7 +1342,8 @@ try {
     if ($liveToken !== null) {
         $view['live'] = ['url' => url(['p' => $page, 'poll' => 1]), 'rev' => $liveToken];
     }
-    $view['roomList'] = $rooms->names();
+    // The room switcher: guests get the listed rooms only.
+    $view['roomList'] = $rooms->names(!$security->isLoggedIn());
     // The footer links the pages the admins put there, on every screen, and
     // carries the operator's own line below them.
     $view['footerPages'] = $pageRepo->footerLinks();
@@ -1633,7 +1635,12 @@ try {
             $view['pageNo']    = $pageNo;
             $view['pages']     = max(1, (int) ceil($result['total'] / $perPage));
             // Room names for the tags on the rows, by id -- archived rooms too.
-            $view['roomNames'] = $rooms->namesById();
+            // Guests get the listed rooms only, plus the room they are in; a
+            // row whose room is missing here shows no room tag.
+            $view['roomNames'] = $rooms->namesById(!$security->isLoggedIn());
+            if ($roomId > 0) {
+                $view['roomNames'][$roomId] = (string) $room['name'];
+            }
             // No form while wishing is paused in this room.
             $view['formToken'] = $view['paused'] ? '' : $guard->formToken();
             $view['errors']    = $kept['errors'] ?? [];
@@ -1716,8 +1723,9 @@ try {
             break;
 
         case 'rooms':
-            // Everyone sees the active rooms and may switch; editors also
-            // manage them and may list archived rooms.
+            // Everyone sees the active rooms and may switch -- guests only
+            // the listed ones, signed-in users every active room; editors
+            // also manage them and may list archived rooms.
             $canEdit = $security->can('rooms');
             $perPage = $limits->get('per_page');
             $q       = trim((string) ($_GET['q'] ?? ''));
@@ -1727,7 +1735,7 @@ try {
             $filter  = $canEdit && in_array($filter, RoomRepository::FILTERS, true) ? $filter : 'active';
             $pageNo  = max(1, (int) ($_GET['page'] ?? 1));
 
-            $roomResult = $rooms->search($q, $filter, $pageNo, $perPage);
+            $roomResult = $rooms->search($q, $filter, $pageNo, $perPage, !$security->isLoggedIn());
 
             $view['title']        = t('Rooms');
             $view['template']     = 'rooms';
@@ -1799,6 +1807,7 @@ try {
                 'slug'   => (string) ($edit['slug'] ?? ''),
                 'name'   => (string) ($edit['name'] ?? ''),
                 'active' => (string) ($edit['active'] ?? '1'),
+                'listed' => (string) ($edit['listed'] ?? '0'), // a new room starts unlisted
             ];
             break;
 

@@ -1684,3 +1684,17 @@ msgstr "Avec une seule langue, il n’y a rien à ordonner."
 
 msgid "Drag a row or use its arrows."
 msgstr "Faites glisser une ligne ou utilisez ses flèches."
+
+# ---- Listed rooms (Rooms) -------------------------------------------------------
+
+msgid "Listed"
+msgstr "Répertoriée"
+
+msgid "guests see the room in the room switcher and the list of rooms; an unlisted room is reached through its address or QR code only – keep private events unlisted, above all when the name says whose event it is"
+msgstr "les invités voient la salle dans le sélecteur de salles et dans la liste des salles ; une salle non répertoriée n’est accessible que par son adresse ou son code QR – ne répertoriez pas les fêtes privées, surtout si le nom révèle de qui est la fête"
+
+msgid "unlisted"
+msgstr "non répertoriée"
+
+msgid "Unlisted rooms are reached through their address only: guests see them neither here nor in the room switcher."
+msgstr "Les salles non répertoriées ne sont accessibles que par leur adresse : les invités ne les voient ni ici ni dans le sélecteur de salles."

@@ -7,7 +7,7 @@ use Songwunsch\Format;
 /** @var array<int,array<string,mixed>> $rows  one page of rooms with song_count and wish_count */
 /** @var int $total           rooms matching search and filter */
 /** @var string $q */
-/** @var string $filter       active | archived | all (guests: always active) */
+/** @var string $filter       active | archived | all (guests: always active, and only listed rooms) */
 /** @var int $pageNo */
 /** @var int $pages */
 /** @var bool $canEdit        editor or admin: create, edit, delete */
@@ -46,6 +46,7 @@ $hasActions = $canPause || $canEdit;
             <?= $e(t('Every room has its own repertoire, picked from the master list, and its own wish list.')) ?>
             <?php if ($canEdit): ?>
                 <?= $e(t('Archived rooms stay reachable through their address but leave the room switcher and the guests’ list.')) ?>
+                <?= $e(t('Unlisted rooms are reached through their address only: guests see them neither here nor in the room switcher.')) ?>
                 <?= $e($startRoomId > 0
                     ? t('The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last.')
                     : t('Visitors who open the bare address without having chosen a room yet land in “General”; As start room sends them into another room instead.')) ?>
@@ -122,6 +123,7 @@ $hasActions = $canPause || $canEdit;
             'slug'       => '',
             'name'       => (string) \Songwunsch\RoomRepository::defaultRoom()['name'],
             'active'     => 1,
+            'listed'     => 1,
             'song_count' => $masterSongs,
             'wish_count' => $masterWishes,
         ]], $rows) : $rows;
@@ -151,6 +153,7 @@ $hasActions = $canPause || $canEdit;
                     <?php endif; ?>
                     <?php if ($isMain): ?><span class="tag tag--gold"><?= $e(t('always there')) ?></span><?php endif; ?>
                     <?php if ((int) $row['active'] === 0): ?><span class="tag"><?= $e(t('archived')) ?></span><?php endif; ?>
+                    <?php if ($canEdit && !$isMain && (int) ($row['listed'] ?? 0) === 0): ?><span class="tag"><?= $e(t('unlisted')) ?></span><?php endif; ?>
                     <?php if ($canPause && ($pausedRooms[(int) $row['id']] ?? false)): ?><span class="tag"><?= $e(t('closed')) ?></span><?php endif; ?>
                     <?php if ((int) $row['id'] === $startRoomId && (int) $row['active'] === 1): ?><span class="tag tag--gold"><?= $e(t('start room')) ?></span><?php endif; ?>
                     <?php if ($isHere): ?><span class="muted"><?= $e(t('(current)')) ?></span><?php endif; ?>

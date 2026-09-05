@@ -182,9 +182,12 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                                  Nothing for the main room -- that is the master list. */ ?>
                         <td class="cell-genre cell-room">
                             <?php $rowRoom = (int) ($row['room_id'] ?? 0); ?>
-                            <?php if ($rowRoom > 0): ?>
-                                <span class="tag"><span class="sr-only"><?= $e(t('Room')) ?>: </span><?= $e($roomNames[$rowRoom] ?? t('deleted room')) ?></span>
-                            <?php else: ?>
+                            <?php if ($rowRoom > 0 && isset($roomNames[$rowRoom])): ?>
+                                <span class="tag"><span class="sr-only"><?= $e(t('Room')) ?>: </span><?= $e((string) $roomNames[$rowRoom]) ?></span>
+                            <?php elseif ($rowRoom > 0 && $canEdit): ?>
+                                <?php /* Guests are given no name for an unlisted room (index.php). */ ?>
+                                <span class="tag"><span class="sr-only"><?= $e(t('Room')) ?>: </span><?= $e(t('deleted room')) ?></span>
+                            <?php elseif ($rowRoom === 0): ?>
                                 <span class="sr-only"><?= $e((string) RoomRepository::defaultRoom()['name']) ?></span>
                             <?php endif; ?>
                         </td>
