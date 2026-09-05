@@ -51,9 +51,9 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
         </div>
         <?php if ($paused): ?>
             <p class="muted">
-                <strong><?= $e(t('The room is closed')) ?></strong> <?= $e(t('– the audience cannot wish or suggest anything right now.')) ?>
+                <strong><?= $e(t('The room is closed')) ?></strong> <?= $e(t('– no wishes or suggestions right now.')) ?>
                 <?php if ($canEdit): ?>
-                    <?= t('Open it in the notice above or under {rooms}.', [
+                    <?= t('Open it above or under {rooms}.', [
                         'rooms' => '<a href="' . $e(url(['p' => 'rooms'])) . '">' . $e(t('Rooms')) . '</a>',
                     ]) ?>
                 <?php endif; ?>

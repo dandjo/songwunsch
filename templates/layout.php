@@ -394,7 +394,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                 <?= icon('eye', 22) ?>
                 <span>
                     <strong><?= $e(t('Guest view.')) ?></strong>
-                    <?= $e(t('You see the site as a visitor without a login does.')) ?>
+                    <?= $e(t('The site as visitors see it.')) ?>
                 </span>
                 <form method="post" action="<?= $e($hereBase) ?>" class="dome__notice-action">
                     <input type="hidden" name="a" value="guest_view">
@@ -421,8 +421,8 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                         'room' => '<span class="dome__notice-room">' . $e((string) $room['name']) . '</span>',
                     ]) ?></strong>
                     <?= $e($security->can('wishes')
-                        ? t('The audience sees the repertoire but cannot wish or suggest anything.')
-                        : t('The repertoire stays visible – wishing and suggesting will be back later.')) ?>
+                        ? t('No wishes or suggestions until it is opened.')
+                        : t('Wishes and suggestions will be back later.')) ?>
                 </span>
                 <?php if ($security->can('wishes')): ?>
                     <form method="post" action="<?= $e($hereBase) ?>" class="dome__notice-action">
@@ -447,7 +447,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                     <circle cx="12" cy="17" r="1.3" fill="currentColor"/>
                 </svg>
                 <span>
-                    <strong><?= $e(t('Your account still uses the default password.')) ?></strong>
+                    <strong><?= $e(t('Default password in use.')) ?></strong>
                     <?= t('Anyone who knows this software can sign in – {change}.', [
                         'change' => '<a href="' . $e(url(['p' => 'settings', 'id' => (int) $security->user()['id']])) . '">' . $e(t('change it now')) . '</a>',
                     ]) ?>

@@ -91,8 +91,8 @@ msgid "Language"
 msgstr "Sprache"
 
 
-msgid "The repertoire stays visible – wishing and suggesting will be back later."
-msgstr "Das Repertoire bleibt sichtbar – wünschen und vorschlagen geht später wieder."
+msgid "Wishes and suggestions will be back later."
+msgstr "Wünschen und Vorschlagen geht später wieder."
 
 msgid "Error"
 msgstr "Fehler"
@@ -219,8 +219,8 @@ msgstr "Position"
 msgid "The room is closed"
 msgstr "Der Raum ist geschlossen"
 
-msgid "– the audience cannot wish or suggest anything right now."
-msgstr "– das Publikum kann gerade weder wünschen noch vorschlagen."
+msgid "– no wishes or suggestions right now."
+msgstr "– gerade keine Wünsche und Vorschläge."
 
 msgid "Change the order with the arrows or by drag & drop. Sorting only changes the view."
 msgstr "Reihenfolge mit den Pfeilen oder per Drag & Drop ändern. Sortieren ändert nur die Ansicht."
@@ -810,8 +810,8 @@ msgstr "Gastansicht beenden"
 msgid "Guest view."
 msgstr "Gastansicht."
 
-msgid "You see the site as a visitor without a login does."
-msgstr "Die Seite erscheint so, wie sie Besucher ohne Anmeldung sehen."
+msgid "The site as visitors see it."
+msgstr "Die Seite, wie Besucher sie sehen."
 
 msgid "You now see the site as a guest does. Your own view is back in the account menu."
 msgstr "Die Seite erscheint jetzt wie für Gäste. Zurück zur eigenen Ansicht geht es im Kontomenü."
@@ -830,8 +830,8 @@ msgid_plural "{n} wishes"
 msgstr[0] "{n} Wunsch"
 msgstr[1] "{n} Wünsche"
 
-msgid "Your account still uses the default password."
-msgstr "Dein Konto verwendet noch das Standardpasswort."
+msgid "Default password in use."
+msgstr "Standardpasswort in Verwendung."
 
 msgid "Anyone who knows this software can sign in – {change}."
 msgstr "Wer diese Software kennt, kann sich anmelden – {change}."
@@ -1074,11 +1074,11 @@ msgstr "„{name}“ ist geschlossen. Das Publikum sieht das Repertoire, kann do
 msgid "“{name}” is open again."
 msgstr "„{name}“ ist wieder offen."
 
-msgid "The audience sees the repertoire but cannot wish or suggest anything."
-msgstr "Das Publikum sieht das Repertoire, kann aber weder wünschen noch vorschlagen."
+msgid "No wishes or suggestions until it is opened."
+msgstr "Keine Wünsche und Vorschläge, bis er geöffnet wird."
 
-msgid "Open it in the notice above or under {rooms}."
-msgstr "Öffnen lässt er sich im Hinweis oben oder unter {rooms}."
+msgid "Open it above or under {rooms}."
+msgstr "Öffnen oben im Hinweis oder unter {rooms}."
 
 msgid "closed"
 msgstr "geschlossen"
