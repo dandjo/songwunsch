@@ -158,12 +158,13 @@ code {
    border, so its horizontal padding includes the panel's 1px border to make
    both texts align exactly. */
 .dome {
-    /* The whole header -- word mark or logo, room switcher, navigation,
-       menus and notices -- sticks to the top while the page scrolls. Its
-       own opaque ground hides the content passing beneath; the z-index
-       lifts it and the popouts inside it over the content. */
-    position: sticky;
-    top: 0;
+    /* On wide screens the whole header -- word mark or logo, room switcher,
+       navigation, menus and notices -- sticks to the top while the page
+       scrolls (below). Its own opaque ground hides the content passing
+       beneath; the z-index lifts it and the popouts inside it over the
+       content. On phones it scrolls away: three rows of header would
+       leave too little room for the rest. */
+    position: relative;
     z-index: 30;
     display: flex;
     flex-wrap: wrap;
@@ -173,6 +174,9 @@ code {
     background: var(--shell);
     border-bottom: 1px solid var(--line);
     text-align: left;
+}
+@media (min-width: 721px) {
+    .dome { position: sticky; top: 0; }
 }
 
 /* The word mark shares the first row with the tools (language and account
