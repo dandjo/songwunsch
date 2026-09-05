@@ -13,6 +13,7 @@ use Songwunsch\Format;
  * @var string $address               the absolute address the code carries
  * @var string $svg                   the code as SVG markup (src/QrCode.php, safe to print as is)
  * @var bool   $hasPng                PNG download available (gd extension)
+ * @var string $back                  where "Back" leads: the page the visitor came from
  */
 
 $e      = static fn (?string $v): string => Format::e($v);
@@ -35,7 +36,7 @@ $roomName = (string) $room['name'];
             <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug, 'format' => 'png'])) ?>" download="songwunsch-<?= $e($isMain ? 'main' : $slug) ?>.png"><?= icon('image') ?><?= $e(t('Download PNG')) ?></a>
         <?php endif; ?>
         <button type="button" class="wish-button" data-print hidden><?= icon('page') ?><?= $e(t('Print')) ?></button>
-        <a class="link-button" href="<?= $e(url(['p' => 'rooms'])) ?>"><?= icon('arrow-left') ?><?= $e(t('Back')) ?></a>
+        <a class="link-button" href="<?= $e($back) ?>"><?= icon('arrow-left') ?><?= $e(t('Back')) ?></a>
     </div>
 </div>
 

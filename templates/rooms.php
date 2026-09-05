@@ -208,7 +208,7 @@ $hasActions = $canPause || $canEdit;
                         <?php endif; ?>
                         <?php if ($canEdit): ?>
                             <?php /* The room's address as a QR code -- the main room's as well. */ ?>
-                            <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug])) ?>">
+                            <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug, 'back' => $listUrl(['page' => $pageNo > 1 ? $pageNo : null])])) ?>">
                                 <?= icon('qr') ?>
                                 <span class="button__label"><?= $e(t('QR code')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>

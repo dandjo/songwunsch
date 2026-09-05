@@ -792,7 +792,8 @@ slide: *QR code* on the room's row under *Rooms* and on its edit form leads to
 `/rooms/<name>/qr` (the main room: `/rooms/main/qr`) – the code with the
 address beneath, a print button (in print only the code and the address
 remain) and downloads as SVG (`/qr.svg`) and PNG (`/qr.png`, needs the `gd`
-extension; without it the page offers SVG alone). The code is made by
+extension; without it the page offers SVG alone); *Back* returns to where
+one came from, the list or the edit form. The code is made by
 `src/QrCode.php` on this server – byte mode, error correction level M,
 versions 1 to 10 – so the address is passed to no third-party service. The
 address carries the request's scheme and host.

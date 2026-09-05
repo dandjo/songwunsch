@@ -1892,6 +1892,9 @@ try {
             }
             $view['title']    = t('QR code');
             $view['template'] = 'room_qr';
+            // "Back" leads where one came from -- the room list or the room's
+            // edit form, both hand their address over; the list is the fallback.
+            $view['back']     = safe_target($_GET['back'] ?? null) ?? url(['p' => 'rooms']);
             $view['address']  = $address;
             $view['svg']      = QrCode::svg($address);
             $view['hasPng']   = function_exists('imagecreate');
