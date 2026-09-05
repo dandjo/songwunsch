@@ -137,7 +137,7 @@ function current_room(?array $set = null): array
  * An id is part of the path, not of the query string. Lists and their
  * records share a prefix, and everything the Administration menu leads to
  * sits below /admin: /admin/users, /admin/users/new, /admin/users/<id>/edit,
- * /admin/logos, /admin/theme, /admin/pages, /admin/pages/new,
+ * /admin/logos, /admin/colors, /admin/pages, /admin/pages/new,
  * /admin/pages/<id>/edit (page_edit), /admin/footer, /admin/limits.
  * Public or for editors, without the prefix:
  * /pages/<slug> for readers ('p' => 'page', 'slug' => ...), /rooms,
@@ -181,7 +181,7 @@ function url(array $params = []): string
         // /rooms/new, /rooms/<id>/edit; users and pages the same below /admin.
         $list    = match ($page) { 'user' => '/admin/users', 'room' => '/rooms', 'page_edit' => '/admin/pages' };
         $target .= $list . ($id > 0 ? '/' . $id . '/edit' : '/new');
-    } elseif (in_array($page, ['users', 'logos', 'theme', 'limits', 'pages', 'footer', 'languages'], true)) {
+    } elseif (in_array($page, ['users', 'logos', 'colors', 'limits', 'pages', 'footer', 'languages'], true)) {
         $target .= '/admin/' . $page;
     } elseif ($page === 'logo') {
         $target .= '/logo/' . $id;
@@ -274,7 +274,7 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         // Languages: a globe -- a circle with its equator and one meridian.
         'globe'  => '<circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M1.8 8h12.4M8 1.8c2.3 2.2 2.3 10.2 0 12.4M8 1.8c-2.3 2.2-2.3 10.2 0 12.4" fill="none" stroke="currentColor" stroke-width="1.8"/>',
         'shield' => '<path d="M8 1.1 14.4 3.4v4.4c0 3.6-2.6 6.3-6.4 7.6C4.2 14.1 1.6 11.4 1.6 7.8V3.4z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M5.1 8.2l2 2 3.9-4.1" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>',
-        // Design: a drop of paint -- one solid shape that stays legible at 14px,
+        // Colours: a drop of paint -- one solid shape that stays legible at 14px,
         // where a palette's wells blur into a blob.
         'drop'    => '<path d="M8 1.4c2.5 3.3 4.9 6.1 4.9 8.7a4.9 4.9 0 0 1-9.8 0C3.1 7.5 5.5 4.7 8 1.4z" fill="currentColor"/>',
         // Limits: three upright sliders -- rails with their knobs at different heights.

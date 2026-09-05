@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Songwunsch;
 
 /**
- * The site's colours, set by the admins under Administration -> Design and
+ * The site's colours, set by the admins under Administration -> Colours and
  * kept in the `settings` table as `theme.<area>`: one colour per area of
  * use -- accent, secondary, danger, success, background, text. The
  * stylesheet carries the defaults as custom properties on :root; this class
@@ -18,10 +18,10 @@ final class Theme
 {
     public const PREFIX = 'theme.';
 
-    /** The configurable areas, in the order the Design page shows them. */
+    /** The configurable areas, in the order the Colours page shows them. */
     public const AREAS = ['accent', 'secondary', 'danger', 'success', 'background', 'text'];
 
-    /** The stylesheet's own colours (assets/style.css, :root) -- for the Design page's pickers and hints. */
+    /** The stylesheet's own colours (assets/style.css, :root) -- for the Colours page's pickers and hints. */
     public const DEFAULTS = [
         'accent'     => '#e6b450',
         'secondary'  => '#8d7ce0',
@@ -50,7 +50,7 @@ final class Theme
     }
 
     /**
-     * Check the Design form: every area either empty (the built-in colour)
+     * Check the Colours form: every area either empty (the built-in colour)
      * or a hex colour, normalised to lower-case '#rrggbb'.
      *
      * @param array<string,string> $input  area => what was typed

@@ -1674,7 +1674,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .logo-card__actions form { margin: 0; }
 .field input[type="file"] { padding: .45rem .8rem; }
 
-/* Design: one colour per area -- the browser's picker beside the hex field,
+/* Colours: one colour per area -- the browser's picker beside the hex field,
    a "Default" button beside that. Picker and button are rendered hidden and
    appear with JavaScript; without it the hex field stands alone. */
 .colour { display: flex; align-items: stretch; gap: .6rem; }

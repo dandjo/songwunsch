@@ -15,7 +15,7 @@ declare(strict_types=1);
  * Everything the Administration menu leads to sits below /admin (admins only):
  *   /admin/users     | /admin/users/new, /admin/users/<id>/edit
  *   /admin/logos       header logos
- *   /admin/theme       the colours (Design)
+ *   /admin/colors      the colours
  *   /admin/limits      limits on wishing and suggesting
  *   /admin/pages     | /admin/pages/new, /admin/pages/<id>/edit (CKEditor, one tab per language)
  *   /admin/footer      which pages the footer links, in which order
@@ -144,7 +144,7 @@ $routes = [
     // The Administration menu: admins only, all below /admin.
     '/admin/users'  => 'users',
     '/admin/logos'  => 'logos',
-    '/admin/theme'  => 'theme',
+    '/admin/colors' => 'colors',
     '/admin/pages'  => 'pages',
     '/admin/footer' => 'footer',
     '/admin/limits' => 'limits',
@@ -342,7 +342,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             case 'theme_save':
-                // The site's colours (Design), admins only: one hex colour per
+                // The site's colours (Colours), admins only: one hex colour per
                 // area of use, or nothing for the built-in colour.
                 require_role($security, 'users');
                 $input = [];
@@ -353,11 +353,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
                     flash('error', t('Please check the highlighted fields.'));
-                    redirect(url(['p' => 'theme']));
+                    redirect(url(['p' => 'colors']));
                 }
                 Theme::save($settings, $checked['values']);
                 flash('ok', t('The colours have been saved.'));
-                redirect(url(['p' => 'theme']));
+                redirect(url(['p' => 'colors']));
                 // no break
 
             case 'limits_save':
@@ -1318,7 +1318,7 @@ $view = [
     'footerLang' => '',    // the language that line is written in, '' when it is the interface language
     'footerPages' => [],  // the admins' pages the footer links (Administration -> Footer), in order
     'editor'     => false, // load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page
-    'themeCss'   => '',    // colour overrides the admins set under Design, '' = stylesheet defaults; filled below
+    'themeCss'   => '',    // colour overrides the admins set under Colours, '' = stylesheet defaults; filled below
 ];
 
 try {
@@ -1359,7 +1359,7 @@ try {
     // deleted one falls back to the word mark by itself.
     $logoId       = (int) $settings->get(Settings::LOGO_ID, '0');
     $view['logo'] = $logoId > 0 ? $uploads->info($logoId) : null;
-    // The colours set under Design, as a :root block over the stylesheet.
+    // The colours set under Colours, as a :root block over the stylesheet.
     $view['themeCss'] = Theme::css(Theme::load($settings));
 
     switch ($page) {
@@ -1409,14 +1409,14 @@ try {
             $view['activeId'] = $logoId;
             break;
 
-        case 'theme':
+        case 'colors':
             // Admins only: the site's colours, one per area of use. After a
             // failed save the typed values come back with their errors.
             require_role($security, 'users');
             $kept = remembered_input();
 
-            $view['title']    = t('Design');
-            $view['template'] = 'theme';
+            $view['title']    = t('Colours');
+            $view['template'] = 'colors';
             $view['values']   = $kept['values'] ?? Theme::load($settings);
             $view['errors']   = $kept['errors'] ?? [];
             break;

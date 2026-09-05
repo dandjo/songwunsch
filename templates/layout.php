@@ -27,7 +27,7 @@ use Songwunsch\Translator;
 /** @var string $footerLang  the language that line fell back to, '' when it is the interface language */
 /** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
 /** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
-/** @var string $themeCss  :root colour overrides the admins set under Design, see Theme; '' = none */
+/** @var string $themeCss  :root colour overrides the admins set under Colours, see Theme; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
 
 $e      = static fn (?string $v): string => Format::e($v);
@@ -69,7 +69,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
     <?php endif; ?>
     <link rel="stylesheet" href="<?= $e(asset('assets/style.css')) ?>">
     <?php if ($themeCss !== ''): ?>
-        <?php /* The colours set under Design override the stylesheet's :root
+        <?php /* The colours set under Colours override the stylesheet's :root
                  tokens; the value is generated from validated hex colours only. */ ?>
         <style><?= $themeCss ?></style>
     <?php endif; ?>
@@ -206,7 +206,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                     ['languages', ['languages'],       'globe',   t('Languages')],
                     ['users',  ['users', 'user'],      'users',   t('Users')],
                     ['logos',  ['logos'],              'image',   t('Logos')],
-                    ['theme',  ['theme'],              'drop',    t('Design')],
+                    ['colors', ['colors'],            'drop',    t('Colours')],
                     ['limits', ['limits'],             'sliders', t('Limits')],
                     ['pages',  ['pages', 'page_edit'], 'page',    t('Pages')],
                     ['footer', ['footer'],             'list',    t('Footer')],

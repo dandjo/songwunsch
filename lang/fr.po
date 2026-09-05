@@ -493,8 +493,8 @@ msgstr "gérer le répertoire, traiter les suggestions de chansons, créer des s
 msgid "edit the wish list, close and open rooms"
 msgstr "gérer la liste de souhaits, fermer et ouvrir les salles"
 
-msgid "manage users and roles, logos, design, limits, pages, footer and languages; includes Editor and Moderator"
-msgstr "gérer les utilisateurs et les rôles, les logos, le design, les limites, les pages, le pied de page et les langues ; inclut Rédaction et Modération"
+msgid "manage users and roles, logos, colours, limits, pages, footer and languages; includes Editor and Moderator"
+msgstr "gérer les utilisateurs et les rôles, les logos, les couleurs, les limites, les pages, le pied de page et les langues ; inclut Rédaction et Modération"
 
 msgid "The only active admin keeps the role – make another user admin first."
 msgstr "Le seul admin actif garde son rôle – nommez d’abord un autre utilisateur admin."
@@ -1497,10 +1497,7 @@ msgstr "Impossible de retirer {language} : une page a besoin d’au moins une la
 msgid "“{title}” is no longer available in {language}."
 msgstr "« {title} » n’est plus disponible en {language}."
 
-# ---- Design and wish limits (Administration) ----------------------------------
-
-msgid "Design"
-msgstr "Apparence"
+# ---- Colours and wish limits (Administration) ----------------------------------
 
 msgid "Colours"
 msgstr "Couleurs"
@@ -1523,20 +1520,20 @@ msgstr "Arrière-plan"
 msgid "Text"
 msgstr "Texte"
 
-msgid "Buttons, the active tab, links, “wunsch” in the word mark and the gold notices."
-msgstr "Boutons, onglet actif, liens, « wunsch » dans le logotype et les avis dorés."
+msgid "Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the gold tags and notices."
+msgstr "Boutons, liens, onglet actif et contours de focus, « wunsch » dans le logotype, le nom de la salle dans l’en-tête, les étiquettes et avis dorés."
 
-msgid "Tags, the counters on the tabs, chips."
-msgstr "Étiquettes, compteurs des onglets, puces."
+msgid "The genre and role tags, the counters on the tabs and the edge of the info notices."
+msgstr "Les étiquettes de genre et de rôle, les compteurs des onglets et la bordure des avis d’information."
 
 msgid "Closed rooms, delete buttons, warnings and errors."
 msgstr "Salles fermées, boutons de suppression, avertissements et erreurs."
 
-msgid "Confirmations."
-msgstr "Confirmations."
+msgid "The edge of the confirmation notices and the confirm buttons in the dialogs of the page editor."
+msgstr "La bordure des confirmations et les boutons de validation dans les dialogues de l’éditeur de pages."
 
-msgid "The page ground; shell, panels, fields and lines are lightened steps of it."
-msgstr "Le fond de la page ; cadre, panneaux, champs et lignes en sont des nuances éclaircies."
+msgid "The page ground; shell, panels, fields and lines are lightened steps of it, and so is the text on gold buttons and counters."
+msgstr "Le fond de la page ; cadre, panneaux, champs et lignes en sont des nuances éclaircies, comme le texte sur les boutons et compteurs dorés."
 
 msgid "The text; the muted text is a step towards the background."
 msgstr "Le texte ; le texte atténué est une nuance vers l’arrière-plan."

@@ -98,7 +98,7 @@ $isAdmin = ($values['role_admin'] ?? '') === '1';
             <legend><?= $e(t('Roles')) ?></legend>
             <label class="check">
                 <input type="checkbox" name="role_admin" value="1" data-implies="role_editor role_moderator"<?= $checked('role_admin') ?><?= $onlyAdmin ? ' disabled' : '' ?>>
-                <span><strong><?= $e(t('Admin', [], 'role')) ?></strong> – <?= $e(t('manage users and roles, logos, design, limits, pages, footer and languages; includes Editor and Moderator')) ?></span>
+                <span><strong><?= $e(t('Admin', [], 'role')) ?></strong> – <?= $e(t('manage users and roles, logos, colours, limits, pages, footer and languages; includes Editor and Moderator')) ?></span>
             </label>
             <?php if ($onlyAdmin): ?>
                 <input type="hidden" name="role_admin" value="1">

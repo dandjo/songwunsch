@@ -118,7 +118,7 @@
             render();
         });
 
-        // Design: the colour picker and the hex field beside it follow each
+        // Colours: the colour picker and the hex field beside it follow each
         // other; "Default" empties the field, which means the built-in
         // colour. Picker and button appear only here, so without JavaScript
         // the hex field stands alone.

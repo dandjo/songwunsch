@@ -19,11 +19,11 @@ $e = static fn (?string $v): string => Format::e($v);
 
 // Label and where the colour shows up, per area -- the same wording as the README.
 $areas = [
-    'accent'     => [t('Accent'),     t('Buttons, the active tab, links, “wunsch” in the word mark and the gold notices.')],
-    'secondary'  => [t('Secondary'),  t('Tags, the counters on the tabs, chips.')],
+    'accent'     => [t('Accent'),     t('Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the gold tags and notices.')],
+    'secondary'  => [t('Secondary'),  t('The genre and role tags, the counters on the tabs and the edge of the info notices.')],
     'danger'     => [t('Danger'),     t('Closed rooms, delete buttons, warnings and errors.')],
-    'success'    => [t('Success'),    t('Confirmations.')],
-    'background' => [t('Background'), t('The page ground; shell, panels, fields and lines are lightened steps of it.')],
+    'success'    => [t('Success'),    t('The edge of the confirmation notices and the confirm buttons in the dialogs of the page editor.')],
+    'background' => [t('Background'), t('The page ground; shell, panels, fields and lines are lightened steps of it, and so is the text on gold buttons and counters.')],
     'text'       => [t('Text'),       t('The text; the muted text is a step towards the background.')],
 ];
 
@@ -40,7 +40,7 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
 
 <div class="panel__head">
     <div>
-        <h1><?= $e(t('Design')) ?></h1>
+        <h1><?= $e(t('Colours')) ?></h1>
         <p class="muted">
             <?= $e(t('The interface is dark with gold for actions, violet for tags and counters, red for danger and green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it.')) ?>
             <?= $e(t('Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change.')) ?>
