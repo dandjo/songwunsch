@@ -1496,11 +1496,10 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     color: var(--text);
 }
 .namebox__form .field { margin-bottom: 1.1rem; }
+/* Save and "Not now" / Cancel side by side, like the actions of every form;
+   the skip form itself holds nothing visible. */
 .namebox__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
-/* "Not now" stands apart, below the real choice. */
-.namebox__skip { margin: .9rem 0 0; display: flex; justify-content: flex-end; }
-.namebox__skip .link-button { color: var(--text-muted); border-color: transparent; }
-.namebox__skip .link-button:hover { color: var(--text); }
+.namebox__skip { margin: 0; }
 
 /* ---------- Messages ---------- */
 

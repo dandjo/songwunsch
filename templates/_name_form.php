@@ -12,7 +12,12 @@ declare(strict_types=1);
  * @var string|null $guestName  the current name, null when none is set
  * @var string      $csrf
  * @var string      $nameBack   address to return to after saving
- * @var bool        $nameAsk    first visit: offer "Not now" instead of "Back"
+ * @var bool        $nameAsk    first visit: offer "Not now" instead of "Cancel"
+ *
+ * "Not now" posts a different action, and the name field must not travel
+ * with it, so it is a form of its own; its button stands in the actions row
+ * beside "Save name" all the same, tied to that form by the form attribute.
+ * app.js submits the form when the dialog is dismissed with Escape.
  */
 
 use Songwunsch\Format;
@@ -21,7 +26,7 @@ use Songwunsch\GuestName;
 $e  = static fn (?string $v): string => Format::e($v);
 $id = $nameAsk ? 'name-ask' : 'name';
 ?>
-<form method="post" action="<?= $e(url()) ?>" class="namebox__form">
+<form method="post" action="<?= $e(url()) ?>" class="namebox__form" id="<?= $id ?>-form">
     <input type="hidden" name="a" value="name_save">
     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
     <input type="hidden" name="back" value="<?= $e($nameBack) ?>">
@@ -39,21 +44,19 @@ $id = $nameAsk ? 'name-ask' : 'name';
         </p>
     </div>
 
-    <div class="namebox__actions">
-        <button type="submit" class="wish-button"><?= icon('check') ?><?= $e(t('Save name')) ?></button>
-        <?php if (!$nameAsk): ?>
-            <a class="link-button" href="<?= $e($nameBack) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
-        <?php endif; ?>
-    </div>
 </form>
 <?php if ($nameAsk): ?>
-    <?php /* "Not now" is its own form: a different action, and the name field
-             must not travel with it. app.js submits it when the dialog is
-             dismissed with Escape. */ ?>
-    <form method="post" action="<?= $e(url()) ?>" class="namebox__skip" data-name-skip>
+    <form method="post" action="<?= $e(url()) ?>" class="namebox__skip" id="<?= $id ?>-skip" data-name-skip>
         <input type="hidden" name="a" value="name_skip">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="back" value="<?= $e($nameBack) ?>">
-        <button type="submit" class="link-button"><?= icon('cross') ?><?= $e(t('Not now')) ?></button>
     </form>
 <?php endif; ?>
+<div class="namebox__actions">
+    <button type="submit" form="<?= $id ?>-form" class="wish-button"><?= icon('check') ?><?= $e(t('Save name')) ?></button>
+    <?php if ($nameAsk): ?>
+        <button type="submit" form="<?= $id ?>-skip" class="link-button"><?= icon('cross') ?><?= $e(t('Not now')) ?></button>
+    <?php else: ?>
+        <a class="link-button" href="<?= $e($nameBack) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
+    <?php endif; ?>
+</div>
