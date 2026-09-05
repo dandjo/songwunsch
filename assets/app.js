@@ -714,7 +714,7 @@
             document.querySelector('.cabinet').innerHTML = cabinet.innerHTML;
             document.title = fresh.title;
             // The body's data attributes belong to the page: the endpoint of
-            // its room, the live address and revision, the messages.
+            // its room, the live address, token and interval, the messages.
             Array.prototype.slice.call(document.body.attributes).forEach(function (attr) {
                 if (attr.name.indexOf('data-') === 0) {
                     document.body.removeAttribute(attr.name);
@@ -916,14 +916,17 @@
     }());
 
     // ---- Live update: poll the revision, reload the page's content --------
-    // The wish list and the suggestions carry data-live (the poll address)
-    // and data-live-rev (the revision they were rendered with). Every few
-    // seconds the revision is fetched -- a few bytes; only when it moved on
-    // is the page fetched again and its content swapped in, so everyone
-    // sees a wish arrive or a row move without touching reload. Hidden tabs
-    // do not poll; a drag in progress postpones the swap.
+    // The song list, the wish list and the suggestions carry data-live (the
+    // poll address), data-live-rev (the token they were rendered with) and
+    // data-live-interval (seconds between two polls, set under Interface per
+    // case; a case set to 0 carries no data-live at all). Every interval the
+    // token is fetched -- a few bytes; only when it moved on is the page
+    // fetched again and its content swapped in, so everyone sees a wish
+    // arrive, a row move or the room close without touching reload. The
+    // song list's token is the room's state alone, so a wish does not
+    // reload it. Hidden tabs do not poll; a drag in progress postpones the
+    // swap.
     var live = (function () {
-        var interval = 4000;
         var failures = 0;
         var timer = null;
         var busy = false;
@@ -987,12 +990,21 @@
             });
         };
 
+        // Read afresh for every poll, like the address: a soft navigation
+        // may have brought a page with another interval. 4 s when a live
+        // page does not say; a page without a live address ticks idly at
+        // that pace, check() finds nothing to do.
+        var interval = function () {
+            var seconds = parseInt(document.body.getAttribute('data-live-interval') || '', 10);
+            return (seconds > 0 ? seconds : 4) * 1000;
+        };
+
         var schedule = function () {
             clearTimeout(timer);
             timer = setTimeout(function () {
                 check();
                 schedule();
-            }, interval * Math.pow(2, failures));
+            }, interval() * Math.pow(2, failures));
         };
 
         document.addEventListener('visibilitychange', function () {
