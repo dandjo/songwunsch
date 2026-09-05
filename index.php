@@ -236,11 +236,11 @@ if (isset($routes[$route])) {
         $found = null;
     }
     if ($found === null) {
-        flash('info', t('There is no room at this address – here is the start page.'));
+        notice('info', t('There is no room at this address – here is the start page.'));
         redirect(url(['p' => 'songs', 'room' => '']));
     }
     if ((int) $found['active'] === 0 && !$security->isLoggedIn()) {
-        flash('info', t('This room has been archived – here is the start page.'));
+        notice('info', t('This room has been archived – here is the start page.'));
         redirect(url(['p' => 'songs', 'room' => '']));
     }
     $room        = $found;
@@ -335,7 +335,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (wants_json()) {
             send_json(['ok' => false, 'error' => t('Session expired. Please reload the page.')], 403);
         }
-        flash('error', t('The session has expired. Please try again.'));
+        notice('error', t('The session has expired. Please try again.'));
         redirect(url(['p' => $page, 'slug' => $routeSlug]));
     }
 
@@ -356,7 +356,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect(home_for($security));
                 }
                 // Do not reveal which part was wrong.
-                flash('error', t('Username or password is incorrect.'));
+                notice('error', t('Username or password is incorrect.'));
                 redirect(url(['p' => 'login']));
                 // no break
 
@@ -384,7 +384,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $checked = Colors::validate($input);
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
-                    flash('error', t('Please check the highlighted fields.'));
+                    notice('error', t('Please check the highlighted fields.'));
                     redirect(url(['p' => 'colors']));
                 }
                 Colors::save($settings, $checked['values']);
@@ -402,7 +402,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $checked = $limits->validate($input);
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
-                    flash('error', t('Please check the highlighted fields.'));
+                    notice('error', t('Please check the highlighted fields.'));
                     redirect(url(['p' => 'limits']));
                 }
                 $limits->save($checked['values']);
@@ -501,7 +501,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
-                    flash('error', t('Please check the highlighted fields.'));
+                    notice('error', t('Please check the highlighted fields.'));
                     redirect($formUrl);
                 }
 
@@ -650,7 +650,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($errors !== []) {
                     // Passwords never go into the session -- only which field failed.
                     remember_input([], $errors);
-                    flash('error', t('Please check the highlighted fields.'));
+                    notice('error', t('Please check the highlighted fields.'));
                     redirect(url(['p' => 'settings', 'id' => (int) $self['id']]));
                 }
 
@@ -716,7 +716,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // account is checked directly: in the guest view isLoggedIn()
                 // already answers no, which is the whole point.
                 if ($security->account() === null) {
-                    flash('info', t('Please log in first.'));
+                    notice('info', t('Please log in first.'));
                     redirect(url(['p' => 'login']));
                 }
                 $on = (string) ($_POST['on'] ?? '') === '1';
@@ -829,7 +829,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
-                    flash('error', t('Please check the highlighted fields.'));
+                    notice('error', t('Please check the highlighted fields.'));
                     redirect($suggestUrl);
                 }
 
@@ -993,7 +993,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
-                    flash('error', t('Please check the highlighted fields.'));
+                    notice('error', t('Please check the highlighted fields.'));
                     redirect($formUrl);
                 }
 
@@ -1126,7 +1126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $name = trim(preg_replace('/\s+/u', ' ', (string) ($_POST['name'] ?? '')) ?? '');
                 if (mb_strlen($name) > RoomRepository::MAX_NAME) {
                     remember_input(['name' => $name], ['name' => t('{field} is too long: at most {max} characters.', ['field' => t('Name'), 'max' => RoomRepository::MAX_NAME])]);
-                    flash('error', t('Please check the highlighted fields.'));
+                    notice('error', t('Please check the highlighted fields.'));
                     redirect(url(['p' => 'room', 'main' => 1, 'back' => $back]));
                 }
                 if ($name === '') {
@@ -1163,7 +1163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
-                    flash('error', t('Please check the highlighted fields.'));
+                    notice('error', t('Please check the highlighted fields.'));
                     redirect($formUrl);
                 }
 
@@ -1288,7 +1288,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Passwords never go into the session.
                     unset($input['password'], $input['password2']);
                     remember_input($input, $checked['errors']);
-                    flash('error', t('Please check the highlighted fields.'));
+                    notice('error', t('Please check the highlighted fields.'));
                     redirect($formUrl);
                 }
 
@@ -1335,7 +1335,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect(url(['p' => 'songs']));
         }
     } catch (Throwable $e) {
-        flash('error', t('An error occurred: {detail}', ['detail' => error_detail($e, $config, $security)]));
+        notice('error', t('An error occurred: {detail}', ['detail' => error_detail($e, $config, $security)]));
         redirect(url(['p' => $page, 'slug' => $routeSlug]));
     }
 }
@@ -1362,6 +1362,7 @@ $view = [
     'translator' => $translator,
     'csrf'       => $security->csrfToken(),
     'flash'      => flash_take(),
+    'toastSec'   => $limits->get('toast_sec'), // how long a pop-up message stays, 0 = until dismissed
     'wishCount'  => null,
     'suggestionCount' => null, // badge on the Suggestions tab, editors only
     'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ...], wish list and suggestions
@@ -1554,7 +1555,7 @@ try {
             if ($id > 0) {
                 $existing = $pageRepo->find($id);
                 if ($existing === null) {
-                    flash('error', t('This page was not found.'));
+                    notice('error', t('This page was not found.'));
                     redirect(url(['p' => 'pages']));
                 }
             }
@@ -1645,13 +1646,13 @@ try {
             if ($key > 0) {
                 $song = $songs->find($key);
                 if ($song === null) {
-                    flash('error', t('This song was not found.'));
+                    notice('error', t('This song was not found.'));
                     redirect(url(['p' => 'songs']));
                 }
             } elseif ($routeSuggestion > 0) {
                 $adopt = $suggestions->find($routeSuggestion);
                 if ($adopt === null) {
-                    flash('error', t('This suggestion was not found.'));
+                    notice('error', t('This suggestion was not found.'));
                     redirect(url(['p' => 'suggestions']));
                 }
             }
@@ -1761,7 +1762,7 @@ try {
             if ($id > 0) {
                 $user = $users->find($id);
                 if ($user === null) {
-                    flash('error', t('This user was not found.'));
+                    notice('error', t('This user was not found.'));
                     redirect(url(['p' => 'users']));
                 }
             }
@@ -1857,7 +1858,7 @@ try {
             if ($id > 0) {
                 $edit = $rooms->find($id);
                 if ($edit === null) {
-                    flash('error', t('This room was not found.'));
+                    notice('error', t('This room was not found.'));
                     redirect(url(['p' => 'rooms']));
                 }
             }

@@ -1742,3 +1742,17 @@ msgstr "Deine Räume"
 
 msgid "The page could not be updated – please reload it."
 msgstr "Die Seite konnte nicht aktualisiert werden – bitte lade sie neu."
+
+# ---- Pop-up messages (Limits, app.js) ------------------------------------------
+
+msgid "Messages"
+msgstr "Meldungen"
+
+msgid "Seconds a message is shown"
+msgstr "Sekunden, die eine Meldung sichtbar bleibt"
+
+msgid "The result of an action – a wish is in, a song was added, a row was deleted – pops up at the bottom edge and disappears after this many seconds; 0 keeps it until it is dismissed. Error messages always stay until dismissed."
+msgstr "Das Ergebnis einer Aktion – ein Wunsch ist drin, ein Song wurde hinzugefügt, eine Zeile gelöscht – erscheint am unteren Rand und verschwindet nach so vielen Sekunden; 0 lässt es stehen, bis es geschlossen wird. Fehlermeldungen bleiben immer, bis sie geschlossen werden."
+
+msgid "Dismiss"
+msgstr "Schließen"

@@ -1501,6 +1501,54 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .namebox__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .6rem; }
 .namebox__skip { margin: 0; }
 
+/* ---------- Pop-up messages ----------
+   The result of an action, lifted out of the content by app.js: a stack at
+   the bottom edge, above everything, seen wherever the page is scrolled to.
+   Each message is the .flash it was, plus a close button; it slides in and
+   fades out. Without JavaScript the same .flash stands at the top of the
+   content (no .toast, no stack). */
+.toasts {
+    position: fixed;
+    left: 50%;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: .5rem;
+    width: min(100% - 2rem, 34rem);
+    transform: translateX(-50%);
+    pointer-events: none; /* the gaps let clicks through; the messages catch them */
+}
+.toasts .toast {
+    position: relative;
+    margin: 0;
+    padding-right: 2.75rem;
+    box-shadow: var(--shadow-deep);
+    pointer-events: auto;
+    animation: toast-in .25s ease-out;
+}
+.toasts .toast--leaving { animation: toast-out .25s ease-in forwards; }
+.toast__close {
+    position: absolute;
+    top: 50%;
+    right: .5rem;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+.toast__close:hover { background: var(--hover); color: var(--text); }
+@keyframes toast-in  { from { opacity: 0; transform: translateY(.75rem); } to { opacity: 1; transform: none; } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(.5rem); } }
+
 /* ---------- Loading without a page load ----------
    While app.js fetches the next state of the page (sorting, paging, a move,
    a wish) the content dims a little -- only after a moment, so a quick

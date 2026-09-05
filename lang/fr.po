@@ -1738,3 +1738,17 @@ msgstr "Vos salles"
 
 msgid "The page could not be updated – please reload it."
 msgstr "La page n’a pas pu être mise à jour – veuillez la recharger."
+
+# ---- Pop-up messages (Limits, app.js) ------------------------------------------
+
+msgid "Messages"
+msgstr "Messages"
+
+msgid "Seconds a message is shown"
+msgstr "Secondes pendant lesquelles un message reste visible"
+
+msgid "The result of an action – a wish is in, a song was added, a row was deleted – pops up at the bottom edge and disappears after this many seconds; 0 keeps it until it is dismissed. Error messages always stay until dismissed."
+msgstr "Le résultat d’une action – un vœu est enregistré, un titre a été ajouté, une ligne supprimée – apparaît en bas de l’écran et disparaît après ce nombre de secondes ; 0 le laisse affiché jusqu’à sa fermeture. Les messages d’erreur restent toujours jusqu’à leur fermeture."
+
+msgid "Dismiss"
+msgstr "Fermer"

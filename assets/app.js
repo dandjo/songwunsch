@@ -269,6 +269,14 @@
 
         // Confirmation before deleting -- a whole form, or one button in a
         // form that otherwise saves (a page's "Remove <language>").
+        // The result of an action (the flash with data-toast) is lifted out
+        // of the content into the pop-up stack at the bottom edge, so it is
+        // seen wherever the page is scrolled to, and goes away after the
+        // seconds set under Limits (0: until dismissed). An error stays until
+        // dismissed. Pointer or focus on it holds it. Without JavaScript the
+        // message stands at the top of the content.
+        root.querySelectorAll('[data-toast]').forEach(toast);
+
         // The QR code page: a print button that exists only with JavaScript
         // (the browser's own print command does the same).
         root.querySelectorAll('[data-print]').forEach(function (button) {
@@ -336,6 +344,64 @@
         // tabs. Without JavaScript the anchors lead to the panels, which are
         // all on the page.
         root.querySelectorAll('[data-tabs]').forEach(tabbed);
+    }
+
+    // ---- Pop-up messages ---------------------------------------------------
+    function toast(message) {
+        var stack = document.getElementById('toasts');
+        if (!stack) {
+            stack = document.createElement('div');
+            stack.id = 'toasts';
+            stack.className = 'toasts';
+            document.body.appendChild(stack);
+        }
+
+        var seconds = parseInt(document.body.getAttribute('data-toast-sec') || '5', 10);
+        var isError = message.classList.contains('flash--error');
+        var timer = null;
+
+        var leave = function () {
+            clearTimeout(timer);
+            timer = null;
+            message.classList.add('toast--leaving');
+            // The fade takes .25s (style.css); remove after it, at once
+            // when reduced motion cuts it short (animationend still fires).
+            var done = function () {
+                if (message.parentNode) {
+                    message.parentNode.removeChild(message);
+                }
+            };
+            message.addEventListener('animationend', done, { once: true });
+            setTimeout(done, 400);
+        };
+        var hold = function () { clearTimeout(timer); timer = null; };
+        var arm = function () {
+            if (!isError && seconds > 0 && timer === null) {
+                timer = setTimeout(leave, seconds * 1000);
+            }
+        };
+
+        var close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'toast__close';
+        close.setAttribute('aria-label', document.body.getAttribute('data-msg-dismiss') || 'Dismiss');
+        close.textContent = '×';
+        close.addEventListener('click', leave);
+
+        message.removeAttribute('data-toast');
+        message.classList.add('toast');
+        message.appendChild(close);
+        message.addEventListener('mouseenter', hold);
+        message.addEventListener('mouseleave', arm);
+        message.addEventListener('focusin', hold);
+        message.addEventListener('focusout', function (event) {
+            if (!message.contains(event.relatedTarget)) {
+                arm();
+            }
+        });
+        stack.appendChild(message);
+        page.announce(message.textContent.replace(/×$/, '').trim());
+        arm();
     }
 
     // ---- Tabs over the languages of a page ---------------------------------
@@ -677,7 +743,9 @@
             } else {
                 restore(focus);
             }
-            var flash = document.querySelector('.flash');
+            // A notice that stays in the content is announced here; a pop-up
+            // announces itself when it is lifted out (toast()).
+            var flash = document.querySelector('.cabinet .flash');
             if (flash) {
                 announce(flash.textContent.trim());
             }
@@ -776,7 +844,7 @@
         };
 
         if (!window.fetch || !window.DOMParser || !window.URL) {
-            return { refresh: function () { return Promise.resolve(false); } };
+            return { announce: announce, refresh: function () { return Promise.resolve(false); } };
         }
 
         document.addEventListener('click', function (event) {
@@ -833,6 +901,7 @@
         });
 
         return {
+            announce: announce,
             // Fetch this page again and swap its content (the live update).
             // Resolves to true when the content was exchanged.
             refresh: function () {

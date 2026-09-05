@@ -422,18 +422,41 @@ function redirect(string $target, int $status = 303): never
     exit;
 }
 
-function flash(string $type, string $message): void
+/**
+ * A message for the next page. The result of an action -- a wish is in, a
+ * row was deleted, the order was saved -- pops up for a few seconds and goes
+ * away (app.js; the layout renders it inline without JavaScript). A message
+ * that explains the page one lands on stays put: see notice().
+ *
+ * @param string $type  'ok' | 'info' | 'error'
+ */
+function flash(string $type, string $message, bool $static = false): void
 {
-    $_SESSION['flash'] = ['type' => $type, 'message' => $message];
+    $_SESSION['flash'] = ['type' => $type, 'message' => $message, 'static' => $static];
 }
 
-/** @return array{type:string,message:string}|null */
+/**
+ * A message that belongs to the page it is shown on and stays until the
+ * next page: "please log in first", "check the highlighted fields", "this
+ * room was not found -- here is the start page". Rendered at the top of the
+ * content, not as a pop-up.
+ */
+function notice(string $type, string $message): void
+{
+    flash($type, $message, true);
+}
+
+/** @return array{type:string,message:string,static:bool}|null */
 function flash_take(): ?array
 {
     $flash = $_SESSION['flash'] ?? null;
     unset($_SESSION['flash']);
+    if (!is_array($flash)) {
+        return null;
+    }
+    $flash['static'] = (bool) ($flash['static'] ?? false);
 
-    return is_array($flash) ? $flash : null;
+    return $flash;
 }
 
 function require_login(\Songwunsch\Security $security): void
@@ -442,7 +465,7 @@ function require_login(\Songwunsch\Security $security): void
         if (wants_json()) {
             send_json(['ok' => false, 'error' => t('Please log in first.')], 401);
         }
-        flash('info', t('Please log in first.'));
+        notice('info', t('Please log in first.'));
         redirect(url(['p' => 'login']));
     }
 }
@@ -460,7 +483,7 @@ function require_role(\Songwunsch\Security $security, string $area): void
         if (wants_json()) {
             send_json(['ok' => false, 'error' => t('You do not have permission for that.')], 403);
         }
-        flash('error', t('You do not have permission for that.'));
+        notice('error', t('You do not have permission for that.'));
         redirect(url(['p' => 'songs']));
     }
 }

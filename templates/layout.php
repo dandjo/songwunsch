@@ -13,7 +13,8 @@ use Songwunsch\Translator;
 /** @var string $csrf */
 /** @var Security $security */
 /** @var Translator $translator */
-/** @var array{type:string,message:string}|null $flash */
+/** @var array{type:string,message:string,static:bool}|null $flash  static: stays at the top of the content; else a pop-up (app.js) */
+/** @var int $toastSec  seconds a pop-up message stays, 0 = until dismissed (Limits) */
 /** @var int|null $wishCount */
 /** @var int|null $suggestionCount  open song suggestions, badge for editors */
 /** @var bool $paused  wishing closed by the moderator */
@@ -80,7 +81,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
          on the way (soft navigation). data-live: the wish list and the
          suggestions poll this address for their revision and reload
          themselves when it moved on (app.js). */ ?>
-<body data-endpoint="<?= $e(url()) ?>" data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-msg-updated="<?= $e(t('The list has been updated.')) ?>"<?php endif; ?>>
+<body data-endpoint="<?= $e(url()) ?>" data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>" data-toast-sec="<?= (int) $toastSec ?>" data-msg-dismiss="<?= $e(t('Dismiss')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-msg-updated="<?= $e(t('The list has been updated.')) ?>"<?php endif; ?>>
 <a class="skip-link" href="#content"><?= $e(t('Skip to content')) ?></a>
 
 <div class="cabinet">
@@ -449,7 +450,10 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
 
     <main id="content" class="panel">
         <?php if ($flash !== null): ?>
-            <p class="flash flash--<?= $e($flash['type']) ?>" role="status"><?= $e($flash['message']) ?></p>
+            <?php /* A static notice stays here. The result of an action (data-toast)
+                     is lifted into the pop-up corner by app.js and goes away after
+                     a few seconds; without JavaScript it stands here as well. */ ?>
+            <p class="flash flash--<?= $e($flash['type']) ?>"<?= $flash['static'] ? '' : ' data-toast' ?> role="<?= $flash['type'] === 'error' ? 'alert' : 'status' ?>"><?= $e($flash['message']) ?></p>
         <?php endif; ?>
 
         <?php if ($askName): ?>

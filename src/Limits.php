@@ -39,6 +39,7 @@ final class Limits
         'suggestion_cooldown_sec' => [10, 0, 3600],    // gap between two suggestions in one session
         'wish_min_form_sec'       => [2, 0, 60],       // seconds between page load and submit below which a form counts as a script's
         'per_page'                => [50, 10, 500],    // rows per page on the paged lists
+        'toast_sec'               => [5, 0, 60],       // seconds a pop-up message (the result of an action) stays; 0 = until dismissed
     ];
 
     /** The fields WishGuard takes -- the former config.php 'wish_limits'. */
