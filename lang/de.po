@@ -222,8 +222,8 @@ msgstr "Der Raum ist geschlossen"
 msgid "– the audience cannot wish or suggest anything right now."
 msgstr "– das Publikum kann gerade weder wünschen noch vorschlagen."
 
-msgid "Change the order with the arrows – on a desktop also by drag & drop. Sorting only changes the view."
-msgstr "Reihenfolge mit den Pfeilen ändern – am Rechner auch per Drag & Drop. Sortieren ändert nur die Ansicht."
+msgid "Change the order with the arrows or by drag & drop. Sorting only changes the view."
+msgstr "Reihenfolge mit den Pfeilen oder per Drag & Drop ändern. Sortieren ändert nur die Ansicht."
 
 msgid "To reorder, switch to the {manual}."
 msgstr "Für das Umsortieren zur {manual} wechseln."

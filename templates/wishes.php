@@ -64,7 +64,7 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
             <?php if (!$canEdit): ?>
                 <?= $e(t('The wishes in the order they will be played.')) ?>
             <?php elseif ($manual): ?>
-                <?= $e(t('Change the order with the arrows – on a desktop also by drag & drop. Sorting only changes the view.')) ?>
+                <?= $e(t('Change the order with the arrows or by drag & drop. Sorting only changes the view.')) ?>
             <?php else: ?>
                 <?= t('To reorder, switch to the {manual}.', [
                     'manual' => '<a href="' . $e(url(['p' => 'wishes'])) . '">' . $e(t('manual order')) . '</a>',

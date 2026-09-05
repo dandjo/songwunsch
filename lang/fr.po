@@ -218,8 +218,8 @@ msgstr "La salle est fermée"
 msgid "– the audience cannot wish or suggest anything right now."
 msgstr "– le public ne peut ni souhaiter ni suggérer pour le moment."
 
-msgid "Change the order with the arrows – on a desktop also by drag & drop. Sorting only changes the view."
-msgstr "Changez l’ordre avec les flèches – sur ordinateur aussi par glisser-déposer. Le tri ne change que l’affichage."
+msgid "Change the order with the arrows or by drag & drop. Sorting only changes the view."
+msgstr "Changez l’ordre avec les flèches ou par glisser-déposer. Le tri ne change que l’affichage."
 
 msgid "To reorder, switch to the {manual}."
 msgstr "Pour réorganiser, passez à l’{manual}."

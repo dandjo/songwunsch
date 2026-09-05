@@ -260,7 +260,7 @@ msgid "Change password"
 msgstr ""
 
 #: templates/wishes.php:67
-msgid "Change the order with the arrows – on a desktop also by drag & drop. Sorting only changes the view."
+msgid "Change the order with the arrows or by drag & drop. Sorting only changes the view."
 msgstr ""
 
 #: templates/user.php:55
