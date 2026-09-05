@@ -446,7 +446,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect(url(['p' => 'logos']));
                 }
                 if ((int) $settings->get(Settings::LOGO_ID, '0') === $id) {
-                    $settings->set(Settings::LOGO_ID, '0');
+                    $settings->delete(Settings::LOGO_ID); // no logo: no entry, the reads default to 0
                     flash('ok', t('The logo has been deleted – the header shows the word mark again.'));
                 } else {
                     flash('ok', t('The logo has been deleted.'));
