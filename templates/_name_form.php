@@ -32,8 +32,7 @@ $id = $nameAsk ? 'name-ask' : 'name';
                maxlength="<?= GuestName::MAX_LENGTH ?>" autocomplete="nickname" autocapitalize="words"
                placeholder="<?= $e(t('First name or nickname')) ?>" aria-describedby="<?= $id ?>-hint"<?= $nameAsk ? ' autofocus' : '' ?>>
         <p class="field__hint" id="<?= $id ?>-hint">
-            <?= $e(t('It appears on the public wish list next to every song you wish for – anyone who opens this site can see it, not only the guests in the room.')) ?>
-            <?= $e(t('It is kept in this browser for a year and can be changed any time in the account menu at the top right.')) ?>
+            <?= $e(t('The name you enter appears publicly on the wish list and among the suggestions, next to every song you wish for or suggest – anyone who opens this site can see it. If you change your name, wishes and suggestions already made keep the old one; only new wishes and suggestions get the new name. It is kept as a cookie in this browser for a year and can be changed any time in the account menu at the top right.')) ?>
             <?php if (!$nameAsk): ?>
                 <?= $e(t('Leave the field empty to wish without a name.')) ?>
             <?php endif; ?>

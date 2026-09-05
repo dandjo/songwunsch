@@ -239,7 +239,7 @@ msgstr ""
 msgid "Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the gold tags and notices."
 msgstr ""
 
-#: templates/_name_form.php:46 templates/page_edit.php:159 templates/room.php:104 templates/song.php:116 templates/user.php:133
+#: templates/_name_form.php:45 templates/page_edit.php:159 templates/room.php:104 templates/song.php:116 templates/user.php:133
 msgid "Cancel"
 msgstr ""
 
@@ -511,14 +511,6 @@ msgstr ""
 msgid "In the same browser session."
 msgstr ""
 
-#: templates/_name_form.php:35
-msgid "It appears on the public wish list next to every song you wish for – anyone who opens this site can see it, not only the guests in the room."
-msgstr ""
-
-#: templates/_name_form.php:36
-msgid "It is kept in this browser for a year and can be changed any time in the account menu at the top right."
-msgstr ""
-
 #: templates/song.php:44
 msgid "It was suggested in room “{room}”, so the song is offered there as well."
 msgstr ""
@@ -543,7 +535,7 @@ msgstr ""
 msgid "Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change."
 msgstr ""
 
-#: templates/_name_form.php:38
+#: templates/_name_form.php:37
 msgid "Leave the field empty to wish without a name."
 msgstr ""
 
@@ -755,7 +747,7 @@ msgstr ""
 msgid "No."
 msgstr ""
 
-#: templates/_name_form.php:58
+#: templates/_name_form.php:57
 msgid "Not now"
 msgstr ""
 
@@ -1049,7 +1041,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: templates/_name_form.php:44
+#: templates/_name_form.php:43
 msgid "Save name"
 msgstr ""
 
@@ -1343,6 +1335,10 @@ msgstr ""
 
 #: index.php:395
 msgid "The logo has been uploaded – switch it live below when you want it shown."
+msgstr ""
+
+#: templates/_name_form.php:35
+msgid "The name you enter appears publicly on the wish list and among the suggestions, next to every song you wish for or suggest – anyone who opens this site can see it. If you change your name, wishes and suggestions already made keep the old one; only new wishes and suggestions get the new name. It is kept as a cookie in this browser for a year and can be changed any time in the account menu at the top right."
 msgstr ""
 
 #: templates/user.php:105

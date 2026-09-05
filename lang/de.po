@@ -896,11 +896,8 @@ msgstr "Dein Name"
 msgid "First name or nickname"
 msgstr "Vorname oder Spitzname"
 
-msgid "It appears on the public wish list next to every song you wish for – anyone who opens this site can see it, not only the guests in the room."
-msgstr "Er erscheint in der öffentlichen Wunschliste neben jedem Song, den du dir wünschst – jeder, der diese Seite aufruft, kann ihn sehen, nicht nur die Gäste im Raum."
-
-msgid "It is kept in this browser for a year and can be changed any time in the account menu at the top right."
-msgstr "Er wird ein Jahr lang in diesem Browser gemerkt und lässt sich jederzeit im Konto-Menü oben rechts ändern."
+msgid "The name you enter appears publicly on the wish list and among the suggestions, next to every song you wish for or suggest – anyone who opens this site can see it. If you change your name, wishes and suggestions already made keep the old one; only new wishes and suggestions get the new name. It is kept as a cookie in this browser for a year and can be changed any time in the account menu at the top right."
+msgstr "Dein eingegebener Name erscheint öffentlich in der Wunschliste und bei den Vorschlägen neben jedem Song, den du dir wünschst oder vorschlägst – jeder, der diese Seite aufruft, kann ihn sehen. Änderst du deinen Namen, bleibt der Name bei Wünschen und Vorschlägen trotzdem der alte, nur neue Wünsche oder Vorschläge erhalten deinen neuen Namen. Er wird ein Jahr lang in diesem Browser als Cookie gespeichert und lässt sich jederzeit im Konto-Menü oben rechts ändern."
 
 msgid "Leave the field empty to wish without a name."
 msgstr "Feld leer lassen, um ohne Namen zu wünschen."
