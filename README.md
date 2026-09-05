@@ -230,9 +230,20 @@ repertoire, that is an additional Traefik router on `Path(`/`)` with a
 
 To the outside exactly one file exists: `index.php`. Everything below the
 base path lands there – unknown addresses are answered with 404 –, only
-`assets/` is served directly by the web server. All other PHP files,
-`config.php`, `sql/`, `lang/` and this README are blocked from outside (403;
-on Apache the block applies before the rewrite).
+`assets/` and `robots.txt` are served directly by the web server. All other
+PHP files, `config.php`, `sql/`, `lang/` and this README are blocked from
+outside (403; on Apache the block applies before the rewrite).
+
+**robots.txt.** Search engines may index the start page (the repertoire) and
+the pages – imprint, privacy notice, FAQ. Everything that carries names is
+disallowed: the rooms (`/rooms…`, a room is often named after the hosts of a
+private event), the wish lists and suggestions (`/wishes`, `/suggestions`, they
+show the names guests gave), the name form and the operating pages behind the
+sign-in (`/login`, `/settings`, `/users`, `/admin`, `/song`). This keeps
+well-behaved crawlers away; it is not access control. A `robots.txt` is always
+read from the domain root, so the file only works with the application at the
+root – under a sub-path merge its lines into the domain's own `robots.txt`
+with the sub-path in front of every address.
 
 **Apache** (2.4, the usual case on hosted servers): the `.htaccess` in the
 application folder handles both – the rewrite to `index.php` and the block on
@@ -251,6 +262,10 @@ root /var/www/html;
 
 location ^~ /assets/ {
     expires 7d;
+}
+
+location = /robots.txt {
+    # Served as it is, see "robots.txt" above.
 }
 
 location / {
@@ -1029,6 +1044,7 @@ src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter
 templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, colors, limits, pages, page_edit, page, footer, languages, name, _name_form, _room_switches, error, _sortbar, _pager
 assets/                style.css (dark interface), app.js, vendor/ckeditor5 (the page editor, see Pages and footer)
+robots.txt             what search engines may index: the start page and the pages, not the rooms, lists and operating pages
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)
 tools/hash.php         Create a password hash
