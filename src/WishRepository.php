@@ -71,6 +71,15 @@ final class WishRepository
         return (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE . ' WHERE room_id = ?', [$this->roomId])['c'] ?? 0);
     }
 
+    /** Is this song already on the list? */
+    public function isPending(int $songId): bool
+    {
+        return $this->db->one(
+            'SELECT id FROM ' . self::TABLE . ' WHERE room_id = ? AND song_id = ? LIMIT 1',
+            [$this->roomId, $songId],
+        ) !== null;
+    }
+
     /**
      * The song is wished once more while it is already on the list: no new
      * row, the existing one counts the wish. Should the song be on the list
