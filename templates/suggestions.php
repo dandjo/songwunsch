@@ -185,7 +185,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                         <td class="cell-artist"><?= $e((string) $row['artist']) ?></td>
                         <td class="cell-title"><?= $e((string) $row['title']) ?></td>
                         <?php /* The room the guest was in; the adopted song joins it.
-                                 Nothing for the main room -- that is the master list. */ ?>
+                                 Nothing for the main room -- that is the main list. */ ?>
                         <td class="cell-genre cell-room">
                             <?php $rowRoom = (int) ($row['room_id'] ?? 0); ?>
                             <?php if ($rowRoom > 0 && isset($roomNames[$rowRoom])): ?>

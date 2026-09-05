@@ -5,29 +5,39 @@ declare(strict_types=1);
 use Songwunsch\Format;
 
 /**
- * Pick a room's songs: two columns. Left the master list without the songs
+ * Pick a room's songs: two columns. Left the main list without the songs
  * already in the room, right the room's list. One search filters both, the
  * arrow buttons move a song across -- one click, one round trip, no
  * JavaScript needed.
  */
 
-/** @var array<int,array<string,mixed>> $available  master songs not in the room (one page) */
+/** @var array<int,array<string,mixed>> $available  main-list songs not in the room (one page) */
 /** @var int $availableTotal   all of them matching the search */
-/** @var array<int,array<string,mixed>> $roomRows   the room's songs matching the search */
-/** @var int $roomTotal */
-/** @var int $roomSongCount    songs in the room, regardless of the search */
-/** @var int $masterCount      songs in the master list */
-/** @var string $q */
-/** @var int $pageNo */
+/** @var int $pageNo           page of the main-list column ('page') */
 /** @var int $pages */
+/** @var array<int,array<string,mixed>> $roomRows   the room's songs matching the search (one page) */
+/** @var int $roomTotal */
+/** @var int $roomPageNo       page of the room column ('rpage') */
+/** @var int $roomPages */
+/** @var int $roomSongCount    songs in the room, regardless of the search */
+/** @var int $mainCount        songs in the main list */
+/** @var string $q */
 /** @var string $csrf */
 /** @var array<string,mixed> $room  current room */
 /** @var string $back  where "Back" leads: the page the visitor came from (repertoire, room list, room form), see destination() */
 
 $e       = static fn (?string $v): string => Format::e($v);
-// This page with its search and page -- the moves come back here; the
-// destination travels along, so "Back" still knows it after every move.
-$current = url(['p' => 'room_songs', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : null, 'back' => $back]);
+// This page with its search and both columns' pages -- the moves come back
+// here; the destination travels along, so "Back" still knows it after every
+// move. Both pagers keep the other column's page.
+$address = static fn (int $page, int $roomPage): string => url([
+    'p'     => 'room_songs',
+    'q'     => $q,
+    'page'  => $page > 1 ? $page : null,
+    'rpage' => $roomPage > 1 ? $roomPage : null,
+    'back'  => $back,
+]);
+$current = $address($pageNo, $roomPageNo);
 
 /** Form that moves songs: single id, or with $all every match of the search. */
 $move = static function (string $action, string $label, ?int $key, bool $all, string $class, string $confirm = '') use ($csrf, $current, $q, $e): string {
@@ -70,7 +80,7 @@ $card = static function (array $row, string $action, string $arrow, string $verb
             <?= help_button('help-room-songs') ?>
         </div>
         <p class="muted help" id="help-room-songs">
-            <?= $e(t('{n} of {total} songs are in the room.', ['n' => Format::number($roomSongCount), 'total' => Format::number($masterCount)])) ?>
+            <?= $e(t('{n} of {total} songs are in the room.', ['n' => Format::number($roomSongCount), 'total' => Format::number($mainCount)])) ?>
             <?= $e(t('Move songs with the arrows: to the right into the room, to the left out of it. The search filters both columns.')) ?>
         </p>
     </div>
@@ -91,14 +101,14 @@ $card = static function (array $row, string $action, string $arrow, string $verb
 </form>
 
 <div class="picker">
-    <section class="picker__col" aria-labelledby="picker-master">
+    <section class="picker__col" aria-labelledby="picker-main">
         <div class="picker__head">
-            <h2 id="picker-master"><?= $e(t('Master list')) ?></h2>
+            <h2 id="picker-main"><?= $e(t('Main list')) ?></h2>
             <span class="muted"><?= $e(tn('{n} song available', '{n} songs available', $availableTotal, ['n' => Format::number($availableTotal)])) ?></span>
         </div>
 
         <?php if ($available === []): ?>
-            <p class="empty"><?= $e($q !== '' ? t('No song found. Try a different spelling?') : t('Every song of the master list is in the room.')) ?></p>
+            <p class="empty"><?= $e($q !== '' ? t('No song found. Try a different spelling?') : t('Every song of the main list is in the room.')) ?></p>
         <?php else: ?>
             <?php if ($availableTotal > 1): ?>
                 <div class="picker__bulk">
@@ -116,7 +126,7 @@ $card = static function (array $row, string $action, string $arrow, string $verb
 
             <div class="table-wrap">
                 <table class="grid grid--picker">
-                    <caption class="sr-only"><?= $e(t('Master list: songs not yet in the room')) ?></caption>
+                    <caption class="sr-only"><?= $e(t('Main list: songs not yet in the room')) ?></caption>
                     <thead><tr><th scope="col"><?= $e(t('Title')) ?></th><th scope="col"><?= $e(t('Artist')) ?></th><th scope="col"><span class="sr-only"><?= $e(t('Add')) ?></span></th></tr></thead>
                     <tbody>
                     <?php foreach ($available as $row): ?>
@@ -127,7 +137,7 @@ $card = static function (array $row, string $action, string $arrow, string $verb
             </div>
 
             <?php
-            $pageUrl = static fn (int $page): string => url(['p' => 'room_songs', 'q' => $q, 'page' => $page > 1 ? $page : null, 'back' => $back]);
+            $pageUrl = static fn (int $page): string => $address($page, $roomPageNo);
             require __DIR__ . '/_pager.php';
             ?>
         <?php endif; ?>
@@ -168,6 +178,14 @@ $card = static function (array $row, string $action, string $arrow, string $verb
                     </tbody>
                 </table>
             </div>
+
+            <?php
+            // The pager partial reads $pageNo and $pages: the room column's
+            // values step in for them; nothing below needs the left column's.
+            $pageUrl = static fn (int $page): string => $address($pageNo, $page);
+            [$pageNo, $pages] = [$roomPageNo, $roomPages];
+            require __DIR__ . '/_pager.php';
+            ?>
         <?php endif; ?>
     </section>
 </div>

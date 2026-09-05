@@ -39,13 +39,20 @@ final class Uploads
     }
 
     /**
-     * All files of a kind, newest first, without their bytes.
+     * One page of the uploads of a kind, newest first, plus the total.
      *
-     * @return array<int,array{id:int,kind:string,mime:string,width:?int,height:?int,size:int,created_at:string}>
+     * @return array{rows: array<int,array{id:int,kind:string,mime:string,width:?int,height:?int,size:int,created_at:string}>, total: int}
      */
-    public function all(string $kind): array
+    public function page(string $kind, int $page, int $perPage): array
     {
-        return array_map([self::class, 'row'], $this->db->all(self::INFO . ' WHERE kind = ? ORDER BY created_at DESC, id DESC', [$kind]));
+        $total  = (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE . ' WHERE kind = ?', [$kind])['c'] ?? 0);
+        $offset = max(0, ($page - 1) * $perPage);
+        $rows   = array_map(
+            [self::class, 'row'],
+            $this->db->all(self::INFO . " WHERE kind = ? ORDER BY created_at DESC, id DESC LIMIT {$perPage} OFFSET {$offset}", [$kind]),
+        );
+
+        return ['rows' => $rows, 'total' => $total];
     }
 
     /** @return array{id:int,kind:string,mime:string,width:?int,height:?int,size:int,created_at:string}|null */

@@ -527,20 +527,28 @@
             }
         };
 
+        // A paged list shows one page of the whole: data-reorder-offset is
+        // the number of rows before this page, data-reorder-total the size
+        // of the whole list, so ranks and end states follow the list, not
+        // the page.
+        var offset = parseInt(board.getAttribute('data-reorder-offset') || '0', 10) || 0;
+        var total = parseInt(board.getAttribute('data-reorder-total') || '', 10);
+
         var renumber = function () {
             var rows = body.querySelectorAll('tr');
+            var last = isNaN(total) ? rows.length - 1 : total - 1 - offset;
             rows.forEach(function (row, index) {
                 var rank = row.querySelector('.rank');
                 if (rank) {
-                    rank.lastChild.textContent = String(index + 1);
+                    rank.lastChild.textContent = String(offset + index + 1);
                 }
-                // Up and to the top are pointless on the first row, down and
-                // to the bottom on the last.
+                // Up and to the top are pointless on the first row of the
+                // list, down and to the bottom on its last.
                 row.querySelectorAll('.move button[data-move]').forEach(function (button) {
                     var dir = button.getAttribute('data-move');
                     button.disabled = (dir === 'up' || dir === 'top')
-                        ? index === 0
-                        : index === rows.length - 1;
+                        ? offset + index === 0
+                        : index === last;
                 });
             });
         };
@@ -550,7 +558,9 @@
                 return row.getAttribute('data-id');
             });
 
-            // The wish list posts 'reorder', the footer 'footer_reorder'.
+            // The wish list posts 'reorder', the footer 'footer_reorder'. Of
+            // a paged list only this page's ids go: the server places them
+            // where these entries stood and leaves the other pages alone.
             var payload = new URLSearchParams();
             payload.set('a', board.getAttribute('data-reorder-action') || 'reorder');
             payload.set('csrf', board.getAttribute('data-csrf'));

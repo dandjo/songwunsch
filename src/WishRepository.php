@@ -66,6 +66,25 @@ final class WishRepository
         );
     }
 
+    /**
+     * One page of the list in the given sorting, plus the total.
+     *
+     * @return array{rows: array<int,array<string,mixed>>, total: int}
+     */
+    public function page(string $sort, string $dir, int $page, int $perPage): array
+    {
+        $column    = $this->sortableFields()[$sort] ?? 'position';
+        $direction = strtolower($dir) === 'desc' ? 'DESC' : 'ASC';
+        $offset    = max(0, ($page - 1) * $perPage);
+
+        $rows = $this->db->all(
+            'SELECT * FROM ' . self::TABLE . " WHERE room_id = ? ORDER BY {$column} {$direction}, id ASC LIMIT {$perPage} OFFSET {$offset}",
+            [$this->roomId],
+        );
+
+        return ['rows' => $rows, 'total' => $this->count()];
+    }
+
     public function count(): int
     {
         return (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE . ' WHERE room_id = ?', [$this->roomId])['c'] ?? 0);
@@ -139,7 +158,10 @@ final class WishRepository
 
     /**
      * Store a new order (drag & drop). Only ids that actually exist in the
-     * table are considered; anything not passed slides in behind them.
+     * table are considered. The ids passed may be the whole list or one
+     * page of it: they take, in their new order, the places those same
+     * entries held before, so every other entry -- on another page, or
+     * arrived in the meantime -- keeps its place.
      *
      * @param array<int,int> $orderedIds
      * @return int number of repositioned entries
@@ -147,28 +169,13 @@ final class WishRepository
     public function reorder(array $orderedIds): int
     {
         $known = array_map('intval', array_column(
-            $this->db->all('SELECT id FROM ' . self::TABLE . ' WHERE room_id = ?', [$this->roomId]),
+            $this->db->all('SELECT id FROM ' . self::TABLE . ' WHERE room_id = ? ORDER BY position ASC, id ASC', [$this->roomId]),
             'id',
         ));
 
-        $ordered = [];
-        foreach ($orderedIds as $id) {
-            $id = (int) $id;
-            if (in_array($id, $known, true) && !in_array($id, $ordered, true)) {
-                $ordered[] = $id;
-            }
-        }
-
+        $ordered = self::placed($known, $orderedIds);
         if ($ordered === []) {
             return 0;
-        }
-
-        // Entries not passed (e.g. arrived in the meantime) keep their order
-        // and end up at the bottom.
-        foreach ($known as $id) {
-            if (!in_array($id, $ordered, true)) {
-                $ordered[] = $id;
-            }
         }
 
         $pdo = $this->db->pdo();
@@ -185,6 +192,41 @@ final class WishRepository
         }
 
         return count($ordered);
+    }
+
+    /**
+     * The whole list in its new order: $moved (a page of it, or all of it,
+     * in the order wanted) fills the places its entries held in $known;
+     * everything else stays where it was. Unknown and repeated ids are
+     * dropped. Empty when nothing of $moved is known.
+     *
+     * @param array<int,int> $known    every id, in the stored order
+     * @param array<int,int|string> $moved
+     * @return array<int,int>
+     */
+    public static function placed(array $known, array $moved): array
+    {
+        $wanted = [];
+        foreach ($moved as $id) {
+            $id = (int) $id;
+            if (in_array($id, $known, true) && !in_array($id, $wanted, true)) {
+                $wanted[] = $id;
+            }
+        }
+        if ($wanted === []) {
+            return [];
+        }
+
+        // Every place a wanted id holds is a slot; the wanted ids fill the
+        // slots in their new order, one after the other.
+        $slots  = array_fill_keys($wanted, true);
+        $queue  = $wanted;
+        $result = [];
+        foreach ($known as $id) {
+            $result[] = isset($slots[$id]) ? array_shift($queue) : $id;
+        }
+
+        return $result;
     }
 
     /**

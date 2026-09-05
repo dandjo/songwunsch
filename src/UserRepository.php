@@ -38,19 +38,25 @@ final class UserRepository
 
     /** @return array<int,array<string,mixed>> alphabetically by username */
     /**
-     * Every user, by name -- or only those whose name contains $query.
+     * One page of the users, or of those whose name contains $query.
      *
-     * @return array<int,array<string,mixed>>
+     * @return array{rows: array<int,array<string,mixed>>, total: int}
      */
-    public function all(string $query = ''): array
+    public function page(string $query, int $page, int $perPage): array
     {
-        $query = trim($query);
-        if ($query === '') {
-            return $this->db->all(self::SELECT . ' ORDER BY username ASC');
+        $query  = trim($query);
+        $where  = '';
+        $params = [];
+        if ($query !== '') {
+            $where  = ' WHERE username LIKE ?';
+            $params = ['%' . str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $query) . '%'];
         }
-        $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $query) . '%';
 
-        return $this->db->all(self::SELECT . ' WHERE username LIKE ? ORDER BY username ASC', [$like]);
+        $total  = (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE . $where, $params)['c'] ?? 0);
+        $offset = max(0, ($page - 1) * $perPage);
+        $rows   = $this->db->all(self::SELECT . $where . " ORDER BY username ASC LIMIT {$perPage} OFFSET {$offset}", $params);
+
+        return ['rows' => $rows, 'total' => $total];
     }
 
     public function count(): int

@@ -1392,7 +1392,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 }
 
 /* ---------- Room song picker: two columns ----------
-   Left the master list (songs not yet in the room), right the room. Arrow
+   Left the main list (songs not yet in the room), right the room. Arrow
    buttons move a song across; on narrow screens the columns stack. */
 .picker {
     display: grid;
@@ -1438,7 +1438,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .picker .empty { padding: 1.5rem 1rem; font-size: .9rem; }
 
 /* Compact cards: title above artist, the arrow at the outer edge -- right
-   in the master column (into the room), left in the room column (out). */
+   in the main-list column (into the room), left in the room column (out). */
 .grid--picker tbody tr {
     display: grid;
     grid-template-columns: minmax(0, 1fr) max-content;

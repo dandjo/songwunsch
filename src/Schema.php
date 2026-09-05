@@ -147,7 +147,7 @@ final class Schema
         self::ROOM_SONGS => <<<'SQL'
             CREATE TABLE IF NOT EXISTS `room_songs` (
                 `room_id` INT UNSIGNED NOT NULL,
-                `song_id` INT UNSIGNED NOT NULL COMMENT 'songs.id -- the room picks from the master list',
+                `song_id` INT UNSIGNED NOT NULL COMMENT 'songs.id -- the room picks from the main list',
                 PRIMARY KEY (`room_id`, `song_id`),
                 KEY `idx_song_id` (`song_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

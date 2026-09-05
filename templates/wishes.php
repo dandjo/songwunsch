@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 use Songwunsch\Format;
 
-/** @var array<int,array<string,mixed>> $rows */
+/** @var array<int,array<string,mixed>> $rows  one page of the list */
+/** @var int $total   all wishes of the room */
+/** @var int $pageNo */
+/** @var int $pages */
+/** @var int $offset  rows before this page: the first row's rank, minus one */
 /** @var string $sort */
 /** @var string $dir */
 /** @var string $csrf */
@@ -16,12 +20,16 @@ use Songwunsch\Format;
 
 $e       = static fn (?string $v): string => Format::e($v);
 $inRoom  = (int) $room['id'] !== \Songwunsch\RoomRepository::DEFAULT_ID;
-$current = url(['p' => 'wishes', 'sort' => $sort, 'dir' => $dir]);
+// A page of the list with its sorting -- the pager's links, and where the
+// moves and deletions come back to. Bound here, before the move buttons'
+// loop below reuses $dir for its directions.
+$pageUrl = static fn (int $page): string => url(['p' => 'wishes', 'sort' => $sort, 'dir' => $dir, 'page' => $page > 1 ? $page : null]);
+$current = $pageUrl($pageNo);
 
 // Reordering only makes sense in manual order -- with any other sorting the
 // display would not follow the stored rank. Guests always see manual order.
 $manual = $sort === 'manual' && $dir === 'asc';
-$last   = count($rows) - 1;
+$last   = $total - 1;
 
 $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdit): string {
     if (!$canEdit) {
@@ -50,7 +58,7 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
             <?= help_button('help-wishes') ?>
         </div>
         <p class="muted help" id="help-wishes">
-            <?= $e(tn('{n} wish in the queue.', '{n} wishes in the queue.', count($rows))) ?>
+            <?= $e(tn('{n} wish in the queue.', '{n} wishes in the queue.', $total)) ?>
             <?php if ($paused): ?>
                 <strong><?= $e(t('The room is closed')) ?></strong> <?= $e(t('– no wishes or suggestions right now.')) ?>
                 <?php if ($canEdit): ?>
@@ -111,8 +119,11 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
 
     <?php $sortable = $canEdit && $manual; ?>
     <div class="table-wrap">
+        <?php /* One page of the list: app.js numbers the rows and disables the end
+                 moves by the whole list (data-reorder-offset/-total); a drag posts
+                 this page's ids and the server places them where these wishes stood. */ ?>
         <table class="grid grid--wishes<?= $sortable ? ' grid--sortable' : '' ?>"
-               <?= $sortable ? 'data-reorder data-csrf="' . $e($csrf) . '"' : '' ?>
+               <?= $sortable ? 'data-reorder data-csrf="' . $e($csrf) . '" data-reorder-offset="' . (int) $offset . '" data-reorder-total="' . (int) $total . '"' : '' ?>
                data-msg-saved="<?= $e(t('Order saved.')) ?>"
                data-msg-failed="<?= $e(t('The order could not be saved.')) ?>"
                data-msg-offline="<?= $e(t('The order could not be saved – please reload the page.')) ?>">
@@ -146,8 +157,11 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($rows as $index => $row): ?>
-                <?php $label = t('{title} by {artist}', ['title' => (string) $row['title'], 'artist' => (string) $row['artist']]); ?>
+            <?php foreach ($rows as $i => $row): ?>
+                <?php
+                $index = $offset + $i;   // rank in the whole list, from 0
+                $label = t('{title} by {artist}', ['title' => (string) $row['title'], 'artist' => (string) $row['artist']]);
+                ?>
                 <tr data-id="<?= (int) $row['id'] ?>"<?= $sortable ? ' draggable="true"' : '' ?>>
                     <td class="cell-rank">
                         <span class="rank"><span class="drag-grip" aria-hidden="true">⠿</span><?= (int) $index + 1 ?></span>
@@ -246,4 +260,6 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
             </tbody>
         </table>
     </div>
+
+    <?php require __DIR__ . '/_pager.php'; ?>
 <?php endif; ?>

@@ -642,22 +642,11 @@ final class PageRepository
      */
     public function reorderFooter(array $orderedIds): int
     {
-        $known = array_map('intval', array_column($this->inFooter(), 'id'));
-
-        $ordered = [];
-        foreach ($orderedIds as $id) {
-            $id = (int) $id;
-            if (in_array($id, $known, true) && !in_array($id, $ordered, true)) {
-                $ordered[] = $id;
-            }
-        }
+        // The ids passed -- all of them or one page -- take the places those
+        // same pages held; the rest keeps its place (WishRepository::placed).
+        $ordered = WishRepository::placed(array_map('intval', array_column($this->inFooter(), 'id')), $orderedIds);
         if ($ordered === []) {
             return 0;
-        }
-        foreach ($known as $id) {
-            if (!in_array($id, $ordered, true)) {
-                $ordered[] = $id;
-            }
         }
 
         $this->renumberFooter($ordered);

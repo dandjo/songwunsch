@@ -9,7 +9,10 @@ use Songwunsch\Uploads;
  * Admin only: every logo ever uploaded, one of them (or none -- the word
  * mark) switched live for the header.
  *
- * @var array<int,array{id:int,mime:string,width:?int,height:?int,size:int,created_at:string}> $logos  newest first
+ * @var array<int,array{id:int,mime:string,width:?int,height:?int,size:int,created_at:string}> $logos  newest first, one page
+ * @var int $total       all uploaded logos
+ * @var int $pageNo
+ * @var int $pages
  * @var int $activeId    id of the logo the header shows, 0 = word mark
  * @var string $csrf
  */
@@ -18,6 +21,9 @@ $e = static fn (?string $v): string => Format::e($v);
 
 $logoUrl = static fn (int $id): string => url(['p' => 'logo', 'room' => '', 'id' => $id]);
 $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
+$pageUrl = static fn (int $page): string => url(['p' => 'logos', 'page' => $page > 1 ? $page : null]);
+// This page of the list: where switching and deleting lead back to.
+$current = $pageUrl($pageNo);
 ?>
 
 <div class="panel__head">
@@ -63,7 +69,8 @@ $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
         <h2 class="field__legend"><?= $e(t('Uploaded logos')) ?></h2>
 
         <ul class="logo-list" role="list">
-            <?php /* The word mark heads the list as the choice "no logo". */ ?>
+            <?php /* The word mark heads the list as the choice "no logo" -- on the first page. */ ?>
+            <?php if ($pageNo === 1): ?>
             <li class="logo-card<?= $activeId === 0 ? ' logo-card--active' : '' ?>">
                 <div class="logo-card__preview"><span class="dome__brand">Song<span>wunsch</span></span></div>
                 <div class="logo-card__meta">
@@ -77,12 +84,14 @@ $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
                         <form method="post" action="<?= $e(url()) ?>">
                             <input type="hidden" name="a" value="logo_activate">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                            <input type="hidden" name="back" value="<?= $e($current) ?>">
                             <input type="hidden" name="id" value="0">
                             <button type="submit" class="link-button"><?= icon('check') ?><?= $e(t('Switch live')) ?></button>
                         </form>
                     <?php endif; ?>
                 </div>
             </li>
+            <?php endif; ?>
 
             <?php foreach ($logos as $logo): ?>
                 <?php $isActive = $logo['id'] === $activeId; ?>
@@ -106,6 +115,7 @@ $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
                             <form method="post" action="<?= $e(url()) ?>">
                                 <input type="hidden" name="a" value="logo_activate">
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                                <input type="hidden" name="back" value="<?= $e($current) ?>">
                                 <input type="hidden" name="id" value="<?= $logo['id'] ?>">
                                 <button type="submit" class="link-button"><?= icon('check') ?><?= $e(t('Switch live')) ?></button>
                             </form>
@@ -113,6 +123,7 @@ $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
                         <form method="post" action="<?= $e(url()) ?>" data-confirm="<?= $e($isActive ? t('Delete the live logo? The header shows the word mark again.') : t('Delete this logo?')) ?>">
                             <input type="hidden" name="a" value="logo_delete">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                            <input type="hidden" name="back" value="<?= $e($current) ?>">
                             <input type="hidden" name="id" value="<?= $logo['id'] ?>">
                             <?php /* Icon only, like the delete buttons in every list -- the label stays for screen readers and as tooltip. */ ?>
                             <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
@@ -124,8 +135,9 @@ $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
                 </li>
             <?php endforeach; ?>
         </ul>
-        <?php if ($logos === []): ?>
+        <?php if ($total === 0): ?>
             <p class="field__hint"><?= $e(t('No logo uploaded yet.')) ?></p>
         <?php endif; ?>
+        <?php require __DIR__ . '/_pager.php'; ?>
     </div>
 </div>

@@ -141,7 +141,7 @@ remembered room or the start room takes over.
 | `/rooms/<name>` | Repertoire of a room |
 | `/rooms/<name>/wishes` | Wish list of a room |
 | `/rooms/<name>/suggestions` | Suggest a song from inside a room – the adopted song joins the room |
-| `/rooms/<name>/manage` | Manage the room's songs (selection from the master list) – editor |
+| `/rooms/<name>/manage` | Manage the room's songs (selection from the main list) – editor |
 | `/admin/users`, `/admin/users/new`, `/admin/users/<id>/edit` | User management – admins |
 | `/admin/logos` | Header logos – admins, see [Logo](#logo) |
 | `/admin/pages`, `/admin/pages/new`, `/admin/pages/<id>/edit` | The admins' pages: list, create, edit – admins, see [Pages and footer](#pages-and-footer) |
@@ -302,7 +302,7 @@ Admins can put a logo in the header instead of the word mark
 “Songwunsch” and the claim; the room's name keeps its place beside it. Logos
 are managed on their own page, **Logos** (`/admin/logos`, in the *Administration*
 menu, admins only): every logo ever uploaded is listed there with a preview at the
-header's size, and exactly one is *live* at a time – or none, then the word
+header's size (paged, newest first), and exactly one is *live* at a time – or none, then the word
 mark shows. Upload, *Switch live*, *Delete* (bin icon, like in every list); a
 new upload goes live right away unless the box is unticked. The live logo is remembered in `settings`
 under `logo_id`.
@@ -389,6 +389,10 @@ page taken out keeps its address). On the right the order is changed by
 dragging a row – the same drag & drop as on the wish list, saved in the
 background – or with the four move buttons of every row (to the top, up,
 down, to the bottom), which also work by keyboard and without JavaScript.
+Both columns are paged like a room's song picker (`page` left, `rpage`
+right); a drag reorders the rows of the shown page among the places they
+hold, the other pages keep theirs. The list of pages under *Administration →
+Pages* is paged as well.
 The page being read is highlighted among the links. With no page in the
 footer and no `footer` value (below) there is no footer at all.
 
@@ -615,7 +619,7 @@ pre-escaped and the rest printed without escaping.
 ## Users and roles
 
 All operating functions sit behind a sign-in. Users are stored in the `users`
-table and managed on the **Users** page (`/admin/users`). Admins reach their
+table and managed on the **Users** page (`/admin/users`, searchable and paged). Admins reach their
 pages – *Languages*, *Users*, *Logos*, *Interface*, *Limits*, *Pages*, *Footer* – through the
 **Administration** menu in the navigation, a tab that opens a list; all of
 them live below `/admin`.
@@ -723,11 +727,11 @@ artist, title or name (several terms are combined with AND, like the song
 search). Long lists are paged like the repertoire (*Rows per page* under
 *Administration → Limits*). Only editors get the buttons.
 
-Suggestions aim at the master list, which every room picks from, and there
+Suggestions aim at the main list, which every room picks from, and there
 is one list for the whole site. A suggestion made inside a room
 (`/rooms/<name>/suggestions`, where the tab leads while one is in the room)
 remembers that room: the editor sees it tagged with the room's name, and the
-adopted song is offered in that room right away, not only in the master
+adopted song is offered in that room right away, not only in the main
 list. The room switcher keeps one on the suggestions page when changing
 rooms. If the room is deleted meanwhile, its suggestions stay and fall back
 to the main room. While a room is closed (see [Rooms](#rooms)), suggesting
@@ -775,15 +779,17 @@ at `/rooms/sommerfest-2026`, its wish list at `/rooms/sommerfest-2026/wishes`.
 Changing the machine name changes the address – links already handed out stop
 working.
 
-**Managing songs.** A room's repertoire is a selection from the master list
+**Managing songs.** A room's repertoire is a selection from the main list
 (the repertoire of the main room), table `room_songs`. Under
-`/rooms/<name>/manage` there are two columns: on the left the master list
+`/rooms/<name>/manage` there are two columns: on the left the main list
 without the songs already in the room, on the right the room's list. An arrow
 to the right takes a song into the room, an arrow to the left removes it
 again; a search field filters both columns, *Add all …* and *Remove all …*
-move the whole search result. On narrow screens the columns stack. In the
+move the whole search result. Each column is paged on its own (`page` for
+the main list, `rpage` for the room, *Rows per page* under *Administration →
+Limits*); a move comes back to the same pages. On narrow screens the columns stack. In the
 room's repertoire the editor's delete button (the same bin) reads *Remove* –
-the song only leaves the room. Songs are edited exclusively in the master list; a song
+the song only leaves the room. Songs are edited exclusively in the main list; a song
 deleted there disappears from all rooms.
 
 **Archiving.** Every room is *active* or *archived* (column `active`,
@@ -962,8 +968,11 @@ limits on [song suggestions](#song-suggestions). A limit of `0` disables it.
 The defaults are 200 open wishes per room, 30 per minute in total, 3 per
 minute and 20 per hour per sender, 5 s between two wishes, 2 s after the
 page load; 200 open suggestions and 10 s between two of them. The same page
-sets the rows per page of the paged lists (50). The values live in the
-`settings` table (`limits.<name>`, `src/Limits.php`).
+sets the rows per page of the paged lists (50): the repertoire, the wish
+list, the suggestions, the rooms, the users, the pages, the logos and both
+columns of a room's song picker and of the footer. A page beyond the last –
+after the last entry of a page was moved or deleted – falls back to the last
+page. The values live in the `settings` table (`limits.<name>`, `src/Limits.php`).
 
 **Senders without storing IPs.** The per-sender limit needs one attribute per
 visitor. What is stored is not the IP address but an HMAC-SHA256 of the
@@ -1006,7 +1015,7 @@ button (`aria-controls`, `aria-expanded`).
 | See the site as a guest | Signed in: account menu → *View as guest*; a notice in the header and *End guest view* lead back. Meanwhile pages, controls and actions behave exactly as for a visitor without a login |
 | Sort | Sort bar above the list, a second click reverses the direction |
 | Wish | *Wish* button in the row (or a click on the row). A song that is already on the wish list is not added twice: the wish counts on the existing entry, and everyone sees the number on its card (*3×*) |
-| Change the order | Wish list → drag the row (drag & drop) or the buttons on the right: to the top, ▲, ▼, to the bottom |
+| Change the order | Wish list → drag the row (drag & drop) or the buttons on the right: to the top, ▲, ▼, to the bottom. The list is paged; a drag reorders the shown page among the places its wishes hold, the buttons move across pages |
 | Delete a wish | Wish list → *Delete* in the row |
 | Delete everything | Wish list → *Clear list* |
 | Close or open a room | Moderator: Rooms → *Close room* / *Open room* in the row, the same button on the room's edit form (no wishes and no suggestions while closed); a closed room's header notice has *Open room* as well |
@@ -1151,7 +1160,7 @@ src/PageRepository.php Pages: validate, store, list; which are in the footer, in
 src/Html.php           Reduce a page's HTML to the allowed elements and attributes
 src/Security.php       Session, login against users, roles, CSRF, wish brake
 src/UserRepository.php Users: create, edit, delete, count the active admins
-src/RoomRepository.php Rooms: create, edit, delete, song selection from the master list
+src/RoomRepository.php Rooms: create, edit, delete, song selection from the main list
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter

@@ -14,8 +14,15 @@ use Songwunsch\Format;
  * own line: credits, a link -- a compact editor per language behind tabs,
  * the HTML reduced on saving.
  *
- * @var array<int,array<string,mixed>> $linked     pages in the footer, in order
- * @var array<int,array<string,mixed>> $available  pages outside the footer, by title
+ * @var array<int,array<string,mixed>> $linked     pages in the footer, in order (one page of them)
+ * @var int $linkedTotal                            all of them
+ * @var int $linkedPageNo                           page of the footer column ('rpage')
+ * @var int $linkedPages
+ * @var int $linkedOffset                           rows before this page of the footer column
+ * @var array<int,array<string,mixed>> $available  pages outside the footer, by title (one page of them)
+ * @var int $availableTotal                         all of them
+ * @var int $pageNo                                 page of the pages column ('page')
+ * @var int $pages
  * @var array<string,string> $footerTexts  code => the operator's line as stored (cleaned HTML); only the languages that have one
  * @var array<string,string> $languages    code => native name, the tabs
  * @var string $activeLang                 the tab to show first
@@ -24,13 +31,23 @@ use Songwunsch\Format;
  */
 
 $e    = static fn (?string $v): string => Format::e($v);
-$last = count($linked) - 1;
+$last = $linkedTotal - 1;
+
+// This page with both columns' pages -- the moves come back here. Both
+// pagers keep the other column's page.
+$address = static fn (int $page, int $footerPage): string => url([
+    'p'     => 'footer',
+    'page'  => $page > 1 ? $page : null,
+    'rpage' => $footerPage > 1 ? $footerPage : null,
+]);
+$current = $address($pageNo, $linkedPageNo);
 
 /** Form with one button that moves a page into or out of the footer. */
-$across = static function (string $action, int $id, string $glyph, string $verb, string $title, string $class) use ($csrf, $e): string {
+$across = static function (string $action, int $id, string $glyph, string $verb, string $title, string $class) use ($csrf, $current, $e): string {
     return '<form method="post" action="' . $e(url()) . '">'
         . '<input type="hidden" name="a" value="' . $e($action) . '">'
         . '<input type="hidden" name="csrf" value="' . $e($csrf) . '">'
+        . '<input type="hidden" name="back" value="' . $e($current) . '">'
         . '<input type="hidden" name="id" value="' . $id . '">'
         . '<button type="submit" class="' . $class . '">' . icon($glyph)
         . '<span class="sr-only">' . $e($verb) . ': ' . $e($title) . '</span></button></form>';
@@ -44,7 +61,7 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
             <?= help_button('help-footer') ?>
         </div>
         <p class="muted help" id="help-footer">
-            <?= $e(t('{n} of {total} pages are linked in the footer.', ['n' => count($linked), 'total' => count($linked) + count($available)])) ?>
+            <?= $e(t('{n} of {total} pages are linked in the footer.', ['n' => $linkedTotal, 'total' => $linkedTotal + $availableTotal])) ?>
             <?= $e(t('Move pages with the arrows: to the right into the footer, to the left out of it. On the right, drag a row or use its arrows to change the order.')) ?>
             <?= $e(t('Below the links stands your own line – credits, a link to your site.')) ?>
         </p>
@@ -61,7 +78,7 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
     <section class="picker__col" aria-labelledby="picker-pages">
         <div class="picker__head">
             <h2 id="picker-pages"><?= $e(t('Pages')) ?></h2>
-            <span class="muted"><?= $e(tn('{n} page available', '{n} pages available', count($available))) ?></span>
+            <span class="muted"><?= $e(tn('{n} page available', '{n} pages available', $availableTotal)) ?></span>
         </div>
 
         <?php if ($available === []): ?>
@@ -83,29 +100,42 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
                     </tbody>
                 </table>
             </div>
+
+            <?php
+            $pageUrl = static fn (int $page): string => $address($page, $linkedPageNo);
+            require __DIR__ . '/_pager.php';
+            ?>
         <?php endif; ?>
     </section>
 
     <section class="picker__col" aria-labelledby="picker-footer">
         <div class="picker__head">
             <h2 id="picker-footer"><?= $e(t('Footer')) ?></h2>
-            <span class="muted"><?= $e(tn('{n} page linked', '{n} pages linked', count($linked))) ?></span>
+            <span class="muted"><?= $e(tn('{n} page linked', '{n} pages linked', $linkedTotal)) ?></span>
         </div>
 
         <?php if ($linked === []): ?>
             <p class="empty"><?= $e(t('Nothing yet – the footer stays empty until a page is moved here.')) ?></p>
         <?php else: ?>
             <div class="table-wrap">
+                <?php /* One page of the footer: app.js numbers the rows and disables the
+                         end moves by the whole list (data-reorder-offset/-total), a drag
+                         posts this page's ids and the server places them where these
+                         pages stood. */ ?>
                 <table class="grid grid--picker grid--picker--room grid--picker--footer"
                        data-reorder data-reorder-action="footer_reorder" data-csrf="<?= $e($csrf) ?>"
+                       data-reorder-offset="<?= (int) $linkedOffset ?>" data-reorder-total="<?= (int) $linkedTotal ?>"
                        data-msg-saved="<?= $e(t('Order saved.')) ?>"
                        data-msg-failed="<?= $e(t('The order could not be saved.')) ?>"
                        data-msg-offline="<?= $e(t('The order could not be saved – please reload the page.')) ?>">
                     <caption class="sr-only"><?= $e(t('Footer links in their order, changeable by drag & drop or arrow buttons')) ?></caption>
                     <thead><tr><th scope="col"><span class="sr-only"><?= $e(t('Remove')) ?></span></th><th scope="col"><?= $e(t('No.')) ?></th><th scope="col"><?= $e(t('Title')) ?></th><th scope="col"><?= $e(t('Address')) ?></th><th scope="col"><span class="sr-only"><?= $e(t('Order')) ?></span></th></tr></thead>
                     <tbody>
-                    <?php foreach ($linked as $index => $row): ?>
-                        <?php $title = (string) $row['title']; ?>
+                    <?php foreach ($linked as $i => $row): ?>
+                        <?php
+                        $title = (string) $row['title'];
+                        $index = $linkedOffset + $i;   // rank in the whole footer, from 0
+                        ?>
                         <tr data-id="<?= (int) $row['id'] ?>" draggable="true">
                             <td class="cell-action"><?= $across('footer_remove', (int) $row['id'], 'arrow-left', t('Remove'), $title, 'arrow-button arrow-button--remove') ?></td>
                             <td class="cell-rank">
@@ -132,6 +162,7 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
                                         <form method="post" action="<?= $e(url()) ?>" class="move__<?= $dir ?>">
                                             <input type="hidden" name="a" value="footer_move">
                                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                                            <input type="hidden" name="back" value="<?= $e($current) ?>">
                                             <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                             <input type="hidden" name="dir" value="<?= $dir ?>">
                                             <button type="submit" class="move-button" data-move="<?= $dir ?>" title="<?= $e($text) ?>"<?= $disabled ? ' disabled' : '' ?>>
@@ -148,6 +179,14 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
                     </tbody>
                 </table>
             </div>
+
+            <?php
+            // The pager partial reads $pageNo and $pages: the footer column's
+            // values step in for them; nothing below needs the left column's.
+            $pageUrl = static fn (int $page): string => $address($pageNo, $page);
+            [$pageNo, $pages] = [$linkedPageNo, $linkedPages];
+            require __DIR__ . '/_pager.php';
+            ?>
         <?php endif; ?>
     </section>
 </div>

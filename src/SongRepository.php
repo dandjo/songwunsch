@@ -13,9 +13,9 @@ use RuntimeException;
  * Columns: id, artist, title, length_sec (seconds, NULL = unknown), genre.
  * All values go through placeholders; identifiers are fixed in the code.
  *
- * `songs` is the master list. A room (RoomRepository) offers a selection of
+ * `songs` is the main list. A room (RoomRepository) offers a selection of
  * it: reading methods take a room id, 0 (the default room) means the whole
- * master list, anything else joins `room_songs`.
+ * main list, anything else joins `room_songs`.
  */
 final class SongRepository
 {
@@ -45,7 +45,7 @@ final class SongRepository
     }
 
     /**
-     * @param int $roomId 0 = master list, otherwise only the room's selection
+     * @param int $roomId 0 = main list, otherwise only the room's selection
      * @return array{rows: array<int,array<string,mixed>>, total: int}
      */
     public function search(string $query, string $sort, string $dir, int $page, int $perPage, int $roomId = 0): array
@@ -68,7 +68,7 @@ final class SongRepository
     }
 
     /**
-     * Master songs that are NOT in the given room -- the left column of the
+     * Main-list songs that are NOT in the given room -- the left column of the
      * room's song picker.
      *
      * @return array{rows: array<int,array<string,mixed>>, total: int}
@@ -94,7 +94,7 @@ final class SongRepository
     }
 
     /**
-     * Ids of every master song matching the query -- for "add all found".
+     * Ids of every main-list song matching the query -- for "add all found".
      *
      * @return array<int,int>
      */
@@ -106,7 +106,7 @@ final class SongRepository
         return array_map(static fn (array $row): int => (int) $row['id'], $rows);
     }
 
-    /** Number of songs in the master list (0) or in a room. */
+    /** Number of songs in the main list (0) or in a room. */
     public function count(int $roomId = 0): int
     {
         [$join, $params] = $this->roomJoin($roomId);
@@ -114,7 +114,7 @@ final class SongRepository
         return (int) ($this->db->one('SELECT COUNT(*) AS c FROM `' . self::TABLE . "` s {$join}", $params)['c'] ?? 0);
     }
 
-    /** @param int $roomId 0 = master list; otherwise the song must be in the room */
+    /** @param int $roomId 0 = main list; otherwise the song must be in the room */
     public function find(int $id, int $roomId = 0): ?array
     {
         if ($id <= 0) {
@@ -127,7 +127,7 @@ final class SongRepository
     }
 
     /**
-     * Is this song already in the master list? Compared case-insensitively
+     * Is this song already in the main list? Compared case-insensitively
      * through the table's collation -- used to tell a guest their suggestion
      * is already there to be wished for.
      */
@@ -244,7 +244,7 @@ final class SongRepository
     }
 
     /**
-     * JOIN that narrows the master list down to a room's selection.
+     * JOIN that narrows the main list down to a room's selection.
      *
      * @return array{0:string,1:array<int,int>}
      */

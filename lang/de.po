@@ -587,8 +587,8 @@ msgid_plural "{n} rooms besides “General”."
 msgstr[0] "Ein Raum neben „Allgemein“."
 msgstr[1] "{n} Räume neben „Allgemein“."
 
-msgid "Every room has its own repertoire, picked from the master list, and its own wish list."
-msgstr "Jeder Raum hat ein eigenes Repertoire, zusammengestellt aus der Master-Liste, und eine eigene Wunschliste."
+msgid "Every room has its own repertoire, picked from the main list, and its own wish list."
+msgstr "Jeder Raum hat ein eigenes Repertoire, zusammengestellt aus der Hauptliste, und eine eigene Wunschliste."
 
 msgid "Rooms with their number of songs"
 msgstr "Räume mit ihrer Anzahl an Songs"
@@ -599,8 +599,8 @@ msgstr "Raum anlegen"
 msgid "Edit room"
 msgstr "Raum bearbeiten"
 
-msgid "A room gets its own address, its own repertoire picked from the master list and its own wish list."
-msgstr "Ein Raum bekommt eine eigene Adresse, ein eigenes Repertoire aus der Master-Liste und eine eigene Wunschliste."
+msgid "A room gets its own address, its own repertoire picked from the main list and its own wish list."
+msgstr "Ein Raum bekommt eine eigene Adresse, ein eigenes Repertoire aus der Hauptliste und eine eigene Wunschliste."
 
 msgid "Changing the machine name changes the address – links already handed out stop working."
 msgstr "Ein geänderter Maschinenname ändert die Adresse – bereits verteilte Links funktionieren dann nicht mehr."
@@ -629,8 +629,8 @@ msgstr "Dieser Maschinenname ist schon vergeben."
 msgid "This room was not found."
 msgstr "Dieser Raum wurde nicht gefunden."
 
-msgid "Room “{name}” has been created. Now pick its songs from the master list."
-msgstr "Raum „{name}“ wurde angelegt. Jetzt die Songs aus der Master-Liste auswählen."
+msgid "Room “{name}” has been created. Now pick its songs from the main list."
+msgstr "Raum „{name}“ wurde angelegt. Jetzt die Songs aus der Hauptliste auswählen."
 
 msgid "Room “{name}” has been saved."
 msgstr "Raum „{name}“ wurde gespeichert."
@@ -644,8 +644,8 @@ msgstr "Raum „{name}“ samt seinen Wünschen endgültig löschen?"
 msgid "“General” always offers the whole repertoire."
 msgstr "„Allgemein“ bietet immer das gesamte Repertoire."
 
-msgid "Manage the room: pick its songs from the master list."
-msgstr "Raum verwalten: Songs aus der Master-Liste auswählen."
+msgid "Manage the room: pick its songs from the main list."
+msgstr "Raum verwalten: Songs aus der Hauptliste auswählen."
 
 msgid "This room has no songs yet."
 msgstr "Dieser Raum hat noch keine Songs."
@@ -687,17 +687,17 @@ msgstr "{n} von {total} Songs sind im Raum."
 msgid "Move songs with the arrows: to the right into the room, to the left out of it. The search filters both columns."
 msgstr "Songs mit den Pfeilen verschieben: nach rechts in den Raum, nach links wieder heraus. Die Suche filtert beide Spalten."
 
-msgid "Master list"
-msgstr "Master-Liste"
+msgid "Main list"
+msgstr "Hauptliste"
 
-msgid "Master list: songs not yet in the room"
-msgstr "Master-Liste: Songs, die noch nicht im Raum sind"
+msgid "Main list: songs not yet in the room"
+msgstr "Hauptliste: Songs, die noch nicht im Raum sind"
 
 msgid "Songs in the room"
 msgstr "Songs im Raum"
 
-msgid "Every song of the master list is in the room."
-msgstr "Alle Songs der Master-Liste sind im Raum."
+msgid "Every song of the main list is in the room."
+msgstr "Alle Songs der Hauptliste sind im Raum."
 
 msgid "Add all {n}"
 msgstr "Alle {n} aufnehmen"
@@ -1603,7 +1603,7 @@ msgstr "In derselben Browser-Sitzung – eine Bremse gegen Doppelklicks."
 msgid "Open suggestions"
 msgstr "Offene Vorschläge"
 
-msgid "For the whole site; the suggestions aim at the master list. The box is full at this many open suggestions."
+msgid "For the whole site; the suggestions aim at the main list. The box is full at this many open suggestions."
 msgstr "Für die ganze Seite; die Vorschläge zielen auf die Stammliste. Bei so vielen offenen Vorschlägen ist der Briefkasten voll."
 
 msgid "Seconds between two suggestions"

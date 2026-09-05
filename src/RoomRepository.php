@@ -9,9 +9,9 @@ use RuntimeException;
 /**
  * Rooms: a capsule of song list and wish list. The `rooms` table holds the
  * machine name (slug, part of the address) and the display name; `room_songs`
- * says which songs of the master list a room offers.
+ * says which songs of the main list a room offers.
  *
- * The default room is virtual: id 0, no row, the master list itself. It is
+ * The default room is virtual: id 0, no row, the main list itself. It is
  * what / and /wishes show and is always there. Wishes carry room_id 0 for it.
  *
  * Two switches per room: `active` (archived rooms leave the switcher and the
@@ -321,7 +321,7 @@ final class RoomRepository
         try {
             $this->db->exec('DELETE FROM ' . self::SONGS . ' WHERE room_id = ?', [$id]);
             $this->db->exec('DELETE FROM `' . Schema::WISHES . '` WHERE room_id = ?', [$id]);
-            // Suggestions made in the room stay -- they aim at the master
+            // Suggestions made in the room stay -- they aim at the main
             // list anyway -- and fall back to the main room.
             $this->db->exec('UPDATE `' . Schema::SUGGESTIONS . '` SET room_id = 0 WHERE room_id = ?', [$id]);
             $removed = $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE id = ? LIMIT 1', [$id]);
@@ -337,8 +337,8 @@ final class RoomRepository
     // ---- Song selection ---------------------------------------------------
 
     /**
-     * Add songs of the master list to a room. Ids already in the room or not
-     * in the master list are skipped.
+     * Add songs of the main list to a room. Ids already in the room or not
+     * in the main list are skipped.
      *
      * @param  array<int,int> $songIds
      * @return int number of songs added
@@ -376,7 +376,7 @@ final class RoomRepository
         );
     }
 
-    /** Remove a song from every room -- when it leaves the master list. */
+    /** Remove a song from every room -- when it leaves the main list. */
     public function removeSongEverywhere(int $songId): void
     {
         $this->db->exec('DELETE FROM ' . self::SONGS . ' WHERE song_id = ?', [$songId]);

@@ -24,7 +24,7 @@ declare(strict_types=1);
  *   /rooms/<slug>          a room's song list  -- same page as /, in the room
  *   /rooms/<slug>/wishes   a room's wish list  -- same page as /wishes
  *   /rooms/<slug>/suggestions  suggest from inside the room: the adopted song joins it
- *   /rooms/<slug>/manage   pick the room's songs from the master list (editor)
+ *   /rooms/<slug>/manage   pick the room's songs from the main list (editor)
  *   /rooms/<slug>/qr       the room's address as a QR code (editor): page, /qr.svg, /qr.png; /rooms/main/qr for the main room
  * Actions (POST to any of these): wish | suggest | login | logout | name_save | name_skip
  *                  | room_switch (explicit change of room, clears the memory for the main room)
@@ -444,11 +444,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id = (int) ($_POST['id'] ?? 0);
                 if ($id > 0 && $uploads->info($id) === null) {
                     flash('error', t('This logo was not found.'));
-                    redirect(url(['p' => 'logos']));
+                    redirect(back(url(['p' => 'logos'])));
                 }
                 $settings->set(Settings::LOGO_ID, (string) $id);
                 flash('ok', $id > 0 ? t('The header shows this logo now.') : t('The header shows the word mark again.'));
-                redirect(url(['p' => 'logos']));
+                redirect(back(url(['p' => 'logos'])));
                 // no break
 
             case 'logo_delete':
@@ -456,7 +456,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id = (int) ($_POST['id'] ?? 0);
                 if (!$uploads->delete($id)) {
                     flash('error', t('This logo was not found.'));
-                    redirect(url(['p' => 'logos']));
+                    redirect(back(url(['p' => 'logos'])));
                 }
                 if ((int) $settings->get(Settings::LOGO_ID, '0') === $id) {
                     $settings->delete(Settings::LOGO_ID); // no logo: no entry, the reads default to 0
@@ -464,7 +464,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     flash('ok', t('The logo has been deleted.'));
                 }
-                redirect(url(['p' => 'logos']));
+                redirect(back(url(['p' => 'logos'])));
                 // no break
 
             case 'page_save':
@@ -538,7 +538,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     flash('error', t('Deleting was not possible.'));
                 }
-                redirect(url(['p' => 'pages']));
+                redirect(back(url(['p' => 'pages'])));
                 // no break
 
             // ---- The languages (admins) ------------------------------------
@@ -594,7 +594,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pageRepo->addToFooter((int) $target['id']);
                     flash('ok', t('“{title}” is linked in the footer now.', ['title' => (string) $target['title']]));
                 }
-                redirect(url(['p' => 'footer']));
+                redirect(back(url(['p' => 'footer'])));
                 // no break
 
             case 'footer_remove':
@@ -607,7 +607,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pageRepo->removeFromFooter((int) $target['id']);
                     flash('ok', t('“{title}” is no longer linked in the footer. It stays reachable under its address.', ['title' => (string) $target['title']]));
                 }
-                redirect(url(['p' => 'footer']));
+                redirect(back(url(['p' => 'footer'])));
                 // no break
 
             case 'footer_move':
@@ -616,7 +616,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 require_role($security, 'users');
                 $dir = (string) ($_POST['dir'] ?? 'up');
                 $pageRepo->moveInFooter((int) ($_POST['id'] ?? 0), in_array($dir, ['up', 'down', 'top', 'bottom'], true) ? $dir : 'up');
-                redirect(url(['p' => 'footer']));
+                redirect(back(url(['p' => 'footer'])));
                 // no break
 
             case 'footer_reorder':
@@ -635,7 +635,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flash($count > 0 ? 'ok' : 'error', $count > 0
                     ? t('Order saved.')
                     : t('The order could not be saved.'));
-                redirect(url(['p' => 'footer']));
+                redirect(back(url(['p' => 'footer'])));
                 // no break
 
             case 'password_save':
@@ -1226,7 +1226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // A new room is empty: the way leads on to its song
                     // selection, not back -- the only save that does not.
                     // The destination travels along: Back there leads home.
-                    flash('ok', t('Room “{name}” has been created. Now pick its songs from the master list.', ['name' => $checked['values']['name']]));
+                    flash('ok', t('Room “{name}” has been created. Now pick its songs from the main list.', ['name' => $checked['values']['name']]));
                     redirect(url(['p' => 'room_songs', 'room' => $checked['values']['slug'], 'back' => $back]));
                 }
 
@@ -1258,7 +1258,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'room_songs_add':
             case 'room_songs_remove':
                 // Pick a room's songs: single ids in key[] or, with all=1,
-                // every master song matching the search q.
+                // every main-list song matching the search q.
                 require_role($security, 'rooms');
                 if ($roomId === RoomRepository::DEFAULT_ID) {
                     flash('error', t('“General” always offers the whole repertoire.'));
@@ -1361,7 +1361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     flash('error', t('Deleting was not possible.'));
                 }
-                redirect(url(['p' => 'users']));
+                redirect(back(url(['p' => 'users'])));
                 // no break
 
             default:
@@ -1519,9 +1519,15 @@ try {
             // Admins only: every uploaded logo, one of them live.
             require_role($security, 'users');
 
+            $perPage = $limits->get('per_page');
+            $result  = paged(static fn (int $page): array => $uploads->page(Uploads::LOGO, $page, $perPage), (int) ($_GET['page'] ?? 1), $perPage);
+
             $view['title']    = t('Logos');
             $view['template'] = 'logos';
-            $view['logos']    = $uploads->all(Uploads::LOGO);
+            $view['logos']    = $result['rows'];
+            $view['total']    = $result['total'];
+            $view['pageNo']   = $result['page'];
+            $view['pages']    = $result['pages'];
             $view['activeId'] = $logoId;
             break;
 
@@ -1553,12 +1559,19 @@ try {
             // Admins only: every page, with a mark on the ones the footer links.
             require_role($security, 'users');
 
-            $q = trim((string) ($_GET['q'] ?? ''));
+            $q       = trim((string) ($_GET['q'] ?? ''));
+            $perPage = $limits->get('per_page');
+            // Sorted by title in the reader's language, so the page is cut
+            // out of the complete list.
+            $result  = paged_slice($pageRepo->all($q), (int) ($_GET['page'] ?? 1), $perPage);
 
             $view['title']     = t('Pages');
             $view['template']  = 'pages';
             $view['q']         = $q;
-            $view['rows']      = $pageRepo->all($q);
+            $view['rows']      = $result['rows'];
+            $view['total']     = $result['total'];
+            $view['pageNo']    = $result['page'];
+            $view['pages']     = $result['pages'];
             $view['languages'] = $translator->available();   // code => native name
             $view['order']     = $pageRepo->languageOrder();    // the fallback order, codes
             break;
@@ -1583,11 +1596,25 @@ try {
 
             $footerTexts = $pageRepo->footerLines();
             $languages   = $translator->available();
+            $perPage     = $limits->get('per_page');
+            // Each column paged on its own: 'page' the pages outside the
+            // footer (left), 'rpage' the footer itself (right).
+            // Local names differ from the view keys: extract() below skips
+            // variables that already exist.
+            $outside     = paged_slice($pageRepo->outsideFooter(), (int) ($_GET['page'] ?? 1), $perPage);
+            $inFooter    = paged_slice($pageRepo->inFooter(), (int) ($_GET['rpage'] ?? 1), $perPage);
 
-            $view['title']       = t('Footer');
-            $view['template']    = 'footer';
-            $view['linked']      = $pageRepo->inFooter();
-            $view['available']   = $pageRepo->outsideFooter();
+            $view['title']          = t('Footer');
+            $view['template']       = 'footer';
+            $view['linked']         = $inFooter['rows'];
+            $view['linkedTotal']    = $inFooter['total'];
+            $view['linkedPageNo']   = $inFooter['page'];
+            $view['linkedPages']    = $inFooter['pages'];
+            $view['linkedOffset']   = ($inFooter['page'] - 1) * $perPage;
+            $view['available']      = $outside['rows'];
+            $view['availableTotal'] = $outside['total'];
+            $view['pageNo']         = $outside['page'];
+            $view['pages']          = $outside['pages'];
             $view['footerTexts'] = $footerTexts;                 // code => cleaned HTML, the languages with a line
             $view['languages']   = $languages;                   // code => native name, the tabs
             // The tab to start on: the interface language's, or the first that has a line.
@@ -1674,14 +1701,20 @@ try {
             $canEdit = $security->can('wishes');
             $sort    = $canEdit ? (string) ($_GET['sort'] ?? 'manual') : 'manual';
             $dir     = $canEdit ? (string) ($_GET['dir'] ?? 'asc') : 'asc';
+            $perPage = $limits->get('per_page');
+            $result  = paged(static fn (int $page): array => $wishes->page($sort, $dir, $page, $perPage), (int) ($_GET['page'] ?? 1), $perPage);
 
             $view['title']     = t('Wish list');
             $view['template']  = 'wishes';
             $view['canEdit']   = $canEdit;
-            $view['rows']      = $wishes->all($sort, $dir);
+            $view['rows']      = $result['rows'];
+            $view['total']     = $result['total'];
+            $view['pageNo']    = $result['page'];
+            $view['pages']     = $result['pages'];
+            $view['offset']    = ($result['page'] - 1) * $perPage;   // rank of the first row, minus one
             $view['sort']      = array_key_exists($sort, $wishes->sortableFields()) ? $sort : 'manual';
             $view['dir']       = strtolower($dir) === 'desc' ? 'desc' : 'asc';
-            $view['wishCount'] = count($view['rows']);
+            $view['wishCount'] = $result['total'];
             break;
 
         case 'song':
@@ -1797,12 +1830,17 @@ try {
         case 'users':
             require_role($security, 'users');
 
-            $q = trim((string) ($_GET['q'] ?? ''));
+            $q       = trim((string) ($_GET['q'] ?? ''));
+            $perPage = $limits->get('per_page');
+            $result  = paged(static fn (int $page): array => $users->page($q, $page, $perPage), (int) ($_GET['page'] ?? 1), $perPage);
 
             $view['title']    = t('Users');
             $view['template'] = 'users';
             $view['q']        = $q;
-            $view['rows']     = $users->all($q);
+            $view['rows']     = $result['rows'];
+            $view['total']    = $result['total'];
+            $view['pageNo']   = $result['page'];
+            $view['pages']    = $result['pages'];
             $view['selfId']   = (int) $security->user()['id'];
             break;
 
@@ -1880,8 +1918,8 @@ try {
                     $view['pausedRooms'][$id] = $guard->pausedIn($id);
                 }
             }
-            $view['masterSongs']  = $songs->count();
-            $view['masterWishes'] = (new WishRepository($db))->count();
+            $view['mainSongs']  = $songs->count();
+            $view['mainWishes'] = (new WishRepository($db))->count();
             break;
 
         case 'room':
@@ -1979,27 +2017,29 @@ try {
             $sort    = (string) ($_GET['sort'] ?? 'artist');
             $dir     = (string) ($_GET['dir'] ?? 'asc');
             $q       = trim((string) ($_GET['q'] ?? ''));
-            $pageNo  = max(1, (int) ($_GET['page'] ?? 1));
 
-            // Two columns: left the master songs not yet in the room (paged),
-            // right the room's songs; one search filters both.
+            // Two columns: left the main-list songs not yet in the room,
+            // right the room's songs; one search filters both, each column
+            // is paged on its own ('page' left, 'rpage' right).
             // Local names differ from the view keys: extract() below skips
             // variables that already exist.
-            $availableResult = $songs->searchAvailable($q, $sort, $dir, $pageNo, $perPage, $roomId);
-            $roomResult      = $songs->search($q, $sort, $dir, 1, 1000, $roomId);
+            $availableResult = paged(static fn (int $page): array => $songs->searchAvailable($q, $sort, $dir, $page, $perPage, $roomId), (int) ($_GET['page'] ?? 1), $perPage);
+            $roomResult      = paged(static fn (int $page): array => $songs->search($q, $sort, $dir, $page, $perPage, $roomId), (int) ($_GET['rpage'] ?? 1), $perPage);
 
-            $view['title']         = t('Songs of the room');
-            $view['template']      = 'room_songs';
-            $view['back']          = destination(url(['p' => 'songs']));
-            $view['available']     = $availableResult['rows'];
+            $view['title']          = t('Songs of the room');
+            $view['template']       = 'room_songs';
+            $view['back']           = destination(url(['p' => 'songs']));
+            $view['available']      = $availableResult['rows'];
             $view['availableTotal'] = $availableResult['total'];
-            $view['roomRows']      = $roomResult['rows'];
-            $view['roomTotal']     = $roomResult['total'];
-            $view['roomSongCount'] = $songs->count($roomId);
-            $view['masterCount']   = $songs->count();
-            $view['q']             = $q;
-            $view['pageNo']        = $pageNo;
-            $view['pages']         = max(1, (int) ceil($availableResult['total'] / $perPage));
+            $view['pageNo']         = $availableResult['page'];
+            $view['pages']          = $availableResult['pages'];
+            $view['roomRows']       = $roomResult['rows'];
+            $view['roomTotal']      = $roomResult['total'];
+            $view['roomPageNo']     = $roomResult['page'];
+            $view['roomPages']      = $roomResult['pages'];
+            $view['roomSongCount']  = $songs->count($roomId);
+            $view['mainCount']      = $songs->count();
+            $view['q']              = $q;
             break;
 
         case 'songs':

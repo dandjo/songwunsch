@@ -27,7 +27,7 @@ $groups = [
         'wish_min_form_sec' => [t('Seconds after the page load'),     t('A wish or suggestion sent sooner than this after the page was loaded is rejected – scripts are that fast, people are not.')],
     ]],
     [t('Suggesting'), [
-        'suggestion_max_open'     => [t('Open suggestions'),                t('For the whole site; the suggestions aim at the master list. The box is full at this many open suggestions.')],
+        'suggestion_max_open'     => [t('Open suggestions'),                t('For the whole site; the suggestions aim at the main list. The box is full at this many open suggestions.')],
         'suggestion_cooldown_sec' => [t('Seconds between two suggestions'), t('In the same browser session.')],
     ]],
     [t('Lists'), [

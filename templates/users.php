@@ -5,12 +5,17 @@ declare(strict_types=1);
 use Songwunsch\Format;
 use Songwunsch\UserRepository;
 
-/** @var array<int,array<string,mixed>> $rows  the users, or those matching the search */
+/** @var array<int,array<string,mixed>> $rows  one page of the users, or of those matching the search */
+/** @var int $total   all of them */
+/** @var int $pageNo */
+/** @var int $pages */
 /** @var string $q       the search, '' for all */
 /** @var int $selfId  id of the signed-in admin */
 /** @var string $csrf */
 
 $e = static fn (?string $v): string => Format::e($v);
+// This list with its search and page: where the forms lead back to.
+$current = url(['p' => 'users', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
 ?>
 
 <div class="panel__head">
@@ -20,7 +25,7 @@ $e = static fn (?string $v): string => Format::e($v);
             <?= help_button('help-users') ?>
         </div>
         <p class="muted help" id="help-users">
-            <?= $e($q !== '' ? tn('{n} user found.', '{n} users found.', count($rows)) : tn('{n} user.', '{n} users.', count($rows))) ?>
+            <?= $e($q !== '' ? tn('{n} user found.', '{n} users found.', $total) : tn('{n} user.', '{n} users.', $total)) ?>
             <?= t('{editor} maintains the repertoire, {moderator} the wish list; {admin} manages users, hands out every role and may do everything. Roles can be combined; at least one active admin always remains.', [
                 'editor'    => '<strong>' . $e(t('Editor', [], 'role')) . '</strong>',
                 'moderator' => '<strong>' . $e(t('Moderator', [], 'role')) . '</strong>',
@@ -30,7 +35,7 @@ $e = static fn (?string $v): string => Format::e($v);
     </div>
 
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url(['p' => 'user', 'back' => url(['p' => 'users', 'q' => $q])])) ?>"><?= icon('plus') ?><?= $e(t('Add user')) ?></a>
+        <a class="link-button" href="<?= $e(url(['p' => 'user', 'back' => $current])) ?>"><?= icon('plus') ?><?= $e(t('Add user')) ?></a>
     </div>
 </div>
 
@@ -91,7 +96,7 @@ $e = static fn (?string $v): string => Format::e($v);
                 <td class="cell-action">
                     <div class="row-actions">
                         <div class="row-actions__pair">
-                            <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url(['p' => 'user', 'id' => (int) $row['id'], 'back' => url(['p' => 'users', 'q' => $q])])) ?>">
+                            <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url(['p' => 'user', 'id' => (int) $row['id'], 'back' => $current])) ?>">
                                 <?= icon('pencil') ?>
                                 <span class="button__label"><?= $e(t('Edit')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['username']) ?></span>
@@ -101,6 +106,7 @@ $e = static fn (?string $v): string => Format::e($v);
                                       data-confirm="<?= $e(t('Permanently delete user “{name}”?', ['name' => (string) $row['username']])) ?>">
                                     <input type="hidden" name="a" value="user_delete">
                                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                                    <input type="hidden" name="back" value="<?= $e($current) ?>">
                                     <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                     <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                         <?= icon('trash') ?>
@@ -117,4 +123,9 @@ $e = static fn (?string $v): string => Format::e($v);
         </tbody>
     </table>
 </div>
+
+<?php
+$pageUrl = static fn (int $page): string => url(['p' => 'users', 'q' => $q, 'page' => $page > 1 ? $page : null]);
+require __DIR__ . '/_pager.php';
+?>
 <?php endif; ?>

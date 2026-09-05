@@ -11,8 +11,11 @@ use Songwunsch\Format;
  * order of the languages, which the chips follow, under Administration ->
  * Languages.
  *
- * @var array<int,array<string,mixed>> $rows  the pages by title, or those matching the search;
+ * @var array<int,array<string,mixed>> $rows  one page of the pages by title, or of those matching the search;
  *                                            each with title, lang (of that title) and languages (codes)
+ * @var int $total                             all of them
+ * @var int $pageNo
+ * @var int $pages
  * @var string $q                              the search, '' for all
  * @var string $csrf
  * @var array<string,string> $languages        code => native name
@@ -21,6 +24,8 @@ use Songwunsch\Format;
 
 $e    = static fn (?string $v): string => Format::e($v);
 $name = static fn (string $code): string => $languages[$code] ?? strtoupper($code);
+// This list with its search and page: where the forms lead back to.
+$current = url(['p' => 'pages', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
 ?>
 
 <div class="panel__head">
@@ -30,7 +35,7 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
             <?= help_button('help-pages') ?>
         </div>
         <p class="muted help" id="help-pages">
-            <?= $e($q !== '' ? tn('{n} page found.', '{n} pages found.', count($rows)) : tn('{n} page.', '{n} pages.', count($rows))) ?>
+            <?= $e($q !== '' ? tn('{n} page found.', '{n} pages found.', $total) : tn('{n} page.', '{n} pages.', $total)) ?>
             <?= t('Every page is open to everyone under its address and may link to any other – for an imprint, FAQs or a privacy notice. Which pages the footer links, and in which order, is set under {footer}; the order of the language chips is the fallback order set under {languages}.', [
                 'footer'    => '<a href="' . $e(url(['p' => 'footer'])) . '">' . $e(t('Footer')) . '</a>',
                 'languages' => '<a href="' . $e(url(['p' => 'languages'])) . '">' . $e(t('Languages')) . '</a>',
@@ -39,7 +44,7 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
     </div>
 
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url(['p' => 'page_edit', 'back' => url(['p' => 'pages', 'q' => $q])])) ?>"><?= icon('plus') ?><?= $e(t('Add page')) ?></a>
+        <a class="link-button" href="<?= $e(url(['p' => 'page_edit', 'back' => $current])) ?>"><?= icon('plus') ?><?= $e(t('Add page')) ?></a>
     </div>
 </div>
 
@@ -71,12 +76,12 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
         <?php foreach ($rows as $row): ?>
             <?php
             $title   = (string) $row['title'];
-            $pageUrl = url(['p' => 'page', 'slug' => (string) $row['slug']]);
-            $editUrl = url(['p' => 'page_edit', 'id' => (int) $row['id'], 'back' => url(['p' => 'pages', 'q' => $q])]);
+            $address = url(['p' => 'page', 'slug' => (string) $row['slug']]);
+            $editUrl = url(['p' => 'page_edit', 'id' => (int) $row['id'], 'back' => $current]);
             ?>
             <tr>
                 <td class="cell-title"<?= (string) $row['lang'] !== $translator->code() ? ' lang="' . $e((string) $row['lang']) . '"' : '' ?>><?= $e($title) ?></td>
-                <td class="cell-genre"><a class="address" href="<?= $e($pageUrl) ?>"><?= $e($pageUrl) ?></a></td>
+                <td class="cell-genre"><a class="address" href="<?= $e($address) ?>"><?= $e($address) ?></a></td>
                 <?php /* One chip per language of the menu, in the fallback order:
                          filled where the page has that language, dashed where
                          not. Each leads to that language's tab of the form. */ ?>
@@ -100,6 +105,7 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
                                   data-confirm="<?= $e(t('Permanently delete page “{title}”?', ['title' => $title])) ?>">
                                 <input type="hidden" name="a" value="page_delete">
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                                <input type="hidden" name="back" value="<?= $e($current) ?>">
                                 <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                 <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                     <?= icon('trash') ?>
@@ -115,4 +121,9 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
         </tbody>
     </table>
 </div>
+
+<?php
+$pageUrl = static fn (int $page): string => url(['p' => 'pages', 'q' => $q, 'page' => $page > 1 ? $page : null]);
+require __DIR__ . '/_pager.php';
+?>
 <?php endif; ?>

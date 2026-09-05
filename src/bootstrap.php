@@ -398,6 +398,50 @@ function destination(string $fallback): string
 }
 
 /**
+ * Paging for a list a repository fetches page by page: $fetch(page) returns
+ * ['rows' => ..., 'total' => ...]. The number of pages follows from the
+ * total; a page beyond the last (the last entry of a page was just moved or
+ * deleted, an old address) falls back to the last page, so nobody stands on
+ * an empty page with a pager that says "Page 4 of 3".
+ *
+ * @param callable(int): array{rows: array<int,mixed>, total: int} $fetch
+ * @return array{rows: array<int,mixed>, total: int, page: int, pages: int}
+ */
+function paged(callable $fetch, int $pageNo, int $perPage): array
+{
+    $pageNo  = max(1, $pageNo);
+    $perPage = max(1, $perPage);
+    $result  = $fetch($pageNo);
+    $pages   = max(1, (int) ceil($result['total'] / $perPage));
+
+    if ($pageNo > $pages) {
+        $pageNo = $pages;
+        $result = $fetch($pageNo);
+    }
+
+    return ['rows' => $result['rows'], 'total' => $result['total'], 'page' => $pageNo, 'pages' => $pages];
+}
+
+/**
+ * The same for a list that is complete and sorted in PHP already (the pages,
+ * whose order depends on the reader's language): one page cut out of it.
+ *
+ * @param array<int,mixed> $rows
+ * @return array{rows: array<int,mixed>, total: int, page: int, pages: int}
+ */
+function paged_slice(array $rows, int $pageNo, int $perPage): array
+{
+    $perPage = max(1, $perPage);
+    $total   = count($rows);
+
+    return paged(
+        static fn (int $page): array => ['rows' => array_slice($rows, ($page - 1) * $perPage, $perPage), 'total' => $total],
+        $pageNo,
+        $perPage,
+    );
+}
+
+/**
  * Carry input and errors across the redirect. After post/redirect/get the
  * form is rebuilt and should show both again instead of making the user type
  * everything once more.

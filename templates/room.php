@@ -42,7 +42,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
             <?php if ($main): ?>
                 <?= $e(t('“General” is always there and lives at the root address; only its name can change. Leave the field empty for the default name.')) ?>
             <?php elseif ($isNew): ?>
-                <?= $e(t('A room gets its own address, its own repertoire picked from the master list and its own wish list.')) ?>
+                <?= $e(t('A room gets its own address, its own repertoire picked from the main list and its own wish list.')) ?>
             <?php else: ?>
                 <?= $e(t('Changing the machine name changes the address – links already handed out stop working.')) ?>
             <?php endif; ?>

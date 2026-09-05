@@ -583,7 +583,7 @@ msgid_plural "{n} rooms besides “General”."
 msgstr[0] "Une salle en plus de « Général »."
 msgstr[1] "{n} salles en plus de « Général »."
 
-msgid "Every room has its own repertoire, picked from the master list, and its own wish list."
+msgid "Every room has its own repertoire, picked from the main list, and its own wish list."
 msgstr "Chaque salle a sa propre liste de morceaux, choisie dans la liste principale, et sa propre liste de souhaits."
 
 msgid "Rooms with their number of songs"
@@ -595,7 +595,7 @@ msgstr "Créer une salle"
 msgid "Edit room"
 msgstr "Modifier la salle"
 
-msgid "A room gets its own address, its own repertoire picked from the master list and its own wish list."
+msgid "A room gets its own address, its own repertoire picked from the main list and its own wish list."
 msgstr "Une salle reçoit sa propre adresse, sa propre liste de morceaux choisie dans la liste principale et sa propre liste de souhaits."
 
 msgid "Changing the machine name changes the address – links already handed out stop working."
@@ -625,7 +625,7 @@ msgstr "Ce nom machine est déjà pris."
 msgid "This room was not found."
 msgstr "Cette salle n’a pas été trouvée."
 
-msgid "Room “{name}” has been created. Now pick its songs from the master list."
+msgid "Room “{name}” has been created. Now pick its songs from the main list."
 msgstr "La salle « {name} » a été créée. Choisissez maintenant ses morceaux dans la liste principale."
 
 msgid "Room “{name}” has been saved."
@@ -640,7 +640,7 @@ msgstr "Supprimer définitivement la salle « {name} » avec ses souhaits ?"
 msgid "“General” always offers the whole repertoire."
 msgstr "« Général » propose toujours toute la liste de morceaux."
 
-msgid "Manage the room: pick its songs from the master list."
+msgid "Manage the room: pick its songs from the main list."
 msgstr "Gérer la salle : choisir ses morceaux dans la liste principale."
 
 msgid "This room has no songs yet."
@@ -683,16 +683,16 @@ msgstr "{n} morceaux sur {total} sont dans la salle."
 msgid "Move songs with the arrows: to the right into the room, to the left out of it. The search filters both columns."
 msgstr "Déplacez les morceaux avec les flèches : vers la droite dans la salle, vers la gauche pour les retirer. La recherche filtre les deux colonnes."
 
-msgid "Master list"
+msgid "Main list"
 msgstr "Liste principale"
 
-msgid "Master list: songs not yet in the room"
+msgid "Main list: songs not yet in the room"
 msgstr "Liste principale : morceaux pas encore dans la salle"
 
 msgid "Songs in the room"
 msgstr "Morceaux dans la salle"
 
-msgid "Every song of the master list is in the room."
+msgid "Every song of the main list is in the room."
 msgstr "Tous les morceaux de la liste principale sont dans la salle."
 
 msgid "Add all {n}"
@@ -1599,7 +1599,7 @@ msgstr "Dans la même session du navigateur – un frein contre les doubles clic
 msgid "Open suggestions"
 msgstr "Suggestions ouvertes"
 
-msgid "For the whole site; the suggestions aim at the master list. The box is full at this many open suggestions."
+msgid "For the whole site; the suggestions aim at the main list. The box is full at this many open suggestions."
 msgstr "Pour tout le site ; les suggestions visent la liste principale. À ce nombre de suggestions ouvertes, la boîte est pleine."
 
 msgid "Seconds between two suggestions"

@@ -16,8 +16,8 @@ use Songwunsch\Format;
 /** @var bool $canPause       moderator or admin: close and open single rooms */
 /** @var array<int,bool> $pausedRooms  room id => closed?, for the rows shown */
 /** @var int $startRoomId    room new visitors land in from the bare address, 0 = main room */
-/** @var int $masterSongs     songs in the master list (= the main room) */
-/** @var int $masterWishes    open wishes of the main room */
+/** @var int $mainSongs     songs in the main list (= the main room) */
+/** @var int $mainWishes    open wishes of the main room */
 /** @var array<string,mixed> $room  current room */
 /** @var string $csrf */
 /** @var \Songwunsch\Settings $settings  delete confirmation switches */
@@ -48,7 +48,7 @@ $hasActions = $canPause || $canEdit;
             <?php else: ?>
                 <?= $e(tn('{n} room besides “General”.', '{n} rooms besides “General”.', $total)) ?>
             <?php endif; ?>
-            <?= $e(t('Every room has its own repertoire, picked from the master list, and its own wish list.')) ?>
+            <?= $e(t('Every room has its own repertoire, picked from the main list, and its own wish list.')) ?>
             <?php if ($canEdit): ?>
                 <?= $e(t('Archived rooms leave the room switcher and the list and are reachable to signed-in users only – a guest who opens the address lands on the start page.')) ?>
                 <?= $e(t('Unlisted rooms are reached through their address only: guests see them neither here nor among the rooms offered in the room switcher – only a guest who has entered one finds it there under “Your rooms”.')) ?>
@@ -129,8 +129,8 @@ $hasActions = $canPause || $canEdit;
             'name'       => (string) \Songwunsch\RoomRepository::defaultRoom()['name'],
             'active'     => 1,
             'listed'     => 1,
-            'song_count' => $masterSongs,
-            'wish_count' => $masterWishes,
+            'song_count' => $mainSongs,
+            'wish_count' => $mainWishes,
         ]], $rows) : $rows;
         ?>
         <?php foreach ($all as $row): ?>

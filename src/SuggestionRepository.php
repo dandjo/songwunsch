@@ -11,7 +11,7 @@ namespace Songwunsch;
  * length and genre on the way) or deletes it. Adopting removes the
  * suggestion -- the list only ever holds what is still open.
  *
- * Suggestions aim at the master list, which is what every room picks from.
+ * Suggestions aim at the main list, which is what every room picks from.
  * A suggestion made inside a room remembers that room (room_id, 0 = main
  * room): the adopted song is then offered in the room right away. The list
  * itself is one for the whole site -- the editor sees every suggestion,

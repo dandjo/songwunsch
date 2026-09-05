@@ -64,7 +64,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
 
     <?php if (($inRoom && $security->can('rooms')) || (!$inRoom && $security->can('songs'))): ?>
         <?php /* The main action at the right end: Manage in a room, Add song on
-                 the master list. The room's switches (start room, close/open)
+                 the main list. The room's switches (start room, close/open)
                  live on the room list and the room's edit form, not here. */ ?>
         <div class="panel__actions">
             <?php if ($inRoom && $security->can('rooms')): ?>
@@ -99,7 +99,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
         <p class="empty">
             <?= $e(t('This room has no songs yet.')) ?>
             <?php if ($security->can('rooms')): ?>
-                <a href="<?= $e(url(['p' => 'room_songs', 'back' => $current])) ?>"><?= $e(t('Manage the room: pick its songs from the master list.')) ?></a>
+                <a href="<?= $e(url(['p' => 'room_songs', 'back' => $current])) ?>"><?= $e(t('Manage the room: pick its songs from the main list.')) ?></a>
             <?php endif; ?>
         </p>
     <?php else: ?>
@@ -175,7 +175,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                                             <span class="sr-only">: <?= $e($rowLabel) ?></span>
                                         </a>
                                         <?php if ($inRoom): ?>
-                                            <?php /* In a room the song only leaves the room; the master list keeps it. */ ?>
+                                            <?php /* In a room the song only leaves the room; the main list keeps it. */ ?>
                                             <form method="post" action="<?= $e(url()) ?>">
                                                 <input type="hidden" name="a" value="room_songs_remove">
                                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
