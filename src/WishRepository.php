@@ -77,10 +77,13 @@ final class WishRepository
     }
 
     /**
+     * Append a wish at the bottom of the list.
+     *
      * @param array<string,mixed> $song   row from SongRepository
      * @param string|null         $wisher the guest's name for the list, if given
+     * @return int the new wish's id
      */
-    public function add(array $song, ?string $wisher = null): void
+    public function add(array $song, ?string $wisher = null): int
     {
         $table = self::TABLE;
 
@@ -102,6 +105,8 @@ final class WishRepository
                 $this->roomId,
             ],
         );
+
+        return (int) $this->db->pdo()->lastInsertId();
     }
 
     /**

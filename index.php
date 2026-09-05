@@ -15,7 +15,7 @@ declare(strict_types=1);
  * Everything the Administration menu leads to sits below /admin (admins only):
  *   /admin/users     | /admin/users/new, /admin/users/<id>/edit
  *   /admin/logos       header logos
- *   /admin/ui          the user interface: colours, messages, live updates
+ *   /admin/ui          the interface: colours, messages, live updates
  *   /admin/limits      limits on wishing and suggesting
  *   /admin/pages     | /admin/pages/new, /admin/pages/<id>/edit (CKEditor, one tab per language)
  *   /admin/footer      which pages the footer links, in which order
@@ -99,7 +99,7 @@ $users  = new UserRepository($db);
 $rooms  = new RoomRepository($db);
 $settings = new Settings($db);
 $limits   = new Limits($settings); // wish and suggestion limits the admins set; read on first use
-$ui       = new Ui($settings);     // message duration and polling intervals (User interface); read on first use
+$ui       = new Ui($settings);     // message duration and polling intervals (Interface); read on first use
 $uploads  = new Uploads($db);
 // $wishes and $guard are bound to the room and are created after routing.
 // The main room may carry a name of its own (Rooms -> Edit on the main room).
@@ -376,7 +376,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             case 'ui_save':
-                // The user interface, admins only: one hex colour per area of
+                // The interface, admins only: one hex colour per area of
                 // use (or nothing for the built-in colour), the message
                 // duration and the polling intervals -- one form, two stores.
                 require_role($security, 'users');
@@ -397,7 +397,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 Colors::save($settings, $colors['values']);
                 $ui->save($numbers['values']);
-                flash('ok', t('The user interface settings have been saved.'));
+                flash('ok', t('The interface settings have been saved.'));
                 redirect(url(['p' => 'ui']));
                 // no break
 
@@ -1436,7 +1436,7 @@ try {
     // deleted one falls back to the word mark by itself.
     $logoId       = (int) $settings->get(Settings::LOGO_ID, '0');
     $view['logo'] = $logoId > 0 ? $uploads->info($logoId) : null;
-    // The colours set under User interface, as a :root block over the stylesheet.
+    // The colours set under Interface, as a :root block over the stylesheet.
     $view['colorsCss'] = Colors::css(Colors::load($settings));
 
     switch ($page) {
@@ -1487,13 +1487,13 @@ try {
             break;
 
         case 'ui':
-            // Admins only: the user interface -- the colours (one per area of
+            // Admins only: the interface -- the colours (one per area of
             // use), the message duration and the polling intervals. After a
             // failed save the typed values come back with their errors.
             require_role($security, 'users');
             $kept = remembered_input();
 
-            $view['title']    = t('User interface');
+            $view['title']    = t('Interface');
             $view['template'] = 'ui';
             $view['values']   = $kept['values'] ?? Colors::load($settings) + array_map('strval', $ui->all());
             $view['errors']   = $kept['errors'] ?? [];

@@ -7,7 +7,7 @@ use Songwunsch\Colors;
 use Songwunsch\Ui;
 
 /**
- * Admin only: the user interface -- the site's colours (one base colour per
+ * Admin only: the interface -- the site's colours (one base colour per
  * area of use, picked with the browser's colour picker or typed as #rrggbb;
  * both follow each other, app.js; an empty field keeps the stylesheet's
  * built-in colour), how long a pop-up message stays, and how often the pages
@@ -55,7 +55,7 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
 
 <div class="panel__head">
     <div>
-        <h1><?= $e(t('User interface')) ?></h1>
+        <h1><?= $e(t('Interface')) ?></h1>
         <p class="muted">
             <?= $e(t('The colours of the interface, how long a message stays and how often the lists look for changes – for every visitor and every room alike.')) ?>
         </p>

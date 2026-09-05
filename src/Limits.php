@@ -15,7 +15,7 @@ namespace Songwunsch;
  * WishGuard enforces the four per-minute / per-hour / open-wishes limits and
  * the minimum form time, index.php the session cooldowns, the cap on open
  * suggestions and the page size. How long a message stays and how often the
- * lists poll for changes is the Ui class (Administration -> User interface).
+ * lists poll for changes is the Ui class (Administration -> Interface).
  */
 final class Limits extends NumberSettings
 {

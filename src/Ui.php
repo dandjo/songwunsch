@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Songwunsch;
 
 /**
- * How the interface behaves, set by the admins under Administration -> User
- * interface and kept in the `settings` table as `ui.<name>`: how long a
+ * How the interface behaves, set by the admins under Administration ->
+ * Interface and kept in the `settings` table as `ui.<name>`: how long a
  * pop-up message stays, and how often a page asks the server whether what it
  * shows has changed -- one interval per case (the wish list, the
  * suggestions, the room's open/closed state). The page's colours share the
