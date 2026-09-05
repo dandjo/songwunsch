@@ -165,12 +165,29 @@ $hasActions = $canPause || $canEdit;
                     <td class="cell-wishes"><?= $e(tn('{n} wish', '{n} wishes', (int) $row['wish_count'], ['n' => Format::number((int) $row['wish_count'])])) ?></td>
                 <?php endif; ?>
                 <?php if ($hasActions): ?>
-                <?php /* One action cell per row, stacked at the right edge: Close/Open
-                         room (moderators) above "Manage", below them Edit and Delete
-                         side by side 50/50 as icon buttons -- the label stays for screen
-                         readers and as tooltip. Editing never for the main room. */ ?>
+                <?php /* One action cell per row, stacked at the right edge, in the
+                         order of the edit form: "As start room" (editors) first,
+                         then Close/Open room (moderators), QR code and "Manage",
+                         below them Edit and Delete side by side 50/50 as icon
+                         buttons -- the label stays for screen readers and as
+                         tooltip. Editing never for the main room. */ ?>
                 <td class="cell-action">
                     <div class="row-actions">
+                        <?php if ($canEdit && (int) $row['id'] !== $startRoomId && (int) $row['active'] === 1): ?>
+                            <?php /* Where new visitors land: the bare address leads into
+                                     the start room. Setting the main room clears it. */ ?>
+                            <form method="post" action="<?= $e(url(['p' => 'rooms'])) ?>">
+                                <input type="hidden" name="a" value="room_start">
+                                <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                                <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
+                                <input type="hidden" name="back" value="<?= $e($listUrl(['page' => $pageNo > 1 ? $pageNo : null])) ?>">
+                                <button type="submit" class="link-button">
+                                    <?= icon('flag') ?>
+                                    <span class="button__label"><?= $e(t('As start room')) ?></span>
+                                    <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                         <?php if ($canPause): ?>
                             <?php /* Close or open the room -- the moderator's switch,
                                      for the main room as well. A stop sign while open,
@@ -185,21 +202,6 @@ $hasActions = $canPause || $canEdit;
                                 <button type="submit" class="<?= $closed ? 'wish-button' : 'link-button' ?>" aria-pressed="<?= $closed ? 'true' : 'false' ?>">
                                     <?= icon($closed ? 'play' : 'stop') ?>
                                     <span class="button__label"><?= $e($closed ? t('Open room') : t('Close room')) ?></span>
-                                    <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
-                                </button>
-                            </form>
-                        <?php endif; ?>
-                        <?php if ($canEdit && (int) $row['id'] !== $startRoomId && (int) $row['active'] === 1): ?>
-                            <?php /* Where new visitors land: the bare address leads into
-                                     the start room. Setting the main room clears it. */ ?>
-                            <form method="post" action="<?= $e(url(['p' => 'rooms'])) ?>">
-                                <input type="hidden" name="a" value="room_start">
-                                <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                                <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
-                                <input type="hidden" name="back" value="<?= $e($listUrl(['page' => $pageNo > 1 ? $pageNo : null])) ?>">
-                                <button type="submit" class="link-button">
-                                    <?= icon('flag') ?>
-                                    <span class="button__label"><?= $e(t('As start room')) ?></span>
                                     <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                                 </button>
                             </form>

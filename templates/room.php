@@ -46,7 +46,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
         </p>
     </div>
     <?php if (!$isNew || $main): ?>
-        <?php /* The room's switches: start room, close/open. */ ?>
+        <?php /* The room's switches (start room, close/open), the QR code and Manage. */ ?>
         <div class="panel__actions">
             <?php
             $switchId     = (int) $id;
@@ -56,6 +56,10 @@ $invalid = static fn (string $field): string => isset($errors[$field])
             require __DIR__ . '/_room_switches.php';
             ?>
             <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $roomSlug])) ?>"><?= icon('qr') ?><?= $e(t('QR code')) ?></a>
+            <?php if (!$main): ?>
+                <?php /* The room's song selection, as "Manage" on the room list. */ ?>
+                <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'room' => $roomSlug])) ?>"><?= icon('note') ?><?= $e(t('Manage')) ?></a>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 </div>

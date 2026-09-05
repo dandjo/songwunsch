@@ -979,7 +979,7 @@ middleware or the hoster.
 | Delete a song | Editor: *Delete* in the row (with confirmation) |
 | Change room | Room switcher at the far left of the navigation, on phones above it (*You are here: <room>*, opens the list) or Rooms → click the room's name; the choice is remembered in a cookie, see [Rooms](#rooms) |
 | Create a room | Editor: Rooms → *Add room*, then *Manage* |
-| Manage a room's songs | Editor: *Manage* in the room or under Rooms |
+| Manage a room's songs | Editor: *Manage* in the room, under Rooms or on the room's edit form |
 | Create a user | Admins: Users → *Add user* |
 | Make a user admin | Admins: Users → *Edit* → tick *Admin*; untick it to take the role away (the only active admin keeps it) |
 | Switch off delete confirmations | Signed in: account menu → User settings → *Delete confirmations*, per account and separately for songs, suggestions, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
@@ -1039,8 +1039,9 @@ stack only adds height there and the text stays a tight, centred block.
   right, when signed in the pair *Edit* / *Delete* below it.
 * **Rooms** – name, below it the address, below that the counts spelled out
   ("50 songs · 7 wishes"); the name is the link into the room. On the right,
-  for moderators *Close room* / *Open room*, for editors *Manage* and the
-  pair *Edit* / *Delete*; guests see no buttons.
+  in the order of the edit form: for editors *As start room*, for moderators
+  *Close room* / *Open room*, for editors *QR code*, *Manage* and the pair
+  *Edit* / *Delete*; guests see no buttons.
 * **Users** – name, below it roles · status; the pair *Edit* / *Delete* on the
   right (no *Delete* for yourself).
 * **Suggestions** – title, below it the artist and, if made in a room, the
