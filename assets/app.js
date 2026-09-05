@@ -3,10 +3,11 @@
  * sorting, searching, wishing and deleting run through plain links/forms.
  *
  * Two kinds of bindings: those that live on the document and look the page
- * up when they fire (popouts, the "/" key, the name dialog), registered once;
- * and those bound to elements of the page (confirmations, row click, drag &
- * drop, room filter), gathered in enhance() so they can be set again after
- * the live update below has swapped the page's content.
+ * up when they fire (popouts, the "/" key, the name dialog, the soft
+ * navigation), registered once; and those bound to elements of the page
+ * (confirmations, row click, drag & drop, room filter), gathered in
+ * enhance() so they can be set again after the page's content has been
+ * swapped -- by the soft navigation or by the live update, both below.
  */
 (function () {
     'use strict';
@@ -309,8 +310,8 @@
             });
 
             // Touch has no hover: light the card up while the finger is down
-            // and keep it lit after the tap until the page reloads with the
-            // result.
+            // and keep it lit after the tap until the content comes back
+            // with the result.
             var press = function () { row.classList.add('is-pressed'); };
             var release = function () { row.classList.remove('is-pressed'); };
             row.addEventListener('pointerdown', press);
@@ -530,6 +531,316 @@
         });
     }
 
+    // ---- Soft navigation: exchange the content, keep the page -------------
+    // Sorting, paging and searching are links and GET forms that lead back
+    // to the page they stand on; every action -- wish, move, add, remove,
+    // delete, save, close a room -- is a form that posts and is redirected
+    // to a page of ours. Here they are fetched instead and only the page's
+    // content (.cabinet) is exchanged: no white flash, the scroll position
+    // stays, the focus returns to the control that was used, and the
+    // address bar follows so back, forward and reload keep working. A link
+    // to another page (a form to fill in, an admin page) loads the normal
+    // way, so do the header's menus and the name dialog, a page that needs
+    // scripts this one has not loaded (the editor), and everything when a
+    // request fails. Without JavaScript the same links and forms simply
+    // reload.
+    var page = (function () {
+        var loading = false;
+        // The address the content belongs to (without the hash), so that a
+        // popstate for a hash jump is told apart from back/forward.
+        var shown = window.location.href.split('#')[0];
+
+        // A live region for announcements, once, outside the swapped area.
+        var status = document.createElement('p');
+        status.id = 'live-status';
+        status.className = 'sr-only';
+        status.setAttribute('role', 'status');
+        document.body.appendChild(status);
+        var announce = function (text) { status.textContent = text; };
+
+        // Same page: only the query may differ.
+        var samePage = function (href) {
+            var url = new URL(href, window.location.href);
+            return url.origin === window.location.origin && url.pathname === window.location.pathname;
+        };
+
+        // Where the focus should return after the swap: the element with the
+        // same id, else the n-th element of the same class -- the sort
+        // switches and move buttons have no ids but keep their place. The
+        // element is the one that has the focus, else the control that was
+        // used (a mouse click does not focus a link in every browser).
+        var remember = function (used) {
+            var active = document.activeElement;
+            var element = used || active;
+            // The focus stays where it is when it sits in the form that was
+            // sent (Enter in the search field, not its button).
+            if (active && active !== document.body && used && used.form && used.form.contains(active)) {
+                element = active;
+            }
+            if (!element || element === document.body) {
+                return null;
+            }
+            if (element.id) {
+                return { id: element.id };
+            }
+            var name = (element.className || '').split(/\s+/).filter(function (cls) {
+                return cls !== '' && cls.indexOf('is-') !== 0 && cls.indexOf('sort--') !== 0;
+            })[0];
+            if (!name) {
+                return null;
+            }
+            var selector = element.tagName.toLowerCase() + '.' + name;
+            return { selector: selector, index: Array.prototype.indexOf.call(document.querySelectorAll(selector), element) };
+        };
+        var restore = function (mark) {
+            if (!mark) {
+                return;
+            }
+            var element = null;
+            if (mark.id) {
+                element = document.getElementById(mark.id);
+            } else {
+                // The n-th of its kind; when that one is gone (the row was
+                // deleted), the last one that is left.
+                var alike = document.querySelectorAll(mark.selector);
+                element = alike[Math.min(mark.index, alike.length - 1)] || null;
+            }
+            if (element && element.disabled) {
+                // A move button that became pointless (the row is at the
+                // top now): the nearest one of its group that still works.
+                var group = element.closest('.move');
+                element = group ? group.querySelector('button:not([disabled])') : null;
+            }
+            if (!element) {
+                // Nothing left to return to: the content itself, as after
+                // a page load, so the keyboard does not start over at the top.
+                element = document.getElementById('content');
+                if (element) {
+                    element.setAttribute('tabindex', '-1');
+                }
+            }
+            if (element) {
+                element.focus({ preventScroll: true });
+            }
+        };
+
+        // Does the fetched page need a script or stylesheet this one has not
+        // loaded (the editor's bundle)? Then it must load the normal way.
+        var needsMore = function (fresh) {
+            var have = {};
+            document.querySelectorAll('script[src], link[rel="stylesheet"]').forEach(function (el) {
+                have[el.src || el.href] = true;
+            });
+            return Array.prototype.some.call(fresh.querySelectorAll('script[src], link[rel="stylesheet"]'), function (el) {
+                return !have[el.src || el.href];
+            });
+        };
+
+        // Swap the fetched page's content in. False when it is not one of
+        // ours (no .cabinet): the caller then loads it the normal way.
+        var render = function (html, used) {
+            var fresh = new DOMParser().parseFromString(html, 'text/html');
+            var cabinet = fresh.querySelector('.cabinet');
+            if (!cabinet || needsMore(fresh)) {
+                return false;
+            }
+            var focus = remember(used);
+            document.querySelector('.cabinet').innerHTML = cabinet.innerHTML;
+            document.title = fresh.title;
+            // The body's data attributes belong to the page: the endpoint of
+            // its room, the live address and revision, the messages.
+            Array.prototype.slice.call(document.body.attributes).forEach(function (attr) {
+                if (attr.name.indexOf('data-') === 0) {
+                    document.body.removeAttribute(attr.name);
+                }
+            });
+            Array.prototype.slice.call(fresh.body.attributes).forEach(function (attr) {
+                if (attr.name.indexOf('data-') === 0) {
+                    document.body.setAttribute(attr.name, attr.value);
+                }
+            });
+            endpoint = document.body.getAttribute('data-endpoint') || '/';
+            // The name dialog's inline script (layout) does not run on a
+            // swap; make it modal here.
+            document.querySelectorAll('dialog[data-namebox][open]').forEach(function (dialog) {
+                if (typeof dialog.showModal === 'function') {
+                    dialog.removeAttribute('open');
+                    dialog.showModal();
+                }
+            });
+            enhance(document);
+            // A form that came back (a validation error, a page to fill in)
+            // asks for the focus itself; autofocus does not fire on a swap.
+            var wanted = document.querySelector('[autofocus]');
+            if (wanted) {
+                wanted.focus({ preventScroll: true });
+            } else {
+                restore(focus);
+            }
+            var flash = document.querySelector('.flash');
+            if (flash) {
+                announce(flash.textContent.trim());
+            }
+            return true;
+        };
+
+        var busy = function (state) {
+            loading = state;
+            var cabinet = document.querySelector('.cabinet');
+            if (cabinet) {
+                if (state) {
+                    cabinet.setAttribute('aria-busy', 'true');
+                } else {
+                    cabinet.removeAttribute('aria-busy');
+                }
+            }
+        };
+
+        // Fetch a page of ours as HTML. Redirects are followed; the final
+        // address comes back with the text so the caller can tell whether
+        // it still is this page.
+        var request = function (url, options) {
+            busy(true);
+            options = options || {};
+            options.credentials = 'same-origin';
+            options.headers = { 'Accept': 'text/html' };
+            return fetch(url, options).then(function (response) {
+                return response.text().then(function (html) {
+                    return { url: response.url, html: html };
+                });
+            }).finally(function () {
+                busy(false);
+            });
+        };
+
+        // A link or a GET form: fetch, swap, and put the address into the
+        // history (push) -- or not, when back/forward brought us here.
+        var go = function (href, push, used) {
+            request(href).then(function (result) {
+                if (!samePage(result.url) || !render(result.html, used)) {
+                    window.location.assign(result.url);
+                    return;
+                }
+                if (push) {
+                    history.pushState(null, '', result.url);
+                }
+                shown = result.url.split('#')[0];
+            }).catch(function () {
+                window.location.assign(href);
+            });
+        };
+
+        // A form that posts: the server answers with a redirect
+        // (post/redirect/get), which fetch follows; the page that comes back
+        // carries the flash message. Mostly it is the page the form stood
+        // on; after a save or a login it is the list the form belongs to,
+        // which then takes the place of this page in the history.
+        var submit = function (form, submitter) {
+            var data = new FormData(form);
+            if (submitter && submitter.name) {
+                data.append(submitter.name, submitter.value);
+            }
+            var body = form.enctype === 'multipart/form-data' ? data : new URLSearchParams(data);
+            request(form.action, { method: 'POST', body: body }).then(function (result) {
+                var url = new URL(result.url, window.location.href);
+                if (url.origin !== window.location.origin || !render(result.html, submitter)) {
+                    window.location.assign(result.url);
+                    return;
+                }
+                if (url.pathname === window.location.pathname) {
+                    history.replaceState(null, '', result.url);
+                } else {
+                    // Another page: it starts at the top, as a loaded page would.
+                    history.pushState(null, '', result.url);
+                    window.scrollTo(0, 0);
+                }
+                shown = result.url.split('#')[0];
+            }).catch(function () {
+                // The post may or may not have gone through: say so instead
+                // of sending it again.
+                announce(document.body.getAttribute('data-msg-failed') || 'The page could not be updated – please reload it.');
+            });
+        };
+
+        // Which links and forms are ours: inside the page's content, not in
+        // the header's menus (language, account, room switcher change more
+        // than the content) and not in the name dialog.
+        var handles = function (element) {
+            return element.closest('.cabinet') !== null
+                && element.closest('.nav, dialog') === null;
+        };
+
+        if (!window.fetch || !window.DOMParser || !window.URL) {
+            return { refresh: function () { return Promise.resolve(false); } };
+        }
+
+        document.addEventListener('click', function (event) {
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+            var link = event.target.closest('a[href]');
+            if (!link || !handles(link) || link.target || link.hasAttribute('download') || !samePage(link.href)) {
+                return;
+            }
+            // A jump within the page (tabs) stays with the browser.
+            var target = new URL(link.href, window.location.href);
+            if (target.hash && target.href.split('#')[0] === shown) {
+                return;
+            }
+            event.preventDefault();
+            if (!loading) {
+                go(link.href, true, link);
+            }
+        });
+
+        document.addEventListener('submit', function (event) {
+            var form = event.target;
+            if (event.defaultPrevented || !handles(form) || form.target) {
+                return;
+            }
+            var method = (form.method || 'get').toLowerCase();
+            var action = new URL(form.action, window.location.href);
+            if (action.origin !== window.location.origin) {
+                return;
+            }
+            if (method === 'get') {
+                if (action.pathname !== window.location.pathname) {
+                    return;
+                }
+                event.preventDefault();
+                if (!loading) {
+                    action.search = new URLSearchParams(new FormData(form)).toString();
+                    go(action.href, true, event.submitter);
+                }
+                return;
+            }
+            event.preventDefault();
+            if (!loading) {
+                submit(form, event.submitter);
+            }
+        });
+
+        window.addEventListener('popstate', function () {
+            var here = window.location.href.split('#')[0];
+            if (here !== shown) {
+                go(here, false);
+            }
+        });
+
+        return {
+            // Fetch this page again and swap its content (the live update).
+            // Resolves to true when the content was exchanged.
+            refresh: function () {
+                if (loading) {
+                    return Promise.resolve(false);
+                }
+                return request(window.location.href).then(function (result) {
+                    return samePage(result.url) && render(result.html);
+                });
+            }
+        };
+    }());
+
     // ---- Live update: poll the revision, reload the page's content --------
     // The wish list and the suggestions carry data-live (the poll address)
     // and data-live-rev (the revision they were rendered with). Every few
@@ -538,54 +849,25 @@
     // sees a wish arrive or a row move without touching reload. Hidden tabs
     // do not poll; a drag in progress postpones the swap.
     var live = (function () {
-        var url = document.body.getAttribute('data-live');
-        var rev = document.body.getAttribute('data-live-rev');
         var interval = 4000;
         var failures = 0;
         var timer = null;
         var busy = false;
         var pending = false;
 
-        if (!url || !window.fetch) {
+        if (!window.fetch) {
             return { check: function () {} };
         }
 
-        var announce = function (text) {
-            var status = document.getElementById('live-status');
-            if (status) {
-                status.textContent = text;
-            }
-        };
-
         var swap = function () {
             busy = true;
-            fetch(window.location.href, {
-                headers: { 'X-Requested-With': 'fetch' },
-                credentials: 'same-origin'
-            }).then(function (response) {
-                return response.text();
-            }).then(function (html) {
-                var fresh = new DOMParser().parseFromString(html, 'text/html');
-                var cabinet = fresh.querySelector('.cabinet');
-                var newRev = fresh.body.getAttribute('data-live-rev');
-                if (!cabinet || !newRev) {
-                    return;
+            page.refresh().then(function (swapped) {
+                if (swapped) {
+                    var status = document.getElementById('live-status');
+                    if (status) {
+                        status.textContent = document.body.getAttribute('data-msg-updated') || 'The list has been updated.';
+                    }
                 }
-                // A drag may have started meanwhile: try again next tick.
-                if (dragging) {
-                    pending = true;
-                    return;
-                }
-                var focusId = document.activeElement && document.activeElement.id;
-                document.querySelector('.cabinet').innerHTML = cabinet.innerHTML;
-                document.body.setAttribute('data-live-rev', newRev);
-                rev = newRev;
-                enhance(document);
-                if (focusId) {
-                    var again = document.getElementById(focusId);
-                    if (again) { again.focus(); }
-                }
-                announce(document.body.getAttribute('data-msg-updated') || 'The list has been updated.');
             }).catch(function () {
                 // Nothing: the next poll tries again.
             }).finally(function () {
@@ -602,6 +884,12 @@
                 swap();
                 return;
             }
+            // Read afresh each time: the soft navigation may have brought a
+            // page with (or without) a live address.
+            var url = document.body.getAttribute('data-live');
+            if (!url) {
+                return;
+            }
             fetch(url, {
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'fetch' },
                 credentials: 'same-origin',
@@ -610,7 +898,9 @@
                 return response.json();
             }).then(function (data) {
                 failures = 0;
-                if (data && typeof data.rev === 'string' && data.rev !== rev) {
+                // The revision shown is read afresh: a soft navigation may
+                // have exchanged the content meanwhile.
+                if (data && typeof data.rev === 'string' && data.rev !== document.body.getAttribute('data-live-rev')) {
                     if (dragging) {
                         pending = true;
                     } else {
@@ -637,13 +927,6 @@
                 schedule();
             }
         });
-
-        // A live region for the announcement, once, outside the swapped area.
-        var status = document.createElement('p');
-        status.id = 'live-status';
-        status.className = 'sr-only';
-        status.setAttribute('role', 'status');
-        document.body.appendChild(status);
 
         schedule();
 

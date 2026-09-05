@@ -76,9 +76,11 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
     <?php endif; ?>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎵</text></svg>">
 </head>
-<?php /* data-live: the wish list and the suggestions poll this address for
-         their revision and reload themselves when it moved on (app.js). */ ?>
-<body data-endpoint="<?= $e(url()) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-msg-updated="<?= $e(t('The list has been updated.')) ?>"<?php endif; ?>>
+<?php /* data-msg-failed: what app.js announces when a form's request fails
+         on the way (soft navigation). data-live: the wish list and the
+         suggestions poll this address for their revision and reload
+         themselves when it moved on (app.js). */ ?>
+<body data-endpoint="<?= $e(url()) ?>" data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-msg-updated="<?= $e(t('The list has been updated.')) ?>"<?php endif; ?>>
 <a class="skip-link" href="#content"><?= $e(t('Skip to content')) ?></a>
 
 <div class="cabinet">

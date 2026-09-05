@@ -1501,6 +1501,18 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .namebox__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .6rem; }
 .namebox__skip { margin: 0; }
 
+/* ---------- Loading without a page load ----------
+   While app.js fetches the next state of the page (sorting, paging, a move,
+   a wish) the content dims a little -- only after a moment, so a quick
+   answer does not flicker -- and the cursor says "busy". */
+.cabinet[aria-busy="true"] main {
+    cursor: progress;
+    opacity: .6;
+    transition: opacity .15s ease .2s;
+}
+.cabinet[aria-busy="true"] main button,
+.cabinet[aria-busy="true"] main a { cursor: progress; }
+
 /* ---------- Messages ---------- */
 
 .flash {

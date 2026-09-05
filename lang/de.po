@@ -1737,3 +1737,8 @@ msgstr "Zurück"
 
 msgid "Your rooms"
 msgstr "Deine Räume"
+
+# ---- Soft navigation (app.js) ----------------------------------------------------
+
+msgid "The page could not be updated – please reload it."
+msgstr "Die Seite konnte nicht aktualisiert werden – bitte lade sie neu."
