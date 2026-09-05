@@ -44,8 +44,11 @@ $isAdmin = ($values['role_admin'] ?? '') === '1';
 
 <div class="panel__head">
     <div>
-        <h1><?= $e($isNew ? t('Add user') : t('Edit user')) ?></h1>
-        <p class="muted">
+        <div class="panel__title">
+            <h1><?= $e($isNew ? t('Add user') : t('Edit user')) ?></h1>
+            <?= help_button('help-user') ?>
+        </div>
+        <p class="muted help" id="help-user">
             <?php if ($isNew): ?>
                 <?= $e(t('Pass on username and password – the new user can log in right away.')) ?>
             <?php else: ?>

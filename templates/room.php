@@ -34,8 +34,11 @@ $invalid = static fn (string $field): string => isset($errors[$field])
 
 <div class="panel__head">
     <div>
-        <h1><?= $e($main ? t('Rename “General”') : ($isNew ? t('Add room') : t('Edit room'))) ?></h1>
-        <p class="muted">
+        <div class="panel__title">
+            <h1><?= $e($main ? t('Rename “General”') : ($isNew ? t('Add room') : t('Edit room'))) ?></h1>
+            <?= help_button('help-room') ?>
+        </div>
+        <p class="muted help" id="help-room">
             <?php if ($main): ?>
                 <?= $e(t('“General” is always there and lives at the root address; only its name can change. Leave the field empty for the default name.')) ?>
             <?php elseif ($isNew): ?>

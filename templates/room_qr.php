@@ -24,8 +24,11 @@ $roomName = (string) $room['name'];
 
 <div class="panel__head">
     <div>
-        <h1><?= $e(t('QR code: {room}', ['room' => $roomName])) ?></h1>
-        <p class="muted">
+        <div class="panel__title">
+            <h1><?= $e(t('QR code: {room}', ['room' => $roomName])) ?></h1>
+            <?= help_button('help-room-qr') ?>
+        </div>
+        <p class="muted help" id="help-room-qr">
             <?= $e(t('Guests scan the code with their phone\'s camera and land in the room – on a table card, a poster or a slide.')) ?>
             <?= $e(t('The code is made on this server; the address is passed to no other service.')) ?>
         </p>

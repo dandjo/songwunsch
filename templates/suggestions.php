@@ -47,8 +47,11 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 
 <div class="panel__head">
     <div>
-        <h1><?= $e(t('Song suggestions')) ?><?= $inRoom ? ' <span class="muted">· ' . $e((string) $room['name']) . '</span>' : '' ?></h1>
-        <p class="muted">
+        <div class="panel__title">
+            <h1><?= $e(t('Song suggestions')) ?><?= $inRoom ? ' <span class="muted">· ' . $e((string) $room['name']) . '</span>' : '' ?></h1>
+            <?= help_button('help-suggestions') ?>
+        </div>
+        <p class="muted help" id="help-suggestions">
             <?= $e(t('Missing a song? Name it here – the editors decide whether it joins the repertoire.')) ?>
             <?php if ($inRoom): ?>
                 <?= $e(t('Suggested from this room, the song is offered here once it is in.')) ?>

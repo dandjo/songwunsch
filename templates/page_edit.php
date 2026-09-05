@@ -48,8 +48,11 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
 
 <div class="panel__head">
     <div>
-        <h1><?= $e($isNew ? t('Add page') : t('Edit page')) ?></h1>
-        <p class="muted">
+        <div class="panel__title">
+            <h1><?= $e($isNew ? t('Add page') : t('Edit page')) ?></h1>
+            <?= help_button('help-page-edit') ?>
+        </div>
+        <p class="muted help" id="help-page-edit">
             <?php if ($isNew): ?>
                 <?= $e(t('Everyone can read the page under its address as soon as it is saved. Whether the footer links it is decided under Footer.')) ?>
             <?php else: ?>

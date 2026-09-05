@@ -65,9 +65,14 @@ $card = static function (array $row, string $action, string $arrow, string $verb
 
 <div class="panel__head">
     <div>
-        <h1><?= $e(t('Manage {room}', ['room' => (string) $room['name']])) ?></h1>
+        <div class="panel__title">
+            <h1><?= $e(t('Manage {room}', ['room' => (string) $room['name']])) ?></h1>
+            <?= help_button('help-room-songs') ?>
+        </div>
         <p class="muted">
             <?= $e(t('{n} of {total} songs are in the room.', ['n' => Format::number($roomSongCount), 'total' => Format::number($masterCount)])) ?>
+        </p>
+        <p class="muted help" id="help-room-songs">
             <?= $e(t('Move songs with the arrows: to the right into the room, to the left out of it. The search filters both columns.')) ?>
         </p>
     </div>

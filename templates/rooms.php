@@ -36,7 +36,10 @@ $hasActions = $canPause || $canEdit;
 
 <div class="panel__head">
     <div>
-        <h1><?= $e(t('Rooms')) ?></h1>
+        <div class="panel__title">
+            <h1><?= $e(t('Rooms')) ?></h1>
+            <?= help_button('help-rooms') ?>
+        </div>
         <p class="muted">
             <?php if ($q !== ''): ?>
                 <?= $e(tn('{n} room found for “{q}”.', '{n} rooms found for “{q}”.', $total, ['q' => $q])) ?>
@@ -45,6 +48,8 @@ $hasActions = $canPause || $canEdit;
             <?php else: ?>
                 <?= $e(tn('{n} room besides “General”.', '{n} rooms besides “General”.', $total)) ?>
             <?php endif; ?>
+        </p>
+        <p class="muted help" id="help-rooms">
             <?= $e(t('Every room has its own repertoire, picked from the master list, and its own wish list.')) ?>
             <?php if ($canEdit): ?>
                 <?= $e(t('Archived rooms leave the room switcher and the list and are reachable to signed-in users only – a guest who opens the address lands on the start page.')) ?>

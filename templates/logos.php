@@ -22,8 +22,11 @@ $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
 
 <div class="panel__head">
     <div>
-        <h1><?= $e(t('Logos')) ?></h1>
-        <p class="muted"><?= $e(t('A logo takes the place of the word mark “Songwunsch” and the claim at the top of every page; the room’s name keeps its spot. Exactly one logo is live at a time – or none, then the word mark shows.')) ?></p>
+        <div class="panel__title">
+            <h1><?= $e(t('Logos')) ?></h1>
+            <?= help_button('help-logos') ?>
+        </div>
+        <p class="muted help" id="help-logos"><?= $e(t('A logo takes the place of the word mark “Songwunsch” and the claim at the top of every page; the room’s name keeps its spot. Exactly one logo is live at a time – or none, then the word mark shows.')) ?></p>
     </div>
 </div>
 

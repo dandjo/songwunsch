@@ -15,9 +15,14 @@ $e = static fn (?string $v): string => Format::e($v);
 
 <div class="panel__head">
     <div>
-        <h1><?= $e(t('Users')) ?></h1>
+        <div class="panel__title">
+            <h1><?= $e(t('Users')) ?></h1>
+            <?= help_button('help-users') ?>
+        </div>
         <p class="muted">
             <?= $e($q !== '' ? tn('{n} user found.', '{n} users found.', count($rows)) : tn('{n} user.', '{n} users.', count($rows))) ?>
+        </p>
+        <p class="muted help" id="help-users">
             <?= t('{editor} maintains the repertoire, {moderator} the wish list; {admin} manages users, hands out every role and may do everything. Roles can be combined; at least one active admin always remains.', [
                 'editor'    => '<strong>' . $e(t('Editor', [], 'role')) . '</strong>',
                 'moderator' => '<strong>' . $e(t('Moderator', [], 'role')) . '</strong>',

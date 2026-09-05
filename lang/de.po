@@ -1803,3 +1803,8 @@ msgid "wished {n} time"
 msgid_plural "wished {n} times"
 msgstr[0] "{n}-mal gewünscht"
 msgstr[1] "{n}-mal gewünscht"
+
+# ---- Help behind the "?" beside a title -------------------------------------------
+
+msgid "Help"
+msgstr "Hilfe"

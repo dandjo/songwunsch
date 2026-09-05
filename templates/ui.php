@@ -55,8 +55,11 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
 
 <div class="panel__head">
     <div>
-        <h1><?= $e(t('Interface')) ?></h1>
-        <p class="muted">
+        <div class="panel__title">
+            <h1><?= $e(t('Interface')) ?></h1>
+            <?= help_button('help-ui') ?>
+        </div>
+        <p class="muted help" id="help-ui">
             <?= $e(t('The colours of the interface, how long a message stays and how often the lists look for changes – for every visitor and every room alike.')) ?>
         </p>
     </div>

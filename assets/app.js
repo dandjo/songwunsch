@@ -156,6 +156,38 @@
             follow();
         });
 
+        // Help: the "?" beside a title folds the explanation below it away
+        // and opens it again. The button is rendered hidden and appears only
+        // here, so without JavaScript the text simply stands open. Whether
+        // it is open is kept per text for the tab (sessionStorage), so the
+        // live update and the soft navigation, which draw the page anew,
+        // leave an opened help open.
+        root.querySelectorAll('.help-toggle[aria-controls]').forEach(function (button) {
+            var text = document.getElementById(button.getAttribute('aria-controls'));
+            if (!text || button.hasAttribute('data-bound')) { return; }
+            button.setAttribute('data-bound', '1');
+            var key = 'help:' + text.id;
+            var remember = function (on) {
+                try {
+                    if (on) { sessionStorage.setItem(key, '1'); } else { sessionStorage.removeItem(key); }
+                } catch (e) {
+                    // Storage refused (private mode): the help simply starts closed next time.
+                }
+            };
+            var set = function (on) {
+                text.hidden = !on;
+                button.setAttribute('aria-expanded', on ? 'true' : 'false');
+            };
+            var open = false;
+            try { open = sessionStorage.getItem(key) === '1'; } catch (e) { /* as above */ }
+            button.hidden = false;
+            set(open);
+            button.addEventListener('click', function () {
+                set(text.hidden);
+                remember(text.hidden === false);
+            });
+        });
+
         // Password fields: the eye shows the typed password and hides it
         // again. The button is rendered hidden and only appears here, so
         // without JavaScript nothing dangles beside the field.

@@ -705,6 +705,36 @@ code {
 .panel__actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: flex-end; }
 .panel__actions form { margin: 0; }
 
+/* The title with the "?" beside it that opens the page's help (app.js,
+   help_button()). The button is a small ring in the muted colour; pressed
+   it fills with gold. Rendered hidden -- without JavaScript there is no
+   button and the help text stands open below the title. */
+.panel__title { display: flex; align-items: center; gap: .6rem; margin: 0 0 .3rem; }
+.panel__title h1 { margin: 0; }
+.help-toggle {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.45rem;
+    height: 1.45rem;
+    padding: 0;
+    border: 1.5px solid var(--line);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: .85rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+.help-toggle:hover { color: var(--gold); border-color: var(--gold); }
+.help-toggle:focus-visible { border-radius: 50%; }
+.help-toggle[aria-expanded="true"] { background: var(--gold); border-color: var(--gold); color: var(--base); }
+/* Status line and help text below one title. */
+.panel__head p + p { margin-top: .35rem; }
+
 /* ---------- Tabs: the languages of a page's form ----------
    A row of links over one panel per language. Without JavaScript every panel
    is on the page, headed by its language; app.js (is-tabbed) makes real tabs

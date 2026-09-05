@@ -232,6 +232,23 @@ function asset_version(?string $set = null): string
 }
 
 /**
+ * The "?" beside a page's title that opens its help -- the explanation
+ * below the title, a <p class="muted help" id="..."> with this id. app.js
+ * shows the button and folds the text away until the button is pressed, so
+ * the list or form starts higher; whether it is open is remembered for the
+ * tab (sessionStorage), so a live update or a soft navigation does not shut
+ * it again. Rendered hidden: without JavaScript no button shows and the text
+ * stands where it is.
+ */
+function help_button(string $id): string
+{
+    $help = \Songwunsch\Format::e(t('Help'));
+
+    return '<button type="button" class="help-toggle" hidden aria-expanded="false" aria-controls="' . \Songwunsch\Format::e($id) . '" title="' . $help . '">'
+        . '<span aria-hidden="true">?</span><span class="sr-only">' . $help . '</span></button>';
+}
+
+/**
  * Inline SVG icon in front of a button label -- decorative, hidden from
  * assistive technology; the label carries the meaning. One place for the
  * paths so every button draws the same glyph. Unknown names yield nothing.
