@@ -1016,7 +1016,7 @@ middleware or the hoster.
 | Put a logo in the header | Admins: *Administration → Logos* (`/admin/logos`): upload, *Switch live*, see [Logo](#logo) |
 | Change the footer line | Admins: *Administration → Footer* (`/admin/footer`), *Your own line* below the picker |
 | Change the fallback order of the languages | Admins: *Administration → Languages* (`/admin/languages`), drag a row or use its arrows |
-| Change the colours | Admins: *Administration → Colours* (`/admin/colors`): pick or type a colour per area, *Default* brings the built-in one back, see [Colours](#colours) |
+| Change the interface | Admins: *Administration → Interface* (`/admin/ui`): pick or type a colour per area (*Default* brings the built-in one back), the seconds a message stays, the live-update interval per case, see [Interface](#interface) |
 | Change the wish and suggestion limits | Admins: *Administration → Limits* (`/admin/limits`): open wishes per room, per-minute and per-hour limits, seconds between two wishes or suggestions and after the page load, rows per page, see [Protecting the wishing](#protecting-the-wishing) |
 
 The wish list starts in manual order – initially this equals the order of

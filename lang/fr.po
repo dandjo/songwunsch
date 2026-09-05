@@ -314,9 +314,6 @@ msgstr "La page est ouverte depuis longtemps – veuillez la recharger et souhai
 msgid "One moment – please do not wish that quickly in a row."
 msgstr "Un instant – merci de ne pas enchaîner les souhaits aussi vite."
 
-msgid "“{title}” is already on the wish list."
-msgstr "« {title} » est déjà sur la liste de souhaits."
-
 msgid "“{title}” by {artist} is in."
 msgstr "« {title} » de {artist} est enregistré."
 
@@ -1789,3 +1786,16 @@ msgstr "En bas de la liste de souhaits"
 
 msgid "The song is put on the wish list of the room the suggestion was made in."
 msgstr "Le morceau est placé sur la liste de souhaits de la salle où la suggestion a été faite."
+
+# ---- Repeated wishes: the entry counts ------------------------------------------
+
+msgid "“{title}” is on the list already – wished {n} times now."
+msgstr "« {title} » est déjà sur la liste – souhaité {n} fois maintenant."
+
+msgid "Times wished"
+msgstr "Nombre de souhaits"
+
+msgid "wished {n} time"
+msgid_plural "wished {n} times"
+msgstr[0] "souhaité {n} fois"
+msgstr[1] "souhaité {n} fois"
