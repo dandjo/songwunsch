@@ -706,8 +706,8 @@ code {
 .panel__actions form { margin: 0; }
 
 /* The title with the "?" beside it that opens the page's help (app.js,
-   help_button()). The button is a small ring in the muted colour; pressed
-   it fills with gold. Rendered hidden -- without JavaScript there is no
+   help_button()). The button is a small dotted ring in the accent colour;
+   pressed it fills with gold. Rendered hidden -- without JavaScript there is no
    button and the help text stands open below the title. */
 .panel__title { display: flex; align-items: center; gap: .6rem; margin: 0 0 .3rem; }
 .panel__title h1 { margin: 0; }
@@ -719,7 +719,7 @@ code {
     width: 1.45rem;
     height: 1.45rem;
     padding: 0;
-    border: 1.5px solid var(--line);
+    border: 1.5px dotted var(--gold);
     border-radius: 50%;
     background: transparent;
     color: var(--text-muted);
@@ -729,9 +729,9 @@ code {
     line-height: 1;
     cursor: pointer;
 }
-.help-toggle:hover { color: var(--gold); border-color: var(--gold); }
+.help-toggle:hover { color: var(--gold); border-style: solid; }
 .help-toggle:focus-visible { border-radius: 50%; }
-.help-toggle[aria-expanded="true"] { background: var(--gold); border-color: var(--gold); color: var(--base); }
+.help-toggle[aria-expanded="true"] { background: var(--gold); border-style: solid; color: var(--base); }
 /* Status line and help text below one title. */
 .panel__head p + p { margin-top: .35rem; }
 
