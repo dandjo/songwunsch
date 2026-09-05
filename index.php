@@ -1329,8 +1329,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // --- Pages (GET) ------------------------------------------------------------
+// The current address as url() parameters, for the forms in the header that
+// must land back on this very page (room switcher, language, name): the page
+// and whatever the path carried besides it -- the id of the record being
+// edited, the main room's rename form, the suggestion being adopted, a
+// page's machine name, the QR image's format. Without them url() would
+// answer with the "new" form or the list.
+$hereParams = ['p' => $page]
+    + ($routeId > 0 ? ['id' => $routeId] : [])
+    + ($routeMain ? ['main' => 1] : [])
+    + ($routeSuggestion > 0 ? ['suggestion' => $routeSuggestion] : [])
+    + ($routeSlug !== '' ? ['slug' => $routeSlug] : [])
+    + ($routeFormat !== '' ? ['format' => $routeFormat] : []);
 $view = [
     'page'       => $page,
+    'hereParams' => $hereParams,
     'room'       => $room,
     'security'   => $security,
     'settings'   => $settings,

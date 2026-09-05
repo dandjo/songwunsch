@@ -27,6 +27,7 @@ use Songwunsch\Translator;
 /** @var string $footer  the operator's own footer line (Administration -> Footer), cleaned HTML; empty = none */
 /** @var string $footerLang  the language that line fell back to, '' when it is the interface language */
 /** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
+/** @var array<string,mixed> $hereParams  the current address as url() parameters, see index.php */
 /** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
 /** @var string $colorsCss :root colour overrides the admins set under Colours, see Colors; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
@@ -38,10 +39,9 @@ $inRoom = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
 // where $security->user() and everything else answer as for a stranger.
 $account   = $security->account();
 $guestView = $security->guestView();
-// The current page as url() parameters -- a page for readers needs its
-// machine name as well, or url() would yield the admins' list. Forms that
-// must land back on the current page post here; $here adds the query string.
-$hereParams = ['p' => $page] + ($page === 'page' ? ['slug' => (string) ($content['slug'] ?? '')] : []);
+// The current address as url() parameters (index.php: the page plus the id,
+// machine name or format from the path). Forms that must land back on the
+// current page post here; $here adds the query string.
 $hereBase   = url($hereParams);
 $here       = url(array_merge($hereParams, $_GET));
 
