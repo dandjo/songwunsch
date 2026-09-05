@@ -1038,13 +1038,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $newSong    = $songs->find($newId);
                             if ($newSong !== null) {
                                 $wishList = new WishRepository($db, $wishRoomId);
-                                $wishList->add($newSong, (string) ($adopted['suggester'] ?? ''));
+                                $wishId   = $wishList->add($newSong, (string) ($adopted['suggester'] ?? ''));
                                 // add() appends, which is the bottom. The top
                                 // is the default because the editor adopts a
                                 // suggestion right when it comes up, and the
                                 // audience should see it played soon.
                                 if ($input['wish_position'] === 'top') {
-                                    $wishList->moveToEnd((int) $db->pdo()->lastInsertId(), true);
+                                    $wishList->moveToEnd($wishId, true);
                                 }
                                 $wishGuard = $wishRoomId === $roomId ? $guard : new WishGuard(
                                     $db,
