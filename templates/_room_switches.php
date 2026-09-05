@@ -5,9 +5,9 @@ declare(strict_types=1);
 /**
  * A room's two switches beside the page's other actions: "As start room"
  * (editors; a tag instead once it is the start room) and "Close room" /
- * "Open room" (moderators). Used on the room's own pages and on its edit
- * form -- the room list has its own copy that names the room for screen
- * readers, since it shows many rooms at once.
+ * "Open room" (moderators). Used on the room's edit form -- the room list
+ * has its own copy that names the room for screen readers, since it shows
+ * many rooms at once. The room's own pages carry no switches.
  *
  * Expects:
  * @var int      $switchId      the room, 0 = the main room

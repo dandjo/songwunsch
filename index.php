@@ -1928,7 +1928,6 @@ try {
 
             $view['title']     = t('Repertoire');
             $view['template']  = 'home';
-            $view['startRoomId'] = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
             $view['formToken'] = $view['paused'] ? '' : $guard->formToken();
             $view['repo']      = $songs;
             $view['rows']      = $result['rows'];

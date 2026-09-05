@@ -46,7 +46,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
         </p>
     </div>
     <?php if (!$isNew || $main): ?>
-        <?php /* The room's switches, as on its own pages: start room, close/open. */ ?>
+        <?php /* The room's switches: start room, close/open. */ ?>
         <div class="panel__actions">
             <?php
             $switchId     = (int) $id;

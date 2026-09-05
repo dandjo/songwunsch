@@ -807,8 +807,8 @@ language.
 **The start room.** Where a visitor without any remembered room lands when
 opening the bare address (`/`, `/wishes`, `/suggestions`): the main room by
 default, or the room an editor marked with *As start room* -- on its row under
-*Rooms*, on the room's own page or on its edit form (key `start_room` in
-`settings`, tagged *start room* in the list).
+*Rooms* or on its edit form (key `start_room` in `settings`, tagged *start
+room* in the list).
 Marking the main room clears the setting. An archived start room receives no
 visitors, a deleted one drops the setting. The start room only applies to a
 first visit: once a room is remembered – the main room included, chosen
@@ -847,7 +847,8 @@ deleted, its song selection and its wishes go with it.
 **Open and closed.** Every room, the main room included, is *open* or
 *closed*. Moderators (and admins) switch it under *Rooms*: every row
 carries *Close room* / *Open room* at the right, and a closed room is
-tagged *closed* there. While a room is closed the repertoire stays visible,
+tagged *closed* there; the room's edit form has the same button. The
+repertoire page itself carries no switches. While a room is closed the repertoire stays visible,
 but the audience can neither wish nor suggest a song there: the *Wish*
 buttons disappear, the suggestion form gives way to a notice, and a notice
 stands in the header of every page of the room – for moderators with an
@@ -968,7 +969,7 @@ middleware or the hoster.
 | Change the order | Wish list → drag the row (drag & drop) or the buttons on the right: to the top, ▲, ▼, to the bottom |
 | Delete a wish | Wish list → *Delete* in the row |
 | Delete everything | Wish list → *Clear list* |
-| Close or open a room | Moderator: Rooms → *Close room* / *Open room* in the row, the same button on the room's own page and its edit form (no wishes and no suggestions while closed); a closed room's header notice has *Open room* as well |
+| Close or open a room | Moderator: Rooms → *Close room* / *Open room* in the row, the same button on the room's edit form (no wishes and no suggestions while closed); a closed room's header notice has *Open room* as well |
 | Close all rooms | Admins: Rooms → *Close all rooms* / *Lift the closing of all rooms* |
 | Suggest a song | Suggestions → artist and title → *Suggest* (everyone, also without a login) |
 | Adopt a suggestion | Editor: Suggestions → *Adopt* in the row → add length and genre → *Add* |
