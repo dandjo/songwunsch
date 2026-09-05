@@ -258,7 +258,11 @@ if (isset($routes[$route])) {
 // stay in the remembered room as well, so the context never changes on its
 // own. A visitor without any memory who opens a bare address lands in the
 // start room the editors set (Rooms -> "As start room"), if there is one.
+// The QR page names its room outright, the main room included
+// (/rooms/main/qr): the address wins, the memory neither steps in nor
+// changes -- an editor looking at a code is not entering the room.
 $roomBound  = in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs'], true);
+$roomNamed  = $page === 'room_qr';
 $remembered = $roomMemory->slug();
 $bareMain   = $roomBound && (int) $room['id'] === RoomRepository::DEFAULT_ID;
 if ($remembered === null && $bareMain && $_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -274,7 +278,7 @@ if ($remembered === null && $bareMain && $_SERVER['REQUEST_METHOD'] === 'GET') {
         redirect(url(array_merge(['p' => $page, 'room' => (string) $start['slug']], $_GET)));
     }
 }
-$useMemory  = $remembered !== null && $remembered !== ''
+$useMemory  = $remembered !== null && $remembered !== '' && !$roomNamed
     && (!$roomBound || (int) $room['id'] === RoomRepository::DEFAULT_ID);
 if ($useMemory) {
     try {
