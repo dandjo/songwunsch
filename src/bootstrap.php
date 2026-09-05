@@ -137,7 +137,7 @@ function current_room(?array $set = null): array
  * An id is part of the path, not of the query string. Lists and their
  * records share a prefix, and everything the Administration menu leads to
  * sits below /admin: /admin/users, /admin/users/new, /admin/users/<id>/edit,
- * /admin/logos, /admin/colors, /admin/pages, /admin/pages/new,
+ * /admin/logos, /admin/ui, /admin/pages, /admin/pages/new,
  * /admin/pages/<id>/edit (page_edit), /admin/footer, /admin/limits.
  * Public or for editors, without the prefix:
  * /pages/<slug> for readers ('p' => 'page', 'slug' => ...), /rooms,
@@ -187,7 +187,7 @@ function url(array $params = []): string
         // /rooms/new, /rooms/<id>/edit; users and pages the same below /admin.
         $list    = match ($page) { 'user' => '/admin/users', 'room' => '/rooms', 'page_edit' => '/admin/pages' };
         $target .= $list . ($id > 0 ? '/' . $id . '/edit' : '/new');
-    } elseif (in_array($page, ['users', 'logos', 'colors', 'limits', 'pages', 'footer', 'languages'], true)) {
+    } elseif (in_array($page, ['users', 'logos', 'ui', 'limits', 'pages', 'footer', 'languages'], true)) {
         $target .= '/admin/' . $page;
     } elseif ($page === 'logo') {
         $target .= '/logo/' . $id;
@@ -295,6 +295,8 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         // Colours: a drop of paint -- one solid shape that stays legible at 14px,
         // where a palette's wells blur into a blob.
         'drop'    => '<path d="M8 1.4c2.5 3.3 4.9 6.1 4.9 8.7a4.9 4.9 0 0 1-9.8 0C3.1 7.5 5.5 4.7 8 1.4z" fill="currentColor"/>',
+        // The user interface: a window with a title bar and a side pane.
+        'layout'  => '<rect x="1.8" y="2.4" width="12.4" height="11.2" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M1.8 6.2h12.4M6.4 6.2v7.4" fill="none" stroke="currentColor" stroke-width="2"/>',
         // Limits: three upright sliders -- rails with their knobs at different heights.
         'sliders' => '<path d="M4 2v12M8 2v12M12 2v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="4" cy="11" r="2.2" fill="currentColor"/><circle cx="8" cy="5.5" r="2.2" fill="currentColor"/><circle cx="12" cy="10.5" r="2.2" fill="currentColor"/>',
         // Footer pages: a sheet with a folded corner and two lines of text.

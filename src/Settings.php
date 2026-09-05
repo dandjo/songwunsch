@@ -8,8 +8,9 @@ namespace Songwunsch;
  * Small key/value store in the `settings` table for state that must outlive
  * sessions and requests: the moderator's pause switch, the rotating secrets
  * of the wish guard, the live logo, and what the admins set in the
- * Administration menu -- the colours (Colors, `colors.*`) and the wish limits
- * (Limits, `limits.*`).
+ * Administration menu -- the colours (Colors, `colors.*`), the message
+ * duration and polling intervals (Ui, `ui.*`) and the wish limits (Limits,
+ * `limits.*`).
  */
 final class Settings
 {

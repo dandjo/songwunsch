@@ -6,9 +6,8 @@ use Songwunsch\Format;
 use Songwunsch\Limits;
 
 /**
- * Admin only: the limits on wishing and suggesting, the page size of the
- * lists and how long a pop-up message stays, for every room alike. Numbers
- * with 0 = off; one switch for duplicates.
+ * Admin only: the limits on wishing and suggesting and the page size of the
+ * lists, for every room alike. Numbers with 0 = off.
  *
  * @var array<string,string> $values  field => value as text; what was typed after a failed save
  * @var array<string,string> $errors  field => message, after a failed save
@@ -33,9 +32,6 @@ $groups = [
     ]],
     [t('Lists'), [
         'per_page' => [t('Rows per page'), t('Repertoire, rooms, the room’s song picker and the suggestions show this many rows before the pager takes over.')],
-    ]],
-    [t('Messages'), [
-        'toast_sec' => [t('Seconds a message is shown'), t('The result of an action – a wish is in, a song was added, a row was deleted – pops up at the bottom edge and disappears after this many seconds; 0 keeps it until it is dismissed. Error messages always stay until dismissed.')],
     ]],
 ];
 
@@ -84,12 +80,6 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <?php if ($legend === $groups[0][0]): ?>
-                    <label class="check">
-                        <input type="checkbox" name="allow_duplicates" value="1"<?= ($values['allow_duplicates'] ?? '0') === '1' ? ' checked' : '' ?>>
-                        <span><strong><?= $e(t('Allow duplicates')) ?></strong> – <?= $e(t('a song may be wished again while it is still open on the list; otherwise the guest is told it is already there')) ?></span>
-                    </label>
-                <?php endif; ?>
             </fieldset>
         <?php endforeach; ?>
 

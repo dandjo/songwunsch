@@ -15,7 +15,7 @@ declare(strict_types=1);
  * Everything the Administration menu leads to sits below /admin (admins only):
  *   /admin/users     | /admin/users/new, /admin/users/<id>/edit
  *   /admin/logos       header logos
- *   /admin/colors      the colours
+ *   /admin/ui          the user interface: colours, messages, live updates
  *   /admin/limits      limits on wishing and suggesting
  *   /admin/pages     | /admin/pages/new, /admin/pages/<id>/edit (CKEditor, one tab per language)
  *   /admin/footer      which pages the footer links, in which order
@@ -35,7 +35,7 @@ declare(strict_types=1);
  *                  | room_songs_add | room_songs_remove           (editor)
  *                  | user_save | user_delete                      (admin)
  *                  | logo_upload | logo_activate | logo_delete    (admin)
- *                  | colors_save | limits_save                    (admin)
+ *                  | ui_save | limits_save                        (admin)
  *                  | page_save | page_delete                      (admin)
  *                  | languages_move | languages_reorder            fallback order of the languages (admin)
  *                  | footer_add | footer_remove | footer_move | footer_reorder | footer_text_save (admin)
@@ -65,6 +65,7 @@ use Songwunsch\Uploads;
 use Songwunsch\SongRepository;
 use Songwunsch\SuggestionRepository;
 use Songwunsch\Translator;
+use Songwunsch\Ui;
 use Songwunsch\UserRepository;
 use Songwunsch\WishGuard;
 use Songwunsch\WishRepository;
@@ -98,6 +99,7 @@ $users  = new UserRepository($db);
 $rooms  = new RoomRepository($db);
 $settings = new Settings($db);
 $limits   = new Limits($settings); // wish and suggestion limits the admins set; read on first use
+$ui       = new Ui($settings);     // message duration and polling intervals (User interface); read on first use
 $uploads  = new Uploads($db);
 // $wishes and $guard are bound to the room and are created after routing.
 // The main room may carry a name of its own (Rooms -> Edit on the main room).
@@ -146,7 +148,7 @@ $routes = [
     // The Administration menu: admins only, all below /admin.
     '/admin/users'  => 'users',
     '/admin/logos'  => 'logos',
-    '/admin/colors' => 'colors',
+    '/admin/ui'     => 'ui',
     '/admin/pages'  => 'pages',
     '/admin/footer' => 'footer',
     '/admin/limits' => 'limits',
@@ -373,23 +375,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect(url(['p' => 'settings', 'id' => $selfId]));
                 // no break
 
-            case 'colors_save':
-                // The site's colours (Colours), admins only: one hex colour per
-                // area of use, or nothing for the built-in colour.
+            case 'ui_save':
+                // The user interface, admins only: one hex colour per area of
+                // use (or nothing for the built-in colour), the message
+                // duration and the polling intervals -- one form, two stores.
                 require_role($security, 'users');
                 $input = [];
                 foreach (Colors::AREAS as $area) {
                     $input[$area] = (string) ($_POST[$area] ?? '');
                 }
-                $checked = Colors::validate($input);
-                if ($checked['errors'] !== []) {
-                    remember_input($input, $checked['errors']);
-                    notice('error', t('Please check the highlighted fields.'));
-                    redirect(url(['p' => 'colors']));
+                foreach (array_keys(Ui::FIELDS) as $name) {
+                    $input[$name] = (string) ($_POST[$name] ?? '');
                 }
-                Colors::save($settings, $checked['values']);
-                flash('ok', t('The colours have been saved.'));
-                redirect(url(['p' => 'colors']));
+                $colors  = Colors::validate($input);
+                $numbers = $ui->validate($input);
+                $errors  = $colors['errors'] + $numbers['errors'];
+                if ($errors !== []) {
+                    remember_input($input, $errors);
+                    notice('error', t('Please check the highlighted fields.'));
+                    redirect(url(['p' => 'ui']));
+                }
+                Colors::save($settings, $colors['values']);
+                $ui->save($numbers['values']);
+                flash('ok', t('The user interface settings have been saved.'));
+                redirect(url(['p' => 'ui']));
                 // no break
 
             case 'limits_save':
@@ -1362,7 +1371,7 @@ $view = [
     'translator' => $translator,
     'csrf'       => $security->csrfToken(),
     'flash'      => flash_take(),
-    'toastSec'   => $limits->get('toast_sec'), // how long a pop-up message stays, 0 = until dismissed
+    'toastSec'   => $ui->get('toast_sec'), // how long a pop-up message stays, 0 = until dismissed
     'wishCount'  => null,
     'suggestionCount' => null, // badge on the Suggestions tab, editors only
     'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ...], wish list and suggestions
@@ -1427,7 +1436,7 @@ try {
     // deleted one falls back to the word mark by itself.
     $logoId       = (int) $settings->get(Settings::LOGO_ID, '0');
     $view['logo'] = $logoId > 0 ? $uploads->info($logoId) : null;
-    // The colours set under Colours, as a :root block over the stylesheet.
+    // The colours set under User interface, as a :root block over the stylesheet.
     $view['colorsCss'] = Colors::css(Colors::load($settings));
 
     switch ($page) {
@@ -1477,15 +1486,16 @@ try {
             $view['activeId'] = $logoId;
             break;
 
-        case 'colors':
-            // Admins only: the site's colours, one per area of use. After a
+        case 'ui':
+            // Admins only: the user interface -- the colours (one per area of
+            // use), the message duration and the polling intervals. After a
             // failed save the typed values come back with their errors.
             require_role($security, 'users');
             $kept = remembered_input();
 
-            $view['title']    = t('Colours');
-            $view['template'] = 'colors';
-            $view['values']   = $kept['values'] ?? Colors::load($settings);
+            $view['title']    = t('User interface');
+            $view['template'] = 'ui';
+            $view['values']   = $kept['values'] ?? Colors::load($settings) + array_map('strval', $ui->all());
             $view['errors']   = $kept['errors'] ?? [];
             break;
 

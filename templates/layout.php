@@ -14,7 +14,7 @@ use Songwunsch\Translator;
 /** @var Security $security */
 /** @var Translator $translator */
 /** @var array{type:string,message:string,static:bool}|null $flash  static: stays at the top of the content; else a pop-up (app.js) */
-/** @var int $toastSec  seconds a pop-up message stays, 0 = until dismissed (Limits) */
+/** @var int $toastSec  seconds a pop-up message stays, 0 = until dismissed (Ui) */
 /** @var int|null $wishCount */
 /** @var int|null $suggestionCount  open song suggestions, badge for editors */
 /** @var bool $paused  wishing closed by the moderator */
@@ -30,7 +30,7 @@ use Songwunsch\Translator;
 /** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
 /** @var array<string,mixed> $hereParams  the current address as url() parameters, see index.php */
 /** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
-/** @var string $colorsCss :root colour overrides the admins set under Colours, see Colors; '' = none */
+/** @var string $colorsCss :root colour overrides the admins set under User interface, see Colors; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
 
 $e      = static fn (?string $v): string => Format::e($v);
@@ -71,7 +71,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
     <?php endif; ?>
     <link rel="stylesheet" href="<?= $e(asset('assets/style.css')) ?>">
     <?php if ($colorsCss !== ''): ?>
-        <?php /* The colours set under Colours override the stylesheet's :root
+        <?php /* The colours set under User interface override the stylesheet's :root
                  tokens; the value is generated from validated hex colours only. */ ?>
         <style><?= $colorsCss ?></style>
     <?php endif; ?>
@@ -246,7 +246,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                     ['languages', ['languages'],       'globe',   t('Languages')],
                     ['users',  ['users', 'user'],      'users',   t('Users')],
                     ['logos',  ['logos'],              'image',   t('Logos')],
-                    ['colors', ['colors'],            'drop',    t('Colours')],
+                    ['ui',     ['ui'],                 'layout',  t('User interface')],
                     ['limits', ['limits'],             'sliders', t('Limits')],
                     ['pages',  ['pages', 'page_edit'], 'page',    t('Pages')],
                     ['footer', ['footer'],             'list',    t('Footer')],
