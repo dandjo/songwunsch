@@ -141,7 +141,9 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                     // remembered room (RoomMemory). On every other page (users,
                     // rooms, admin, login, ...) the room is only the remembered
                     // context: every entry is a POST that remembers the room and
-                    // comes back to this very address.
+                    // comes back to this very address -- except on a room's edit
+                    // form and its QR page, which open the same page of the room
+                    // chosen ($switchBack below).
                     // Two groups: the main room with the offered rooms, and -- for
                     // guests -- "Your rooms", the unlisted ones they entered. The
                     // filter (app.js) hides a group whose entries are all hidden.
@@ -170,6 +172,19 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                                 $page === 'room_songs' && $targetSlug !== '' => 'room_songs',
                                 default                                     => 'songs',
                             };
+                            // Where the POST comes back to. Editing a room or
+                            // looking at its QR code, the switch opens the same
+                            // page of the room chosen -- the edit form of the
+                            // target room, the main room's rename form, its QR
+                            // code. The form for a new room and every other
+                            // page keep their address.
+                            $onEditForm = $page === 'room' && (($hereParams['id'] ?? 0) > 0 || isset($hereParams['main']));
+                            $switchBack = match (true) {
+                                $onEditForm && $targetSlug === '' => url(['p' => 'room', 'main' => 1]),
+                                $onEditForm                       => url(['p' => 'room', 'id' => (int) $entry['id']]),
+                                $page === 'room_qr'               => url(['p' => 'room_qr', 'room' => $targetSlug]),
+                                default                           => $here,
+                            };
                         ?>
                             <li>
                                 <?php if ($targetSlug === '' || !$roomInAddress): ?>
@@ -178,7 +193,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                                         <input type="hidden" name="slug" value="<?= $e($targetSlug) ?>">
                                         <input type="hidden" name="to" value="<?= $e($switchPage) ?>">
                                         <?php if (!$roomInAddress): ?>
-                                            <input type="hidden" name="back" value="<?= $e($here) ?>">
+                                            <input type="hidden" name="back" value="<?= $e($switchBack) ?>">
                                         <?php endif; ?>
                                         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                         <button type="submit" class="roomswitch__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="true"' : '' ?>>
