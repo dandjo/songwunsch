@@ -30,7 +30,9 @@ CREATE TABLE IF NOT EXISTS `songs` (
 
 -- Received wishes. Artist/title/length/genre are copied so the list stays
 -- readable after the song changes; song_id is deliberately not a foreign
--- key, a deleted song does not take its wishes with it.
+-- key, a deleted song does not take its wishes with it. A song that is
+-- wished again while it is still open gets no second row: `wished` counts
+-- on the existing one.
 CREATE TABLE IF NOT EXISTS `song_wishes` (
     `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `song_id`    INT UNSIGNED NULL COMMENT 'songs.id at the time of the wish, no foreign key',
@@ -42,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `song_wishes` (
     `created_at` DATETIME     NOT NULL,
     `position`   INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'manual order (drag & drop)',
     `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id, 0 = default room',
+    `wished`     INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'how often the song was wished while this entry has been open',
     PRIMARY KEY (`id`),
     KEY `idx_created_at` (`created_at`),
     KEY `idx_song_id` (`song_id`),

@@ -498,7 +498,7 @@ prerequisite; there is no detection or mapping of foreign tables.
 | Table | Columns | Purpose |
 | --- | --- | --- |
 | `songs` | `id`, `artist`, `title`, `length_sec` (seconds, `NULL` = unknown), `genre` | Repertoire |
-| `song_wishes` | `id`, `song_id`, `artist`, `title`, `length_sec`, `genre`, `wisher`, `created_at`, `position`, `room_id` | Wish list, `wisher` = the guest's name if given, `room_id` 0 = main room |
+| `song_wishes` | `id`, `song_id`, `artist`, `title`, `length_sec`, `genre`, `wisher`, `created_at`, `position`, `room_id`, `wished` | Wish list, `wisher` = the guest's name if given, `room_id` 0 = main room, `wished` = how often the song was wished while the entry has been open |
 | `song_suggestions` | `id`, `artist`, `title`, `suggester`, `created_at`, `room_id` | Open song suggestions, see [Song suggestions](#song-suggestions); `suggester` = the guest's name if given, `room_id` = the room it was made in (0 = main room) |
 | `settings` | `name`, `value`, `updated_at` | Open/closed switch per room, marker of *Close all rooms*, daily secrets, personal settings |
 | `wish_throttle` | `id`, `sender`, `created_at` | Rate limiting, see [Protecting the wishing](#protecting-the-wishing) |
@@ -510,7 +510,9 @@ prerequisite; there is no detection or mapping of foreign tables.
 | `page_translations` | `page_id`, `lang`, `title`, `body`, `updated_at` | A page's title and body per language, see [Pages in several languages](#pages-in-several-languages) |
 
 A wish copies artist, title, length and genre; `song_id` is deliberately not a
-foreign key so that a deleted song does not take its wishes with it.
+foreign key so that a deleted song does not take its wishes with it. A song
+wished again while it is still open gets no second row – `wished` counts on
+the existing one.
 
 **Creation.** The definition lives in one place, `src/Schema.php`. On every
 request, before the first data access, `Schema::ensure()` checks with one
@@ -535,7 +537,13 @@ changes one changes both.
 from an existing table, the application stops with a clear message instead of
 an SQL error in the middle of operation – rename or recreate the table from
 `sql/schema.sql`. There is no automatic migration of tables from earlier
-versions.
+versions. Installations from before the wish counter add the column by hand –
+it holds how often a song was wished while its entry has been open, and every
+existing wish counts as one:
+
+```sql
+ALTER TABLE song_wishes ADD COLUMN wished INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'how often the song was wished while this entry has been open';
+```
 
 ## Languages
 
@@ -943,7 +951,7 @@ without third-party services and without plain-text IPs:
 | Global limits | At most N open wishes per room, at most M wishes per minute across all visitors | *Limits*: open wishes per room, wishes per minute (everyone) |
 | Limit per sender | At most X per minute and Y per hour from the same address | *Limits*: wishes per minute / per hour per sender |
 | Brake per session | Minimum gap between two wishes in the same browser | *Limits*: seconds between two wishes |
-| Duplicates | A song that is already open on the list cannot be wished again – unless the switch allows it | *Limits*: allow duplicates |
+| Repeated wishes | A song that is already open on the list is not added a second time; the wish counts on the existing entry (see [Usage](#usage)) and stays subject to the per-sender limits, but not to the cap on open wishes, since it adds no row | – |
 | Bot trap | Invisible form field; if it is filled, the wish is silently discarded and the sender sees a success message | – |
 | Minimum time | Signed timestamp in the form; submitting sooner than N s after the page load is rejected, the form expires after 6 h | *Limits*: seconds after the page load |
 
@@ -985,7 +993,7 @@ middleware or the hoster.
 | Sign in / sign out | Account menu (person icon) top right next to the language menu; when signed in it shows the name and *Log out* |
 | See the site as a guest | Signed in: account menu → *View as guest*; a notice in the header and *End guest view* lead back. Meanwhile pages, controls and actions behave exactly as for a visitor without a login |
 | Sort | Sort bar above the list, a second click reverses the direction |
-| Wish | *Wish* button in the row (or a click on the row) |
+| Wish | *Wish* button in the row (or a click on the row). A song that is already on the wish list is not added twice: the wish counts on the existing entry, and signed-in users see the number on its card (*3×*) |
 | Change the order | Wish list → drag the row (drag & drop) or the buttons on the right: to the top, ▲, ▼, to the bottom |
 | Delete a wish | Wish list → *Delete* in the row |
 | Delete everything | Wish list → *Clear list* |
@@ -1009,7 +1017,7 @@ middleware or the hoster.
 | Change the footer line | Admins: *Administration → Footer* (`/admin/footer`), *Your own line* below the picker |
 | Change the fallback order of the languages | Admins: *Administration → Languages* (`/admin/languages`), drag a row or use its arrows |
 | Change the colours | Admins: *Administration → Colours* (`/admin/colors`): pick or type a colour per area, *Default* brings the built-in one back, see [Colours](#colours) |
-| Change the wish and suggestion limits | Admins: *Administration → Limits* (`/admin/limits`): open wishes per room, per-minute and per-hour limits, seconds between two wishes or suggestions and after the page load, duplicates, rows per page, see [Protecting the wishing](#protecting-the-wishing) |
+| Change the wish and suggestion limits | Admins: *Administration → Limits* (`/admin/limits`): open wishes per room, per-minute and per-hour limits, seconds between two wishes or suggestions and after the page load, rows per page, see [Protecting the wishing](#protecting-the-wishing) |
 
 The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order
@@ -1089,8 +1097,10 @@ stack only adds height there and the text stays a tight, centred block.
   line, like on the wish list.
 * **Wish list** – position on the left, title, below it artist · length ·
   genre; on the right, right-aligned in one column, the time received (clock
-  glyph and stamp) above who wished (person glyph and name, if given), and
-  next to it the four move buttons (to the top, ▲, ▼, to the bottom) above
+  glyph and stamp) above who wished (person glyph and name, if given); for
+  signed-in users a violet disc with how often the song was wished (*3×*, from
+  the second wish on), and next to it the four move buttons (to the top, ▲,
+  ▼, to the bottom) above
   *Delete* (bin, as wide as the button row). On phones the four become a
   2×2 block, "to the top" under ▲ and "to the bottom" under ▼, and
   the time received moves to a third line under the artist, the name right of
@@ -1109,7 +1119,7 @@ src/bootstrap.php      Autoloader and helpers (base_path, url, asset, icon, redi
 src/Database.php       PDO connection, prepared statements only
 src/Schema.php         Fixed table definition, creates missing tables
 src/SongRepository.php Repertoire: search, sort, paginate, maintain
-src/WishRepository.php Wish list: create, read, sort, delete
+src/WishRepository.php Wish list: create, count repeated wishes, read, sort, delete
 src/SuggestionRepository.php  Song suggestions: validate, store, list, delete
 src/WishGuard.php      Protection of wishing: limits, bot trap, pause
 src/NumberSettings.php Whole-number settings under one prefix: defaults, ranges, validate, save (base of Limits and Ui)

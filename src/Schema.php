@@ -38,7 +38,7 @@ final class Schema
     /** @var array<string,array<int,string>> table => required columns */
     private const COLUMNS = [
         self::SONGS    => ['id', 'artist', 'title', 'length_sec', 'genre'],
-        self::WISHES   => ['id', 'song_id', 'artist', 'title', 'length_sec', 'genre', 'wisher', 'created_at', 'position', 'room_id'],
+        self::WISHES   => ['id', 'song_id', 'artist', 'title', 'length_sec', 'genre', 'wisher', 'created_at', 'position', 'room_id', 'wished'],
         self::SUGGESTIONS => ['id', 'artist', 'title', 'suggester', 'created_at', 'room_id'],
         self::SETTINGS => ['name', 'value', 'updated_at'],
         self::THROTTLE => ['id', 'sender', 'created_at'],
@@ -77,6 +77,7 @@ final class Schema
                 `created_at` DATETIME     NOT NULL,
                 `position`   INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'manual order (drag & drop)',
                 `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id, 0 = default room',
+                `wished`     INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'how often the song was wished while this entry has been open',
                 PRIMARY KEY (`id`),
                 KEY `idx_created_at` (`created_at`),
                 KEY `idx_song_id` (`song_id`),
