@@ -72,8 +72,10 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
     <link rel="stylesheet" href="<?= $e(asset('assets/style.css')) ?>">
     <?php if ($colorsCss !== ''): ?>
         <?php /* The colours set under Interface override the stylesheet's :root
-                 tokens; the value is generated from validated hex colours only. */ ?>
-        <style><?= $colorsCss ?></style>
+                 tokens; the value is generated from validated hex colours only.
+                 The id lets app.js carry the block along when it swaps the
+                 page's content (a save under Interface shows at once). */ ?>
+        <style id="colors"><?= $colorsCss ?></style>
     <?php endif; ?>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎵</text></svg>">
 </head>

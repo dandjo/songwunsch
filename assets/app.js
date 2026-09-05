@@ -751,6 +751,23 @@
             endpoint = document.body.getAttribute('data-endpoint') || '/';
         };
 
+        // The colours set under Interface live in a <style id="colors"> in
+        // the head, outside the swapped area. Taken over from the fetched
+        // document -- added, replaced or removed -- so a save shows at once.
+        var adoptColors = function (fresh) {
+            var current = document.getElementById('colors');
+            var wanted = fresh.getElementById('colors');
+            if (wanted && current) {
+                if (current.textContent !== wanted.textContent) {
+                    current.textContent = wanted.textContent;
+                }
+            } else if (wanted) {
+                document.head.appendChild(document.importNode(wanted, true));
+            } else if (current) {
+                current.remove();
+            }
+        };
+
         // Renew the header alone from the fetched page: the room's notice
         // appears or goes, the menus are drawn afresh, the content -- a form
         // someone may be filling in -- stays as it is. False when the page
@@ -779,6 +796,7 @@
             var focus = remember(used);
             document.querySelector('.cabinet').innerHTML = cabinet.innerHTML;
             document.title = fresh.title;
+            adoptColors(fresh);
             adoptBodyData(fresh);
             // The name dialog's inline script (layout) does not run on a
             // swap; make it modal here.
