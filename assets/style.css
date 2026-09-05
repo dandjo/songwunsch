@@ -718,7 +718,8 @@ code {
    pressed it fills with gold. Rendered hidden -- without JavaScript there is no
    button and the help text stands open below the title. */
 .panel__title { display: flex; align-items: center; gap: .6rem; margin: 0 0 .3rem; }
-.panel__title h1 { margin: 0; }
+.panel__title h1,
+.panel__title h2 { margin: 0; }
 .help-toggle {
     flex: 0 0 auto;
     display: inline-flex;

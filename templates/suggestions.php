@@ -115,8 +115,11 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 <section class="list-section" aria-labelledby="open-suggestions">
     <div class="panel__head">
         <div>
-            <h2 id="open-suggestions"><?= $e(t('Open suggestions')) ?></h2>
-            <p class="muted">
+            <div class="panel__title">
+                <h2 id="open-suggestions"><?= $e(t('Open suggestions')) ?></h2>
+                <?= help_button('help-open-suggestions') ?>
+            </div>
+            <p class="muted help" id="help-open-suggestions">
                 <?php if ($q !== ''): ?>
                     <?= $e(tn('{n} suggestion found for “{q}”.', '{n} suggestions found for “{q}”.', $found, ['q' => $q])) ?>
                     <?= $e(tn('{n} suggestion waiting in total.', '{n} suggestions waiting in total.', $open)) ?>
