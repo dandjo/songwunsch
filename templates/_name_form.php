@@ -42,7 +42,7 @@ $id = $nameAsk ? 'name-ask' : 'name';
     <div class="namebox__actions">
         <button type="submit" class="wish-button"><?= icon('check') ?><?= $e(t('Save name')) ?></button>
         <?php if (!$nameAsk): ?>
-            <a class="link-button" href="<?= $e($nameBack) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
+            <a class="link-button" href="<?= $e($nameBack) ?>"><?= icon('arrow-left') ?><?= $e(t('Cancel')) ?></a>
         <?php endif; ?>
     </div>
 </form>

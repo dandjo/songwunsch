@@ -113,7 +113,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
             <button type="submit" class="wish-button">
                 <?= icon($isNew ? 'plus' : 'check') ?><?= $e($isNew ? t('Add') : t('Save')) ?>
             </button>
-            <a class="link-button" href="<?= $e($back) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
+            <a class="link-button" href="<?= $e($back) ?>"><?= icon('arrow-left') ?><?= $e(t('Cancel')) ?></a>
         </div>
     </form>
 </div>

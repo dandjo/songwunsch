@@ -111,7 +111,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
 
         <div class="panel__actions">
             <button type="submit" class="wish-button"><?= icon($isNew && !$main ? 'plus' : 'check') ?><?= $e($isNew && !$main ? t('Create') : t('Save')) ?></button>
-            <a class="link-button" href="<?= $e($backUrl) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
+            <a class="link-button" href="<?= $e($backUrl) ?>"><?= icon('arrow-left') ?><?= $e(t('Cancel')) ?></a>
         </div>
     </form>
 </div>
