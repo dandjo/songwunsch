@@ -49,18 +49,16 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
             <h1><?= $e(t('Wish list')) ?><?= $inRoom ? ' <span class="muted">· ' . $e((string) $room['name']) . '</span>' : '' ?></h1>
             <?= help_button('help-wishes') ?>
         </div>
-        <?php if ($paused): ?>
-            <p class="muted">
+        <p class="muted help" id="help-wishes">
+            <?= $e(tn('{n} wish in the queue.', '{n} wishes in the queue.', count($rows))) ?>
+            <?php if ($paused): ?>
                 <strong><?= $e(t('The room is closed')) ?></strong> <?= $e(t('– no wishes or suggestions right now.')) ?>
                 <?php if ($canEdit): ?>
                     <?= t('Open it above or under {rooms}.', [
                         'rooms' => '<a href="' . $e(url(['p' => 'rooms'])) . '">' . $e(t('Rooms')) . '</a>',
                     ]) ?>
                 <?php endif; ?>
-            </p>
-        <?php endif; ?>
-        <p class="muted help" id="help-wishes">
-            <?= $e(tn('{n} wish in the queue.', '{n} wishes in the queue.', count($rows))) ?>
+            <?php endif; ?>
             <?php if (!$canEdit): ?>
                 <?= $e(t('The wishes in the order they will be played.')) ?>
             <?php elseif ($manual): ?>
