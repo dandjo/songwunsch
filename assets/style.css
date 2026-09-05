@@ -672,14 +672,20 @@ code {
     box-shadow: var(--shadow-soft);
 }
 
-/* Title block first, the page actions below it, right-aligned -- stacked,
-   never side by side. */
+/* Title block first, the page actions below it, right-aligned -- stacked on
+   phones; on wider screens the actions sit at the top right beside the text,
+   so the head takes a single row. */
 .panel__head {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: .8rem;
     margin-bottom: 1.25rem;
+}
+@media (min-width: 721px) {
+    .panel__head { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 1rem 1.5rem; }
+    .panel__head > div:first-child { flex: 1 1 auto; min-width: 0; }
+    .panel__head > .panel__actions { flex: 0 1 auto; margin-left: auto; }
 }
 .panel__head h1 {
     margin: 0 0 .3rem;

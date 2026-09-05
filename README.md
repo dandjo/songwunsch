@@ -1020,7 +1020,10 @@ more; on wide screens the shell is centred and limited to 1180 px. In the
 header the word mark, the language menu and the account menu (person icon,
 opens the guest's name with *Change name* and *Log in*, or for staff the
 username, *Name for wishes*, *View as guest* and *Log out*, as a popout like
-the language menu) share the first row, the navigation is right-aligned below. The popouts (language,
+the language menu) share the first row, the navigation is right-aligned below. Every page's head
+puts the title and its description at the left and the page actions (*Add
+room*, *Close all rooms*, *Manage*, *Clear list*, …) at the top right beside
+them from 721 px on; on phones the actions drop below the text, right-aligned. The popouts (language,
 account, room switcher) are `<details>` and work without JavaScript; with
 JavaScript they additionally close on a click outside or on Escape, and
 opening one menu closes the others.
