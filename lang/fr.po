@@ -1725,8 +1725,8 @@ msgstr "Télécharger le PNG"
 msgid "Print"
 msgstr "Imprimer"
 
-msgid "To the room list"
-msgstr "Vers la liste des salles"
+msgid "Back"
+msgstr "Retour"
 
 # ---- Your rooms (room switcher) -------------------------------------------------
 

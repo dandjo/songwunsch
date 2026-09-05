@@ -35,7 +35,7 @@ $roomName = (string) $room['name'];
             <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug, 'format' => 'png'])) ?>" download="songwunsch-<?= $e($isMain ? 'main' : $slug) ?>.png"><?= icon('image') ?><?= $e(t('Download PNG')) ?></a>
         <?php endif; ?>
         <button type="button" class="wish-button" data-print hidden><?= icon('page') ?><?= $e(t('Print')) ?></button>
-        <a class="link-button" href="<?= $e(url(['p' => 'rooms'])) ?>"><?= icon('arrow-left') ?><?= $e(t('To the room list')) ?></a>
+        <a class="link-button" href="<?= $e(url(['p' => 'rooms'])) ?>"><?= icon('arrow-left') ?><?= $e(t('Back')) ?></a>
     </div>
 </div>
 
