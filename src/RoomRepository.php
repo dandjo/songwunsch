@@ -15,10 +15,11 @@ use RuntimeException;
  * what / and /wishes show and is always there. Wishes carry room_id 0 for it.
  *
  * Two switches per room: `active` (archived rooms leave the switcher and the
- * list for everyone) and `listed` (unlisted rooms are hidden from guests --
- * visitors who are not signed in -- and reached through their address only;
- * signed-in users see every active room). A room is often named after the
- * hosts of a private event, so a new room starts unlisted.
+ * list for everyone and are reachable to signed-in users only -- for guests
+ * they are gone, address or not) and `listed` (unlisted rooms are hidden from
+ * guests -- visitors who are not signed in -- and reached through their
+ * address only; signed-in users see every active room). A room is often named
+ * after the hosts of a private event, so a new room starts unlisted.
  */
 final class RoomRepository
 {
@@ -137,9 +138,9 @@ final class RoomRepository
 
     /**
      * Id, slug and name of every active room, by name -- for the room
-     * switcher in the header, on every page. Archived rooms stay reachable
-     * through their address but are not offered; for guests the unlisted
-     * ones are left out as well.
+     * switcher in the header, on every page. Archived rooms are not offered
+     * (signed-in users still reach them through their address); for guests
+     * the unlisted ones are left out as well.
      *
      * @param  bool $listedOnly guests: only rooms with the listed switch on
      * @return array<int,array<string,mixed>>
@@ -181,16 +182,16 @@ final class RoomRepository
 
     /**
      * Display name by id of every room, archived ones too -- for tags on
-     * rows that name their room. For guests the unlisted rooms are left out,
-     * so their names do not show up on the public lists.
+     * rows that name their room. For guests the unlisted and the archived
+     * rooms are left out, so their names do not show up on the public lists.
      *
-     * @param  bool $listedOnly guests: only rooms with the listed switch on
+     * @param  bool $listedOnly guests: only active rooms with the listed switch on
      * @return array<int,string>
      */
     public function namesById(bool $listedOnly = false): array
     {
         $names = [];
-        $where = $listedOnly ? ' WHERE listed = 1' : '';
+        $where = $listedOnly ? ' WHERE active = 1 AND listed = 1' : '';
         foreach ($this->db->all('SELECT id, name FROM ' . self::TABLE . $where) as $row) {
             $names[(int) $row['id']] = (string) $row['name'];
         }
@@ -273,8 +274,8 @@ final class RoomRepository
             $values['name'] = $name;
         }
 
-        // Archived rooms leave the switcher and the guests' list; a new room
-        // starts active. Unlisted rooms are hidden from guests and reached
+        // Archived rooms leave the switcher and the list and are closed to
+        // guests; a new room starts active. Unlisted rooms are hidden from guests and reached
         // through their address only; the form decides, a new room starts
         // unlisted.
         $values['active'] = (($input['active'] ?? '') === '1') ? 1 : 0;

@@ -760,8 +760,10 @@ deleted there disappears from all rooms.
 
 **Archiving.** Every room is *active* or *archived* (column `active`,
 checkbox in the edit form). Archived rooms vanish from the room switcher and
-from the list guests see under `/rooms`, but remain reachable through their
-address. Archiving automatically closes the room; whoever reactivates it
+from the list guests see under `/rooms`, and only signed-in users can still
+open them: a guest who follows the address, the QR code or the remembered
+room lands on the start page with a short notice. Archiving automatically
+closes the room; whoever reactivates it
 opens it again in the room list or the header notice. Editors see every
 room under `/rooms`, archived ones tagged, and filter by *All*, *Active* and
 *Archived*; a search field finds rooms by display or machine name, the list

@@ -45,7 +45,7 @@ $hasActions = $canPause || $canEdit;
             <?php endif; ?>
             <?= $e(t('Every room has its own repertoire, picked from the master list, and its own wish list.')) ?>
             <?php if ($canEdit): ?>
-                <?= $e(t('Archived rooms stay reachable through their address but leave the room switcher and the guests’ list.')) ?>
+                <?= $e(t('Archived rooms leave the room switcher and the list and are reachable to signed-in users only – a guest who opens the address lands on the start page.')) ?>
                 <?= $e(t('Unlisted rooms are reached through their address only: guests see them neither here nor among the rooms offered in the room switcher – only a guest who has entered one finds it there under “Your rooms”.')) ?>
                 <?= $e($startRoomId > 0
                     ? t('The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last.')

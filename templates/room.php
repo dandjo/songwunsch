@@ -96,7 +96,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
             <legend><?= $e(t('Status')) ?></legend>
             <label class="check">
                 <input type="checkbox" name="active" value="1"<?= ($values['active'] ?? '1') === '1' ? ' checked' : '' ?>>
-                <span><strong><?= $e(t('Active')) ?></strong> – <?= $e(t('archived rooms leave the room switcher and the guests’ list but stay reachable through their address')) ?></span>
+                <span><strong><?= $e(t('Active')) ?></strong> – <?= $e(t('archived rooms leave the room switcher and the list; only signed-in users can still open them, guests land on the start page')) ?></span>
             </label>
             <label class="check">
                 <input type="checkbox" name="listed" value="1"<?= ($values['listed'] ?? '0') === '1' ? ' checked' : '' ?>>

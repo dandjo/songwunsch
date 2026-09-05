@@ -739,8 +739,8 @@ msgid_plural "{n} archived rooms."
 msgstr[0] "Une salle archivée."
 msgstr[1] "{n} salles archivées."
 
-msgid "Archived rooms stay reachable through their address but leave the room switcher and the guests’ list."
-msgstr "Les salles archivées restent accessibles par leur adresse mais disparaissent du sélecteur de salle et de la liste des visiteurs."
+msgid "Archived rooms leave the room switcher and the list and are reachable to signed-in users only – a guest who opens the address lands on the start page."
+msgstr "Les salles archivées disparaissent du sélecteur de salle et de la liste et ne sont accessibles qu’aux utilisateurs connectés – un visiteur qui ouvre l’adresse arrive sur la page d’accueil."
 
 msgid "Search rooms"
 msgstr "Rechercher des salles"
@@ -769,8 +769,8 @@ msgstr "Aucune salle archivée."
 msgid "archived"
 msgstr "archivée"
 
-msgid "archived rooms leave the room switcher and the guests’ list but stay reachable through their address"
-msgstr "les salles archivées disparaissent du sélecteur de salle et de la liste des visiteurs, mais restent accessibles par leur adresse"
+msgid "archived rooms leave the room switcher and the list; only signed-in users can still open them, guests land on the start page"
+msgstr "les salles archivées disparaissent du sélecteur de salle et de la liste ; seuls les utilisateurs connectés peuvent encore les ouvrir, les visiteurs arrivent sur la page d’accueil"
 
 msgid "Filter rooms"
 msgstr "Filtrer les salles"
@@ -1154,6 +1154,9 @@ msgstr "Les nouveaux visiteurs commencent de nouveau dans « Général »."
 
 msgid "There is no room at this address – here is the start page."
 msgstr "Il n’y a pas de salle à cette adresse – voici la page d’accueil."
+
+msgid "This room has been archived – here is the start page."
+msgstr "Cette salle a été archivée – voici la page d’accueil."
 
 msgid "The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last."
 msgstr "La salle de départ accueille les visiteurs qui ouvrent l’adresse nue sans avoir encore choisi de salle ; tous les autres restent dans la salle choisie en dernier."

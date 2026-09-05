@@ -743,8 +743,8 @@ msgid_plural "{n} archived rooms."
 msgstr[0] "Ein archivierter Raum."
 msgstr[1] "{n} archivierte Räume."
 
-msgid "Archived rooms stay reachable through their address but leave the room switcher and the guests’ list."
-msgstr "Archivierte Räume bleiben über ihre Adresse erreichbar, verschwinden aber aus dem Raumwechsler und aus der Liste für Gäste."
+msgid "Archived rooms leave the room switcher and the list and are reachable to signed-in users only – a guest who opens the address lands on the start page."
+msgstr "Archivierte Räume verschwinden aus dem Raumwechsler und aus der Liste und sind nur noch für angemeldete Nutzer erreichbar – ein Gast, der die Adresse öffnet, landet auf der Startseite."
 
 msgid "Search rooms"
 msgstr "Räume suchen"
@@ -773,8 +773,8 @@ msgstr "Keine archivierten Räume."
 msgid "archived"
 msgstr "archiviert"
 
-msgid "archived rooms leave the room switcher and the guests’ list but stay reachable through their address"
-msgstr "archivierte Räume verschwinden aus dem Raumwechsler und der Liste für Gäste, bleiben aber über ihre Adresse erreichbar"
+msgid "archived rooms leave the room switcher and the list; only signed-in users can still open them, guests land on the start page"
+msgstr "archivierte Räume verschwinden aus dem Raumwechsler und der Liste; nur angemeldete Nutzer können sie noch öffnen, Gäste landen auf der Startseite"
 
 msgid "Filter rooms"
 msgstr "Räume filtern"
@@ -1158,6 +1158,9 @@ msgstr "Neue Besucher starten wieder in „Allgemein“."
 
 msgid "There is no room at this address – here is the start page."
 msgstr "Unter dieser Adresse gibt es keinen Raum – hier ist die Startseite."
+
+msgid "This room has been archived – here is the start page."
+msgstr "Dieser Raum wurde archiviert – hier ist die Startseite."
 
 msgid "The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last."
 msgstr "Im Startraum landen Besucher, die die nackte Adresse aufrufen und noch keinen Raum gewählt haben; alle anderen bleiben in ihrem zuletzt gewählten Raum."

@@ -227,6 +227,8 @@ if (isset($routes[$route])) {
     // query. An unknown or malformed room is no dead end: a link to a room
     // that has since been deleted or renamed leads to the start page, where
     // the remembered room or the start room takes over, with a short notice.
+    // An archived room is open to signed-in users only; for a guest it is
+    // as good as gone.
     try {
         $schema->ensure();
         $found = $rooms->findBySlug($m[1]);
@@ -235,6 +237,10 @@ if (isset($routes[$route])) {
     }
     if ($found === null) {
         flash('info', t('There is no room at this address – here is the start page.'));
+        redirect(url(['p' => 'songs', 'room' => '']));
+    }
+    if ((int) $found['active'] === 0 && !$security->isLoggedIn()) {
+        flash('info', t('This room has been archived – here is the start page.'));
         redirect(url(['p' => 'songs', 'room' => '']));
     }
     $room        = $found;
@@ -277,8 +283,9 @@ if ($useMemory) {
     } catch (Throwable $e) {
         $kept = null;
     }
-    if ($kept === null) {
-        // The room is gone: the memory goes with it.
+    if ($kept === null || ((int) $kept['active'] === 0 && !$security->isLoggedIn())) {
+        // The room is gone -- or archived, which for a guest is the same:
+        // the memory goes with it.
         $roomMemory->forget();
     } elseif ($roomBound && $_SERVER['REQUEST_METHOD'] === 'GET') {
         redirect(url(array_merge(['p' => $page, 'room' => (string) $kept['slug']], $_GET)));
@@ -688,8 +695,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $roomMemory->remember('');
                     redirect($stay ?? url(['p' => $to, 'room' => '']));
                 }
+                // An archived room is open to signed-in users only.
                 $target = $rooms->findBySlug($slug);
-                if ($target === null) {
+                if ($target === null || ((int) $target['active'] === 0 && !$security->isLoggedIn())) {
                     flash('error', t('This room was not found.'));
                     redirect(url(['p' => 'rooms']));
                 }
@@ -1157,8 +1165,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $rooms->update($id, $checked['values']);
                 }
 
-                // Archiving closes wishing in that room -- guests may still
-                // hold the address. Reactivating does not reopen it; that is
+                // Archiving closes wishing in that room -- signed-in users
+                // still reach it. Reactivating does not reopen it; that is
                 // the moderator's call on the room's wish list.
                 $archivedNow = (int) $checked['values']['active'] === 0
                     && ($existing === null || (int) $existing['active'] === 1);
@@ -1666,9 +1674,10 @@ try {
             $view['found']     = $result['total'];
             $view['pageNo']    = $pageNo;
             $view['pages']     = max(1, (int) ceil($result['total'] / $perPage));
-            // Room names for the tags on the rows, by id -- archived rooms too.
-            // Guests get the listed rooms only, plus the room they are in; a
-            // row whose room is missing here shows no room tag.
+            // Room names for the tags on the rows, by id -- archived rooms too
+            // for signed-in users. Guests get the active listed rooms only,
+            // plus the room they are in; a row whose room is missing here
+            // shows no room tag.
             $view['roomNames'] = $rooms->namesById(!$security->isLoggedIn());
             if ($roomId > 0) {
                 $view['roomNames'][$roomId] = (string) $room['name'];

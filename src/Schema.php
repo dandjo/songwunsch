@@ -135,7 +135,7 @@ final class Schema
                 `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
                 `slug`       VARCHAR(64)  NOT NULL COMMENT 'machine name in the address: /rooms/<slug>',
                 `name`       VARCHAR(128) NOT NULL COMMENT 'display name',
-                `active`     TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '0 = archived: hidden from the switcher and from guests, still reachable',
+                `active`     TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '0 = archived: out of the switcher and the list, reachable to signed-in users only',
                 `listed`     TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '1 = guests see the room in the switcher and the list of rooms; 0 = reached through its address only',
                 `created_at` DATETIME     NOT NULL,
                 `updated_at` DATETIME     NOT NULL,
