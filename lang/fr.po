@@ -1000,8 +1000,8 @@ msgstr "Supprimer la suggestion « {title} » ?"
 msgid "Adopt suggestion"
 msgstr "Reprendre la suggestion"
 
-msgid "Artist and title come from the suggestion – check them and add length and genre. The song goes on the list and straight onto the wish list, the suggestion off it."
-msgstr "L’artiste et le titre viennent de la suggestion – vérifiez-les et ajoutez la durée et le genre. Le morceau rejoint la liste et passe directement sur la liste de souhaits, la suggestion disparaît."
+msgid "Artist and title come from the suggestion – check them and add length and genre. The song goes on the list and onto the wish list, the suggestion off it."
+msgstr "L’artiste et le titre viennent de la suggestion – vérifiez-les et ajoutez la durée et le genre. Le morceau rejoint la liste et la liste de souhaits, la suggestion disparaît."
 
 msgid "Thanks, your suggestion is in."
 msgstr "Merci, votre suggestion est enregistrée."
@@ -1775,3 +1775,17 @@ msgstr "État de la salle : secondes entre deux vérifications"
 
 msgid "The song list asks this often whether the room was closed or opened, so the Wish buttons disappear and reappear for everyone without a reload. 0 switches that off."
 msgstr "La liste des chansons demande à cette fréquence si la salle a été fermée ou ouverte, pour que les boutons Souhaiter disparaissent et réapparaissent chez tout le monde sans rechargement. 0 désactive cela."
+
+# ---- Adopting a suggestion: where the wish queues ------------------------------
+
+msgid "On the wish list"
+msgstr "Sur la liste de souhaits"
+
+msgid "At the top of the wish list"
+msgstr "En haut de la liste de souhaits"
+
+msgid "At the bottom of the wish list"
+msgstr "En bas de la liste de souhaits"
+
+msgid "The song is put on the wish list of the room the suggestion was made in."
+msgstr "Le morceau est placé sur la liste de souhaits de la salle où la suggestion a été faite."
