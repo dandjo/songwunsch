@@ -51,17 +51,15 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
     <div>
         <div class="panel__title">
             <h1><?= $e($inRoom ? (string) $room['name'] : t('Repertoire')) ?></h1>
-            <?php if (!$paused): ?><?= help_button('help-songs') ?><?php endif; ?>
+            <?= help_button('help-songs') ?>
         </div>
-        <p class="muted">
+        <p class="muted help" id="help-songs">
             <?= $e(tn('{n} song', '{n} songs', $total, ['n' => Format::number($total)])) ?>
             <?= $e($q !== '' ? t('found for “{q}”.', ['q' => $q]) : ($inRoom ? t('in this room.') : t('in the repertoire.'))) ?>
-        </p>
-        <?php if (!$paused): ?>
-            <p class="muted help" id="help-songs">
+            <?php if (!$paused): ?>
                 <?= t('A click on {wish} drops the song into the list.', ['wish' => '<em>' . $e(t('Wish')) . '</em>']) ?>
-            </p>
-        <?php endif; ?>
+            <?php endif; ?>
+        </p>
     </div>
 
     <?php if (($inRoom && $security->can('rooms')) || (!$inRoom && $security->can('songs'))): ?>

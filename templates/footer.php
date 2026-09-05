@@ -43,10 +43,8 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
             <h1><?= $e(t('Footer')) ?></h1>
             <?= help_button('help-footer') ?>
         </div>
-        <p class="muted">
-            <?= $e(t('{n} of {total} pages are linked in the footer.', ['n' => count($linked), 'total' => count($linked) + count($available)])) ?>
-        </p>
         <p class="muted help" id="help-footer">
+            <?= $e(t('{n} of {total} pages are linked in the footer.', ['n' => count($linked), 'total' => count($linked) + count($available)])) ?>
             <?= $e(t('Move pages with the arrows: to the right into the footer, to the left out of it. On the right, drag a row or use its arrows to change the order.')) ?>
             <?= $e(t('Below the links stands your own line – credits, a link to your site.')) ?>
         </p>

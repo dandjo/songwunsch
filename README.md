@@ -990,8 +990,9 @@ its title. So the list or form starts as high as possible, that explanation
 is folded away behind a small *?* beside the title: a press opens it, a
 second press closes it, and the browser tab remembers the choice per page
 (`sessionStorage`), so a live update or a soft navigation does not shut it
-again. Status lines – how many wishes are queued, how many songs are in the
-room, that the room is closed – stay visible. Without JavaScript there is no
+again. The counts – how many wishes are queued, how many songs are in the
+room – are part of that help; only the note that the room is closed stays
+visible on the wish list. Without JavaScript there is no
 button and the text simply stands where it is; the text stays linked to the
 button (`aria-controls`, `aria-expanded`).
 

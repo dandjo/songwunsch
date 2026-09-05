@@ -29,10 +29,8 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
             <h1><?= $e(t('Pages')) ?></h1>
             <?= help_button('help-pages') ?>
         </div>
-        <p class="muted">
-            <?= $e($q !== '' ? tn('{n} page found.', '{n} pages found.', count($rows)) : tn('{n} page.', '{n} pages.', count($rows))) ?>
-        </p>
         <p class="muted help" id="help-pages">
+            <?= $e($q !== '' ? tn('{n} page found.', '{n} pages found.', count($rows)) : tn('{n} page.', '{n} pages.', count($rows))) ?>
             <?= t('Every page is open to everyone under its address and may link to any other – for an imprint, FAQs or a privacy notice. Which pages the footer links, and in which order, is set under {footer}; the order of the language chips is the fallback order set under {languages}.', [
                 'footer'    => '<a href="' . $e(url(['p' => 'footer'])) . '">' . $e(t('Footer')) . '</a>',
                 'languages' => '<a href="' . $e(url(['p' => 'languages'])) . '">' . $e(t('Languages')) . '</a>',
