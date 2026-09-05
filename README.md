@@ -722,11 +722,14 @@ two buttons on every row:
 
 * **Adopt** opens the *Add song* form as *Adopt suggestion*: artist and
   title are filled in, the cursor waits in the length field for what is
-  missing – length and genre. *Add* creates the song, puts it into the
-  suggestion's room if there was one, places it on that room's wish list in
-  the name of whoever suggested it (the suggestion was a wish, after all)
-  and deletes the suggestion, all in one go; *Cancel* leaves everything as
-  it was.
+  missing – length and genre. Below the genre the editor chooses where the
+  wish queues: at the **top** of the room's wish list (the default – the
+  suggestion is usually adopted the moment it comes up, so the audience
+  should see it played soon) or at the **bottom**. *Add* creates the song,
+  puts it into the suggestion's room if there was one, places it on that
+  room's wish list in the name of whoever suggested it (the suggestion was
+  a wish, after all) and deletes the suggestion, all in one go; *Cancel*
+  leaves everything as it was.
 * **Delete** drops the suggestion. It asks for confirmation unless the
   editor switched that off under User settings; *Clear list* above the list
   deletes every suggestion and always asks.

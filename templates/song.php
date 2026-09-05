@@ -39,7 +39,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
         <h1><?= $e($adopt !== null ? t('Adopt suggestion') : ($isNew ? t('Add song') : t('Edit song'))) ?></h1>
         <p class="muted">
             <?php if ($adopt !== null): ?>
-                <?= $e(t('Artist and title come from the suggestion – check them and add length and genre. The song goes on the list and straight onto the wish list, the suggestion off it.')) ?>
+                <?= $e(t('Artist and title come from the suggestion – check them and add length and genre. The song goes on the list and onto the wish list, the suggestion off it.')) ?>
                 <?php if ($adoptRoom !== null): ?>
                     <?= $e(t('It was suggested in room “{room}”, so the song is offered there as well.', ['room' => (string) $adoptRoom['name']])) ?>
                 <?php endif; ?>
@@ -108,6 +108,28 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
             <?php endif; ?>
             <?= $fieldError('genre') ?>
         </div>
+
+        <?php if ($adopt !== null): ?>
+            <?php /* An adopted suggestion is a wish already; the editor says
+                     where it queues. The top is preselected: a suggestion is
+                     usually adopted the moment it comes up, so the audience
+                     should see it played soon. */ ?>
+            <?php $atBottom = ($values['wish_position'] ?? 'top') === 'bottom'; ?>
+            <fieldset class="field field--group" aria-describedby="hint-wish_position">
+                <legend><?= $e(t('On the wish list')) ?></legend>
+                <label class="check">
+                    <input type="radio" name="wish_position" value="top"<?= $atBottom ? '' : ' checked' ?>>
+                    <span><?= $e(t('At the top of the wish list')) ?></span>
+                </label>
+                <label class="check">
+                    <input type="radio" name="wish_position" value="bottom"<?= $atBottom ? ' checked' : '' ?>>
+                    <span><?= $e(t('At the bottom of the wish list')) ?></span>
+                </label>
+                <p class="field__hint" id="hint-wish_position">
+                    <?= $e(t('The song is put on the wish list of the room the suggestion was made in.')) ?>
+                </p>
+            </fieldset>
+        <?php endif; ?>
 
         <div class="panel__actions">
             <button type="submit" class="wish-button">
