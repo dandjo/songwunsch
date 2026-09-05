@@ -158,11 +158,19 @@ code {
    border, so its horizontal padding includes the panel's 1px border to make
    both texts align exactly. */
 .dome {
+    /* The whole header -- word mark or logo, room switcher, navigation,
+       menus and notices -- sticks to the top while the page scrolls. Its
+       own opaque ground hides the content passing beneath; the z-index
+       lifts it and the popouts inside it over the content. */
+    position: sticky;
+    top: 0;
+    z-index: 30;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: .75rem 1.5rem;
     padding: .9rem calc(var(--gutter) + 1px);
+    background: var(--shell);
     border-bottom: 1px solid var(--line);
     text-align: left;
 }
