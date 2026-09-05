@@ -714,7 +714,7 @@ code {
 .panel__actions form { margin: 0; }
 
 /* The title with the "?" beside it that opens the page's help (app.js,
-   help_button()). The button is a small dotted ring in the accent colour;
+   help_button()). The button is a small dashed ring in the accent colour;
    pressed it fills with gold. Rendered hidden -- without JavaScript there is no
    button and the help text stands open below the title. */
 .panel__title { display: flex; align-items: center; gap: .6rem; margin: 0 0 .3rem; }
@@ -727,7 +727,7 @@ code {
     width: 1.45rem;
     height: 1.45rem;
     padding: 0;
-    border: 1.5px dotted var(--gold);
+    border: 1.5px dashed var(--gold);
     border-radius: 50%;
     background: transparent;
     color: var(--text-muted);
