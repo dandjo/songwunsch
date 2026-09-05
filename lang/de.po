@@ -1700,8 +1700,8 @@ msgstr "Gäste sehen den Raum im Raumwechsler und in der Raumliste; ein nicht ge
 msgid "unlisted"
 msgstr "nicht gelistet"
 
-msgid "Unlisted rooms are reached through their address only: guests see them neither here nor in the room switcher."
-msgstr "Nicht gelistete Räume sind nur über ihre Adresse erreichbar: Gäste sehen sie weder hier noch im Raumwechsler."
+msgid "Unlisted rooms are reached through their address only: guests see them neither here nor among the rooms offered in the room switcher – only a guest who has entered one finds it there under “Your rooms”."
+msgstr "Nicht gelistete Räume sind nur über ihre Adresse erreichbar: Gäste sehen sie weder hier noch unter den angebotenen Räumen im Raumwechsler – nur wer einen betreten hat, findet ihn dort unter „Deine Räume“."
 
 # ---- QR code (Rooms) ------------------------------------------------------------
 
@@ -1728,3 +1728,8 @@ msgstr "Drucken"
 
 msgid "Back"
 msgstr "Zurück"
+
+# ---- Your rooms (room switcher) -------------------------------------------------
+
+msgid "Your rooms"
+msgstr "Deine Räume"

@@ -1696,8 +1696,8 @@ msgstr "les invités voient la salle dans le sélecteur de salles et dans la lis
 msgid "unlisted"
 msgstr "non répertoriée"
 
-msgid "Unlisted rooms are reached through their address only: guests see them neither here nor in the room switcher."
-msgstr "Les salles non répertoriées ne sont accessibles que par leur adresse : les invités ne les voient ni ici ni dans le sélecteur de salles."
+msgid "Unlisted rooms are reached through their address only: guests see them neither here nor among the rooms offered in the room switcher – only a guest who has entered one finds it there under “Your rooms”."
+msgstr "Les salles non répertoriées ne sont accessibles que par leur adresse : les invités ne les voient ni ici ni parmi les salles proposées dans le sélecteur de salles – seul un invité qui en a ouvert une la retrouve là sous « Vos salles »."
 
 # ---- QR code (Rooms) ------------------------------------------------------------
 
@@ -1724,3 +1724,8 @@ msgstr "Imprimer"
 
 msgid "Back"
 msgstr "Retour"
+
+# ---- Your rooms (room switcher) -------------------------------------------------
+
+msgid "Your rooms"
+msgstr "Vos salles"

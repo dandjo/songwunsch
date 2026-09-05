@@ -827,6 +827,16 @@ naming another room (`/rooms/<name>`, a QR code for instance), changes the
 memory.
 If the remembered room has been deleted, the cookie is dropped.
 
+**Your rooms.** Guests are offered the listed rooms only, so a guest who
+entered an unlisted room through its address or QR code and then switched
+rooms would have no way back but that link. Therefore the unlisted rooms a
+guest has entered are kept in a second cookie (`songwunsch_rooms`, one year,
+nothing but up to five machine names, the most recent first) and shown in
+the room switcher below the offered rooms under *Your rooms*. A room that is
+deleted, archived or listed in the meantime leaves the cookie on the next
+page view. Signed-in users see every active room anyway and get no such
+group.
+
 **Wish list per room.** Wishes carry `room_id` (0 = main room); order,
 clearing and deleting act only within the respective room. Only what is in
 the room can be wished for. Moderation applies to all rooms. When a room is
@@ -1060,7 +1070,7 @@ src/Limits.php         The limits on wishing and suggesting the admins set (Admi
 src/Colors.php         The colours the admins set (Administration -> Colours): shades, the :root block
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
 src/QrCode.php         QR codes of the room addresses, made here: encoding, Reed-Solomon, masks, SVG and PNG
-src/RoomMemory.php     The room chosen last: cookie, once-per-session restore
+src/RoomMemory.php     The room chosen last and the unlisted rooms a guest entered: two cookies
 src/Settings.php       Key/value store in the settings table
 src/Uploads.php        The header logos: check, store, deliver (uploads table)
 src/PageRepository.php Pages: validate, store, list; which are in the footer, in which order
@@ -1098,9 +1108,10 @@ docker/                Dockerfile, php.ini, entrypoint, Traefik configuration
   see [Pages and footer](#pages-and-footer).
 * Session cookie `HttpOnly` + `SameSite=Lax`, `Secure` as soon as HTTPS is
   active, `path` limited to the base path; `session_regenerate_id()` on
-  sign-in. The two further cookies – the guest's name (`songwunsch_name`) and
-  the room chosen last (`songwunsch_room`) – carry the same flags and hold
-  nothing but that one value each.
+  sign-in. The further cookies – the guest's name (`songwunsch_name`), the
+  room chosen last (`songwunsch_room`) and the unlisted rooms a guest entered
+  (`songwunsch_rooms`) – carry the same flags and hold nothing but those
+  values: a name, a room's machine name, up to five machine names.
 * Every writing action is a POST form with a CSRF token.
 * Every operating function checks sign-in **and** role in the front controller
   (`require_role`), not only in the view; JSON calls (drag & drop) receive

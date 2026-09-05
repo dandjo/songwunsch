@@ -290,6 +290,11 @@ if ($useMemory) {
 }
 if ($roomBound && (int) $room['id'] !== RoomRepository::DEFAULT_ID) {
     $roomMemory->remember((string) $room['slug']);
+    // A guest entering an unlisted room through its address: the switcher
+    // offers it to nobody, so it is kept under "Your rooms" (RoomMemory).
+    if (!$security->isLoggedIn() && (int) ($room['listed'] ?? 0) === 0) {
+        $roomMemory->noteVisit((string) $room['slug']);
+    }
 }
 
 current_room($room);
@@ -1329,6 +1334,7 @@ $view = [
     'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ...], wish list and suggestions
     'paused'     => false, // wishing closed by the moderator -- notice in the header
     'roomList'   => [],    // rooms for the switcher in the header
+    'ownRooms'   => [],    // guests: the unlisted rooms they entered, "Your rooms" in the switcher
     'guestName'  => $nameCookie->current(), // the visitor's name for wishes, account menu
     'askName'    => false, // first visit: ask for the name (dialog in the layout)
     'footer'     => '',    // the operator's own footer line (Administration -> Footer), HTML printed as is; filled below
@@ -1358,8 +1364,18 @@ try {
     if ($liveToken !== null) {
         $view['live'] = ['url' => url(['p' => $page, 'poll' => 1]), 'rev' => $liveToken];
     }
-    // The room switcher: guests get the listed rooms only.
+    // The room switcher: guests get the listed rooms only, plus the unlisted
+    // rooms they entered through their address, under "Your rooms". Rooms
+    // that are gone, archived or listed by now leave that memory.
     $view['roomList'] = $rooms->names(!$security->isLoggedIn());
+    if (!$security->isLoggedIn()) {
+        $own = array_values(array_filter(
+            $rooms->bySlugs($roomMemory->visited()),
+            static fn (array $r): bool => (int) $r['active'] === 1 && (int) $r['listed'] === 0,
+        ));
+        $roomMemory->pruneVisited(array_map(static fn (array $r): string => (string) $r['slug'], $own));
+        $view['ownRooms'] = $own;
+    }
     // The footer links the pages the admins put there, on every screen, and
     // carries the operator's own line below them.
     $view['footerPages'] = $pageRepo->footerLinks();

@@ -26,12 +26,25 @@ namespace Songwunsch;
  *  - without any memory (a first visit) the bare addresses lead into the
  *    start room the editors set under Rooms, if any -- see index.php.
  *
- * The cookie holds nothing but a room's machine name (or the MAIN mark):
+ * A second cookie (`songwunsch_rooms`, one year) keeps the unlisted rooms a
+ * guest has entered through their address: an unlisted room is offered in
+ * the room switcher to nobody, so once the guest switches away the link or
+ * QR code would be the only way back. The switcher shows these rooms under
+ * "Your rooms" -- the five most recent ones; index.php drops rooms that are
+ * gone, archived or listed by now.
+ *
+ * Both cookies hold nothing but rooms' machine names (or the MAIN mark):
  * no personal data.
  */
 final class RoomMemory
 {
     public const COOKIE = 'songwunsch_room';
+
+    /** The unlisted rooms entered through their address, most recent first. */
+    public const VISITED_COOKIE = 'songwunsch_rooms';
+
+    /** How many unlisted rooms are kept; the oldest one drops out. */
+    public const VISITED_MAX = 5;
 
     /** Cookie value for "the main room was chosen" -- no slug can look like this. */
     private const MAIN = '-';
@@ -71,7 +84,7 @@ final class RoomMemory
             return;
         }
         $value = $slug === '' ? self::MAIN : $slug;
-        $this->write($value, time() + 365 * 86400);
+        $this->write(self::COOKIE, $value, time() + 365 * 86400);
         $_COOKIE[self::COOKIE] = $value;
     }
 
@@ -81,13 +94,77 @@ final class RoomMemory
         if (!isset($_COOKIE[self::COOKIE])) {
             return;
         }
-        $this->write('', time() - 42000);
+        $this->write(self::COOKIE, '', time() - 42000);
         unset($_COOKIE[self::COOKIE]);
     }
 
-    private function write(string $value, int $expires): void
+    /**
+     * The unlisted rooms the guest has entered, most recent first -- slugs
+     * only; anything in the cookie that is no slug is ignored.
+     *
+     * @return list<string>
+     */
+    public function visited(): array
     {
-        setcookie(self::COOKIE, $value, [
+        $raw = $_COOKIE[self::VISITED_COOKIE] ?? null;
+        if (!is_string($raw) || $raw === '') {
+            return [];
+        }
+        $slugs = [];
+        foreach (explode(',', $raw) as $slug) {
+            if (preg_match(RoomRepository::SLUG_PATTERN, $slug) === 1 && !in_array($slug, $slugs, true)) {
+                $slugs[] = $slug;
+            }
+        }
+
+        return array_slice($slugs, 0, self::VISITED_MAX);
+    }
+
+    /** Put a room at the front of the visited rooms; the oldest drops out. */
+    public function noteVisit(string $slug): void
+    {
+        $slugs = $this->visited();
+        if (($slugs[0] ?? null) === $slug) {
+            return;
+        }
+        $slugs = array_values(array_filter($slugs, static fn (string $s): bool => $s !== $slug));
+        array_unshift($slugs, $slug);
+        $this->storeVisited(array_slice($slugs, 0, self::VISITED_MAX));
+    }
+
+    /**
+     * Keep only these of the visited rooms -- the others are gone, archived
+     * or listed by now. Writes the cookie only when something changes.
+     *
+     * @param list<string> $slugs
+     */
+    public function pruneVisited(array $slugs): void
+    {
+        $kept = array_values(array_filter($this->visited(), static fn (string $s): bool => in_array($s, $slugs, true)));
+        if ($kept !== $this->visited()) {
+            $this->storeVisited($kept);
+        }
+    }
+
+    /** @param list<string> $slugs */
+    private function storeVisited(array $slugs): void
+    {
+        if ($slugs === []) {
+            if (isset($_COOKIE[self::VISITED_COOKIE])) {
+                $this->write(self::VISITED_COOKIE, '', time() - 42000);
+                unset($_COOKIE[self::VISITED_COOKIE]);
+            }
+
+            return;
+        }
+        $value = implode(',', $slugs);
+        $this->write(self::VISITED_COOKIE, $value, time() + 365 * 86400);
+        $_COOKIE[self::VISITED_COOKIE] = $value;
+    }
+
+    private function write(string $name, string $value, int $expires): void
+    {
+        setcookie($name, $value, [
             'expires'  => $expires,
             'path'     => $this->cookiePath,
             'secure'   => $this->secure,

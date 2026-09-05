@@ -73,6 +73,7 @@
         root.querySelectorAll('input[data-roomfilter]').forEach(function (field) {
             var panel = field.closest('.roomswitch__panel');
             var items = panel ? panel.querySelectorAll('.roomswitch__menu li') : [];
+            var groups = panel ? panel.querySelectorAll('[data-roomgroup]') : [];
             var none = panel ? panel.querySelector('[data-roomfilter-empty]') : null;
             var details = field.closest('details');
 
@@ -83,6 +84,10 @@
                     var hit = needle === '' || li.textContent.toLowerCase().indexOf(needle) !== -1;
                     li.hidden = !hit;
                     if (hit) { shown++; }
+                });
+                // A group ("Your rooms") with no match left disappears with its title.
+                groups.forEach(function (group) {
+                    group.hidden = group.querySelector('li:not([hidden])') === null;
                 });
                 if (none) { none.hidden = shown > 0; }
             });

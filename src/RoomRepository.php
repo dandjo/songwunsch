@@ -152,6 +152,34 @@ final class RoomRepository
     }
 
     /**
+     * The rooms with these slugs, in the order given -- for the "Your rooms"
+     * part of a guest's room switcher (RoomMemory::visited()). Slugs that
+     * name no room are left out.
+     *
+     * @param  list<string> $slugs
+     * @return array<int,array<string,mixed>>
+     */
+    public function bySlugs(array $slugs): array
+    {
+        if ($slugs === []) {
+            return [];
+        }
+        $marks = implode(',', array_fill(0, count($slugs), '?'));
+        $found = [];
+        foreach ($this->db->all(self::SELECT . ' WHERE slug IN (' . $marks . ')', array_values($slugs)) as $row) {
+            $found[(string) $row['slug']] = $row;
+        }
+        $rows = [];
+        foreach ($slugs as $slug) {
+            if (isset($found[$slug])) {
+                $rows[] = $found[$slug];
+            }
+        }
+
+        return $rows;
+    }
+
+    /**
      * Display name by id of every room, archived ones too -- for tags on
      * rows that name their room. For guests the unlisted rooms are left out,
      * so their names do not show up on the public lists.

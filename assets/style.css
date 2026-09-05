@@ -551,6 +551,8 @@ code {
     list-style: none;
 }
 .roomswitch__none { margin: .3rem .7rem .4rem; font-size: .85rem; }
+/* "Your rooms" below the offered rooms, set apart by a line. */
+.roomswitch__group + .roomswitch__group { margin-top: .35rem; padding-top: .3rem; border-top: 1px solid var(--line); }
 /* Override the generic .nav a rule: menu entries are list items, not tabs. */
 .nav .roomswitch__item {
     display: flex;

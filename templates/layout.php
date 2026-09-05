@@ -20,6 +20,7 @@ use Songwunsch\Translator;
 /** @var \Songwunsch\Settings $settings */
 /** @var array<string,mixed> $room  current room; the default room has id 0 */
 /** @var array<int,array<string,mixed>> $roomList  all rooms, for the switcher */
+/** @var array<int,array<string,mixed>> $ownRooms  guests: the unlisted rooms they entered, "Your rooms" in the switcher */
 /** @var string|null $guestName  the visitor's name for wishes, from the cookie */
 /** @var bool $askName           first visit: ask for the name in a dialog */
 /** @var array{url:string,rev:string}|null $live  polling address and current revision, wish list and suggestions */
@@ -103,14 +104,16 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
         </div>
 
         <nav class="nav" aria-label="<?= $e(t('Main navigation')) ?>">
-            <?php if ($roomList !== []): ?>
+            <?php if ($roomList !== [] || $ownRooms !== []): ?>
                 <?php /* Room switcher: a <details> like the language menu, labelled
                          "You are here: <room>" so the name reads as a place, not as
                          a page. On phones it takes a row of its own above the tabs,
                          on wider screens it stands at the left, apart from them
                          (CSS). Lists the main room and every active room -- for
-                         guests only the listed ones; works without JavaScript.
-                         The visible text is the accessible name. */ ?>
+                         guests only the listed ones, plus the unlisted rooms they
+                         entered through their address under "Your rooms"
+                         (RoomMemory); works without JavaScript. The visible text
+                         is the accessible name. */ ?>
                 <details class="roomswitch">
                     <summary class="roomswitch__toggle">
                         <?= icon('door') ?><span class="roomswitch__label"><?= $e(t('You are here')) ?>:</span>
@@ -121,7 +124,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                     </summary>
                     <div class="roomswitch__panel">
                     <p class="roomswitch__title"><?= $e(t('Switch room')) ?></p>
-                    <?php if (count($roomList) > 6): ?>
+                    <?php if (count($roomList) + count($ownRooms) > 6): ?>
                         <?php /* Filter field, wired up by app.js; without JavaScript
                                  the full list simply stays visible. */ ?>
                         <label class="roomswitch__filter">
@@ -129,20 +132,36 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                             <input type="search" data-roomfilter placeholder="<?= $e(t('Filter …')) ?>" autocomplete="off">
                         </label>
                     <?php endif; ?>
+                    <?php
+                    // Switching stays where one is. On a page that carries its
+                    // room in the address (song list, wish list, suggestions,
+                    // song picker) the entries link to the same page of the
+                    // target room -- the main room has no picker and no address
+                    // of its own, so choosing it is a POST that clears the
+                    // remembered room (RoomMemory). On every other page (users,
+                    // rooms, admin, login, ...) the room is only the remembered
+                    // context: every entry is a POST that remembers the room and
+                    // comes back to this very address.
+                    // Two groups: the main room with the offered rooms, and -- for
+                    // guests -- "Your rooms", the unlisted ones they entered. The
+                    // filter (app.js) hides a group whose entries are all hidden.
+                    $roomInAddress = in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs'], true);
+                    $roomGroups    = [
+                        ['title' => '', 'rooms' => array_merge([RoomRepository::defaultRoom()], $roomList)],
+                        ['title' => t('Your rooms'), 'rooms' => $ownRooms],
+                    ];
+                    foreach ($roomGroups as $group):
+                        if ($group['rooms'] === []) {
+                            continue;
+                        }
+                    ?>
+                    <div class="roomswitch__group" data-roomgroup>
+                    <?php if ($group['title'] !== ''): ?>
+                        <p class="roomswitch__title"><?= $e($group['title']) ?></p>
+                    <?php endif; ?>
                     <ul class="roomswitch__menu" role="list">
                         <?php
-                        // Switching stays where one is. On a page that carries its
-                        // room in the address (song list, wish list, suggestions,
-                        // song picker) the entries link to the same page of the
-                        // target room -- the main room has no picker and no address
-                        // of its own, so choosing it is a POST that clears the
-                        // remembered room (RoomMemory). On every other page (users,
-                        // rooms, admin, login, ...) the room is only the remembered
-                        // context: every entry is a POST that remembers the room and
-                        // comes back to this very address.
-                        $roomInAddress = in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs'], true);
-                        $switchable    = array_merge([RoomRepository::defaultRoom()], $roomList);
-                        foreach ($switchable as $entry):
+                        foreach ($group['rooms'] as $entry):
                             $active     = (int) $entry['id'] === (int) $room['id'];
                             $targetSlug = (string) ($entry['slug'] ?? '');
                             $switchPage = match (true) {
@@ -175,6 +194,8 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                             </li>
                         <?php endforeach; ?>
                     </ul>
+                    </div>
+                    <?php endforeach; ?>
                     <p class="roomswitch__none muted" data-roomfilter-empty hidden><?= $e(t('No room matches.')) ?></p>
                     </div>
                 </details>
