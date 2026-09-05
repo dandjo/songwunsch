@@ -180,9 +180,9 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                             // page keep their address.
                             $onEditForm = $page === 'room' && (($hereParams['id'] ?? 0) > 0 || isset($hereParams['main']));
                             $switchBack = match (true) {
-                                $onEditForm && $targetSlug === '' => url(['p' => 'room', 'main' => 1]),
-                                $onEditForm                       => url(['p' => 'room', 'id' => (int) $entry['id']]),
-                                $page === 'room_qr'               => url(['p' => 'room_qr', 'room' => $targetSlug, 'back' => $_GET['back'] ?? null]),
+                                $onEditForm && $targetSlug === '' => url(['p' => 'room', 'main' => 1, 'back' => safe_target($_GET['back'] ?? null)]),
+                                $onEditForm                       => url(['p' => 'room', 'id' => (int) $entry['id'], 'back' => safe_target($_GET['back'] ?? null)]),
+                                $page === 'room_qr'               => url(['p' => 'room_qr', 'room' => $targetSlug, 'back' => safe_target($_GET['back'] ?? null)]),
                                 default                           => $here,
                             };
                         ?>

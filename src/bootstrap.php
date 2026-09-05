@@ -365,6 +365,20 @@ function back(?string $fallback = null): string
 }
 
 /**
+ * The destination of a form: where Cancel leads and where the save action
+ * redirects to -- the page the visitor came from (Drupal calls this the
+ * "destination"). The link into the form passes the current address as
+ * 'back'; the form carries it in a hidden field, so it survives the
+ * post/redirect/get round trip and a validation error; the save action
+ * redirects to it. Missing or unsafe (safe_target): the fallback, normally
+ * the list the form belongs to.
+ */
+function destination(string $fallback): string
+{
+    return safe_target($_POST['back'] ?? $_GET['back'] ?? null) ?? $fallback;
+}
+
+/**
  * Carry input and errors across the redirect. After post/redirect/get the
  * form is rebuilt and should show both again instead of making the user type
  * everything once more.

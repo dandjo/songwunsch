@@ -23,8 +23,8 @@ $e = static fn (?string $v): string => Format::e($v);
 $textLang = (string) $content['lang'] !== $translator->code() ? ' lang="' . $e((string) $content['lang']) . '"' : '';
 
 // Admins land on the tab of their interface language -- the one to fill in
-// when the page fell back to another.
-$editUrl = url(['p' => 'page_edit', 'id' => (int) $content['id']]) . '#lang-' . rawurlencode($translator->code());
+// when the page fell back to another -- and come back to this page.
+$editUrl = url(['p' => 'page_edit', 'id' => (int) $content['id'], 'back' => url(['p' => 'page', 'slug' => (string) $content['slug']])]) . '#lang-' . rawurlencode($translator->code());
 ?>
 
 <?php /* The head as on every page: the title, the admins' Edit at the top

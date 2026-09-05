@@ -26,6 +26,8 @@ $e         = static fn (?string $v): string => Format::e($v);
 $currentId = (int) $room['id'];
 $canCount  = $security->can('wishes');
 $listUrl   = static fn (array $extra = []): string => url(array_merge(['p' => 'rooms', 'q' => $q, 'filter' => $canEdit ? $filter : null], $extra));
+// This very page of the list -- the destination the forms and the QR page return to.
+$here      = $listUrl(['page' => $pageNo > 1 ? $pageNo : null]);
 // The main room heads the list once: first page, no search, not the archive.
 $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
 // Guests get no action column: the room's name is the link into the room.
@@ -71,7 +73,7 @@ $hasActions = $canPause || $canEdit;
                     </button>
                 </form>
             <?php endif; ?>
-            <a class="link-button" href="<?= $e(url(['p' => 'room'])) ?>"><?= icon('plus') ?><?= $e(t('Add room')) ?></a>
+            <a class="link-button" href="<?= $e(url(['p' => 'room', 'back' => $here])) ?>"><?= icon('plus') ?><?= $e(t('Add room')) ?></a>
         </div>
     <?php endif; ?>
 </div>
@@ -208,7 +210,7 @@ $hasActions = $canPause || $canEdit;
                         <?php endif; ?>
                         <?php if ($canEdit): ?>
                             <?php /* The room's address as a QR code -- the main room's as well. */ ?>
-                            <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug, 'back' => $listUrl(['page' => $pageNo > 1 ? $pageNo : null])])) ?>">
+                            <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug, 'back' => $here])) ?>">
                                 <?= icon('qr') ?>
                                 <span class="button__label"><?= $e(t('QR code')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
@@ -216,7 +218,7 @@ $hasActions = $canPause || $canEdit;
                         <?php endif; ?>
                         <?php if ($canEdit && $isMain): ?>
                             <?php /* The main room cannot be managed or deleted, but renamed. */ ?>
-                            <a class="link-button" href="<?= $e(url(['p' => 'room', 'main' => 1])) ?>">
+                            <a class="link-button" href="<?= $e(url(['p' => 'room', 'main' => 1, 'back' => $here])) ?>">
                                 <?= icon('pencil') ?>
                                 <span class="button__label"><?= $e(t('Rename')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
@@ -229,7 +231,7 @@ $hasActions = $canPause || $canEdit;
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                             </a>
                             <div class="row-actions__pair">
-                                <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url(['p' => 'room', 'id' => (int) $row['id']])) ?>">
+                                <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url(['p' => 'room', 'id' => (int) $row['id'], 'back' => $here])) ?>">
                                     <?= icon('pencil') ?>
                                     <span class="button__label"><?= $e(t('Edit')) ?></span>
                                     <span class="sr-only">: <?= $e((string) $row['name']) ?></span>

@@ -12,11 +12,11 @@ use Songwunsch\UserRepository;
 /** @var array<string,string> $values */
 /** @var array<string,string> $errors */
 /** @var string $csrf */
+/** @var string $back  where Cancel and a save return to: the page the visitor came from, see destination() */
 
 $e       = static fn (?string $v): string => Format::e($v);
 $isNew   = $id === 0;
 $isSelf  = $user !== null && (int) $user['id'] === $selfId;
-$backUrl = url(['p' => 'users']);
 
 $fieldError = static function (string $field) use ($errors, $e): string {
     if (!isset($errors[$field])) {
@@ -60,6 +60,7 @@ $isAdmin = ($values['role_admin'] ?? '') === '1';
         <input type="hidden" name="a" value="user_save">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="id" value="<?= (int) $id ?>">
+        <input type="hidden" name="back" value="<?= $e($back) ?>">
 
         <div class="field">
             <label for="username"><?= $e(t('Username')) ?></label>
@@ -130,7 +131,7 @@ $isAdmin = ($values['role_admin'] ?? '') === '1';
 
         <div class="panel__actions">
             <button type="submit" class="wish-button"><?= icon($isNew ? 'plus' : 'check') ?><?= $e($isNew ? t('Create') : t('Save')) ?></button>
-            <a class="link-button" href="<?= $e($backUrl) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
+            <a class="link-button" href="<?= $e($back) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
         </div>
     </form>
 </div>

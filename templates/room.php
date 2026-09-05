@@ -13,11 +13,11 @@ use Songwunsch\RoomRepository;
 /** @var bool $roomClosed   wishing closed in this room */
 /** @var bool $roomActive   the stored state, not the form's input */
 /** @var string $roomSlug   the stored machine name, for the QR code link ('' = main room) */
+/** @var string $back       where Cancel and a save return to: the page the visitor came from, see destination() */
 /** @var string $csrf */
 
 $e       = static fn (?string $v): string => Format::e($v);
 $isNew   = $id === 0;
-$backUrl = url(['p' => 'rooms']);
 
 $fieldError = static function (string $field) use ($errors, $e): string {
     if (!isset($errors[$field])) {
@@ -52,7 +52,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
             $switchId     = (int) $id;
             $switchActive = $roomActive;
             $switchClosed = $roomClosed;
-            $switchBack   = $main ? url(['p' => 'room', 'main' => 1]) : url(['p' => 'room', 'id' => $id]);
+            $switchBack   = $main ? url(['p' => 'room', 'main' => 1, 'back' => $back]) : url(['p' => 'room', 'id' => $id, 'back' => $back]);
             require __DIR__ . '/_room_switches.php';
             ?>
             <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $roomSlug, 'back' => $switchBack])) ?>"><?= icon('qr') ?><?= $e(t('QR code')) ?></a>
@@ -69,6 +69,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
         <input type="hidden" name="a" value="<?= $main ? 'main_room_save' : 'room_save' ?>">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="id" value="<?= (int) $id ?>">
+        <input type="hidden" name="back" value="<?= $e($back) ?>">
 
         <div class="field">
             <label for="name"><?= $e(t('Name')) ?></label>
@@ -111,7 +112,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
 
         <div class="panel__actions">
             <button type="submit" class="wish-button"><?= icon($isNew && !$main ? 'plus' : 'check') ?><?= $e($isNew && !$main ? t('Create') : t('Save')) ?></button>
-            <a class="link-button" href="<?= $e($backUrl) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
+            <a class="link-button" href="<?= $e($back) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
         </div>
     </form>
 </div>

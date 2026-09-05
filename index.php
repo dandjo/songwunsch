@@ -468,6 +468,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     flash('error', t('This page was not found.'));
                     redirect(url(['p' => 'pages']));
                 }
+                // Where the form came from -- the list of pages or the page itself.
+                $back = destination(url(['p' => 'pages']));
 
                 // "Remove <language>" on a tab: the language goes right away,
                 // nothing else of the form is saved. A page keeps at least one.
@@ -479,7 +481,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     } else {
                         flash('error', t('{language} could not be removed: a page needs at least one language.', ['language' => $label]));
                     }
-                    redirect(url(['p' => 'page_edit', 'id' => $id]) . '#lang-' . rawurlencode($remove));
+                    redirect(url(['p' => 'page_edit', 'id' => $id, 'back' => $back]) . '#lang-' . rawurlencode($remove));
                 }
 
                 $strings = static fn (mixed $list): array => is_array($list)
@@ -491,7 +493,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'body'  => $strings($_POST['body'] ?? null),
                 ];
                 $checked = $pageRepo->validate($input, $existing);
-                $formUrl = url(['p' => 'page_edit', 'id' => $id > 0 ? $id : null]);
+                $formUrl = url(['p' => 'page_edit', 'id' => $id > 0 ? $id : null, 'back' => $back]);
 
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
@@ -507,7 +509,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pageRepo->update($id, $checked['values']);
                     flash('ok', t('Page “{title}” has been saved.', ['title' => $title]));
                 }
-                redirect(url(['p' => 'pages']));
+                redirect($back);
                 // no break
 
             case 'page_delete':
@@ -1116,11 +1118,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Rename the main room. It has no row of its own; the name
                 // lives in the settings. Empty means back to the default.
                 require_role($security, 'rooms');
+                $back = destination(url(['p' => 'rooms']));
                 $name = trim(preg_replace('/\s+/u', ' ', (string) ($_POST['name'] ?? '')) ?? '');
                 if (mb_strlen($name) > RoomRepository::MAX_NAME) {
                     remember_input(['name' => $name], ['name' => t('{field} is too long: at most {max} characters.', ['field' => t('Name'), 'max' => RoomRepository::MAX_NAME])]);
                     flash('error', t('Please check the highlighted fields.'));
-                    redirect(url(['p' => 'room', 'main' => 1]));
+                    redirect(url(['p' => 'room', 'main' => 1, 'back' => $back]));
                 }
                 if ($name === '') {
                     $settings->delete(RoomRepository::MAIN_NAME_KEY);
@@ -1131,7 +1134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     RoomRepository::nameMainRoom($name);
                     flash('ok', t('“General” is now called “{name}”.', ['name' => $name]));
                 }
-                redirect(url(['p' => 'rooms']));
+                redirect($back);
                 // no break
 
             case 'room_save':
@@ -1143,6 +1146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     flash('error', t('This room was not found.'));
                     redirect(url(['p' => 'rooms']));
                 }
+                $back = destination(url(['p' => 'rooms']));
 
                 $input = [
                     'slug'   => (string) ($_POST['slug'] ?? ''),
@@ -1151,7 +1155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'listed' => (string) ($_POST['listed'] ?? ''),
                 ];
                 $checked = $rooms->validate($input, $existing);
-                $formUrl = url(['p' => 'room', 'id' => $id > 0 ? $id : null]);
+                $formUrl = url(['p' => 'room', 'id' => $id > 0 ? $id : null, 'back' => $back]);
 
                 if ($checked['errors'] !== []) {
                     remember_input($input, $checked['errors']);
@@ -1182,6 +1186,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($existing === null) {
+                    // A new room is empty: the way leads on to its song
+                    // selection, not back -- the only save that does not.
                     flash('ok', t('Room “{name}” has been created. Now pick its songs from the master list.', ['name' => $checked['values']['name']]));
                     redirect(url(['p' => 'room_songs', 'room' => $checked['values']['slug']]));
                 }
@@ -1189,7 +1195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flash('ok', $archivedNow
                     ? t('Room “{name}” has been archived and closed.', ['name' => $checked['values']['name']])
                     : t('Room “{name}” has been saved.', ['name' => $checked['values']['name']]));
-                redirect(url(['p' => 'rooms']));
+                redirect($back);
                 // no break
 
             case 'room_delete':
@@ -1247,6 +1253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     flash('error', t('This user was not found.'));
                     redirect(url(['p' => 'users']));
                 }
+                $back = destination(url(['p' => 'users']));
 
                 $input = [
                     'username'       => (string) ($_POST['username'] ?? ''),
@@ -1270,7 +1277,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
-                $formUrl = url(['p' => 'user', 'id' => $id > 0 ? $id : null]);
+                $formUrl = url(['p' => 'user', 'id' => $id > 0 ? $id : null, 'back' => $back]);
 
                 if ($checked['errors'] !== []) {
                     // Passwords never go into the session.
@@ -1297,7 +1304,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     flash('ok', t('User “{name}” has been saved.', ['name' => $checked['values']['username']]));
                 }
-                redirect(url(['p' => 'users']));
+                redirect($back);
                 // no break
 
             case 'user_delete':
@@ -1566,6 +1573,7 @@ try {
             $filled = array_values(array_intersect(array_keys($languages), array_keys($kept['values']['title'] ?? $versions)));
 
             $view['title']     = $id === 0 ? t('Add page') : t('Edit page');
+            $view['back']      = destination(url(['p' => 'pages']));
             $view['template']  = 'page_edit';
             $view['editor']    = true;
             $view['id']        = $id;
@@ -1659,7 +1667,7 @@ try {
             // The room the suggestion was made in -- the song will join it.
             $view['adoptRoom'] = $adopt !== null && (int) $adopt['room_id'] > 0 ? $rooms->find((int) $adopt['room_id']) : null;
             $view['errors']   = $kept['errors'] ?? [];
-            $view['back']     = safe_target($_GET['back'] ?? null) ?? url(['p' => $adopt !== null ? 'suggestions' : 'songs']);
+            $view['back']     = destination(url(['p' => $adopt !== null ? 'suggestions' : 'songs']));
             $view['values']   = $kept['values'] ?? [
                 'artist' => (string) ($adopt['artist'] ?? $song['artist'] ?? ''),
                 'title'  => (string) ($adopt['title'] ?? $song['title'] ?? ''),
@@ -1707,7 +1715,7 @@ try {
             // first visit shows in a dialog, as a page for later changes.
             $view['title']    = t('Your name');
             $view['template'] = 'name';
-            $view['back']     = safe_target($_GET['back'] ?? null) ?? url(['p' => 'songs']);
+            $view['back']     = destination(url(['p' => 'songs']));
             break;
 
         case 'settings':
@@ -1758,6 +1766,7 @@ try {
             $view['title']    = $id === 0 ? t('Add user') : t('Edit user');
             $view['template'] = 'user';
             $view['id']       = $id;
+            $view['back']     = destination(url(['p' => 'users']));
             $view['user']     = $user;
             $view['selfId']   = (int) $security->user()['id'];
             // The only active admin (oneself, necessarily) keeps the role; the
@@ -1830,6 +1839,7 @@ try {
                 $view['template'] = 'room';
                 $view['id']       = 0;
                 $view['main']     = true;
+                $view['back']     = destination(url(['p' => 'rooms']));
                 $view['startRoomId'] = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
                 $view['roomClosed']  = $guard->pausedIn(RoomRepository::DEFAULT_ID);
                 $view['roomActive']  = true;
@@ -1853,6 +1863,7 @@ try {
             $view['template'] = 'room';
             $view['id']       = $id;
             $view['main']     = false;
+            $view['back']     = destination(url(['p' => 'rooms']));
             // The switches beside the title (start room, close/open) -- for an existing room.
             $view['startRoomId'] = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
             $view['roomClosed']  = $id > 0 && $guard->pausedIn($id);
@@ -1894,7 +1905,7 @@ try {
             $view['template'] = 'room_qr';
             // "Back" leads where one came from -- the room list or the room's
             // edit form, both hand their address over; the list is the fallback.
-            $view['back']     = safe_target($_GET['back'] ?? null) ?? url(['p' => 'rooms']);
+            $view['back']     = destination(url(['p' => 'rooms']));
             $view['address']  = $address;
             $view['svg']      = QrCode::svg($address);
             $view['hasPng']   = function_exists('imagecreate');

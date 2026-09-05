@@ -36,7 +36,7 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
     </div>
 
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url(['p' => 'page_edit'])) ?>"><?= icon('plus') ?><?= $e(t('Add page')) ?></a>
+        <a class="link-button" href="<?= $e(url(['p' => 'page_edit', 'back' => url(['p' => 'pages', 'q' => $q])])) ?>"><?= icon('plus') ?><?= $e(t('Add page')) ?></a>
     </div>
 </div>
 
@@ -69,7 +69,7 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
             <?php
             $title   = (string) $row['title'];
             $pageUrl = url(['p' => 'page', 'slug' => (string) $row['slug']]);
-            $editUrl = url(['p' => 'page_edit', 'id' => (int) $row['id']]);
+            $editUrl = url(['p' => 'page_edit', 'id' => (int) $row['id'], 'back' => url(['p' => 'pages', 'q' => $q])]);
             ?>
             <tr>
                 <td class="cell-title"<?= (string) $row['lang'] !== $translator->code() ? ' lang="' . $e((string) $row['lang']) . '"' : '' ?>><?= $e($title) ?></td>

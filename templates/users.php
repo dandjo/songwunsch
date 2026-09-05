@@ -27,7 +27,7 @@ $e = static fn (?string $v): string => Format::e($v);
     </div>
 
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url(['p' => 'user'])) ?>"><?= icon('plus') ?><?= $e(t('Add user')) ?></a>
+        <a class="link-button" href="<?= $e(url(['p' => 'user', 'back' => url(['p' => 'users', 'q' => $q])])) ?>"><?= icon('plus') ?><?= $e(t('Add user')) ?></a>
     </div>
 </div>
 
@@ -88,7 +88,7 @@ $e = static fn (?string $v): string => Format::e($v);
                 <td class="cell-action">
                     <div class="row-actions">
                         <div class="row-actions__pair">
-                            <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url(['p' => 'user', 'id' => (int) $row['id']])) ?>">
+                            <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url(['p' => 'user', 'id' => (int) $row['id'], 'back' => url(['p' => 'users', 'q' => $q])])) ?>">
                                 <?= icon('pencil') ?>
                                 <span class="button__label"><?= $e(t('Edit')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['username']) ?></span>

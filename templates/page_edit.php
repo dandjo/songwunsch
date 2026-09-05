@@ -23,6 +23,7 @@ use Songwunsch\Translator;
  * @var array{slug?:string,title?:array<string,string>,body?:array<string,string>} $values
  * @var array<string,string> $errors       slug, title.<code>, body.<code>, versions
  * @var string $csrf
+ * @var string $back                      where Cancel and a save return to: the page the visitor came from, see destination()
  * @var Translator $translator
  * @var array<string,string> $languages    code => native name, the tabs
  * @var array<int,string> $saved           codes the page is saved in (tab marks)
@@ -31,7 +32,6 @@ use Songwunsch\Translator;
 
 $e       = static fn (?string $v): string => Format::e($v);
 $isNew   = $id === 0;
-$backUrl = url(['p' => 'pages']);
 
 $fieldError = static function (string $field, string $htmlId) use ($errors, $e): string {
     if (!isset($errors[$field])) {
@@ -65,6 +65,7 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
         <input type="hidden" name="a" value="page_save">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="id" value="<?= (int) $id ?>">
+        <input type="hidden" name="back" value="<?= $e($back) ?>">
 
         <div class="field">
             <label for="slug"><?= $e(t('Machine name')) ?></label>
@@ -156,7 +157,7 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
 
         <div class="panel__actions">
             <button type="submit" class="wish-button"><?= icon($isNew ? 'plus' : 'check') ?><?= $e($isNew ? t('Create') : t('Save')) ?></button>
-            <a class="link-button" href="<?= $e($backUrl) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
+            <a class="link-button" href="<?= $e($back) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
         </div>
     </form>
 </div>
