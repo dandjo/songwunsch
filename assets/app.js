@@ -714,7 +714,9 @@
         };
 
         // A link or a GET form: fetch, swap, and put the address into the
-        // history (push) -- or not, when back/forward brought us here.
+        // history (push) -- or not, when back/forward brought us here. The
+        // view keeps its scroll position -- except after paging: the pager
+        // stands below the list, the next page is read from its top.
         var go = function (href, push, used) {
             request(href).then(function (result) {
                 if (!samePage(result.url) || !render(result.html, used)) {
@@ -723,6 +725,9 @@
                 }
                 if (push) {
                     history.pushState(null, '', result.url);
+                }
+                if (used && used.closest('.pager')) {
+                    window.scrollTo(0, 0);
                 }
                 shown = result.url.split('#')[0];
             }).catch(function () {
