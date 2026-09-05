@@ -225,7 +225,7 @@ $hasActions = $canPause || $canEdit;
                             </a>
                         <?php endif; ?>
                         <?php if ($canEdit && !$isMain): ?>
-                            <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'room' => $slug])) ?>">
+                            <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'room' => $slug, 'back' => $here])) ?>">
                                 <?= icon('note') ?>
                                 <span class="button__label"><?= $e(t('Manage')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>

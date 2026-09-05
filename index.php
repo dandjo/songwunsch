@@ -1188,8 +1188,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($existing === null) {
                     // A new room is empty: the way leads on to its song
                     // selection, not back -- the only save that does not.
+                    // The destination travels along: Back there leads home.
                     flash('ok', t('Room “{name}” has been created. Now pick its songs from the master list.', ['name' => $checked['values']['name']]));
-                    redirect(url(['p' => 'room_songs', 'room' => $checked['values']['slug']]));
+                    redirect(url(['p' => 'room_songs', 'room' => $checked['values']['slug'], 'back' => $back]));
                 }
 
                 flash('ok', $archivedNow
@@ -1932,6 +1933,7 @@ try {
 
             $view['title']         = t('Songs of the room');
             $view['template']      = 'room_songs';
+            $view['back']          = destination(url(['p' => 'songs']));
             $view['available']     = $availableResult['rows'];
             $view['availableTotal'] = $availableResult['total'];
             $view['roomRows']      = $roomResult['rows'];

@@ -560,8 +560,6 @@ msgstr "Seite nicht gefunden"
 msgid "There is nothing at this address."
 msgstr "Unter dieser Adresse gibt es nichts."
 
-msgid "To the repertoire"
-msgstr "Zum Repertoire"
 
 # --- Rooms ---------------------------------------------------------------
 
@@ -1728,6 +1726,9 @@ msgstr "PNG herunterladen"
 
 msgid "Print"
 msgstr "Drucken"
+
+msgid "To the repertoire"
+msgstr "Zum Repertoire"
 
 msgid "Back"
 msgstr "Zurück"

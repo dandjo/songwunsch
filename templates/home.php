@@ -65,7 +65,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                  live on the room list and the room's edit form, not here. */ ?>
         <div class="panel__actions">
             <?php if ($inRoom && $security->can('rooms')): ?>
-                <a class="link-button" href="<?= $e(url(['p' => 'room_songs'])) ?>">
+                <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'back' => $current])) ?>">
                     <?= icon('note') ?>
                     <?= $e(t('Manage')) ?>
                 </a>
@@ -96,7 +96,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
         <p class="empty">
             <?= $e(t('This room has no songs yet.')) ?>
             <?php if ($security->can('rooms')): ?>
-                <a href="<?= $e(url(['p' => 'room_songs'])) ?>"><?= $e(t('Manage the room: pick its songs from the master list.')) ?></a>
+                <a href="<?= $e(url(['p' => 'room_songs', 'back' => $current])) ?>"><?= $e(t('Manage the room: pick its songs from the master list.')) ?></a>
             <?php endif; ?>
         </p>
     <?php else: ?>

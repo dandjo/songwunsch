@@ -556,8 +556,6 @@ msgstr "Page introuvable"
 msgid "There is nothing at this address."
 msgstr "Il n’y a rien à cette adresse."
 
-msgid "To the repertoire"
-msgstr "Vers le répertoire"
 
 # --- Rooms ---------------------------------------------------------------
 
@@ -1724,6 +1722,9 @@ msgstr "Télécharger le PNG"
 
 msgid "Print"
 msgstr "Imprimer"
+
+msgid "To the repertoire"
+msgstr "Vers le répertoire"
 
 msgid "Back"
 msgstr "Retour"

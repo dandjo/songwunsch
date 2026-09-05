@@ -22,9 +22,12 @@ use Songwunsch\Format;
 /** @var int $pages */
 /** @var string $csrf */
 /** @var array<string,mixed> $room  current room */
+/** @var string $back  where "Back" leads: the page the visitor came from (repertoire, room list, room form), see destination() */
 
 $e       = static fn (?string $v): string => Format::e($v);
-$current = url(['p' => 'room_songs', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
+// This page with its search and page -- the moves come back here; the
+// destination travels along, so "Back" still knows it after every move.
+$current = url(['p' => 'room_songs', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : null, 'back' => $back]);
 
 /** Form that moves songs: single id, or with $all every match of the search. */
 $move = static function (string $action, string $label, ?int $key, bool $all, string $class, string $confirm = '') use ($csrf, $current, $q, $e): string {
@@ -68,18 +71,19 @@ $card = static function (array $row, string $action, string $arrow, string $verb
             <?= $e(t('Move songs with the arrows: to the right into the room, to the left out of it. The search filters both columns.')) ?>
         </p>
     </div>
-    <?php /* Counterpart of "Manage" on the song list: back to the room's list. */ ?>
+    <?php /* Back to where "Manage" was clicked: the repertoire, the room list or the room's form. */ ?>
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url(['p' => 'songs'])) ?>"><?= icon('arrow-left') ?><?= $e(t('To the repertoire')) ?></a>
+        <a class="link-button" href="<?= $e($back) ?>"><?= icon('arrow-left') ?><?= $e(t('Back')) ?></a>
     </div>
 </div>
 
 <form class="search" method="get" action="<?= $e(url(['p' => 'room_songs'])) ?>" role="search">
+    <input type="hidden" name="back" value="<?= $e($back) ?>">
     <label class="sr-only" for="q"><?= $e(t('Search songs')) ?></label>
     <input type="search" id="q" name="q" value="<?= $e($q) ?>" placeholder="<?= $e(t('Artist, title, genre …')) ?>" autocomplete="off">
     <button type="submit"><?= $e(t('Search')) ?></button>
     <?php if ($q !== ''): ?>
-        <a class="search__reset" href="<?= $e(url(['p' => 'room_songs'])) ?>"><?= $e(t('reset')) ?></a>
+        <a class="search__reset" href="<?= $e(url(['p' => 'room_songs', 'back' => $back])) ?>"><?= $e(t('reset')) ?></a>
     <?php endif; ?>
 </form>
 
@@ -120,7 +124,7 @@ $card = static function (array $row, string $action, string $arrow, string $verb
             </div>
 
             <?php
-            $pageUrl = static fn (int $page): string => url(['p' => 'room_songs', 'q' => $q, 'page' => $page > 1 ? $page : null]);
+            $pageUrl = static fn (int $page): string => url(['p' => 'room_songs', 'q' => $q, 'page' => $page > 1 ? $page : null, 'back' => $back]);
             require __DIR__ . '/_pager.php';
             ?>
         <?php endif; ?>

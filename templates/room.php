@@ -58,7 +58,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
             <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $roomSlug, 'back' => $switchBack])) ?>"><?= icon('qr') ?><?= $e(t('QR code')) ?></a>
             <?php if (!$main): ?>
                 <?php /* The room's song selection, as "Manage" on the room list. */ ?>
-                <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'room' => $roomSlug])) ?>"><?= icon('note') ?><?= $e(t('Manage')) ?></a>
+                <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'room' => $roomSlug, 'back' => $switchBack])) ?>"><?= icon('note') ?><?= $e(t('Manage')) ?></a>
             <?php endif; ?>
         </div>
     <?php endif; ?>

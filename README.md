@@ -1030,8 +1030,8 @@ JavaScript they additionally close on a click outside or on Escape, and
 opening one menu closes the others.
 
 **Back where one came from.** Every form -- song, room, the main room's
-name, user, page, the guest's name -- and the QR page know where the visitor
-came from: the link into them passes the current address as `back` (the
+name, user, page, the guest's name -- the QR page and *Manage* know where
+the visitor came from: the link into them passes the current address as `back` (the
 list with its search, filter and page; a page's own address for its *Edit*;
 the repertoire for a song). *Cancel* and *Back* lead there, and so does the
 save action once the form is through -- like Drupal's `destination`. The
@@ -1039,7 +1039,8 @@ form carries the address in a hidden field, so it survives a validation
 error, a language change and a room switch. Without a usable `back` the
 form falls back to its list (`destination()` in `src/bootstrap.php`,
 `safe_target()` keeps it on this site). One exception: a newly created room
-leads on to *Manage*, since it has no songs yet.
+leads on to *Manage*, since it has no songs yet -- *Back* there leads home.
+On *Manage* the address survives every move, search and page change.
 
 All lists share the same action pattern: a card's buttons stand at the right
 in a vertical stack, each as wide as the widest. *Edit* and *Delete* share one
