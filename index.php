@@ -760,32 +760,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect(back());
                 }
 
-                $limit = $guard->limitReached($wishes->count());
-                if ($limit !== null) {
-                    flash('error', $limit);
-                    redirect(back());
-                }
-
                 $song = $songs->find((int) ($_POST['key'] ?? 0), $roomId);
                 if ($song === null) {
                     flash('error', t('This song was not found.'));
                     redirect(back());
                 }
 
-                if (!$limits->allowDuplicates() && $wishes->isPending((int) $song['id'])) {
-                    flash('info', t('“{title}” is already on the wish list.', ['title' => (string) $song['title']]));
+                // A song that is already open is not added a second time: the
+                // existing entry counts the wish. Such a wish adds no row, so
+                // the cap on open wishes does not apply to it (open count 0);
+                // the per-sender and per-minute limits still do.
+                $again = $wishes->isPending((int) $song['id']);
+                $limit = $guard->limitReached($again ? 0 : $wishes->count());
+                if ($limit !== null) {
+                    flash('error', $limit);
                     redirect(back());
                 }
 
-                $wishes->add($song, $nameCookie->current());
+                // wishAgain() answers null if the entry went in the meantime;
+                // then the song is simply added like any other.
+                $counted = $again ? $wishes->wishAgain((int) $song['id']) : null;
+                if ($counted === null) {
+                    $wishes->add($song, $nameCookie->current());
+                }
                 $guard->touch();
                 $guard->record();
                 $security->markWish();
 
-                flash('ok', t('“{title}” by {artist} is in.', [
-                    'title'  => (string) $song['title'],
-                    'artist' => (string) $song['artist'],
-                ]));
+                if ($counted !== null) {
+                    flash('ok', t('“{title}” is on the list already – wished {n} times now.', [
+                        'title' => (string) $song['title'],
+                        'n'     => (int) $counted['wished'],
+                    ]));
+                } else {
+                    flash('ok', t('“{title}” by {artist} is in.', [
+                        'title'  => (string) $song['title'],
+                        'artist' => (string) $song['artist'],
+                    ]));
+                }
                 redirect(back());
                 // no break
 

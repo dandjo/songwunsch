@@ -13,6 +13,10 @@ namespace Songwunsch;
  * only personal data is the name a guest chose to give (`wisher`, see
  * GuestName); it stays with the wish and is deleted with it.
  *
+ * A song wished again while it is still open gets no second row: `wished`
+ * counts on the existing entry (wishAgain()), so the list stays one row per
+ * song and the moderator still sees how popular it is.
+ *
  * Every instance is bound to one room (room_id, 0 = default room): all
  * reading and writing stays inside that room's list.
  */
@@ -67,13 +71,28 @@ final class WishRepository
         return (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE . ' WHERE room_id = ?', [$this->roomId])['c'] ?? 0);
     }
 
-    /** Is this song already on the list? */
-    public function isPending(int $songId): bool
+    /**
+     * The song is wished once more while it is already on the list: no new
+     * row, the existing one counts the wish. Should the song be on the list
+     * more than once (rows from before duplicates were folded), the count goes
+     * to the entry that is played first -- lowest position, then the oldest.
+     *
+     * @return array<string,mixed>|null the updated row, null if the song is not open
+     */
+    public function wishAgain(int $songId): ?array
     {
-        return $this->db->one(
-            'SELECT id FROM ' . self::TABLE . ' WHERE room_id = ? AND song_id = ? LIMIT 1',
+        $row = $this->db->one(
+            'SELECT * FROM ' . self::TABLE . ' WHERE room_id = ? AND song_id = ? ORDER BY position ASC, id ASC LIMIT 1',
             [$this->roomId, $songId],
-        ) !== null;
+        );
+        if ($row === null) {
+            return null;
+        }
+
+        $this->db->exec('UPDATE ' . self::TABLE . ' SET wished = wished + 1 WHERE id = ?', [(int) $row['id']]);
+        $row['wished'] = (int) $row['wished'] + 1;
+
+        return $row;
     }
 
     /**
@@ -88,8 +107,8 @@ final class WishRepository
         // "x minutes ago" then agree even when PHP and MySQL run in different
         // time zones (typical for separate containers).
         $this->db->exec(
-            "INSERT INTO {$table} (song_id, artist, title, length_sec, genre, wisher, created_at, room_id, position)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT * FROM (SELECT COALESCE(MAX(position), 0) + 1 FROM {$table} WHERE room_id = ?) AS next_pos))",
+            "INSERT INTO {$table} (song_id, artist, title, length_sec, genre, wisher, created_at, room_id, position, wished)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT * FROM (SELECT COALESCE(MAX(position), 0) + 1 FROM {$table} WHERE room_id = ?) AS next_pos), 1)",
             [
                 (int) $song['id'],
                 (string) $song['artist'],

@@ -1010,8 +1010,12 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
      2) artist, length, genre        who wished
    The position number stands to the left of both lines. To the right one
    cell, right-aligned: the time received above the name of whoever wished
-   (without a name the time alone, centred). Next to it the actions stacked
-   -- the move buttons above, Delete below, in one cell spanning all rows.
+   (without a name the time alone, centred). Then, for signed-in users, how
+   often the song was wished, and next to it the actions stacked -- the move
+   buttons above, Delete below, in one cell spanning all rows. Cells a viewer
+   does not get (the count for guests, the actions without edit rights) leave
+   their track empty, and an empty max-content track costs nothing but its
+   gap.
    display:contents dissolves the first cell so the number can be placed on
    its own. */
 .grid--wishes tbody tr {
@@ -1022,6 +1026,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
         auto               /* length       */
         minmax(0, 1fr)     /* genre        */
         max-content        /* time / name  */
+        max-content        /* times wished */
         max-content;       /* moves / delete */
     grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
     align-items: center;
@@ -1048,7 +1053,33 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
 .grid--wishes .cell-length,
 .grid--wishes .cell-genre  { margin-top: .25rem; }
 .grid--wishes .cell-wisher { max-width: 12rem; }
-.grid--wishes .cell-action { grid-area: 1 / 6 / 5 / 7; }
+/* How often an open song was wished, centred on the card's height and
+   flush with the actions. */
+.grid--wishes .cell-count {
+    grid-area: 1 / 6 / 5 / 7;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+/* The count itself: a solid violet disc like the counter in the navigation,
+   but big enough to be read from the stage -- the staff decides by it. */
+.wish-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.1rem;
+    height: 2.1rem;
+    padding: 0 .55rem;
+    border-radius: var(--radius-pill);
+    background: var(--violet);
+    color: var(--base);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.grid--wishes .cell-action { grid-area: 1 / 7 / 5 / 8; }
 .grid--wishes .cell-action form { display: flex; }
 /* Delete spans the full width of the move buttons above it. */
 .grid--wishes .cell-action .delete-button { width: 100%; justify-content: center; }
@@ -1892,11 +1923,12 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
        text cells shrink with an ellipsis. Only the wish list rearranges: a
        third line under the artist carries the time received and, flowing
        right after it, who wished -- no column, so the name never jumps.
-         [# title                   | ▲▼    ]
-         [# artist | length | genre | delete]
-         [# time   | name           |       ]                                  */
+       The count of wishes (signed-in users) keeps its place left of the stack.
+         [# title                   | 3× | ▲▼    ]
+         [# artist | length | genre |    | delete]
+         [# time   | name           |    |       ]                             */
     .grid--wishes tbody tr {
-        grid-template-columns: max-content minmax(0, auto) auto minmax(0, 1fr) max-content;
+        grid-template-columns: max-content minmax(0, auto) auto minmax(0, 1fr) max-content max-content;
         grid-template-rows: minmax(0, 1fr) auto auto auto minmax(0, 1fr);
     }
     .grid--wishes .rank        { grid-area: 2 / 1 / 5 / 2; }
@@ -1914,7 +1946,8 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
         gap: .25rem .75rem;
     }
     .grid--wishes .cell-wisher { max-width: 100%; }
-    .grid--wishes .cell-action { grid-area: 1 / 5 / 6 / 6; }
+    .grid--wishes .cell-count  { grid-area: 1 / 5 / 6 / 6; }
+    .grid--wishes .cell-action { grid-area: 1 / 6 / 6 / 7; }
     /* Four move buttons would be too wide for a phone: a 2x2 block instead,
        "to the top" under ▲ and "to the bottom" under ▼. */
     .row-actions .move  { display: grid; grid-template-columns: repeat(2, auto); }
