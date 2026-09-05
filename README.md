@@ -1020,14 +1020,20 @@ without a reload: every change – a wish coming in, deleted or moved, the list
 cleared, the room closed or opened, a suggestion made, adopted or deleted –
 raises a revision counter in the `settings` table (`wishes_rev`,
 `wishes_rev:<room id>`, `suggestions_rev`; the counters wrap at a million,
-only the difference matters). An open page polls `?poll=1` on its own
-address every four seconds, a JSON answer of a few bytes, and only when the
-revision moved on does it fetch the page again and swap its content in –
-focus and scroll position stay, a drag in progress postpones the swap, hidden
-tabs do not poll, errors back the interval off up to a minute. A WebSocket
-would need a long-running server process, which shared hosting does not
-offer; polling a counter costs a tiny request per open page and interval.
-Without JavaScript the page is current after the next reload, as before.
+only the difference matters). The song list polls the room's state instead –
+closed or open – so the *Wish* buttons disappear and the closed-room notice
+appears the moment the moderator closes the room, and both come back when it
+opens; a wish arriving leaves the song list alone. An open page polls
+`?poll=1` on its own address, a JSON answer of a few bytes, and only when the
+token moved on does it fetch the page again and swap its content in – focus
+and scroll position stay, a drag in progress postpones the swap, hidden tabs
+do not poll, errors back the interval off up to a minute. How often a page
+asks is set under *Administration → Interface* (`/admin/ui`), one interval
+per case – wish list, suggestions, room state – in seconds; 0 switches that
+case off, its pages then do not poll at all. A WebSocket would need a
+long-running server process, which shared hosting does not offer; polling a
+counter costs a tiny request per open page and interval. Without JavaScript
+the page is current after the next reload, as before.
 
 Sorting, searching, wishing, reordering and deleting work without JavaScript –
 the ▲/▼ switches are ordinary forms and at the same time the way for keyboard

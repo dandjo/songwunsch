@@ -1386,7 +1386,7 @@ $view = [
     'toastSec'   => $ui->get('toast_sec'), // how long a pop-up message stays, 0 = until dismissed
     'wishCount'  => null,
     'suggestionCount' => null, // badge on the Suggestions tab, editors only
-    'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ...], wish list and suggestions
+    'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ..., 'interval' => seconds], song list, wish list, suggestions
     'paused'     => false, // wishing closed by the moderator -- notice in the header
     'roomList'   => [],    // rooms for the switcher in the header
     'ownRooms'   => [],    // guests: the unlisted rooms they entered, "Your rooms" in the switcher
@@ -1406,18 +1406,26 @@ try {
     // Live updates (app.js): the wish list and the suggestions poll a token
     // that changes with every change of what they show; ?poll=1 answers with
     // that token alone. The suggestions' token includes the room's wish
-    // revision, since closing the room hides their form as well.
-    $liveToken = match ($page) {
-        'wishes'      => (string) $guard->revision(),
-        'suggestions' => $settings->get(SuggestionRepository::REVISION_KEY, '0') . '.' . $guard->revision(),
-        default       => null,
+    // revision, since closing the room hides their form as well. The song
+    // list polls the room's state only -- closed or open -- so the Wish
+    // buttons and the header's notice follow the moderator, while a wish
+    // arriving leaves the list alone. How often a page asks is set under
+    // Interface, one interval per case; 0 switches the case off: its pages
+    // carry no live address and do not poll. The poll itself answers all the
+    // same, so a page opened before the switch keeps working until it loads
+    // again.
+    [$liveToken, $liveInterval] = match ($page) {
+        'songs'       => [$guard->isPaused() ? '1' : '0', $ui->get('poll_room_sec')],
+        'wishes'      => [(string) $guard->revision(), $ui->get('poll_wishes_sec')],
+        'suggestions' => [$settings->get(SuggestionRepository::REVISION_KEY, '0') . '.' . $guard->revision(), $ui->get('poll_suggestions_sec')],
+        default       => [null, 0],
     };
     if ($liveToken !== null && isset($_GET['poll'])) {
         header('Cache-Control: no-store');
         send_json(['rev' => $liveToken]);
     }
-    if ($liveToken !== null) {
-        $view['live'] = ['url' => url(['p' => $page, 'poll' => 1]), 'rev' => $liveToken];
+    if ($liveToken !== null && $liveInterval > 0) {
+        $view['live'] = ['url' => url(['p' => $page, 'poll' => 1]), 'rev' => $liveToken, 'interval' => $liveInterval];
     }
     // The room switcher: guests get the listed rooms only, plus the unlisted
     // rooms they entered through their address, under "Your rooms". Rooms
