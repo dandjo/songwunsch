@@ -204,6 +204,14 @@ $hasActions = $canPause || $canEdit;
                                 </button>
                             </form>
                         <?php endif; ?>
+                        <?php if ($canEdit): ?>
+                            <?php /* The room's address as a QR code -- the main room's as well. */ ?>
+                            <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug])) ?>">
+                                <?= icon('qr') ?>
+                                <span class="button__label"><?= $e(t('QR code')) ?></span>
+                                <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
+                            </a>
+                        <?php endif; ?>
                         <?php if ($canEdit && $isMain): ?>
                             <?php /* The main room cannot be managed or deleted, but renamed. */ ?>
                             <a class="link-button" href="<?= $e(url(['p' => 'room', 'main' => 1])) ?>">

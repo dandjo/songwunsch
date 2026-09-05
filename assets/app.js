@@ -263,6 +263,13 @@
 
         // Confirmation before deleting -- a whole form, or one button in a
         // form that otherwise saves (a page's "Remove <language>").
+        // The QR code page: a print button that exists only with JavaScript
+        // (the browser's own print command does the same).
+        root.querySelectorAll('[data-print]').forEach(function (button) {
+            button.hidden = false;
+            button.addEventListener('click', function () { window.print(); });
+        });
+
         root.querySelectorAll('form[data-confirm]').forEach(function (form) {
             form.addEventListener('submit', function (event) {
                 if (!window.confirm(form.getAttribute('data-confirm'))) {

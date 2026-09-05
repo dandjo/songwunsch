@@ -1702,3 +1702,29 @@ msgstr "nicht gelistet"
 
 msgid "Unlisted rooms are reached through their address only: guests see them neither here nor in the room switcher."
 msgstr "Nicht gelistete Räume sind nur über ihre Adresse erreichbar: Gäste sehen sie weder hier noch im Raumwechsler."
+
+# ---- QR code (Rooms) ------------------------------------------------------------
+
+msgid "QR code"
+msgstr "QR-Code"
+
+msgid "QR code: {room}"
+msgstr "QR-Code: {room}"
+
+msgid "Guests scan the code with their phone's camera and land in the room – on a table card, a poster or a slide."
+msgstr "Gäste scannen den Code mit der Kamera ihres Handys und landen im Raum – auf einer Tischkarte, einem Plakat oder einer Folie."
+
+msgid "The code is made on this server; the address is passed to no other service."
+msgstr "Der Code entsteht auf diesem Server; die Adresse geht an keinen anderen Dienst."
+
+msgid "Download SVG"
+msgstr "SVG herunterladen"
+
+msgid "Download PNG"
+msgstr "PNG herunterladen"
+
+msgid "Print"
+msgstr "Drucken"
+
+msgid "Back"
+msgstr "Zurück"

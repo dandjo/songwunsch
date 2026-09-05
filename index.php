@@ -25,6 +25,7 @@ declare(strict_types=1);
  *   /rooms/<slug>/wishes   a room's wish list  -- same page as /wishes
  *   /rooms/<slug>/suggestions  suggest from inside the room: the adopted song joins it
  *   /rooms/<slug>/manage   pick the room's songs from the master list (editor)
+ *   /rooms/<slug>/qr       the room's address as a QR code (editor): page, /qr.svg, /qr.png; /rooms/main/qr for the main room
  * Actions (POST to any of these): wish | suggest | login | logout | name_save | name_skip
  *                  | room_switch (explicit change of room, clears the memory for the main room)
  *                  | delete | clear | reorder | move | pause      (moderator)
@@ -59,6 +60,7 @@ use Songwunsch\Schema;
 use Songwunsch\Security;
 use Songwunsch\Settings;
 use Songwunsch\Colors;
+use Songwunsch\QrCode;
 use Songwunsch\Uploads;
 use Songwunsch\SongRepository;
 use Songwunsch\SuggestionRepository;
@@ -159,9 +161,18 @@ $routeId         = 0;     // 0 = new
 $routeMain       = false; // /rooms/main/edit: rename the main room
 $routeSuggestion = 0;     // /suggestions/<id>/adopt: the suggestion to adopt
 $routeSlug       = '';    // /pages/<slug>: the page to show
+$routeFormat     = '';    // /rooms/<slug>/qr.svg|.png: the image instead of the page
 // Inside a room: /rooms/<slug>, /rooms/<slug>/wishes, /rooms/<slug>/suggestions,
-// /rooms/<slug>/manage.
-$roomRoutes = ['' => 'songs', '/wishes' => 'wishes', '/suggestions' => 'suggestions', '/manage' => 'room_songs'];
+// /rooms/<slug>/manage, /rooms/<slug>/qr(.svg|.png).
+$roomRoutes = [
+    ''             => 'songs',
+    '/wishes'      => 'wishes',
+    '/suggestions' => 'suggestions',
+    '/manage'      => 'room_songs',
+    '/qr'          => 'room_qr',
+    '/qr.svg'      => 'room_qr',
+    '/qr.png'      => 'room_qr',
+];
 
 $requestPath = rawurldecode((string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH));
 $scriptDir   = rtrim(str_replace('\\', '/', dirname((string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'))), '/');
@@ -193,6 +204,10 @@ if (isset($routes[$route])) {
 } elseif ($route === '/rooms/main/edit') {
     $page      = 'room';
     $routeMain = true;
+} elseif (preg_match('#^/rooms/main/qr(\.svg|\.png)?$#', $route, $m) === 1) {
+    // The main room's QR code: its address is the bare base path.
+    $page        = 'room_qr';
+    $routeFormat = ltrim($m[1] ?? '', '.');
 } elseif (preg_match('#^/users/([1-9][0-9]*)/settings$#', $route, $m) === 1) {
     $page    = 'settings';
     $routeId = (int) $m[1];
@@ -222,8 +237,9 @@ if (isset($routes[$route])) {
         flash('info', t('There is no room at this address – here is the start page.'));
         redirect(url(['p' => 'songs', 'room' => '']));
     }
-    $room = $found;
-    $page = $roomRoutes[$m[2] ?? ''];
+    $room        = $found;
+    $page        = $roomRoutes[$m[2] ?? ''];
+    $routeFormat = $page === 'room_qr' ? ltrim(substr($m[2] ?? '', 3), '.') : '';
 } else {
     not_found();
 }
@@ -1779,6 +1795,7 @@ try {
                 $view['startRoomId'] = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
                 $view['roomClosed']  = $guard->pausedIn(RoomRepository::DEFAULT_ID);
                 $view['roomActive']  = true;
+                $view['roomSlug']    = '';
                 $view['errors']   = $kept['errors'] ?? [];
                 $view['values']   = $kept['values'] ?? ['name' => (string) $settings->get(RoomRepository::MAIN_NAME_KEY, '')];
                 break;
@@ -1802,6 +1819,7 @@ try {
             $view['startRoomId'] = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
             $view['roomClosed']  = $id > 0 && $guard->pausedIn($id);
             $view['roomActive']  = (int) ($edit['active'] ?? 1) === 1;
+            $view['roomSlug']    = (string) ($edit['slug'] ?? '');
             $view['errors']   = $kept['errors'] ?? [];
             $view['values']   = $kept['values'] ?? [
                 'slug'   => (string) ($edit['slug'] ?? ''),
@@ -1809,6 +1827,36 @@ try {
                 'active' => (string) ($edit['active'] ?? '1'),
                 'listed' => (string) ($edit['listed'] ?? '0'), // a new room starts unlisted
             ];
+            break;
+
+        case 'room_qr':
+            // Editors: the room's address as a QR code -- for table cards,
+            // posters, a slide. Made on this server (src/QrCode.php), so the
+            // address goes to no third party. The page shows the code with
+            // the address and offers it as SVG and PNG; the images are the
+            // same route with the extension.
+            require_role($security, 'rooms');
+            $address = absolute_url(url(['p' => 'songs', 'room' => (string) $room['slug']]));
+            $file    = 'songwunsch-' . ($roomId > 0 ? (string) $room['slug'] : 'main');
+            if ($routeFormat === 'svg' || $routeFormat === 'png') {
+                $image = $routeFormat === 'svg' ? QrCode::svg($address) : QrCode::png($address);
+                if ($image === null) {
+                    not_found(); // PNG needs the gd extension; the page then offers SVG alone
+                }
+                header_remove('Set-Cookie');
+                header('Content-Type: ' . ($routeFormat === 'svg' ? 'image/svg+xml' : 'image/png'));
+                header('Content-Length: ' . (string) strlen($image));
+                header('Content-Disposition: inline; filename="' . $file . '.' . $routeFormat . '"');
+                header('X-Content-Type-Options: nosniff');
+                header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'");
+                echo $image;
+                exit;
+            }
+            $view['title']    = t('QR code');
+            $view['template'] = 'room_qr';
+            $view['address']  = $address;
+            $view['svg']      = QrCode::svg($address);
+            $view['hasPng']   = function_exists('imagecreate');
             break;
 
         case 'room_songs':

@@ -159,15 +159,21 @@ function url(array $params = []): string
     $params = array_filter($params, static fn ($v): bool => $v !== null && $v !== '');
 
     $target = base_path();
-    if (in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs'], true)) {
+    if (in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs', 'room_qr'], true)) {
         $prefix  = $slug !== '' ? '/rooms/' . $slug : '';
         // A room's song list is the room itself: /rooms/<slug> without a
         // trailing slash; only the default room is the bare base path '/'.
+        // The QR code of the main room lives under /rooms/main/qr, since the
+        // main room has no address part of its own; 'format' picks the
+        // image (svg, png) over the page.
+        $format  = (string) ($params['format'] ?? '');
+        unset($params['format']);
         $target .= match ($page) {
             'songs'       => $prefix !== '' ? $prefix : '/',
             'wishes'      => $prefix . '/wishes',
             'suggestions' => $prefix . '/suggestions',
             'room_songs'  => $prefix . '/manage',
+            'room_qr'     => ($prefix !== '' ? $prefix : '/rooms/main') . '/qr' . ($format !== '' ? '.' . $format : ''),
         };
     } elseif ($page === 'song' && isset($params['suggestion'])) {
         $target .= '/suggestions/' . (int) $params['suggestion'] . '/adopt';
@@ -195,6 +201,18 @@ function url(array $params = []): string
     }
 
     return $params === [] ? $target : $target . '?' . http_build_query($params);
+}
+
+/**
+ * An address of this installation with scheme and host, as a QR code or a
+ * printout needs it: the request's host, https when the request came in
+ * over https (also behind a proxy, see Security::isHttps()).
+ */
+function absolute_url(string $target): string
+{
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
+
+    return (\Songwunsch\Security::isHttps() ? 'https' : 'http') . '://' . $host . $target;
 }
 
 /**
@@ -280,6 +298,8 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         // Limits: three upright sliders -- rails with their knobs at different heights.
         'sliders' => '<path d="M4 2v12M8 2v12M12 2v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="4" cy="11" r="2.2" fill="currentColor"/><circle cx="8" cy="5.5" r="2.2" fill="currentColor"/><circle cx="12" cy="10.5" r="2.2" fill="currentColor"/>',
         // Footer pages: a sheet with a folded corner and two lines of text.
+        // QR code: three finder squares and a few modules.
+        'qr'     => '<path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M3.8 3.8h1.4v1.4H3.8zM10.8 3.8h1.4v1.4h-1.4zM3.8 10.8h1.4v1.4H3.8zM9 9h2v2H9zM12 9h2v2h-2zM9 12h2v2H9zM12 12h2v2h-2z" fill="currentColor"/>',
         'page'   => '<path d="M3.5 1.8h6l3 3v9.4h-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9.5 1.8v3h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5.8 8.2h4.4M5.8 11h4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
     ];
 

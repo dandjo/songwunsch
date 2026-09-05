@@ -12,6 +12,7 @@ use Songwunsch\RoomRepository;
 /** @var int $startRoomId   for the switches beside the title, see _room_switches.php */
 /** @var bool $roomClosed   wishing closed in this room */
 /** @var bool $roomActive   the stored state, not the form's input */
+/** @var string $roomSlug   the stored machine name, for the QR code link ('' = main room) */
 /** @var string $csrf */
 
 $e       = static fn (?string $v): string => Format::e($v);
@@ -54,6 +55,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
             $switchBack   = $main ? url(['p' => 'room', 'main' => 1]) : url(['p' => 'room', 'id' => $id]);
             require __DIR__ . '/_room_switches.php';
             ?>
+            <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $roomSlug])) ?>"><?= icon('qr') ?><?= $e(t('QR code')) ?></a>
         </div>
     <?php endif; ?>
 </div>

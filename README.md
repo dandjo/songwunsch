@@ -785,6 +785,16 @@ ALTER TABLE rooms ADD COLUMN listed TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER ac
 UPDATE rooms SET listed = 1;
 ```
 
+**QR code.** Every room's address as a QR code for table cards, posters or a
+slide: *QR code* on the room's row under *Rooms* and on its edit form leads to
+`/rooms/<name>/qr` (the main room: `/rooms/main/qr`) – the code with the
+address beneath, a print button (in print only the code and the address
+remain) and downloads as SVG (`/qr.svg`) and PNG (`/qr.png`, needs the `gd`
+extension; without it the page offers SVG alone). The code is made by
+`src/QrCode.php` on this server – byte mode, error correction level M,
+versions 1 to 10 – so the address is passed to no third-party service. The
+address carries the request's scheme and host.
+
 **The main room's name.** The main room has no row and no address part of
 its own, but it can be renamed: editors find *Rename* on its row under
 *Rooms*. The name is kept in `settings` (`main_room_name`) and shows
@@ -1049,6 +1059,7 @@ src/WishGuard.php      Protection of wishing: limits, bot trap, pause
 src/Limits.php         The limits on wishing and suggesting the admins set (Administration -> Limits)
 src/Colors.php         The colours the admins set (Administration -> Colours): shades, the :root block
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
+src/QrCode.php         QR codes of the room addresses, made here: encoding, Reed-Solomon, masks, SVG and PNG
 src/RoomMemory.php     The room chosen last: cookie, once-per-session restore
 src/Settings.php       Key/value store in the settings table
 src/Uploads.php        The header logos: check, store, deliver (uploads table)
@@ -1060,7 +1071,7 @@ src/RoomRepository.php Rooms: create, edit, delete, song selection from the mast
 src/Format.php         Escaping and formatting (length, timestamps, numbers)
 src/Translator.php     Discover languages, choose one, t()/tn()
 src/PoFile.php         .po parser including the Plural-Forms interpreter
-templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, login, settings, logos, colors, limits, pages, page_edit, page, footer, languages, name, _name_form, _room_switches, error, _sortbar, _pager
+templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, room_qr, login, settings, logos, colors, limits, pages, page_edit, page, footer, languages, name, _name_form, _room_switches, error, _sortbar, _pager
 assets/                style.css (dark interface), app.js, vendor/ckeditor5 (the page editor, see Pages and footer)
 robots.txt             what search engines may index: the start page and the pages, not the rooms, lists and operating pages
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
