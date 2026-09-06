@@ -998,7 +998,7 @@ button (`aria-controls`, `aria-expanded`).
 | Give or change your name | Asked on the first visit; later account menu (person icon) top right → *Change name* / *Set name*, or `/name`. An empty name removes it |
 | Sign in / sign out | Account menu (person icon) top right next to the language menu; when signed in it shows the name and *Log out* |
 | See the site as a guest | Signed in: account menu → *View as guest*; a notice in the header and *End guest view* lead back. Meanwhile pages, controls and actions behave exactly as for a visitor without a login |
-| Sort | Sort bar above the list, a second click reverses the direction |
+| Sort | Sort bar above the list, a second click reverses the direction; on phones the bar is a popout, *Sort: <current>*, with the same choices |
 | Wish | *Wish* button in the row (or a click on the row). A song that is already on the wish list is not added twice: the wish counts on the existing entry, and everyone sees the number on its card (*3×*) |
 | Change the order | Wish list → drag the row (drag & drop) or the buttons on the right: to the top, ▲, ▼, to the bottom. The list is paged; a drag reorders the shown page among the places its wishes hold, the buttons move across pages |
 | Delete a wish | Wish list → *Delete* in the row |
@@ -1065,10 +1065,12 @@ opens the guest's name with *Change name* and *Log in*, or for staff the
 username, *Name for wishes*, *User settings*, for admins *Administration* with
 its pages as sub-entries, *View as guest* and *Log out*, as a popout like
 the language menu) share the first row, the navigation is right-aligned below.
-On phones (up to 560 px) the tabs stack icon over word like an app's tab bar
-and share the row, the counter sitting in the tab's top right corner, so the
-three public tabs stay on one line down to 360 px wide screens; for staff the
-*Rooms* tab joins them. Every page's head
+As soon as the tabs side by side would wrap – `assets/app.js` measures the
+row, so any language, number of tabs and font size counts – they stack icon
+over word like an app's tab bar and share the row, the counter sitting in the
+tab's top right corner; the three public tabs thus stay on one line down to
+360 px wide screens, for staff the *Rooms* tab joins them. Without JavaScript
+the stacked form applies up to 560 px. Every page's head
 puts the title and its description at the left and the page actions (*Add
 room*, *Close all rooms*, *Manage*, *Clear list*, …) at the top right beside
 them from 721 px on; on phones the actions drop below the text, right-aligned. The popouts (language,

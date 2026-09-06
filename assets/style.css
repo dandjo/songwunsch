@@ -467,8 +467,59 @@ code {
     flex-wrap: wrap;
     justify-content: flex-end;
     align-items: center;
-    gap: .35rem;
-    margin: .25rem 0 0;
+    gap: var(--nav-gap);
+    margin: var(--nav-top) 0 0;
+    /* The tab bar's geometry as variables: this set is the row of framed
+       tabs side by side; the stacked set below takes over as soon as the
+       tabs would wrap. */
+    --nav-gap:        .35rem;
+    --nav-top:        .25rem;
+    --tab-direction:  row;
+    --tab-flex:       0 1 auto;
+    --tab-gap:        .4rem;
+    --tab-padding:    .55rem .85rem;
+    --tab-font:       .82rem;
+    --badge-position: static;
+    --badge-size:     1.4rem;
+    --badge-font:     .8rem;
+    --badge-margin:   -.3rem 0;
+    --badge-ring:     none;
+}
+/* Stacked like an app's tab bar: icon over word, the tabs share the row,
+   the counter sits in the tab's top right corner as a marker, the wider
+   row gap keeps it clear of the room switcher above. app.js switches this
+   on (.nav--stacked) whenever the tabs side by side would wrap -- whatever
+   the language, the number of tabs or the font size -- and off again
+   (.nav--inline) when they fit; without JavaScript the phone width decides. */
+.nav--stacked {
+    --nav-gap:        .75rem .3rem;
+    --nav-top:        .45rem;
+    --tab-direction:  column;
+    --tab-flex:       1 1 auto;
+    --tab-gap:        .25rem;
+    --tab-padding:    .45rem .4rem .4rem;
+    --tab-font:       .74rem;
+    --badge-position: absolute;
+    --badge-size:     1.25rem;
+    --badge-font:     .72rem;
+    --badge-margin:   0;
+    --badge-ring:     0 0 0 2px var(--base);
+}
+@media (max-width: 560px) {
+    .nav:not(.nav--inline) {
+        --nav-gap:        .75rem .3rem;
+        --nav-top:        .45rem;
+        --tab-direction:  column;
+        --tab-flex:       1 1 auto;
+        --tab-gap:        .25rem;
+        --tab-padding:    .45rem .4rem .4rem;
+        --tab-font:       .74rem;
+        --badge-position: absolute;
+        --badge-size:     1.25rem;
+        --badge-font:     .72rem;
+        --badge-margin:   0;
+        --badge-ring:     0 0 0 2px var(--base);
+    }
 }
 
 .nav a,
@@ -477,6 +528,7 @@ code {
     align-items: center;
     gap: .4rem;
     padding: .55rem .85rem;
+    position: relative;
     /* Framed like the room switcher, so every tab reads as a button. */
     border: 1px solid var(--gold-deep);
     border-radius: var(--radius-sm);
@@ -486,6 +538,26 @@ code {
     font-weight: 600;
     font-size: .82rem;
     letter-spacing: 0;
+}
+/* The page tabs themselves (not the menu entries below them) follow the
+   variables; the counter with them. */
+.nav > a {
+    flex: var(--tab-flex);
+    flex-direction: var(--tab-direction);
+    justify-content: center;
+    gap: var(--tab-gap);
+    padding: var(--tab-padding);
+    font-size: var(--tab-font);
+}
+.nav > a .badge {
+    position: var(--badge-position);
+    top: -.4rem;
+    right: -.3rem;
+    margin: var(--badge-margin);
+    min-width: var(--badge-size);
+    height: var(--badge-size);
+    font-size: var(--badge-font);
+    box-shadow: var(--badge-ring);
 }
 .nav a:hover,
 .nav .link-button:hover {
@@ -1361,34 +1433,6 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     .roomswitch__panel { right: 0; max-width: none; }
 }
 
-/* Phones: the tabs stack icon over word like an app's tab bar and share the
-   row, so the three public tabs stay on one line down to 360 px wide screens
-   (side by side they need about 450 px). Each tab keeps its natural width
-   and grows to fill the row; staff with five tabs may still wrap. The
-   counter moves into the top right corner as a marker on the tab; the wider
-   row gap keeps it clear of the room switcher above. */
-@media (max-width: 560px) {
-    .nav { gap: .75rem .3rem; margin-top: .45rem; }
-    .nav > a {
-        position: relative;
-        flex: 1 1 auto;
-        flex-direction: column;
-        justify-content: center;
-        gap: .25rem;
-        padding: .45rem .4rem .4rem;
-        font-size: .74rem;
-    }
-    .nav > a .badge {
-        position: absolute;
-        top: -.4rem;
-        right: -.3rem;
-        margin: 0;
-        min-width: 1.25rem;
-        height: 1.25rem;
-        font-size: .72rem;
-        box-shadow: 0 0 0 2px var(--base);
-    }
-}
 .picker__col { min-width: 0; }
 .picker__head {
     display: flex;
@@ -1490,14 +1534,20 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 
 /* ---------- Sort bar ---------- */
 
-/* Right-aligned like the page actions above it. */
+/* Right-aligned like the page actions above it. On wide screens a row of
+   chips; on phones the same choices as a popout (below), because the chips
+   would wrap over two or three lines there. */
 .sortbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: .9rem;
+}
+.sortbar__chips {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
     gap: .4rem;
-    margin-bottom: .9rem;
 }
 .sortbar__label {
     color: var(--text-muted);
@@ -1518,6 +1568,65 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     border-color: var(--gold-bright);
     color: var(--base);
     font-weight: 700;
+}
+
+/* The popout: "Sort: <current> ▲" as a framed button like a chip, the list
+   hanging below its right edge like the account menu. The active choice is
+   gold with the direction arrow; tapping it reverses the order. */
+.sortbar__menu { position: relative; display: none; }
+.sortbar__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .4rem .75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: .85rem;
+    white-space: nowrap;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+.sortbar__toggle::-webkit-details-marker { display: none; }
+.sortbar__toggle:hover,
+.sortbar__menu[open] .sortbar__toggle { color: var(--text); border-color: var(--gold-deep); }
+.sortbar__toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.sortbar__current { color: var(--gold); font-weight: 700; }
+.sortbar__chevron { flex: 0 0 auto; transition: transform .15s; }
+.sortbar__menu[open] .sortbar__chevron { transform: rotate(180deg); }
+.sortbar__panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + .35rem);
+    z-index: 20;
+    min-width: 12rem;
+    margin: 0;
+    padding: .35rem;
+    list-style: none;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-deep);
+}
+.sortbar__option {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .5rem .7rem;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.sortbar__option:hover { background: var(--hover); }
+.sortbar__option.is-active { color: var(--gold); }
+.sortbar__option-label { flex: 1 1 auto; }
+@media (max-width: 560px) {
+    .sortbar--switching .sortbar__chips { display: none; }
+    .sortbar--switching .sortbar__menu { display: block; }
 }
 
 /* ---------- Name dialog ----------

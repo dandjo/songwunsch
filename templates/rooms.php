@@ -92,12 +92,16 @@ $hasActions = $canPause || $canEdit;
 </form>
 
 <?php if ($canEdit): ?>
+    <?php /* Three short chips, on phones too -- the sort bar's chip row
+             without its phone popout. */ ?>
     <nav class="sortbar" aria-label="<?= $e(t('Filter')) ?>">
-        <span class="sortbar__label"><?= $e(t('Show:')) ?></span>
-        <?php foreach (['all' => t('All'), 'active' => t('Active'), 'archived' => t('Archived')] as $key => $label): ?>
-            <a class="sortbar__item<?= $filter === $key ? ' is-active' : '' ?>"
-               href="<?= $e(url(['p' => 'rooms', 'q' => $q, 'filter' => $key])) ?>"<?= $filter === $key ? ' aria-current="true"' : '' ?>><?= $e($label) ?></a>
-        <?php endforeach; ?>
+        <div class="sortbar__chips">
+            <span class="sortbar__label"><?= $e(t('Show:')) ?></span>
+            <?php foreach (['all' => t('All'), 'active' => t('Active'), 'archived' => t('Archived')] as $key => $label): ?>
+                <a class="sortbar__item<?= $filter === $key ? ' is-active' : '' ?>"
+                   href="<?= $e(url(['p' => 'rooms', 'q' => $q, 'filter' => $key])) ?>"<?= $filter === $key ? ' aria-current="true"' : '' ?>><?= $e($label) ?></a>
+            <?php endforeach; ?>
+        </div>
     </nav>
 <?php endif; ?>
 

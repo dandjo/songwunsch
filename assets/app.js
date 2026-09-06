@@ -34,11 +34,12 @@
         }
     }, true);
 
-    // Header popouts (language, account, room switcher) are <details> and
-    // work without this; with it they also close on a click elsewhere or on
-    // Escape, so a menu does not stay open while one uses the page.
+    // Header popouts (language, account, room switcher) and the sort menu
+    // on phones are <details> and work without this; with it they also close
+    // on a click elsewhere or on Escape, so a menu does not stay open while
+    // one uses the page.
     document.addEventListener('click', function (event) {
-        document.querySelectorAll('.dome details[open]').forEach(function (details) {
+        document.querySelectorAll('.dome details[open], .sortbar details[open]').forEach(function (details) {
             if (!details.contains(event.target)) {
                 details.open = false;
             }
@@ -46,7 +47,7 @@
     });
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
-            document.querySelectorAll('.dome details[open]').forEach(function (details) {
+            document.querySelectorAll('.dome details[open], .sortbar details[open]').forEach(function (details) {
                 details.open = false;
                 var toggle = details.querySelector('summary');
                 if (toggle && details.contains(document.activeElement)) {
@@ -65,9 +66,66 @@
         }
     });
 
+    // ---- Tab bar: stacked as soon as the tabs would wrap --------------------
+
+    // The page tabs stand side by side while they fit on one row (with the
+    // room switcher, where it shares the row) and stack icon over word like
+    // an app's tab bar otherwise -- decided by measuring, not by a fixed
+    // width, so any language, number of tabs and font size gets the right
+    // layout. The row is measured in its side-by-side form each time; the
+    // CSS carries a phone-width fallback for pages without this script.
+    var fitTabs = (function () {
+        var pending = false;
+        var measure = function () {
+            pending = false;
+            var nav = document.querySelector('.nav');
+            if (!nav) {
+                return;
+            }
+            nav.classList.remove('nav--stacked');
+            nav.classList.add('nav--inline');
+            var visible = function (el) {
+                return getComputedStyle(el).display !== 'none';
+            };
+            var tabs = [].filter.call(nav.children, function (el) {
+                return !el.classList.contains('roomswitch') && visible(el);
+            });
+            if (tabs.length === 0) {
+                return;
+            }
+            var top = tabs[0].getBoundingClientRect().top;
+            var wraps = tabs.some(function (tab) {
+                return Math.abs(tab.getBoundingClientRect().top - top) > 1;
+            });
+            var room = nav.querySelector(':scope > .roomswitch');
+            // On phones the room switcher spans the row on purpose; where it
+            // is narrower it belongs on the tabs' row.
+            if (!wraps && room && visible(room) && room.getBoundingClientRect().width < nav.getBoundingClientRect().width - 1) {
+                wraps = Math.abs(room.getBoundingClientRect().top - top) > 1;
+            }
+            if (wraps) {
+                nav.classList.remove('nav--inline');
+                nav.classList.add('nav--stacked');
+            }
+        };
+        var schedule = function () {
+            if (!pending) {
+                pending = true;
+                requestAnimationFrame(measure);
+            }
+        };
+        window.addEventListener('resize', schedule);
+        return measure;
+    }());
+
     // ---- Bindings on the page's elements ----------------------------------
 
     function enhance(root) {
+        // The tab bar is part of the header; measure it whenever the header
+        // is (re)drawn.
+        if (root === document || root.querySelector('.nav')) {
+            fitTabs();
+        }
         // Room switcher: the filter field hides entries that do not contain
         // the typed text. Purely progressive -- without JavaScript the full
         // list shows.
@@ -1038,7 +1096,7 @@
         };
         // A header menu that is open would snap shut with the swap: wait.
         var menuOpen = function () {
-            return document.querySelector('.dome details[open]') !== null;
+            return document.querySelector('.dome details[open], .sortbar details[open]') !== null;
         };
 
         var swap = function () {
