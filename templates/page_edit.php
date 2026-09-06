@@ -74,10 +74,13 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
             <input type="text" id="slug" name="slug" value="<?= $e($values['slug'] ?? '') ?>"
                    required autofocus autocomplete="off" autocapitalize="none" spellcheck="false"
                    minlength="<?= PageRepository::MIN_SLUG ?>" maxlength="<?= PageRepository::MAX_SLUG ?>"
-                   pattern="[a-z0-9]+(-[a-z0-9]+)*"<?= $invalid('slug', 'slug') ?>>
-            <?php /* The address follows what is typed (app.js); until something is
-                     typed an example stands in. Without JavaScript the hint shows
-                     the saved address or the example. */ ?>
+                   pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                   data-slug-from="<?= $e(implode(' ', array_map(static fn (string $code): string => 'title-' . (preg_replace('/[^a-z0-9]/', '-', $code) ?? $code), array_keys($languages)))) ?>"<?= $invalid('slug', 'slug') ?>>
+            <?php /* While the field is empty, app.js proposes the machine name from
+                     the title being typed, in whichever language; the address
+                     follows what is typed, until something is typed an example
+                     stands in. Without JavaScript the hint shows the saved
+                     address or the example. */ ?>
             <p class="field__hint" id="hint-slug">
                 <?= $e(t('Part of the address: lower-case letters a–z, digits and hyphens.')) ?>
                 <code data-slug-preview="slug" data-slug-base="<?= $e(url(['p' => 'page', 'slug' => ''])) ?>" data-slug-example="imprint"><?= $e(url(['p' => 'page', 'slug' => ($values['slug'] ?? '') !== '' ? $values['slug'] : 'imprint'])) ?></code>

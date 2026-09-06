@@ -172,15 +172,21 @@
             }
         });
 
-        // A new room's machine name is proposed from its display name: while
-        // the machine name field is empty -- or holds nothing but what was
-        // proposed -- it follows the name, reduced to the address alphabet
-        // ("Sommerfest 2026 – Wiener Straße" becomes "sommerfest-2026-wiener-strasse").
-        // A machine name that is already there (an existing room, or typed by
-        // hand) is left alone; emptying the field makes it follow again.
+        // A new room's or page's machine name is proposed from its display
+        // name or title: while the machine name field is empty -- or holds
+        // nothing but what was proposed -- it follows the name, reduced to
+        // the address alphabet ("Sommerfest 2026 – Wiener Straße" becomes
+        // "sommerfest-2026-wiener-strasse"). A machine name that is already
+        // there (an existing room or page, or typed by hand) is left alone;
+        // emptying the field makes it follow again. data-slug-from names the
+        // source field(s) by id -- a page has a title per language, whichever
+        // one is being typed in proposes.
         root.querySelectorAll('[data-slug-from]').forEach(function (slug) {
-            var name = document.getElementById(slug.getAttribute('data-slug-from'));
-            if (!name || slug.hasAttribute('data-bound-from')) { return; }
+            if (slug.hasAttribute('data-bound-from')) { return; }
+            var sources = slug.getAttribute('data-slug-from').split(/\s+/).map(function (id) {
+                return document.getElementById(id);
+            }).filter(Boolean);
+            if (sources.length === 0) { return; }
             slug.setAttribute('data-bound-from', '1');
             var max = parseInt(slug.getAttribute('maxlength'), 10) || 64;
             var following = slug.value === '';
@@ -195,12 +201,14 @@
                 out = out.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
                 return out.slice(0, max).replace(/-+$/, '');
             };
-            name.addEventListener('input', function () {
-                if (!following) { return; }
-                proposing = true;
-                slug.value = slugify(name.value);
-                slug.dispatchEvent(new Event('input'));
-                proposing = false;
+            sources.forEach(function (name) {
+                name.addEventListener('input', function () {
+                    if (!following) { return; }
+                    proposing = true;
+                    slug.value = slugify(name.value);
+                    slug.dispatchEvent(new Event('input'));
+                    proposing = false;
+                });
             });
             slug.addEventListener('input', function () {
                 if (!proposing) { following = slug.value === ''; }

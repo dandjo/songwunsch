@@ -375,7 +375,8 @@ what each case does.
 Admins write **pages** – an imprint, FAQs, a privacy notice – under
 *Administration → Pages* (`/admin/pages`). A page has a title, a machine name
 that becomes its address, `/pages/<name>` (lower-case letters, digits, hyphens,
-like a room's), and a body written in **CKEditor 5**: headings, paragraphs, bold
+like a room's; while the field is empty the browser proposes it from the title
+being typed, in whichever language, as for a room), and a body written in **CKEditor 5**: headings, paragraphs, bold
 and italic, lists, links, quotes, tables, horizontal lines, code, plus a
 source view. Every page is public under its address as soon as it is saved
 and may link to any other page by that address – the footer is not what makes
