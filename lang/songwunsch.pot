@@ -58,7 +58,7 @@ msgid "A click on {wish} drops the song into the list."
 msgstr ""
 
 #: templates/languages.php:33
-msgid "A language is a file in the lang folder – see the README to add one."
+msgid "A language is a file in the lang folder – see docs/languages.md to add one."
 msgstr ""
 
 #: templates/logos.php:33

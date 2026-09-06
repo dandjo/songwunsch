@@ -30,7 +30,7 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
         <p>
             <?= $e(tn('{n} language is available.', '{n} languages are available.', count($order))) ?>
             <?= $e(t('Readers get pages and the footer line in the language they chose in the language menu. Where a text lacks it, they get the first language of this order the text has.')) ?>
-            <?= $e(t('A language is a file in the lang folder – see the README to add one.')) ?>
+            <?= $e(t('A language is a file in the lang folder – see docs/languages.md to add one.')) ?>
         </p>
         <?php $help .= ob_get_clean(); ?>
     </div>

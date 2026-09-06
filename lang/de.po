@@ -1643,8 +1643,8 @@ msgstr[1] "{n} Sprachen sind verfügbar."
 msgid "Readers get pages and the footer line in the language they chose in the language menu. Where a text lacks it, they get the first language of this order the text has."
 msgstr "Leser sehen Seiten und die Footer-Zeile in der Sprache, die sie im Sprachmenü gewählt haben. Fehlt sie einem Text, sehen sie die erste Sprache dieser Reihenfolge, die der Text hat."
 
-msgid "A language is a file in the lang folder – see the README to add one."
-msgstr "Eine Sprache ist eine Datei im Ordner lang – wie eine dazukommt, steht in der README."
+msgid "A language is a file in the lang folder – see docs/languages.md to add one."
+msgstr "Eine Sprache ist eine Datei im Ordner lang – wie eine dazukommt, steht in docs/languages.md."
 
 msgid "With one language there is nothing to order."
 msgstr "Mit einer Sprache gibt es nichts zu ordnen."
