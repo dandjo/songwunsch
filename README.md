@@ -364,9 +364,10 @@ messages included. Notices that belong to the page one lands on stand at
 the top of the content and stay.
 
 **Live updates.** One interval per case, in seconds between two checks: the
-wish list (default 4), the suggestions (4) and the room's state (10) on the
-song list and, for the notice in the header, on every other page – see *Live
-updates* under [Usage](#usage) for what each case does.
+wish list (default 4), the suggestions (4) and the room's state together with
+the rooms and songs (10) on the repertoire and the list of rooms and, for the
+header, on every other page – see *Live updates* under [Usage](#usage) for
+what each case does.
 `0` switches that case off; the page is then current after a reload.
 
 ## Pages and footer
@@ -1034,26 +1035,32 @@ The wish list starts in manual order – initially this equals the order of
 arrival, oldest on top. Sorting by a column is only a view; the stored order
 is kept and reachable again via *#* or *Manual order*.
 
-**Live updates.** The wish list and the suggestions keep themselves current
-without a reload: every change – a wish coming in, deleted or moved, the list
-cleared, the room closed or opened, a suggestion made, adopted or deleted –
-raises a revision counter in the `settings` table (`wishes_rev`,
-`wishes_rev:<room id>`, `suggestions_rev`; the counters wrap at a million,
-only the difference matters). The song list polls the room's state instead –
-closed or open – so the *Wish* buttons disappear and the closed-room notice
-appears the moment the moderator closes the room, and both come back when it
-opens; a wish arriving leaves the song list alone. Every other page – the
-rooms, a form, an admin page – polls the room's state as well, and on a
-change renews only the header, so the closed-room notice follows the
-moderator everywhere while a form being filled in keeps its input; an open
-header menu postpones that. An open page polls
+**Live updates.** The lists keep themselves current without a reload: every
+change – a wish coming in, deleted or moved, the list cleared, a suggestion
+made, adopted or deleted, a room created, renamed, archived or deleted, the
+main room renamed, the start room chosen, a song added, edited or removed, a
+room's selection changed – raises a revision counter in the `settings` table
+(`wishes_rev`, `wishes_rev:<room id>`, `suggestions_rev`, `catalog_rev` for
+rooms and songs; the counters wrap at a million, only the difference
+matters). Every page's token starts with the room's state – closed or open –
+and carries the catalogue revision, since the header's room switcher and tab
+counters show it: the repertoire and the list of rooms redraw themselves when
+a room or song changes, a search term stays in place; the wish list and the
+suggestions add their own counters. When the moderator closes the room, the
+*Wish* buttons disappear and the closed-room notice appears the moment the
+token moves, and both come back when it opens. Every other page – a form, an
+admin page – polls the same token, and on a change renews only the header,
+so the closed-room notice and the room switcher follow everywhere while a
+form being filled in keeps its input; an open header menu postpones that.
+The announcement for screen readers tells a closing or opening apart from any
+other change. An open page polls
 `?poll=1` on its own address, a JSON answer of a few bytes, and only when the
 token moved on does it fetch the page again and swap its content in – focus
 and scroll position stay, a drag in progress postpones the swap, hidden tabs
 do not poll, errors back the interval off up to a minute. How often a page
 asks is set under *Administration → Interface* (`/admin/ui`), one interval
-per case – wish list, suggestions, room state – in seconds; 0 switches that
-case off, its pages then do not poll at all. A WebSocket would need a
+per case – wish list, suggestions, room state with rooms and songs – in
+seconds; 0 switches that case off, its pages then do not poll at all. A WebSocket would need a
 long-running server process, which shared hosting does not offer; polling a
 counter costs a tiny request per open page and interval. Without JavaScript
 the page is current after the next reload.

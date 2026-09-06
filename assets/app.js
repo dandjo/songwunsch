@@ -1075,13 +1075,24 @@
             return document.querySelector('.dome details[open], .sortbar details[open]') !== null;
         };
 
+        // The token starts with the room's state (closed or open): when that
+        // part moved, the fresh page's data-msg-state says which; any other
+        // change -- a wish, a song, a room -- is announced on a list only.
+        var statePart = function (rev) {
+            return (rev || '').split('.')[0];
+        };
+
         var swap = function () {
             busy = true;
+            var before = document.body.getAttribute('data-live-rev');
             (headerOnly() ? page.refreshHeader() : page.refresh()).then(function (swapped) {
                 if (swapped) {
                     var status = document.getElementById('live-status');
-                    if (status) {
-                        status.textContent = document.body.getAttribute('data-msg-updated') || 'The list has been updated.';
+                    var message = statePart(before) !== statePart(document.body.getAttribute('data-live-rev'))
+                        ? document.body.getAttribute('data-msg-state')
+                        : (headerOnly() ? '' : document.body.getAttribute('data-msg-updated') || 'The list has been updated.');
+                    if (status && message) {
+                        status.textContent = message;
                     }
                 }
             }).catch(function () {

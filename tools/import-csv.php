@@ -33,7 +33,9 @@ declare(strict_types=1);
  */
 
 use Songwunsch\Database;
+use Songwunsch\RoomRepository;
 use Songwunsch\Schema;
+use Songwunsch\Settings;
 use Songwunsch\SongRepository;
 
 if (PHP_SAPI !== 'cli') {
@@ -205,6 +207,10 @@ try {
         }
         $insert->execute([$song['artist'], $song['title'], $song['length_sec'], $song['genre']]);
         $inserted++;
+    }
+    if ($inserted > 0 || $removed > 0) {
+        // Open pages poll this counter and redraw their repertoire.
+        (new Settings($db))->increment(RoomRepository::REVISION_KEY);
     }
     $pdo->commit();
 } catch (Throwable $e) {

@@ -1744,11 +1744,11 @@ msgstr "Suggestions : secondes entre deux vérifications"
 msgid "The same for the list of suggestions."
 msgstr "Idem pour la liste des suggestions."
 
-msgid "Room state: seconds between two checks"
-msgstr "État de la salle : secondes entre deux vérifications"
+msgid "Room state, rooms and songs: seconds between two checks"
+msgstr "État de la salle, salles et morceaux : secondes entre deux vérifications"
 
-msgid "Every page asks this often whether the room was closed or opened, so the notice in the header – and on the song list the Wish buttons – appear and disappear for everyone without a reload. 0 switches that off."
-msgstr "Chaque page demande à cette fréquence si la salle a été fermée ou ouverte, pour que l’avis dans l’en-tête – et, sur la liste des chansons, les boutons Souhaiter – apparaissent et disparaissent chez tout le monde sans rechargement. 0 désactive cela."
+msgid "Every page asks this often whether the room was closed or opened and whether rooms or songs were added, changed or removed, so the notice in the header, the room switcher, the repertoire and the list of rooms follow for everyone without a reload. 0 switches that off."
+msgstr "Chaque page demande à cette fréquence si la salle a été fermée ou ouverte et si des salles ou des morceaux ont été ajoutés, modifiés ou retirés, pour que l’avis dans l’en-tête, le sélecteur de salle, le répertoire et la liste des salles suivent chez tout le monde sans rechargement. 0 désactive cela."
 
 # ---- Adopting a suggestion: where the wish queues ------------------------------
 

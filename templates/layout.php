@@ -94,18 +94,16 @@ if (trim(strip_tags($help)) === '') {
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎵</text></svg>">
 </head>
 <?php /* data-msg-failed: what app.js announces when a form's request fails
-         on the way (soft navigation). data-live: the song list, the wish
-         list and the suggestions poll this address every data-live-interval
-         seconds for their token and reload themselves when it moved on
-         (app.js); data-msg-updated is announced then. On the song list and
-         wherever only the header is renewed (data-live-scope) the token is
-         the room's state, so a swap means the room was closed or opened --
-         the message says which, as the fresh page carries it. */ ?>
-<body data-endpoint="<?= $e(url()) ?>" data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>" data-toast-sec="<?= (int) $toastSec ?>" data-msg-dismiss="<?= $e(t('Dismiss')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-live-interval="<?= (int) $live['interval'] ?>" data-live-scope="<?= $e($live['scope']) ?>" data-msg-updated="<?= $e($page !== 'songs' && $live['scope'] !== 'header'
-    ? t('The list has been updated.')
-    : ($paused
-        ? t('{room} is closed right now.', ['room' => (string) $room['name']])
-        : t('“{name}” is open again.', ['name' => (string) $room['name']]))) ?>"<?php endif; ?>>
+         on the way (soft navigation). data-live: every page polls this
+         address every data-live-interval seconds for its token and, when it
+         moved on, reloads itself -- the lists whole, the others the header
+         alone (data-live-scope) -- see index.php. The token starts with the
+         room's state: when that part moved, the room was closed or opened
+         and app.js announces data-msg-state, which the fresh page carries;
+         any other change on a list announces data-msg-updated. */ ?>
+<body data-endpoint="<?= $e(url()) ?>" data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>" data-toast-sec="<?= (int) $toastSec ?>" data-msg-dismiss="<?= $e(t('Dismiss')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-live-interval="<?= (int) $live['interval'] ?>" data-live-scope="<?= $e($live['scope']) ?>" data-msg-updated="<?= $e(t('The list has been updated.')) ?>" data-msg-state="<?= $e($paused
+    ? t('{room} is closed right now.', ['room' => (string) $room['name']])
+    : t('“{name}” is open again.', ['name' => (string) $room['name']])) ?>"<?php endif; ?>>
 <a class="skip-link" href="#content"><?= $e(t('Skip to content')) ?></a>
 
 <div class="cabinet">

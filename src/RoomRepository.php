@@ -28,6 +28,16 @@ final class RoomRepository
 
     public const DEFAULT_ID = 0;
 
+    /**
+     * Settings key of the catalogue revision: a counter that every change of
+     * the rooms and songs raises -- a room created, renamed, archived or
+     * deleted, the main room renamed, the start room chosen, a song added,
+     * edited or removed, a room's selection changed. Open pages poll it
+     * (app.js) and redraw the room switcher, the list of rooms and the
+     * repertoire when it moved on; see WishGuard::revision() for the wishes.
+     */
+    public const REVISION_KEY = 'catalog_rev';
+
     public const MIN_SLUG = 2;
     public const MAX_SLUG = 64;
     public const MAX_NAME = 128;

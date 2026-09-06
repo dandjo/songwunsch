@@ -1025,6 +1025,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     if ($key === 0) {
                         $newId = $songs->create($checked['values']);
+                        $settings->increment(RoomRepository::REVISION_KEY);
                         $args  = ['title' => $input['title'], 'artist' => $input['artist']];
 
                         // The suggestion has served its purpose. If someone
@@ -1076,6 +1077,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         });
                     } else {
                         $songs->update($key, $checked['values']);
+                        $settings->increment(RoomRepository::REVISION_KEY);
                         flash('ok', t('“{title}” by {artist} has been saved.', [
                             'title'  => $input['title'],
                             'artist' => $input['artist'],
@@ -1102,6 +1104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $songs->delete((int) $song['id']);
                 $rooms->removeSongEverywhere((int) $song['id']);
+                $settings->increment(RoomRepository::REVISION_KEY);
                 flash('ok', t('“{title}” has been removed from the repertoire. Wishes already received are kept.', [
                     'title' => (string) $song['title'],
                 ]));
@@ -1148,6 +1151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $settings->set(RoomRepository::START_ROOM_KEY, (string) $startId);
                     flash('ok', t('New visitors now start in “{name}”.', ['name' => (string) $startRoom['name']]));
                 }
+                $settings->increment(RoomRepository::REVISION_KEY);
                 redirect(back(url(['p' => 'rooms'])));
                 // no break
 
@@ -1171,6 +1175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     RoomRepository::nameMainRoom($name);
                     flash('ok', t('“General” is now called “{name}”.', ['name' => $name]));
                 }
+                $settings->increment(RoomRepository::REVISION_KEY);
                 redirect($back);
                 // no break
 
@@ -1205,6 +1210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $rooms->update($id, $checked['values']);
                 }
+                $settings->increment(RoomRepository::REVISION_KEY);
 
                 // Archiving closes wishing in that room -- signed-in users
                 // still reach it. Reactivating does not reopen it; that is
@@ -1248,6 +1254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     // Its pause switch and revision counter go with it.
                     $guard->forgetRoom((int) $target['id']);
+                    $settings->increment(RoomRepository::REVISION_KEY);
                     flash('ok', t('Room “{name}” has been deleted together with its wishes.', ['name' => (string) $target['name']]));
                 } else {
                     flash('error', t('Deleting was not possible.'));
@@ -1272,6 +1279,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $n = $action === 'room_songs_add'
                     ? $rooms->addSongs($roomId, $ids)
                     : $rooms->removeSongs($roomId, $ids);
+                if ($n > 0) {
+                    $settings->increment(RoomRepository::REVISION_KEY);
+                }
 
                 flash('ok', $action === 'room_songs_add'
                     ? tn('{n} song added to the room.', '{n} songs added to the room.', $n)
@@ -1417,28 +1427,32 @@ try {
     $schema->ensure();
     $view['paused']   = $guard->isPaused();
 
-    // Live updates (app.js): the wish list and the suggestions poll a token
-    // that changes with every change of what they show; ?poll=1 answers with
-    // that token alone. The suggestions' token includes the room's wish
-    // revision, since closing the room hides their form as well. The song
-    // list polls the room's state only -- closed or open -- so the Wish
-    // buttons and the header's notice follow the moderator, while a wish
-    // arriving leaves the list alone. Every other page that shows the header
-    // polls the room's state as well, but on a change renews the header
-    // alone ('scope' => 'header'): the closed-room notice appears or goes
-    // while a form being filled in stays untouched. How often a page asks is
-    // set under Interface, one interval per case; 0 switches the case off:
-    // its pages carry no live address and do not poll. The poll itself
-    // answers all the same, so a page opened before the switch keeps working
-    // until it loads again. Resources without a header (a logo, a QR image)
-    // have no token.
-    $roomState = $guard->isPaused() ? '1' : '0';
+    // Live updates (app.js): every page polls a token that changes with
+    // every change of what it shows; ?poll=1 answers with that token alone.
+    // The token starts with the room's state -- closed or open -- so that
+    // app.js can tell a closing from any other change and announce it; then
+    // the catalogue revision (rooms and songs, see RoomRepository::
+    // REVISION_KEY), which every page carries because the header's room
+    // switcher and tab counters show it. The wish list adds its own
+    // revision, the suggestions theirs plus the room's wish revision, since
+    // closing the room hides their form as well. The lists redraw
+    // themselves whole ('scope' => 'page'); every other page renews the
+    // header alone ('scope' => 'header'): the closed-room notice and the
+    // room switcher follow while a form being filled in stays untouched.
+    // How often a page asks is set under Interface, one interval per case;
+    // 0 switches the case off: its pages carry no live address and do not
+    // poll. The poll itself answers all the same, so a page opened before
+    // the switch keeps working until it loads again. Resources without a
+    // header (a logo, a QR image) have no token.
+    $roomState  = $guard->isPaused() ? '1' : '0';
+    $catalogRev = $roomState . '.' . $settings->get(RoomRepository::REVISION_KEY, '0');
     [$liveToken, $liveInterval, $liveScope] = match (true) {
-        $page === 'songs'       => [$roomState, $ui->get('poll_room_sec'), 'page'],
-        $page === 'wishes'      => [(string) $guard->revision(), $ui->get('poll_wishes_sec'), 'page'],
-        $page === 'suggestions' => [$settings->get(SuggestionRepository::REVISION_KEY, '0') . '.' . $guard->revision(), $ui->get('poll_suggestions_sec'), 'page'],
+        $page === 'songs'       => [$catalogRev, $ui->get('poll_room_sec'), 'page'],
+        $page === 'rooms'       => [$catalogRev, $ui->get('poll_room_sec'), 'page'],
+        $page === 'wishes'      => [$catalogRev . '.' . $guard->revision(), $ui->get('poll_wishes_sec'), 'page'],
+        $page === 'suggestions' => [$catalogRev . '.' . $settings->get(SuggestionRepository::REVISION_KEY, '0') . '.' . $guard->revision(), $ui->get('poll_suggestions_sec'), 'page'],
         $page === 'logo' || $routeFormat !== '' => [null, 0, 'page'],
-        default                 => [$roomState, $ui->get('poll_room_sec'), 'header'],
+        default                 => [$catalogRev, $ui->get('poll_room_sec'), 'header'],
     };
     if ($liveToken !== null && isset($_GET['poll'])) {
         header('Cache-Control: no-store');

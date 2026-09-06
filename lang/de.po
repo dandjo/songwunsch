@@ -1748,11 +1748,11 @@ msgstr "Vorschläge: Sekunden zwischen zwei Abfragen"
 msgid "The same for the list of suggestions."
 msgstr "Dasselbe für die Liste der Vorschläge."
 
-msgid "Room state: seconds between two checks"
-msgstr "Raumstatus: Sekunden zwischen zwei Abfragen"
+msgid "Room state, rooms and songs: seconds between two checks"
+msgstr "Raumstatus, Räume und Songs: Sekunden zwischen zwei Abfragen"
 
-msgid "Every page asks this often whether the room was closed or opened, so the notice in the header – and on the song list the Wish buttons – appear and disappear for everyone without a reload. 0 switches that off."
-msgstr "Jede Seite fragt so oft nach, ob der Raum geschlossen oder geöffnet wurde, damit der Hinweis im Kopf – und auf der Songliste die Wünschen-Buttons – bei allen ohne Neuladen erscheinen und verschwinden. 0 schaltet das ab."
+msgid "Every page asks this often whether the room was closed or opened and whether rooms or songs were added, changed or removed, so the notice in the header, the room switcher, the repertoire and the list of rooms follow for everyone without a reload. 0 switches that off."
+msgstr "Jede Seite fragt so oft nach, ob der Raum geschlossen oder geöffnet wurde und ob Räume oder Songs hinzugekommen, geändert oder entfernt wurden, damit der Hinweis im Kopf, der Raumwechsler, das Repertoire und die Raumliste bei allen ohne Neuladen folgen. 0 schaltet das ab."
 
 # ---- Adopting a suggestion: where the wish queues ------------------------------
 
