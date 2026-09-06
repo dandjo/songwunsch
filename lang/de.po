@@ -1028,14 +1028,11 @@ msgstr "Löschen von Vorschlägen bestätigen"
 msgid "Delete under Suggestions – Clear list always asks"
 msgstr "Löschen unter Vorschläge – Liste leeren fragt immer nach"
 
-msgid "A suggestion made in a room carries the room’s tag – the adopted song is offered there as well."
-msgstr "Ein Vorschlag aus einem Raum trägt dessen Kennzeichen – der übernommene Song wird dort ebenfalls angeboten."
+msgid "Every room keeps its own suggestions; the adopted song is offered in this room as well."
+msgstr "Jeder Raum führt seine eigenen Vorschläge; der übernommene Song wird auch in diesem Raum angeboten."
 
 msgid "Suggested from this room, the song is offered here once it is in."
 msgstr "Aus diesem Raum vorgeschlagen, wird der Song hier angeboten, sobald er drin ist."
-
-msgid "deleted room"
-msgstr "gelöschter Raum"
 
 msgid "It was suggested in room “{room}”, so the song is offered there as well."
 msgstr "Vorgeschlagen wurde er im Raum „{room}“ – der Song wird dort ebenfalls angeboten."
@@ -1580,8 +1577,8 @@ msgstr "In derselben Browser-Sitzung – eine Bremse gegen Doppelklicks."
 msgid "Open suggestions"
 msgstr "Offene Vorschläge"
 
-msgid "For the whole site; the suggestions aim at the main list. The box is full at this many open suggestions."
-msgstr "Für die ganze Seite; die Vorschläge zielen auf die Stammliste. Bei so vielen offenen Vorschlägen ist der Briefkasten voll."
+msgid "Per room. The box is full at this many open suggestions."
+msgstr "Pro Raum. Bei so vielen offenen Vorschlägen ist der Briefkasten voll."
 
 msgid "Seconds between two suggestions"
 msgstr "Sekunden zwischen zwei Vorschlägen"

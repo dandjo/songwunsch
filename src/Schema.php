@@ -92,10 +92,11 @@ final class Schema
                 `title`      VARCHAR(255) NOT NULL,
                 `suggester`  VARCHAR(64)  NULL COMMENT 'name the guest gave, optional',
                 `created_at` DATETIME     NOT NULL,
-                `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id the suggestion was made in, 0 = main room; the adopted song joins that room',
+                `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id whose list the suggestion is on, 0 = main room; the adopted song joins that room',
                 PRIMARY KEY (`id`),
                 KEY `idx_created_at` (`created_at`),
-                KEY `idx_artist_title` (`artist`, `title`)
+                KEY `idx_artist_title` (`artist`, `title`),
+                KEY `idx_room_id` (`room_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             SQL,
         self::SETTINGS => <<<'SQL'

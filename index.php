@@ -8,7 +8,7 @@ declare(strict_types=1);
  * Pages (path below the base path, see url() in src/bootstrap.php):
  *   /        songs (start, public)            | /login
  *   /wishes  public view, moderators edit     | /song   (editor)
- *   /suggestions  everyone suggests, editors adopt or delete
+ *   /suggestions  the room's suggestions: everyone suggests, editors adopt or delete
  *   /name    the visitor's name for wishes    | /settings -> /users/<own id>/settings
  *   /pages/<slug>    a page for everyone (imprint, FAQ, ...)
  *   /rooms   list of rooms (public)           | /rooms/new, /rooms/<id>/edit, /rooms/main/edit (editor)
@@ -23,7 +23,7 @@ declare(strict_types=1);
  *   /admin           -> /admin/users
  *   /rooms/<slug>          a room's song list  -- same page as /, in the room
  *   /rooms/<slug>/wishes   a room's wish list  -- same page as /wishes
- *   /rooms/<slug>/suggestions  suggest from inside the room: the adopted song joins it
+ *   /rooms/<slug>/suggestions  a room's suggestions -- same page as /suggestions; the adopted song joins the room
  *   /rooms/<slug>/manage   pick the room's songs from the main list (editor)
  *   /rooms/<slug>/qr       the room's address as a QR code (editor): page, /qr.svg, /qr.png; /rooms/main/qr for the main room
  * Actions (POST to any of these): wish | suggest | login | logout | name_save | name_skip
@@ -94,7 +94,6 @@ asset_version((string) ($config['version'] ?? getenv('APP_VERSION') ?: ''));
 $db     = new Database($config['db']);
 $schema = new Schema($db);
 $songs  = new SongRepository($db);
-$suggestions = new SuggestionRepository($db);
 $users  = new UserRepository($db);
 $rooms  = new RoomRepository($db);
 $settings = new Settings($db);
@@ -313,6 +312,8 @@ if ($roomBound && (int) $room['id'] !== RoomRepository::DEFAULT_ID) {
 current_room($room);
 $roomId = (int) $room['id'];
 $wishes = new WishRepository($db, $roomId);
+// The suggestions are the room's as well: listed, counted and added there.
+$suggestions = new SuggestionRepository($db, $roomId);
 $guard  = new WishGuard(
     $db,
     $settings,
@@ -813,7 +814,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'suggest':
                 // A guest names a song that is missing from the repertoire.
                 // Same bot hurdles as wishing (honeypot, signed timestamp),
-                // its own session cooldown and a cap on open suggestions.
+                // its own session cooldown and a cap on the room's open
+                // suggestions.
                 $suggestUrl = url(['p' => 'suggestions']);
 
                 // The moderator's pause closes suggesting in the room as well.
@@ -880,9 +882,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect($suggestUrl);
                 }
 
-                // The room the guest is in goes with the suggestion: once
-                // adopted, the song is offered there right away.
-                $suggestions->add($checked['values'], $nameCookie->current(), $roomId);
+                // The suggestion goes onto the list of the room the guest is
+                // in: once adopted, the song is offered there right away.
+                $suggestions->add($checked['values'], $nameCookie->current());
                 $settings->increment(SuggestionRepository::REVISION_KEY);
                 $security->markWish('suggestion');
 
@@ -1784,8 +1786,8 @@ try {
             break;
 
         case 'suggestions':
-            // Everyone sees the open suggestions and may search them; editors
-            // also adopt and delete. The badge keeps the full count.
+            // Everyone sees the room's open suggestions and may search them;
+            // editors also adopt and delete. The badge keeps the full count.
             $canEdit = $security->can('suggestions');
             $kept    = remembered_input();
             $q       = trim((string) ($_GET['q'] ?? ''));
@@ -1802,14 +1804,6 @@ try {
             $view['found']     = $result['total'];
             $view['pageNo']    = $pageNo;
             $view['pages']     = max(1, (int) ceil($result['total'] / $perPage));
-            // Room names for the tags on the rows, by id -- archived rooms too
-            // for signed-in users. Guests get the active listed rooms only,
-            // plus the room they are in; a row whose room is missing here
-            // shows no room tag.
-            $view['roomNames'] = $rooms->namesById(!$security->isLoggedIn());
-            if ($roomId > 0) {
-                $view['roomNames'][$roomId] = (string) $room['name'];
-            }
             // No form while wishing is paused in this room.
             $view['formToken'] = $view['paused'] ? '' : $guard->formToken();
             $view['errors']    = $kept['errors'] ?? [];

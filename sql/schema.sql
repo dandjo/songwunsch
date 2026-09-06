@@ -55,19 +55,21 @@ CREATE TABLE IF NOT EXISTS `song_wishes` (
 -- Song suggestions from the audience: artist and title of a song that is
 -- missing from the repertoire. The editor adopts a suggestion into `songs`
 -- (adding length and genre) or deletes it; either way it leaves this table.
--- Suggestions aim at the master list; room_id remembers the room the guest
--- was in, and an adopted song is offered in that room right away. suggester
--- is the guest's name if given, and goes with the suggestion.
+-- Like the wishes, the suggestions are kept per room (room_id, 0 = main
+-- room): a room lists what was suggested there. The adopted song goes onto
+-- the master list and is offered in that room right away. suggester is the
+-- guest's name if given, and goes with the suggestion.
 CREATE TABLE IF NOT EXISTS `song_suggestions` (
     `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `artist`     VARCHAR(255) NOT NULL,
     `title`      VARCHAR(255) NOT NULL,
     `suggester`  VARCHAR(64)  NULL COMMENT 'name the guest gave, optional',
     `created_at` DATETIME     NOT NULL,
-    `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id the suggestion was made in, 0 = main room; the adopted song joins that room',
+    `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id whose list the suggestion is on, 0 = main room; the adopted song joins that room',
     PRIMARY KEY (`id`),
     KEY `idx_created_at` (`created_at`),
-    KEY `idx_artist_title` (`artist`, `title`)
+    KEY `idx_artist_title` (`artist`, `title`),
+    KEY `idx_room_id` (`room_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- State that outlives requests: the moderator's pause switch, daily secrets

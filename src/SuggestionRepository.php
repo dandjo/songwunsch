@@ -11,11 +11,16 @@ namespace Songwunsch;
  * length and genre on the way) or deletes it. Adopting removes the
  * suggestion -- the list only ever holds what is still open.
  *
- * Suggestions aim at the main list, which is what every room picks from.
- * A suggestion made inside a room remembers that room (room_id, 0 = main
- * room): the adopted song is then offered in the room right away. The list
- * itself is one for the whole site -- the editor sees every suggestion,
- * tagged with its room.
+ * Like the wish list, the suggestions belong to a room: every instance is
+ * bound to one room (room_id, 0 = main room), and listing, counting and
+ * adding stay inside that room's list -- the audience of a room sees what
+ * was suggested there, nothing from elsewhere. The song itself is added to
+ * the main list, which every room picks from, and the adopted song is
+ * offered in the suggestion's room right away. Deleting a room takes its
+ * suggestions with it, as it does its wishes (RoomRepository::delete).
+ *
+ * find() and delete() address a suggestion by id, whatever its room: the
+ * editor adopts from the row in front of them, and the row names its room.
  *
  * Like a wish, a suggestion stores no IP address and no user agent (GDPR:
  * data minimisation). The only personal data is the name the guest chose
@@ -31,13 +36,20 @@ final class SuggestionRepository
     public const MAX_ARTIST = SongRepository::MAX_ARTIST;
     public const MAX_TITLE  = SongRepository::MAX_TITLE;
 
-    public function __construct(private readonly Database $db)
+    public function __construct(
+        private readonly Database $db,
+        private readonly int $roomId = RoomRepository::DEFAULT_ID,
+    ) {
+    }
+
+    public function roomId(): int
     {
+        return $this->roomId;
     }
 
     /**
-     * One page of the open suggestions, oldest first -- the order they came
-     * in is the order the editor works through. With a query only those
+     * One page of the room's open suggestions, oldest first -- the order they
+     * came in is the order the editor works through. With a query only those
      * whose artist, title or suggester contain every term (AND, like the
      * song search). `total` counts every match, not just the page.
      *
@@ -46,15 +58,15 @@ final class SuggestionRepository
     public function search(string $query, int $page, int $perPage): array
     {
         $terms      = preg_split('/\s+/u', trim($query), -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        $conditions = [];
-        $params     = [];
+        $conditions = ['room_id = ?'];
+        $params     = [$this->roomId];
 
         foreach (array_slice($terms, 0, 6) as $term) {
             $like         = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $term) . '%';
             $conditions[] = '(artist LIKE ? OR title LIKE ? OR suggester LIKE ?)';
             array_push($params, $like, $like, $like);
         }
-        $where = $conditions === [] ? '' : ' WHERE ' . implode(' AND ', $conditions);
+        $where = ' WHERE ' . implode(' AND ', $conditions);
 
         $total  = (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE . $where, $params)['c'] ?? 0);
         $offset = max(0, ($page - 1) * $perPage);
@@ -66,9 +78,10 @@ final class SuggestionRepository
         return ['rows' => $rows, 'total' => $total];
     }
 
+    /** Open suggestions in the room -- the badge on the tab and the cap on the box. */
     public function count(): int
     {
-        return (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE)['c'] ?? 0);
+        return (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE . ' WHERE room_id = ?', [$this->roomId])['c'] ?? 0);
     }
 
     /** @return array<string,mixed>|null */
@@ -82,15 +95,16 @@ final class SuggestionRepository
     }
 
     /**
-     * Has this song been suggested already? Artist and title compare
-     * case-insensitively through the table's collation, so "abba" and
-     * "ABBA" count as the same suggestion.
+     * Has this song been suggested in the room already? Artist and title
+     * compare case-insensitively through the table's collation, so "abba"
+     * and "ABBA" count as the same suggestion. Another room's suggestion of
+     * the same song does not count: the guest cannot see it there.
      */
     public function isPending(string $artist, string $title): bool
     {
         return $this->db->one(
-            'SELECT id FROM ' . self::TABLE . ' WHERE artist = ? AND title = ? LIMIT 1',
-            [$artist, $title],
+            'SELECT id FROM ' . self::TABLE . ' WHERE room_id = ? AND artist = ? AND title = ? LIMIT 1',
+            [$this->roomId, $artist, $title],
         ) !== null;
     }
 
@@ -129,12 +143,13 @@ final class SuggestionRepository
     }
 
     /**
+     * Add a suggestion to the room's list.
+     *
      * @param array<string,string> $values    result of validate()
      * @param string|null          $suggester the guest's name, if given
-     * @param int                  $roomId    the room the guest was in, 0 = main room
      * @return int id of the new suggestion
      */
-    public function add(array $values, ?string $suggester = null, int $roomId = RoomRepository::DEFAULT_ID): int
+    public function add(array $values, ?string $suggester = null): int
     {
         // Timestamp from PHP, like the wishes: display and "x minutes ago"
         // then agree even when PHP and MySQL run in different time zones.
@@ -145,20 +160,22 @@ final class SuggestionRepository
                 $values['title'],
                 $suggester !== null && $suggester !== '' ? $suggester : null,
                 date('Y-m-d H:i:s'),
-                max(0, $roomId),
+                $this->roomId,
             ],
         );
 
         return (int) $this->db->pdo()->lastInsertId();
     }
 
+    /** Delete one suggestion, whatever room it was made in. */
     public function delete(int $id): bool
     {
         return $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE id = ? LIMIT 1', [$id]) > 0;
     }
 
+    /** Empty the room's list ("Clear list"); other rooms keep theirs. */
     public function deleteAll(): int
     {
-        return $this->db->exec('DELETE FROM ' . self::TABLE);
+        return $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE room_id = ?', [$this->roomId]);
     }
 }

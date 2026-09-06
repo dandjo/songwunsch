@@ -6,15 +6,14 @@ use Songwunsch\Format;
 use Songwunsch\RoomRepository;
 use Songwunsch\SuggestionRepository;
 
-/** @var array<int,array<string,mixed>> $rows  open suggestions, one page, for everyone */
+/** @var array<int,array<string,mixed>> $rows  the room's open suggestions, one page, for everyone */
 /** @var int $found                     how many match the search, all pages */
 /** @var int $pageNo */
 /** @var int $pages */
-/** @var array<int,string> $roomNames    room names by id, for the tags on the rows */
 /** @var array<string,mixed> $room       current room; the default room has id 0 */
 /** @var bool $canEdit                  editor or admin: list, adopt, delete */
 /** @var string $q                      the editor's search, '' = the whole list */
-/** @var int|null $suggestionCount      how many are waiting */
+/** @var int|null $suggestionCount      how many are waiting in the room */
 /** @var string $formToken              signed timestamp for the suggest form */
 /** @var bool $paused                   wishing closed by the moderator -- suggesting is closed too */
 /** @var array<string,string> $values   the form's input, kept after an error */
@@ -105,9 +104,10 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 </div>
 <?php endif; ?>
 
-<?php /* The open suggestions, set apart from the form by a hairline and
-         their own heading. Everyone may look and search; only editors get
-         the buttons and "Clear list". */ ?>
+<?php /* The room's open suggestions, set apart from the form by a hairline
+         and their own heading. Everyone may look and search; only editors
+         get the buttons and "Clear list". The header names the room, so the
+         rows do not. */ ?>
 <?php /* While the room is closed the list opens the page and needs no rule
          above it. */ ?>
 <section class="list-section<?= $paused ? ' list-section--first' : '' ?>" aria-labelledby="open-suggestions">
@@ -122,7 +122,9 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                 <?php elseif ($canEdit): ?>
                     <?= $e(tn('{n} suggestion waiting.', '{n} suggestions waiting.', $open)) ?>
                     <?= $e(t('Adopt puts the song on the list and onto the wish list once you have added what is missing; Delete drops the suggestion.')) ?>
-                    <?= $e(t('A suggestion made in a room carries the room’s tag – the adopted song is offered there as well.')) ?>
+                    <?php if ($inRoom): ?>
+                        <?= $e(t('Every room keeps its own suggestions; the adopted song is offered in this room as well.')) ?>
+                    <?php endif; ?>
                 <?php else: ?>
                     <?= $e(tn('{n} suggestion is waiting for the editors.', '{n} suggestions are waiting for the editors.', $open)) ?>
                 <?php endif; ?>
@@ -168,7 +170,6 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
             <tr>
                 <th scope="col"><?= $e(t('Artist')) ?></th>
                 <th scope="col"><?= $e(t('Title')) ?></th>
-                <th scope="col"><?= $e(t('Room')) ?></th>
                 <th scope="col"><?= $e(t('Received')) ?>, <?= $e(t('From')) ?></th>
                 <?php if ($canEdit): ?>
                     <th scope="col"><span class="sr-only"><?= $e(t('Actions')) ?></span></th>
@@ -181,19 +182,6 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                     <tr>
                         <td class="cell-artist"><?= $e((string) $row['artist']) ?></td>
                         <td class="cell-title"><?= $e((string) $row['title']) ?></td>
-                        <?php /* The room the guest was in; the adopted song joins it.
-                                 Nothing for the main room -- that is the main list. */ ?>
-                        <td class="cell-genre cell-room">
-                            <?php $rowRoom = (int) ($row['room_id'] ?? 0); ?>
-                            <?php if ($rowRoom > 0 && isset($roomNames[$rowRoom])): ?>
-                                <span class="tag"><span class="sr-only"><?= $e(t('Room')) ?>: </span><?= $e((string) $roomNames[$rowRoom]) ?></span>
-                            <?php elseif ($rowRoom > 0 && $canEdit): ?>
-                                <?php /* Guests are given no name for an unlisted room (index.php). */ ?>
-                                <span class="tag"><span class="sr-only"><?= $e(t('Room')) ?>: </span><?= $e(t('deleted room')) ?></span>
-                            <?php elseif ($rowRoom === 0): ?>
-                                <span class="sr-only"><?= $e((string) RoomRepository::defaultRoom()['name']) ?></span>
-                            <?php endif; ?>
-                        </td>
                         <td class="cell-meta">
                             <span class="cell-time">
                                 <?= icon('clock', 14) ?><time datetime="<?= $e(str_replace(' ', 'T', (string) $row['created_at'])) ?>">

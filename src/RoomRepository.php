@@ -191,25 +191,6 @@ final class RoomRepository
     }
 
     /**
-     * Display name by id of every room, archived ones too -- for tags on
-     * rows that name their room. For guests the unlisted and the archived
-     * rooms are left out, so their names do not show up on the public lists.
-     *
-     * @param  bool $listedOnly guests: only active rooms with the listed switch on
-     * @return array<int,string>
-     */
-    public function namesById(bool $listedOnly = false): array
-    {
-        $names = [];
-        $where = $listedOnly ? ' WHERE active = 1 AND listed = 1' : '';
-        foreach ($this->db->all('SELECT id, name FROM ' . self::TABLE . $where) as $row) {
-            $names[(int) $row['id']] = (string) $row['name'];
-        }
-
-        return $names;
-    }
-
-    /**
      * Number of active rooms besides the main one -- the badge on the Rooms
      * tab. Archived rooms are put away and not counted.
      */
@@ -328,7 +309,7 @@ final class RoomRepository
         );
     }
 
-    /** Delete a room together with its song selection and its wishes. */
+    /** Delete a room together with its song selection, its wishes and its suggestions. */
     public function delete(int $id): bool
     {
         if ($id <= 0) {
@@ -340,9 +321,9 @@ final class RoomRepository
         try {
             $this->db->exec('DELETE FROM ' . self::SONGS . ' WHERE room_id = ?', [$id]);
             $this->db->exec('DELETE FROM `' . Schema::WISHES . '` WHERE room_id = ?', [$id]);
-            // Suggestions made in the room stay -- they aim at the main
-            // list anyway -- and fall back to the main room.
-            $this->db->exec('UPDATE `' . Schema::SUGGESTIONS . '` SET room_id = 0 WHERE room_id = ?', [$id]);
+            // The suggestions are the room's list too (SuggestionRepository)
+            // and go with it, like the wishes.
+            $this->db->exec('DELETE FROM `' . Schema::SUGGESTIONS . '` WHERE room_id = ?', [$id]);
             $removed = $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE id = ? LIMIT 1', [$id]);
             $pdo->commit();
         } catch (\Throwable $e) {

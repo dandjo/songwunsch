@@ -129,7 +129,7 @@ remembered room or the start room takes over.
 | --- | --- |
 | `/` | Repertoire (start page) |
 | `/wishes` | Wish list |
-| `/suggestions` | Song suggestions: form and searchable list for everyone, buttons for editors |
+| `/suggestions` | Song suggestions of the room: form and searchable list for everyone, buttons for editors |
 | `/login` | Sign-in |
 | `/name` | The guest's name for the wish list – change or remove it |
 | `/song/new`, `/song/<id>` | Create or edit a song – editor; `/suggestions/<id>/adopt` adopts a suggestion into a new song |
@@ -140,7 +140,7 @@ remembered room or the start room takes over.
 | `/logo/<id>` | An uploaded logo, see [Logo](#logo) |
 | `/rooms/<name>` | Repertoire of a room |
 | `/rooms/<name>/wishes` | Wish list of a room |
-| `/rooms/<name>/suggestions` | Suggest a song from inside a room – the adopted song joins the room |
+| `/rooms/<name>/suggestions` | Song suggestions of a room – the adopted song joins the room |
 | `/rooms/<name>/manage` | Manage the room's songs (selection from the main list) – editor |
 | `/admin/users`, `/admin/users/new`, `/admin/users/<id>/edit` | User management – admins |
 | `/admin/logos` | Header logos – admins, see [Logo](#logo) |
@@ -502,7 +502,7 @@ prerequisite; there is no detection or mapping of foreign tables.
 | --- | --- | --- |
 | `songs` | `id`, `artist`, `title`, `length_sec` (seconds, `NULL` = unknown), `genre` | Repertoire |
 | `song_wishes` | `id`, `song_id`, `artist`, `title`, `length_sec`, `genre`, `wisher`, `created_at`, `position`, `room_id`, `wished` | Wish list, `wisher` = the guest's name if given, `room_id` 0 = main room, `wished` = how often the song was wished while the entry has been open |
-| `song_suggestions` | `id`, `artist`, `title`, `suggester`, `created_at`, `room_id` | Open song suggestions, see [Song suggestions](#song-suggestions); `suggester` = the guest's name if given, `room_id` = the room it was made in (0 = main room) |
+| `song_suggestions` | `id`, `artist`, `title`, `suggester`, `created_at`, `room_id` | Open song suggestions, see [Song suggestions](#song-suggestions); `suggester` = the guest's name if given, `room_id` = the room whose list it is on (0 = main room) |
 | `settings` | `name`, `value`, `updated_at` | Open/closed switch per room, marker of *Close all rooms*, daily secrets, personal settings |
 | `wish_throttle` | `id`, `sender`, `created_at` | Rate limiting, see [Protecting the wishing](#protecting-the-wishing) |
 | `users` | `id`, `username`, `password_hash`, `role_admin`, `role_moderator`, `role_editor`, `active`, `created_at`, `updated_at` | Staff accounts, see [Users and roles](#users-and-roles) |
@@ -712,34 +712,33 @@ The **Suggestions** tab (light bulb, right of the wish list) is open to
 everyone, signed in or not. Whoever misses a song enters artist and title;
 the guest's name, if they gave one (see [The guest's name](#the-guests-name)),
 travels with the suggestion so the editors know who asked. Everyone sees the
-open suggestions below the form – oldest first, with the time received, the
-name of whoever suggested and the room's tag – and can search them by
-artist, title or name (several terms are combined with AND, like the song
-search). Long lists are paged like the repertoire (*Rows per page* under
-*Administration → Limits*). Only editors get the buttons.
+open suggestions below the form – oldest first, with the time received and
+the name of whoever suggested – and can search them by artist, title or
+name (several terms are combined with AND, like the song search). Long lists
+are paged like the repertoire (*Rows per page* under *Administration →
+Limits*). Only editors get the buttons.
 
-Suggestions aim at the main list, which every room picks from, and there
-is one list for the whole site. A suggestion made inside a room
-(`/rooms/<name>/suggestions`, where the tab leads while one is in the room)
-remembers that room: the editor sees it tagged with the room's name, and the
-adopted song is offered in that room right away, not only in the main
-list. The room switcher keeps one on the suggestions page when changing
-rooms. If the room is deleted meanwhile, its suggestions stay and fall back
-to the main room. While a room is closed (see [Rooms](#rooms)), suggesting
-is closed there as well: the form disappears (the header's notice says the
-room is closed), and a late
+Like the repertoire and the wish list, the suggestions belong to the room:
+`/rooms/<name>/suggestions` (where the tab leads while one is in the room)
+lists what was suggested in that room and nothing else, `/suggestions` the
+main room's. The room switcher keeps one on the suggestions page when
+changing rooms. The song an editor adopts goes onto the main list, which
+every room picks from, and is offered in the suggestion's room right away.
+Deleting a room deletes its suggestions along with its wishes. While a room
+is closed (see [Rooms](#rooms)), suggesting is closed there as well: the
+form disappears (the header's notice says the room is closed), and a late
 submission is turned away.
 
 Before a suggestion is stored, the application checks that the song is not
 already on the repertoire (then the guest is told to simply wish for it) and
-that it has not been suggested already – both compared case-insensitively.
-The form carries the same bot hurdles as wishing (honeypot, signed
-timestamp), a per-session cooldown (10 s) and a cap on open suggestions (200;
-0 = no cap); admins set both under *Administration → Limits*, see
-[Protecting the wishing](#protecting-the-wishing).
+that it has not been suggested in the room already – both compared
+case-insensitively. The form carries the same bot hurdles as wishing
+(honeypot, signed timestamp), a per-session cooldown (10 s) and a cap on
+the room's open suggestions (200; 0 = no cap); admins set both under
+*Administration → Limits*, see [Protecting the wishing](#protecting-the-wishing).
 
 The *Suggestions* tab carries a counter badge with the number of open
-suggestions, the *Wishes* tab one with the open wishes of the room and the
+suggestions in the room, the *Wishes* tab one with the open wishes of the room and the
 *Repertoire* tab one with the room's songs – all for everyone, guests
 included; the *Rooms* tab, visible to editors and admins only, carries the
 number of active rooms besides the main one. **Editors** (and admins)
@@ -751,13 +750,13 @@ additionally get two buttons on every row:
   wish queues: at the **top** of the room's wish list (the default – the
   suggestion is usually adopted the moment it comes up, so the audience
   should see it played soon) or at the **bottom**. *Add* creates the song,
-  puts it into the suggestion's room if there was one, places it on that
-  room's wish list in the name of whoever suggested it (the suggestion was
-  a wish, after all) and deletes the suggestion, all in one go; *Cancel*
-  leaves everything as it was.
+  puts it into the suggestion's room, places it on that room's wish list in
+  the name of whoever suggested it (the suggestion was a wish, after all)
+  and deletes the suggestion, all in one go; *Cancel* leaves everything as
+  it was.
 * **Delete** drops the suggestion. It asks for confirmation unless the
   editor switched that off under User settings; *Clear list* above the list
-  deletes every suggestion and always asks.
+  deletes every suggestion of the room and always asks.
 
 ## Rooms
 
@@ -956,7 +955,7 @@ Admins set the limits under **Limits** (`/admin/limits`, in the
 limits on [song suggestions](#song-suggestions). A limit of `0` disables it.
 The defaults are 200 open wishes per room, 30 per minute in total, 3 per
 minute and 20 per hour per sender, 5 s between two wishes, 2 s after the
-page load; 200 open suggestions and 10 s between two of them. The same page
+page load; 200 open suggestions per room and 10 s between two of them. The same page
 sets the rows per page of the paged lists (50): the repertoire, the wish
 list, the suggestions, the rooms, the users, the pages, the logos and both
 columns of a room's song picker and of the footer. A page beyond the last –

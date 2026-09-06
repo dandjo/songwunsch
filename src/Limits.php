@@ -34,7 +34,7 @@ final class Limits extends NumberSettings
         'per_minute_sender'       => [3, 0, 1000],     // wishes per minute per sender
         'per_hour_sender'         => [20, 0, 10000],   // wishes per hour per sender
         'wish_cooldown_sec'       => [5, 0, 3600],     // gap between two wishes in one session
-        'suggestion_max_open'     => [200, 0, 100000], // open suggestions, site-wide
+        'suggestion_max_open'     => [200, 0, 100000], // open suggestions per room
         'suggestion_cooldown_sec' => [10, 0, 3600],    // gap between two suggestions in one session
         'wish_min_form_sec'       => [2, 0, 60],       // seconds between page load and submit below which a form counts as a script's
         'per_page'                => [50, 10, 500],    // rows per page on the paged lists
