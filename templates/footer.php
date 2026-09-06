@@ -89,11 +89,11 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
                     <thead><tr><th scope="col"><?= $e(t('Title')) ?></th><th scope="col"><?= $e(t('Address')) ?></th><th scope="col"><span class="sr-only"><?= $e(t('Add')) ?></span></th></tr></thead>
                     <tbody>
                     <?php foreach ($available as $row): ?>
-                        <?php $title = (string) $row['title']; ?>
+                        <?php $label = (string) $row['title']; ?>
                         <tr>
-                            <td class="cell-title"><?= $e($title) ?></td>
+                            <td class="cell-title"><?= $e($label) ?></td>
                             <td class="cell-artist"><?= $e(url(['p' => 'page', 'slug' => (string) $row['slug']])) ?></td>
-                            <td class="cell-action"><?= $across('footer_add', (int) $row['id'], 'arrow-right', t('Add'), $title, 'arrow-button') ?></td>
+                            <td class="cell-action"><?= $across('footer_add', (int) $row['id'], 'arrow-right', t('Add'), $label, 'arrow-button') ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -132,15 +132,15 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
                     <tbody>
                     <?php foreach ($linked as $i => $row): ?>
                         <?php
-                        $title = (string) $row['title'];
+                        $label = (string) $row['title'];
                         $index = $linkedOffset + $i;   // rank in the whole footer, from 0
                         ?>
                         <tr data-id="<?= (int) $row['id'] ?>" draggable="true">
-                            <td class="cell-action"><?= $across('footer_remove', (int) $row['id'], 'arrow-left', t('Remove'), $title, 'arrow-button arrow-button--remove') ?></td>
+                            <td class="cell-action"><?= $across('footer_remove', (int) $row['id'], 'arrow-left', t('Remove'), $label, 'arrow-button arrow-button--remove') ?></td>
                             <td class="cell-rank">
                                 <span class="rank"><span class="drag-grip" aria-hidden="true">⠿</span><?= (int) $index + 1 ?></span>
                             </td>
-                            <td class="cell-title"><?= $e($title) ?></td>
+                            <td class="cell-title"><?= $e($label) ?></td>
                             <td class="cell-artist"><?= $e(url(['p' => 'page', 'slug' => (string) $row['slug']])) ?></td>
                             <?php /* The wish list's four moves: to the very top, one up, one
                                      down, to the very bottom (on phones a 2x2 block). app.js
@@ -151,10 +151,10 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
                                     <span class="move">
                                         <?php
                                         $moves = [
-                                            'top'    => [icon('to-top', 12), t('Move {label} to the top', ['label' => $title]), $index === 0],
-                                            'up'     => [icon('up', 12), t('Move {label} up', ['label' => $title]), $index === 0],
-                                            'down'   => [icon('down', 12), t('Move {label} down', ['label' => $title]), $index === $last],
-                                            'bottom' => [icon('to-bottom', 12), t('Move {label} to the bottom', ['label' => $title]), $index === $last],
+                                            'top'    => [icon('to-top', 12), t('Move {label} to the top', ['label' => $label]), $index === 0],
+                                            'up'     => [icon('up', 12), t('Move {label} up', ['label' => $label]), $index === 0],
+                                            'down'   => [icon('down', 12), t('Move {label} down', ['label' => $label]), $index === $last],
+                                            'bottom' => [icon('to-bottom', 12), t('Move {label} to the bottom', ['label' => $label]), $index === $last],
                                         ];
                                         foreach ($moves as $dir => [$glyph, $text, $disabled]):
                                         ?>

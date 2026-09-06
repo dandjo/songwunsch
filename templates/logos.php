@@ -92,19 +92,19 @@ $current = $pageUrl($pageNo);
             </li>
             <?php endif; ?>
 
-            <?php foreach ($logos as $logo): ?>
-                <?php $isActive = $logo['id'] === $activeId; ?>
+            <?php foreach ($logos as $upload): ?>
+                <?php $isActive = $upload['id'] === $activeId; ?>
                 <li class="logo-card<?= $isActive ? ' logo-card--active' : '' ?>">
                     <div class="logo-card__preview">
-                        <img src="<?= $e($logoUrl($logo['id'])) ?>" alt="<?= $e(t('Logo {id}', ['id' => $logo['id']])) ?>">
+                        <img src="<?= $e($logoUrl($upload['id'])) ?>" alt="<?= $e(t('Logo {id}', ['id' => $upload['id']])) ?>">
                     </div>
                     <div class="logo-card__meta">
-                        <strong><?= $e(t('Logo {id}', ['id' => $logo['id']])) ?></strong>
+                        <strong><?= $e(t('Logo {id}', ['id' => $upload['id']])) ?></strong>
                         <span class="muted">
-                            <?= $e($logo['width'] !== null
-                                ? t('{w} × {h} pixels, {kb} KB', ['w' => $logo['width'], 'h' => $logo['height'], 'kb' => $kb($logo['size'])])
-                                : t('SVG, {kb} KB', ['kb' => $kb($logo['size'])])) ?>
-                            · <?= $e(t('uploaded {when}', ['when' => Format::moment($logo['created_at'])])) ?>
+                            <?= $e($upload['width'] !== null
+                                ? t('{w} × {h} pixels, {kb} KB', ['w' => $upload['width'], 'h' => $upload['height'], 'kb' => $kb($upload['size'])])
+                                : t('SVG, {kb} KB', ['kb' => $kb($upload['size'])])) ?>
+                            · <?= $e(t('uploaded {when}', ['when' => Format::moment($upload['created_at'])])) ?>
                         </span>
                     </div>
                     <div class="logo-card__actions">
@@ -115,7 +115,7 @@ $current = $pageUrl($pageNo);
                                 <input type="hidden" name="a" value="logo_activate">
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                 <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                <input type="hidden" name="id" value="<?= $logo['id'] ?>">
+                                <input type="hidden" name="id" value="<?= $upload['id'] ?>">
                                 <button type="submit" class="link-button"><?= icon('check') ?><?= $e(t('Switch live')) ?></button>
                             </form>
                         <?php endif; ?>
@@ -123,7 +123,7 @@ $current = $pageUrl($pageNo);
                             <input type="hidden" name="a" value="logo_delete">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                             <input type="hidden" name="back" value="<?= $e($current) ?>">
-                            <input type="hidden" name="id" value="<?= $logo['id'] ?>">
+                            <input type="hidden" name="id" value="<?= $upload['id'] ?>">
                             <?php /* Icon only, like the delete buttons in every list -- the label stays for screen readers and as tooltip. */ ?>
                             <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                 <?= icon('trash') ?>
