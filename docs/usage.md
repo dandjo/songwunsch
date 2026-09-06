@@ -141,7 +141,9 @@ On phones, up to 560 px wide, the tabs always stack icon over word like an
 app's tab bar (`nav--stacked`), the counter sitting in the tab's top right
 corner, and the room switcher has a row of its own above them. The layout
 is fixed there, so the bar does not flip when a counter grows or the room
-changes. Above that width the tabs stand side by side while they fit on one
+changes. The tabs share the row as equal columns as long as every label
+fits into an equal share; a label that needs more keeps its width and the
+other tabs share what remains, so no label wraps or is cut short. Above that width the tabs stand side by side while they fit on one
 row. `assets/app.js` measures the row, so any language, number of tabs and
 font size counts. The room switcher shares the row while everything fits.
 When it does not fit, the switcher first moves to a row of its own above the

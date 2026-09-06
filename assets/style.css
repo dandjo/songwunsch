@@ -536,7 +536,18 @@ code {
    on (.nav--stacked) whenever the tabs side by side would wrap -- whatever
    the language, the number of tabs or the font size -- and off again
    (.nav--inline) when they fit; without JavaScript the phone width decides. */
+/* Stacked, the tabs share the row as grid columns: every column at least as
+   wide as its tab's content, the rest of the row split evenly. So while
+   every label fits into an equal share, all tabs are equally wide; a label
+   that needs more keeps its width and the others share what remains --
+   nothing wraps or is cut short. The column count follows the tabs in the
+   markup (three for visitors, more for staff). */
+.nav { --tab-count: 3; }
+.nav:has(> a:nth-of-type(4)) { --tab-count: 4; }
+.nav:has(> a:nth-of-type(5)) { --tab-count: 5; }
 .nav--stacked {
+    display: grid;
+    grid-template-columns: repeat(var(--tab-count), minmax(max-content, 1fr));
     --nav-gap:        .6rem .3rem;
     --nav-top:        .4rem;
     --tab-direction:  column;
@@ -552,6 +563,8 @@ code {
 }
 @media (max-width: 560px) {
     .nav:not(.nav--inline) {
+        display: grid;
+        grid-template-columns: repeat(var(--tab-count), minmax(max-content, 1fr));
         --nav-gap:        .6rem .3rem;
         --nav-top:        .4rem;
         --tab-direction:  column;
@@ -589,6 +602,7 @@ code {
 .nav > a {
     flex: var(--tab-flex);
     flex-direction: var(--tab-direction);
+    white-space: nowrap;
     justify-content: center;
     gap: var(--tab-gap);
     padding: var(--tab-padding);
@@ -1449,7 +1463,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
    (.nav--rows, set by app.js, which the stacked tab bar always implies) and
    on phones regardless, as the fallback for pages without the script. */
 .nav--rows .roomswitch,
-.nav--stacked .roomswitch { flex: 1 1 100%; margin-right: 0; }
+.nav--stacked .roomswitch { flex: 1 1 100%; grid-column: 1 / -1; margin-right: 0; }
 .nav--rows .roomswitch__toggle,
 .nav--stacked .roomswitch__toggle { display: flex; width: 100%; }
 .nav--rows .roomswitch__current,
@@ -1457,7 +1471,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .nav--rows .roomswitch__panel,
 .nav--stacked .roomswitch__panel { right: 0; max-width: none; }
 @media (max-width: 720px) {
-    .nav:not(.nav--inline) .roomswitch { flex: 1 1 100%; margin-right: 0; }
+    .nav:not(.nav--inline) .roomswitch { flex: 1 1 100%; grid-column: 1 / -1; margin-right: 0; }
     .nav:not(.nav--inline) .roomswitch__toggle { display: flex; width: 100%; }
     .nav:not(.nav--inline) .roomswitch__current { flex: 1 1 auto; max-width: none; }
     .nav:not(.nav--inline) .roomswitch__panel { right: 0; max-width: none; }
