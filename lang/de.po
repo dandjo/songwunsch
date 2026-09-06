@@ -1790,3 +1790,11 @@ msgstr[1] "{n}-mal gewünscht"
 
 msgid "Help"
 msgstr "Hilfe"
+
+# ---- Repertoire help ---------------------------------------------------------
+
+msgid "The songs this room offers – its repertoire."
+msgstr "Die Songs, die dieser Raum anbietet – sein Repertoire."
+
+msgid "Every song on offer – the whole repertoire."
+msgstr "Alle Songs im Angebot – das ganze Repertoire."

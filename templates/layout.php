@@ -66,6 +66,10 @@ $help = '';
 ob_start();
 require __DIR__ . '/' . $template . '.php';
 $content = ob_get_clean();
+// A help that came out blank (every sentence conditional) shows no "?".
+if (trim(strip_tags($help)) === '') {
+    $help = '';
+}
 ?>
 <!doctype html>
 <html lang="<?= $e($translator->htmlLang()) ?>">

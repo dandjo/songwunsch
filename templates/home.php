@@ -53,6 +53,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
 <h1 class="sr-only"><?= $e(t('Repertoire')) ?></h1>
 <?php ob_start(); ?>
 <p>
+    <?= $e($inRoom ? t('The songs this room offers – its repertoire.') : t('Every song on offer – the whole repertoire.')) ?>
     <?php /* The room's song count stands on the tab; here only what a search found. */ ?>
     <?php if ($q !== ''): ?>
         <?= $e(tn('{n} song', '{n} songs', $total, ['n' => Format::number($total)])) ?>
