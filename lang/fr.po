@@ -86,10 +86,6 @@ msgstr "Se connecter"
 msgid "Language"
 msgstr "Langue"
 
-
-msgid "Wishes and suggestions will be back later."
-msgstr "Souhaits et suggestions reviendront plus tard."
-
 msgid "Error"
 msgstr "Erreur"
 
@@ -1064,9 +1060,6 @@ msgstr "« {name} » est fermée. Le public voit le répertoire mais ne peut y n
 
 msgid "“{name}” is open again."
 msgstr "« {name} » est de nouveau ouverte."
-
-msgid "No wishes or suggestions until it is opened."
-msgstr "Ni souhaits ni suggestions jusqu’à sa réouverture."
 
 msgid "Open it above or under {rooms}."
 msgstr "Rouvrez-la dans l’avis ci-dessus ou sous {rooms}."

@@ -90,10 +90,6 @@ msgstr "Anmelden"
 msgid "Language"
 msgstr "Sprache"
 
-
-msgid "Wishes and suggestions will be back later."
-msgstr "Wünschen und Vorschlagen geht später wieder."
-
 msgid "Error"
 msgstr "Fehler"
 
@@ -1068,9 +1064,6 @@ msgstr "„{name}“ ist geschlossen. Das Publikum sieht das Repertoire, kann do
 
 msgid "“{name}” is open again."
 msgstr "„{name}“ ist wieder offen."
-
-msgid "No wishes or suggestions until it is opened."
-msgstr "Keine Wünsche und Vorschläge, bis er geöffnet wird."
 
 msgid "Open it above or under {rooms}."
 msgstr "Öffnen oben im Hinweis oder unter {rooms}."

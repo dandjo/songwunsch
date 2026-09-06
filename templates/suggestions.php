@@ -58,11 +58,9 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 </p>
 <?php $help .= ob_get_clean(); ?>
 
-<?php if ($paused): ?>
-    <?php /* The moderator's pause closes the form; the header already says
-             where it can be lifted. Editors still see the list below. */ ?>
-    <p class="empty"><?= $e(t('The room is closed right now – no wishes and no suggestions.')) ?></p>
-<?php else: ?>
+<?php if (!$paused): ?>
+<?php /* The moderator's pause takes the form away; the header's notice says
+         the room is closed. Editors still see the list below. */ ?>
 <?php /* The suggest form -- for everyone, editors included. Artist and title
          side by side where there is room, the button below. Bot hurdles as
          on the wish form: honeypot and signed timestamp. */ ?>
@@ -110,7 +108,9 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 <?php /* The open suggestions, set apart from the form by a hairline and
          their own heading. Everyone may look and search; only editors get
          the buttons and "Clear list". */ ?>
-<section class="list-section" aria-labelledby="open-suggestions">
+<?php /* While the room is closed the list opens the page and needs no rule
+         above it. */ ?>
+<section class="list-section<?= $paused ? ' list-section--first' : '' ?>" aria-labelledby="open-suggestions">
     <div class="panel__head">
         <div>
             <h2 id="open-suggestions"><?= $e(t('Open suggestions')) ?></h2>

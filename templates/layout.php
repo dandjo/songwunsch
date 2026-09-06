@@ -442,13 +442,12 @@ $content = ob_get_clean();
                     <path d="M7.8 1.5h8.4l6.3 6.3v8.4l-6.3 6.3H7.8l-6.3-6.3V7.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
                     <rect x="7" y="10.5" width="10" height="3" rx="1" fill="currentColor"/>
                 </svg>
+                <?php /* One sentence; what "closed" means the pages say where it
+                         matters (no wish buttons, no suggest form). */ ?>
                 <span>
                     <strong><?= t('{room} is closed right now.', [
                         'room' => '<span class="dome__notice-room">' . $e((string) $room['name']) . '</span>',
                     ]) ?></strong>
-                    <?= $e($security->can('wishes')
-                        ? t('No wishes or suggestions until it is opened.')
-                        : t('Wishes and suggestions will be back later.')) ?>
                 </span>
                 <?php if ($security->can('wishes')): ?>
                     <form method="post" action="<?= $e($hereBase) ?>" class="dome__notice-action">

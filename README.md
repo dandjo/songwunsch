@@ -725,7 +725,8 @@ adopted song is offered in that room right away, not only in the main
 list. The room switcher keeps one on the suggestions page when changing
 rooms. If the room is deleted meanwhile, its suggestions stay and fall back
 to the main room. While a room is closed (see [Rooms](#rooms)), suggesting
-is closed there as well: the form gives way to a notice, and a late
+is closed there as well: the form disappears (the header's notice says the
+room is closed), and a late
 submission is turned away.
 
 Before a suggestion is stored, the application checks that the song is not

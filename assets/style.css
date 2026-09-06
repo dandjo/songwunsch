@@ -192,6 +192,7 @@ code {
     .dome__tools .account__dot { right: .12rem; top: .3rem; }
     .lang__current { display: none; }
     .cabinet .panel { margin-top: .4rem; }
+    .dome__notice { gap: .5rem; padding: .45rem .6rem; font-size: .85rem; }
 }
 
 /* The word mark shares the first row with the tools (language and account
@@ -2335,6 +2336,9 @@ code.is-example { color: var(--text-muted); font-style: italic; }
     padding-top: 1.25rem;
     border-top: 1px solid var(--line);
 }
+/* The list as the first thing on the page (suggestions while the room is
+   closed): no rule, no distance above. */
+.list-section--first { margin-top: 0; padding-top: 0; border-top: 0; }
 
 /* ---------- QR code (Rooms -> QR code) ---------- */
 
