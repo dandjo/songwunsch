@@ -15,6 +15,7 @@ use Songwunsch\Translator;
 /** @var Translator $translator */
 /** @var array{type:string,message:string,static:bool}|null $flash  static: stays at the top of the content; else a pop-up (app.js) */
 /** @var int $toastSec  seconds a pop-up message stays, 0 = until dismissed (Ui) */
+/** @var int|null $songCount  songs in the room (or on the main list), badge on the tab */
 /** @var int|null $wishCount  open wishes in the room, badge on the tab */
 /** @var int|null $suggestionCount  open song suggestions, badge on the tab */
 /** @var bool $paused  wishing closed by the moderator */
@@ -239,9 +240,14 @@ $content = ob_get_clean();
             <?php if ($security->can('rooms')): ?>
                 <a href="<?= $e(url(['p' => 'rooms'])) ?>"<?= in_array($page, ['rooms', 'room'], true) ? ' aria-current="page"' : '' ?>><?= icon('door') ?><?= $e(t('Rooms')) ?></a>
             <?php endif; ?>
-            <a href="<?= $e(url(['p' => 'songs'])) ?>"<?= in_array($page, ['songs', 'room_songs'], true) ? ' aria-current="page"' : '' ?>><?= icon('note') ?><?= $e(t('Repertoire')) ?></a>
-            <?php /* The wish list and its counter are visible to everyone --
-                     guests see how long the queue is. Other areas only with a role. */ ?>
+            <?php /* The three public tabs carry counters for everyone: songs in the
+                     room, open wishes -- guests see how long the queue is -- and open
+                     suggestions. Other areas only with a role. */ ?>
+            <a href="<?= $e(url(['p' => 'songs'])) ?>"<?= in_array($page, ['songs', 'room_songs'], true) ? ' aria-current="page"' : '' ?>>
+                <?= icon('note') ?><?= $e(t('Repertoire')) ?><?php if ($songCount !== null): ?>
+                    <span class="badge"><span aria-hidden="true"><?= (int) $songCount ?></span><span class="sr-only"><?= $e(tn('{n} song', '{n} songs', (int) $songCount, ['n' => Format::number((int) $songCount)])) ?></span></span>
+                <?php endif; ?>
+            </a>
             <a href="<?= $e(url(['p' => 'wishes'])) ?>"<?= $page === 'wishes' ? ' aria-current="page"' : '' ?>>
                 <?= icon('star') ?><?= $e(t('Wishes')) ?><?php if ($wishCount !== null): ?>
                     <span class="badge"><span aria-hidden="true"><?= (int) $wishCount ?></span><span class="sr-only"><?= $e(tn('{n} open wish', '{n} open wishes', (int) $wishCount)) ?></span></span>

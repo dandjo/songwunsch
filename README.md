@@ -738,8 +738,9 @@ timestamp), a per-session cooldown (10 s) and a cap on open suggestions (200;
 [Protecting the wishing](#protecting-the-wishing).
 
 The *Suggestions* tab carries a counter badge with the number of open
-suggestions, the *Wishes* tab one with the open wishes of the room –
-both for everyone, guests included. **Editors** (and admins) additionally
+suggestions, the *Wishes* tab one with the open wishes of the room and the
+*Repertoire* tab one with the room's songs – all for everyone, guests
+included. **Editors** (and admins) additionally
 get two buttons on every row:
 
 * **Adopt** opens the *Add song* form as *Adopt suggestion*: artist and
@@ -990,10 +991,9 @@ the header after it. So the list or form starts as high as possible: the
 pages the main navigation leads to – repertoire, wish list, suggestions,
 rooms – show no visible title at all, the active tab names them and the
 `<h1>` is left to screen readers; the other pages keep their title. The
-counts – how many songs are in the room, how many rooms there are – and the
-note that the room is closed are part of that help, the number of open
-wishes and suggestions stands on the tabs; the header's notice carries the
-room's state.
+count of rooms and what a search found are part of that help; the number of
+songs, open wishes and open suggestions stands on the tabs, and the header's
+notice carries the room's state.
 
 | What | How |
 | --- | --- |

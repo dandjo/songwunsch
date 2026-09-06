@@ -1396,6 +1396,7 @@ $view = [
     'csrf'       => $security->csrfToken(),
     'flash'      => flash_take(),
     'toastSec'   => $ui->get('toast_sec'), // how long a pop-up message stays, 0 = until dismissed
+    'songCount'  => null,  // badge on the Repertoire tab: songs in the room, or on the main list
     'wishCount'  => null,
     'suggestionCount' => null, // badge on the Suggestions tab, for everyone
     'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ..., 'interval' => seconds, 'scope' => 'page'|'header'], see below
@@ -2067,8 +2068,11 @@ try {
             break;
     }
 
-    // The counters on the Wish list and Suggestions tabs -- for everyone,
-    // guests included; the pages behind them are public as well.
+    // The counters on the Repertoire, Wish list and Suggestions tabs -- for
+    // everyone, guests included; the pages behind them are public as well.
+    if ($view['songCount'] === null) {
+        $view['songCount'] = $songs->count($roomId);
+    }
     if ($view['wishCount'] === null) {
         $view['wishCount'] = $wishes->count();
     }

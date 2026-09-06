@@ -99,9 +99,6 @@ msgstr[1] "{n} morceaux"
 msgid "found for “{q}”."
 msgstr "pour « {q} »."
 
-msgid "in the repertoire."
-msgstr "au répertoire."
-
 msgid "A click on {wish} drops the song into the list."
 msgstr "Un clic sur {wish} ajoute le morceau à la liste."
 
@@ -636,9 +633,6 @@ msgstr "Gérer la salle : choisir ses morceaux dans la liste principale."
 
 msgid "This room has no songs yet."
 msgstr "Cette salle n’a pas encore de morceaux."
-
-msgid "in this room."
-msgstr "dans cette salle."
 
 msgid "Remove"
 msgstr "Retirer"
