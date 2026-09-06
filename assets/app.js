@@ -76,21 +76,30 @@
 
     // ---- Tab bar: stacked as soon as the tabs would wrap --------------------
 
-    // The page tabs stand side by side while they fit on one row and stack
-    // icon over word like an app's tab bar otherwise -- decided by measuring,
-    // not by a fixed width, so any language, number of tabs and font size
-    // gets the right layout. The room switcher shares the tabs' row while
-    // everything fits; as soon as something has to give way, it takes a row
-    // of its own above the tabs (.nav--rows), and only if the tabs still do
-    // not fit on that second row do they stack. The row is measured in its
-    // side-by-side form each time; the CSS carries a phone-width fallback
-    // for pages without this script.
+    // On phones (up to 560 px, the width the CSS fallback uses as well) the
+    // page tabs always stack icon over word like an app's tab bar, with the
+    // room switcher on a row of its own above them -- a fixed layout, so the
+    // bar does not flip between the two forms when a counter grows or the
+    // room changes. Above that the tabs stand side by side while they fit on
+    // one row and stack otherwise -- decided by measuring, not by a fixed
+    // width, so any language, number of tabs and font size gets the right
+    // layout. The room switcher shares the tabs' row while everything fits;
+    // as soon as something has to give way, it takes a row of its own above
+    // the tabs (.nav--rows), and only if the tabs still do not fit on that
+    // second row do they stack. The row is measured in its side-by-side form
+    // each time.
     var fitTabs = (function () {
         var pending = false;
+        var phone = window.matchMedia('(max-width: 560px)');
         var measure = function () {
             pending = false;
             var nav = document.querySelector('.nav');
             if (!nav) {
+                return;
+            }
+            if (phone.matches) {
+                nav.classList.remove('nav--inline');
+                nav.classList.add('nav--stacked', 'nav--rows');
                 return;
             }
             nav.classList.remove('nav--stacked', 'nav--rows');

@@ -137,16 +137,18 @@ its left. From 721 px on the header sticks to the top while the page
 scrolls; on phones it scrolls away. Up to 560 px the language menu shows
 the globe alone.
 
-The tabs stand side by side while they fit on one row. `assets/app.js`
-measures the row, so any language, number of tabs and font size counts. The
-room switcher shares the row while everything fits. When it does not fit,
-the switcher first moves to a row of its own above the tabs (`nav--rows`),
-and the tabs stay side by side. Only if the tabs still do not fit side by
-side on the full width do they stack icon over word like an app's tab bar
-(`nav--stacked`), the counter sitting in the tab's top right corner; the
-switcher then has its own row as well. Without JavaScript the CSS fallback
-gives the switcher its own row up to 720 px and stacks the tabs up to
-560 px.
+On phones, up to 560 px wide, the tabs always stack icon over word like an
+app's tab bar (`nav--stacked`), the counter sitting in the tab's top right
+corner, and the room switcher has a row of its own above them. The layout
+is fixed there, so the bar does not flip when a counter grows or the room
+changes. Above that width the tabs stand side by side while they fit on one
+row. `assets/app.js` measures the row, so any language, number of tabs and
+font size counts. The room switcher shares the row while everything fits.
+When it does not fit, the switcher first moves to a row of its own above the
+tabs (`nav--rows`), and the tabs stay side by side. Only if the tabs still
+do not fit side by side on the full width do they stack; the switcher then
+has its own row as well. Without JavaScript the CSS fallback gives the
+switcher its own row up to 720 px and stacks the tabs up to 560 px.
 
 Every page's head puts the title and its description at the left and the
 page actions (*Add room*, *Close all rooms*, *Manage*, *Clear list*, …) at

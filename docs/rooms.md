@@ -225,14 +225,16 @@ come back to the same page. Two exceptions: on a room's edit form the
 switcher opens the edit form of the chosen room, and on the QR page its QR
 page.
 
-The switcher shares the tabs' row while everything fits on one row. On wide
-screens it stands at the far left, apart from the tabs. When the row is too
-narrow, the switcher first moves to a row of its own above the tabs (class
-`nav--rows`, set by `app.js`), and the tabs stay side by side. Only if the
-tabs still do not fit side by side on the full width do they stack icon
-over word (`nav--stacked`); the switcher then has its own row as well.
-Without JavaScript the CSS fallback gives the switcher its own row on
-screens up to 720 px wide and stacks the tabs up to 560 px.
+On phones, up to 560 px wide, the switcher always has a row of its own
+above the tabs, which stack icon over word. Above that width the switcher
+shares the tabs' row while everything fits on one row; on wide screens it
+stands at the far left, apart from the tabs. When the row is too narrow, the
+switcher first moves to a row of its own above the tabs (class `nav--rows`,
+set by `app.js`), and the tabs stay side by side. Only if the tabs still do
+not fit side by side on the full width do they stack (`nav--stacked`); the
+switcher then has its own row as well. Without JavaScript the CSS fallback
+gives the switcher its own row on screens up to 720 px wide and stacks the
+tabs up to 560 px.
 
 The **Rooms** tab (`/rooms`) appears only for editors and admins, with a
 badge counting the active rooms besides the main one. The page itself,
