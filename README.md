@@ -153,8 +153,8 @@ Sorting, search and page are appended as query parameters
 (`/wishes?sort=artist`), `?lang=<code>` switches the language. Lists and their
 records share a prefix: `/rooms` lists, `/rooms/new` creates, `/rooms/<id>/edit`
 edits, and `/rooms/<name>` is the room itself (so `new` and `main` are not
-available as room names). Everything the *Administration* menu leads to sits
-below `/admin` – languages, users, logos, interface, limits, pages, footer – while a page's
+available as room names). Everything the *Administration* entry of the account
+menu leads to sits below `/admin` – languages, users, logos, interface, limits, pages, footer – while a page's
 public address stays `/pages/<name>`. Anything else is a 404.
 
 The value governs everything that contains an address: links and form
@@ -737,7 +737,7 @@ timestamp), a per-session cooldown (10 s) and a cap on open suggestions (200;
 [Protecting the wishing](#protecting-the-wishing).
 
 The *Suggestions* tab carries a counter badge with the number of open
-suggestions, the *Wish list* tab one with the open wishes of the room –
+suggestions, the *Wishes* tab one with the open wishes of the room –
 both for everyone, guests included. **Editors** (and admins) additionally
 get two buttons on every row:
 
@@ -838,7 +838,7 @@ through the switcher or the list – that memory wins.
 (`songwunsch_room`, one year, nothing but the room's machine name). Every
 page inside a room writes it. Pages without a room in their address
 (`/rooms`, `/users`, `/settings`, the forms) read it: header, room switcher
-and the *Repertoire*, *Wish list* and *Suggestions* tabs stay in that room. A
+and the *Repertoire*, *Wishes* and *Suggestions* tabs stay in that room. A
 room-bound address that names no room (`/`, `/wishes`, `/suggestions`, also
 with query parameters) redirects into the remembered room – every time, so
 a bookmark, a typed address or a return visit never drops the visitor out
@@ -1062,8 +1062,13 @@ There is a single layout for all screen sizes, a compact card layout; on
 wide screens the shell is centred and limited to 1180 px. In the
 header the word mark, the language menu and the account menu (person icon,
 opens the guest's name with *Change name* and *Log in*, or for staff the
-username, *Name for wishes*, *View as guest* and *Log out*, as a popout like
-the language menu) share the first row, the navigation is right-aligned below. Every page's head
+username, *Name for wishes*, *User settings*, for admins *Administration* with
+its pages as sub-entries, *View as guest* and *Log out*, as a popout like
+the language menu) share the first row, the navigation is right-aligned below.
+On phones (up to 560 px) the tabs stack icon over word like an app's tab bar
+and share the row, the counter sitting in the tab's top right corner, so the
+three public tabs stay on one line down to 360 px wide screens; for staff the
+*Rooms* tab joins them. Every page's head
 puts the title and its description at the left and the page actions (*Add
 room*, *Close all rooms*, *Manage*, *Clear list*, …) at the top right beside
 them from 721 px on; on phones the actions drop below the text, right-aligned. The popouts (language,

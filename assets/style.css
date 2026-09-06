@@ -310,7 +310,7 @@ code {
     top: calc(100% + .35rem);
     z-index: 20;
     min-width: 11rem;
-    max-height: min(60vh, 22rem);
+    max-height: min(80vh, 36rem);
     overflow-y: auto;
     margin: 0;
     padding: .35rem;
@@ -379,6 +379,18 @@ code {
 }
 /* A visitor without a name: the head line says so, quieter. */
 .account__name--none { color: var(--text-muted); font-size: .88rem; font-weight: 500; font-style: italic; }
+/* Administration inside the account menu: one entry that unfolds the admins'
+   pages beneath it, indented and a notch smaller. The arrow turns while it
+   is open; the entry is gold while one of its pages is shown. */
+.account__group { margin: 0; }
+.account__group-toggle { list-style: none; }
+.account__group-toggle::-webkit-details-marker { display: none; }
+.account__group-toggle.is-current { color: var(--gold); }
+.account__group-toggle.is-current .button__glyph { color: inherit; }
+.account__chevron { flex: 0 0 auto; color: var(--text-muted); transition: transform .15s; }
+.account__group[open] .account__chevron { transform: rotate(180deg); }
+.account__sub { margin: 0 0 .2rem; padding: 0 0 0 1.1rem; list-style: none; }
+.account__sub .account__item { padding: .4rem .7rem; font-size: .86rem; }
 
 /* Pause notice: its own row across the full width of the header, gold on
    dark -- the accent colour of the actions, because one is missing right
@@ -587,72 +599,7 @@ code {
 .nav .roomswitch__item.is-active { color: var(--gold); background: transparent; }
 .nav .roomswitch__item.is-active::after { content: '✓'; margin-left: 1rem; font-size: .85em; }
 
-/* Administration: one tab that opens a menu of the admins' pages (users,
-   logos, pages, footer). A <details> like the room switcher; the summary is
-   framed like the tabs around it and lights up like an active page while one
-   of its entries is open. The menu hangs below its right edge. */
-.submenu { position: relative; }
-.submenu__toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    padding: .55rem .85rem;
-    border: 1px solid var(--gold-deep);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: .82rem;
-    cursor: pointer;
-    list-style: none;
-    user-select: none;
-}
-.submenu__toggle::-webkit-details-marker { display: none; }
-.submenu__toggle:hover,
-.submenu[open] .submenu__toggle { color: var(--gold-bright); background: var(--gold-tint); }
-.submenu__toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-.submenu__toggle[aria-current="page"] { color: var(--base); background: var(--gold); border-color: var(--gold); }
-.submenu__toggle svg { flex: 0 0 auto; }
-.submenu__chevron { transition: transform .15s; }
-.submenu[open] .submenu__chevron { transform: rotate(180deg); }
-.submenu__menu {
-    position: absolute;
-    right: 0;
-    top: calc(100% + .35rem);
-    z-index: 20;
-    min-width: 12rem;
-    margin: 0;
-    padding: .35rem;
-    list-style: none;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-deep);
-}
-/* Override the generic .nav a rule: menu entries are list items, not tabs. */
-.nav .submenu__item {
-    display: flex;
-    align-items: center;
-    gap: .55rem;
-    width: 100%;
-    padding: .5rem .7rem;
-    border: 0;
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-size: .9rem;
-    font-weight: 500;
-    white-space: nowrap;
-}
-.nav .submenu__item .button__glyph { margin: 0; flex: 0 0 auto; color: var(--text-muted); }
-.nav .submenu__item:hover { background: var(--hover); border-color: transparent; }
-.nav .submenu__item:hover .button__glyph,
-.nav .submenu__item.is-active .button__glyph { color: inherit; }
-.nav .submenu__item.is-active,
-.nav .submenu__item[aria-current="page"] { color: var(--gold); background: transparent; }
-.submenu__label { flex: 1 1 auto; }
-.nav .submenu__item.is-active::after { content: '✓'; margin-left: 1rem; font-size: .85em; }
-
-/* Counter next to "Wish list": a solid disc, the number centred by flexbox
+/* Counter next to "Wishes": a solid disc, the number centred by flexbox
    (not by line-height, which sat the digit low) and large enough to read. */
 .badge {
     display: inline-flex;
@@ -1412,8 +1359,35 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     .roomswitch__toggle { display: flex; width: 100%; }
     .roomswitch__current { flex: 1 1 auto; max-width: none; }
     .roomswitch__panel { right: 0; max-width: none; }
-    /* The administration menu spans the header as well. */
-    .submenu__menu { left: 0; right: 0; min-width: 0; }
+}
+
+/* Phones: the tabs stack icon over word like an app's tab bar and share the
+   row, so the three public tabs stay on one line down to 360 px wide screens
+   (side by side they need about 450 px). Each tab keeps its natural width
+   and grows to fill the row; staff with five tabs may still wrap. The
+   counter moves into the top right corner as a marker on the tab; the wider
+   row gap keeps it clear of the room switcher above. */
+@media (max-width: 560px) {
+    .nav { gap: .75rem .3rem; margin-top: .45rem; }
+    .nav > a {
+        position: relative;
+        flex: 1 1 auto;
+        flex-direction: column;
+        justify-content: center;
+        gap: .25rem;
+        padding: .45rem .4rem .4rem;
+        font-size: .74rem;
+    }
+    .nav > a .badge {
+        position: absolute;
+        top: -.4rem;
+        right: -.3rem;
+        margin: 0;
+        min-width: 1.25rem;
+        height: 1.25rem;
+        font-size: .72rem;
+        box-shadow: 0 0 0 2px var(--base);
+    }
 }
 .picker__col { min-width: 0; }
 .picker__head {
@@ -2220,7 +2194,7 @@ code.is-example { color: var(--text-muted); font-style: italic; }
 }
 
 @media (forced-colors: active) {
-    .wish-button, .delete-button, .link-button, .nav a, .account__item, .submenu__toggle { border: 1px solid ButtonText; }
+    .wish-button, .delete-button, .link-button, .nav a, .account__item { border: 1px solid ButtonText; }
     .tabs__item[aria-selected="true"] { border-bottom-color: Highlight; }
 }
 

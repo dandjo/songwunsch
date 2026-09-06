@@ -235,7 +235,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
             <?php /* The wish list and its counter are visible to everyone --
                      guests see how long the queue is. Other areas only with a role. */ ?>
             <a href="<?= $e(url(['p' => 'wishes'])) ?>"<?= $page === 'wishes' ? ' aria-current="page"' : '' ?>>
-                <?= icon('star') ?><?= $e(t('Wish list')) ?><?php if ($wishCount !== null): ?>
+                <?= icon('star') ?><?= $e(t('Wishes')) ?><?php if ($wishCount !== null): ?>
                     <span class="badge"><span aria-hidden="true"><?= (int) $wishCount ?></span><span class="sr-only"><?= $e(tn('{n} open wish', '{n} open wishes', (int) $wishCount)) ?></span></span>
                 <?php endif; ?>
             </a>
@@ -246,42 +246,6 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                     <span class="badge"><span aria-hidden="true"><?= (int) $suggestionCount ?></span><span class="sr-only"><?= $e(tn('{n} open suggestion', '{n} open suggestions', (int) $suggestionCount)) ?></span></span>
                 <?php endif; ?>
             </a>
-            <?php if ($security->can('users')): ?>
-                <?php /* Administration: the admins' pages behind one tab that
-                         opens a menu -- a <details> like the room switcher, so
-                         it works without JavaScript. The tab lights up like an
-                         active page while one of its entries is open. */ ?>
-                <?php
-                $adminItems = [
-                    ['languages', ['languages'],       'globe',   t('Languages')],
-                    ['users',  ['users', 'user'],      'users',   t('Users')],
-                    ['logos',  ['logos'],              'image',   t('Logos')],
-                    ['ui',     ['ui'],                 'layout',  t('Interface')],
-                    ['limits', ['limits'],             'sliders', t('Limits')],
-                    ['pages',  ['pages', 'page_edit'], 'page',    t('Pages')],
-                    ['footer', ['footer'],             'list',    t('Footer')],
-                ];
-                $adminOpen = in_array($page, array_merge(...array_column($adminItems, 1)), true);
-                ?>
-                <details class="submenu">
-                    <summary class="submenu__toggle"<?= $adminOpen ? ' aria-current="page"' : '' ?>>
-                        <?= icon('shield') ?><?= $e(t('Administration')) ?>
-                        <svg class="submenu__chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
-                            <path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </summary>
-                    <ul class="submenu__menu" role="list">
-                        <?php foreach ($adminItems as [$target, $pagesOf, $glyph, $label]): ?>
-                            <?php $active = in_array($page, $pagesOf, true); ?>
-                            <li>
-                                <a href="<?= $e(url(['p' => $target])) ?>" class="submenu__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="page"' : '' ?>>
-                                    <?= icon($glyph, 14) ?><span class="submenu__label"><?= $e($label) ?></span>
-                                </a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                </details>
-            <?php endif; ?>
         </nav>
 
         <?php /* Top right next to the word mark, outside the navigation so on
@@ -352,6 +316,43 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                         <a class="account__item<?= $page === 'settings' ? ' is-active' : '' ?>" href="<?= $e(url(['p' => 'settings', 'id' => (int) $account['id']])) ?>"<?= $page === 'settings' ? ' aria-current="page"' : '' ?>>
                             <?= icon('gear', 14) ?><span class="account__label"><?= $e(t('User settings')) ?></span>
                         </a>
+                        <?php if ($security->can('users')): ?>
+                            <?php /* Administration: the admins' pages as one entry
+                                     with sub-entries -- a nested <details>, so it
+                                     works without JavaScript and keeps the menu
+                                     short until it is wanted. It stands open while
+                                     one of its pages is shown. */ ?>
+                            <?php
+                            $adminItems = [
+                                ['languages', ['languages'],       'globe',   t('Languages')],
+                                ['users',  ['users', 'user'],      'users',   t('Users')],
+                                ['logos',  ['logos'],              'image',   t('Logos')],
+                                ['ui',     ['ui'],                 'layout',  t('Interface')],
+                                ['limits', ['limits'],             'sliders', t('Limits')],
+                                ['pages',  ['pages', 'page_edit'], 'page',    t('Pages')],
+                                ['footer', ['footer'],             'list',    t('Footer')],
+                            ];
+                            $adminOpen = in_array($page, array_merge(...array_column($adminItems, 1)), true);
+                            ?>
+                            <details class="account__group"<?= $adminOpen ? ' open' : '' ?>>
+                                <summary class="account__item account__group-toggle<?= $adminOpen ? ' is-current' : '' ?>">
+                                    <?= icon('shield', 14) ?><span class="account__label"><?= $e(t('Administration')) ?></span>
+                                    <svg class="account__chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
+                                        <path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </summary>
+                                <ul class="account__sub" role="list">
+                                    <?php foreach ($adminItems as [$target, $pagesOf, $glyph, $label]): ?>
+                                        <?php $active = in_array($page, $pagesOf, true); ?>
+                                        <li>
+                                            <a href="<?= $e(url(['p' => $target])) ?>" class="account__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="page"' : '' ?>>
+                                                <?= icon($glyph, 14) ?><span class="account__label"><?= $e($label) ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </details>
+                        <?php endif; ?>
                         <?php /* See the site as a visitor without a login does
                                  -- to check what guests get -- and back. Posts
                                  to the current page so the server knows where
