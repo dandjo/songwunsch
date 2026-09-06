@@ -494,13 +494,16 @@ code {
 /* The room's name inside the notice: a small chip, so it stands out without
    quotation marks that would differ per language. */
 .dome__notice-room {
-    display: inline-block;
+    display: inline;
     padding: 0 .45em;
     border-radius: var(--radius-sm);
     background: var(--gold-tint-strong);
     color: var(--text-strong);
     font-weight: 700;
-    white-space: nowrap;
+    /* A long name wraps with the sentence; every line keeps the tint's rounded ends. */
+    overflow-wrap: anywhere;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
 }
 
 /* ---------- Navigation ---------- */
@@ -635,7 +638,11 @@ code {
    switcher. Sits first in the navigation and floats at its left edge, the
    auto margin keeps the page tabs at a distance, so it reads as a place
    marker and not as one more tab -- tinted, not framed like the tabs. */
-.roomswitch { position: relative; margin-right: auto; }
+/* A long room name never widens the header: the switcher is sized by its row,
+   not by its content (inline-size containment -- otherwise the name, nowrap,
+   would stretch the tab grid and the whole page with it), and inside the
+   toggle the name gives way and truncates. */
+.roomswitch { position: relative; margin-right: auto; min-width: 0; }
 .roomswitch__toggle {
     display: inline-flex;
     align-items: center;
@@ -659,6 +666,7 @@ code {
 /* The label is quiet, the room's name carries the weight. */
 .roomswitch__label { color: var(--text-muted); font-weight: 500; white-space: nowrap; }
 .roomswitch__current {
+    min-width: 0;
     max-width: 12rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -720,7 +728,10 @@ code {
     color: var(--text);
     font-size: .9rem;
     font-weight: 500;
-    white-space: nowrap;
+    /* A long name wraps onto further lines instead of scrolling the menu sideways. */
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
 }
 /* The main room's entry is a button (a POST that clears the remembered room);
    it must read exactly like the links around it. */
@@ -728,7 +739,7 @@ code {
 .roomswitch__menu form { margin: 0; }
 .nav .roomswitch__item:hover { background: var(--hover); border-color: transparent; }
 .nav .roomswitch__item.is-active { color: var(--gold); background: transparent; }
-.nav .roomswitch__item.is-active::after { content: '✓'; margin-left: 1rem; font-size: .85em; }
+.nav .roomswitch__item.is-active::after { content: '✓'; flex: 0 0 auto; margin-left: 1rem; font-size: .85em; }
 /* The archived room a signed-in user stands in: its tag follows the name and
    takes the free space, so the tick stays at the right. */
 .nav .roomswitch__item .tag { margin-left: .6rem; margin-right: auto; font-size: .72rem; padding: .05em .5em; }
@@ -1463,7 +1474,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
    (.nav--rows, set by app.js, which the stacked tab bar always implies) and
    on phones regardless, as the fallback for pages without the script. */
 .nav--rows .roomswitch,
-.nav--stacked .roomswitch { flex: 1 1 100%; grid-column: 1 / -1; margin-right: 0; }
+.nav--stacked .roomswitch { flex: 1 1 100%; grid-column: 1 / -1; margin-right: 0; contain: inline-size; }
 .nav--rows .roomswitch__toggle,
 .nav--stacked .roomswitch__toggle { display: flex; width: 100%; }
 .nav--rows .roomswitch__current,
@@ -1471,7 +1482,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .nav--rows .roomswitch__panel,
 .nav--stacked .roomswitch__panel { right: 0; max-width: none; }
 @media (max-width: 720px) {
-    .nav:not(.nav--inline) .roomswitch { flex: 1 1 100%; grid-column: 1 / -1; margin-right: 0; }
+    .nav:not(.nav--inline) .roomswitch { flex: 1 1 100%; grid-column: 1 / -1; margin-right: 0; contain: inline-size; }
     .nav:not(.nav--inline) .roomswitch__toggle { display: flex; width: 100%; }
     .nav:not(.nav--inline) .roomswitch__current { flex: 1 1 auto; max-width: none; }
     .nav:not(.nav--inline) .roomswitch__panel { right: 0; max-width: none; }
