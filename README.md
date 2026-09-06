@@ -210,9 +210,9 @@ repertoire, that is an additional Traefik router on `Path(`/`)` with a
    application. The defaults are `Administrator` / `Administrator` –
    **change them before the first use.**
 
-4. Create the database and its user. The tables `songs` and `song_wishes` are
-   created by the application on the first request; to have them beforehand,
-   run `php tools/install.php`. If the database user may not `CREATE TABLE`,
+4. Create the database and its user. The tables are created by the
+   application on the first request; to have them beforehand, run
+   `php tools/install.php`. If the database user may not `CREATE TABLE`,
    import `sql/schema.sql` instead. See [Database](#database).
 
 5. For a first test without your own data, import the 50 demo titles:
@@ -533,6 +533,12 @@ php tools/install.php        # beforehand, without a web server (exit code 0 = a
 # or: mysql songwunsch < sql/schema.sql   (if the web user may not CREATE)
 ```
 
+The application never alters an existing table. An index a later version
+adds to a table definition is therefore missing on an installation from
+before; `php tools/install.php` compares the definitions with the live
+tables and creates what is missing (`Indexes added: …`). Run it once after
+an update – it is safe to run at any time.
+
 `sql/schema.sql` contains the same statements as `src/Schema.php`; whoever
 changes one changes both.
 
@@ -753,7 +759,11 @@ additionally get two buttons on every row:
   puts it into the suggestion's room, places it on that room's wish list in
   the name of whoever suggested it (the suggestion was a wish, after all)
   and deletes the suggestion, all in one go; *Cancel* leaves everything as
-  it was.
+  it was. Is the song on the repertoire already – suggested in another room
+  and adopted there, say – the form says so, and *Add* creates no second
+  copy: the existing song joins the room and its wish list (counted once
+  more if it is open there already), the length and genre typed into the
+  form are not applied to it.
 * **Delete** drops the suggestion. It asks for confirmation unless the
   editor switched that off under User settings; *Clear list* above the list
   deletes every suggestion of the room and always asks.
@@ -1172,7 +1182,7 @@ robots.txt             what search engines may index: the start page and the pag
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)
 tools/hash.php         Create a password hash
-tools/install.php      Create the tables beforehand, set up the first admin (CLI)
+tools/install.php      Create the tables beforehand, add missing indexes, set up the first admin (CLI)
 tools/demo.php         Import the demo repertoire from sql/demo.sql (CLI)
 tools/import-csv.php   Import songs from a CSV file, optionally replacing the list (CLI)
 tools/extract-strings.php  Generate the translation template, check .po files (CLI)

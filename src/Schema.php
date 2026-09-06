@@ -196,6 +196,7 @@ final class Schema
 
     /**
      * Create missing tables, check existing tables for their columns.
+     * Indexes are not checked here, see missingIndexes().
      *
      * A single query against the INFORMATION_SCHEMA answers every question:
      * which tables exist and which columns they have.
@@ -238,5 +239,65 @@ final class Schema
         }
 
         return $created;
+    }
+
+    /**
+     * Indexes the table definitions declare that the live tables lack --
+     * added to a table in a later version (idx_room_id on the suggestions),
+     * or dropped by hand. ensure() does not look at indexes: a missing one
+     * costs speed, not correctness, and the check is one more query on
+     * every request. tools/install.php runs it.
+     *
+     * @return array<string,array<string,string>> table => index name => "ALTER TABLE ..." that creates it
+     */
+    public function missingIndexes(): array
+    {
+        $tables = array_keys(self::DDL);
+        $rows   = $this->db->all(
+            'SELECT DISTINCT TABLE_NAME, INDEX_NAME
+             FROM information_schema.STATISTICS
+             WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN (' . implode(', ', array_fill(0, count($tables), '?')) . ')',
+            [$this->db->schemaName(), ...$tables],
+        );
+
+        /** @var array<string,array<int,string>> $present table => index names (lower case) */
+        $present = [];
+        foreach ($rows as $row) {
+            $present[(string) $row['TABLE_NAME']][] = strtolower((string) $row['INDEX_NAME']);
+        }
+
+        $missing = [];
+        foreach (self::DDL as $table => $ddl) {
+            if (!isset($present[$table])) {
+                continue; // no table, no index -- ensure() creates both
+            }
+            // The KEY lines of the CREATE TABLE: `KEY `name` (cols)`, with or without UNIQUE.
+            preg_match_all('/^\s*(UNIQUE KEY|KEY)\s+`(\w+)`\s+(\([^)]*\))/m', $ddl, $keys, PREG_SET_ORDER);
+            foreach ($keys as [, $kind, $name, $columns]) {
+                if (!in_array(strtolower($name), $present[$table], true)) {
+                    $missing[$table][$name] = "ALTER TABLE `{$table}` ADD {$kind} `{$name}` {$columns}";
+                }
+            }
+        }
+
+        return $missing;
+    }
+
+    /**
+     * Create the indexes missingIndexes() lists.
+     *
+     * @return array<int,string> "table.index" of every index created
+     */
+    public function addIndexes(): array
+    {
+        $added = [];
+        foreach ($this->missingIndexes() as $table => $indexes) {
+            foreach ($indexes as $name => $statement) {
+                $this->db->pdo()->exec($statement);
+                $added[] = $table . '.' . $name;
+            }
+        }
+
+        return $added;
     }
 }

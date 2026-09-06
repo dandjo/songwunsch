@@ -127,16 +127,27 @@ final class SongRepository
     }
 
     /**
-     * Is this song already in the main list? Compared case-insensitively
-     * through the table's collation -- used to tell a guest their suggestion
-     * is already there to be wished for.
+     * The song of this artist and title in the main list, if there is one.
+     * Compared case-insensitively through the table's collation. Should the
+     * list hold the song twice, the older row answers.
+     *
+     * @return array<string,mixed>|null
+     */
+    public function findByName(string $artist, string $title): ?array
+    {
+        return $this->db->one(
+            'SELECT * FROM `' . self::TABLE . '` WHERE artist = ? AND title = ? ORDER BY id ASC LIMIT 1',
+            [$artist, $title],
+        );
+    }
+
+    /**
+     * Is this song already in the main list? Used to tell a guest their
+     * suggestion is already there to be wished for.
      */
     public function exists(string $artist, string $title): bool
     {
-        return $this->db->one(
-            'SELECT id FROM `' . self::TABLE . '` WHERE artist = ? AND title = ? LIMIT 1',
-            [$artist, $title],
-        ) !== null;
+        return $this->findByName($artist, $title) !== null;
     }
 
     /**

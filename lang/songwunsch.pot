@@ -21,7 +21,7 @@ msgstr ""
 msgid "(leave empty to keep it)"
 msgstr ""
 
-#: templates/song.php:88 templates/song.php:100
+#: templates/song.php:101 templates/song.php:113
 msgid "(optional)"
 msgstr ""
 
@@ -109,7 +109,7 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
-#: templates/footer.php:89 templates/footer.php:96 templates/room_songs.php:129 templates/room_songs.php:132 templates/song.php:138
+#: templates/footer.php:89 templates/footer.php:96 templates/room_songs.php:129 templates/room_songs.php:132 templates/song.php:151
 msgid "Add"
 msgstr ""
 
@@ -117,15 +117,15 @@ msgstr ""
 msgid "Add all {n}"
 msgstr ""
 
-#: index.php:1675 templates/page_edit.php:51 templates/pages.php:46
+#: index.php:1696 templates/page_edit.php:51 templates/pages.php:46
 msgid "Add page"
 msgstr ""
 
-#: index.php:1968 templates/room.php:37 templates/rooms.php:78
+#: index.php:1994 templates/room.php:37 templates/rooms.php:78
 msgid "Add room"
 msgstr ""
 
-#: index.php:1766 templates/home.php:82 templates/song.php:39
+#: index.php:1787 templates/home.php:82 templates/song.php:40
 msgid "Add song"
 msgstr ""
 
@@ -135,7 +135,7 @@ msgid_plural "Add all {n} songs found"
 msgstr[0] ""
 msgstr[1] ""
 
-#: index.php:1872 templates/user.php:47 templates/users.php:37
+#: index.php:1898 templates/user.php:47 templates/users.php:37
 msgid "Add user"
 msgstr ""
 
@@ -155,7 +155,7 @@ msgstr ""
 msgid "Adopt puts the song on the list and onto the wish list once you have added what is missing; Delete drops the suggestion."
 msgstr ""
 
-#: index.php:1765 templates/song.php:39
+#: index.php:1786 templates/song.php:40
 msgid "Adopt suggestion"
 msgstr ""
 
@@ -163,7 +163,7 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: index.php:1383
+#: index.php:1404
 msgid "An error occurred: {detail}"
 msgstr ""
 
@@ -179,11 +179,11 @@ msgstr ""
 msgid "Archived rooms leave the room switcher and the list and are reachable to signed-in users only – a guest who opens the address lands on the start page."
 msgstr ""
 
-#: src/SongRepository.php:173 src/SuggestionRepository.php:125 templates/home.php:27 templates/room_songs.php:129 templates/room_songs.php:172 templates/song.php:72 templates/suggestions.php:85 templates/suggestions.php:171 templates/wishes.php:107 templates/wishes.php:144
+#: src/SongRepository.php:184 src/SuggestionRepository.php:125 templates/home.php:27 templates/room_songs.php:129 templates/room_songs.php:172 templates/song.php:85 templates/suggestions.php:85 templates/suggestions.php:171 templates/wishes.php:107 templates/wishes.php:144
 msgid "Artist"
 msgstr ""
 
-#: templates/song.php:43
+#: templates/song.php:44
 msgid "Artist and title come from the suggestion – check them and add length and genre. The song goes on the list and onto the wish list, the suggestion off it."
 msgstr ""
 
@@ -195,7 +195,7 @@ msgstr ""
 msgid "Artist, title, name …"
 msgstr ""
 
-#: templates/song.php:94
+#: templates/song.php:107
 msgid "As m:ss (3:45) or in seconds (225). Stored in seconds."
 msgstr ""
 
@@ -211,11 +211,11 @@ msgstr ""
 msgid "At least {n} characters."
 msgstr ""
 
-#: templates/song.php:128
+#: templates/song.php:141
 msgid "At the bottom of the wish list"
 msgstr ""
 
-#: templates/song.php:124
+#: templates/song.php:137
 msgid "At the top of the wish list"
 msgstr ""
 
@@ -243,7 +243,7 @@ msgstr ""
 msgid "Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the gold tags and notices."
 msgstr ""
 
-#: templates/_name_form.php:60 templates/page_edit.php:162 templates/room.php:117 templates/song.php:140 templates/user.php:136
+#: templates/_name_form.php:60 templates/page_edit.php:162 templates/room.php:117 templates/song.php:153 templates/user.php:136
 msgid "Cancel"
 msgstr ""
 
@@ -375,7 +375,7 @@ msgstr ""
 msgid "Delete under Suggestions – Clear list always asks"
 msgstr ""
 
-#: index.php:540 index.php:1262 index.php:1374
+#: index.php:540 index.php:1283 index.php:1395
 msgid "Deleting was not possible."
 msgstr ""
 
@@ -399,19 +399,19 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: index.php:1675 templates/page_edit.php:51
+#: index.php:1696 templates/page_edit.php:51
 msgid "Edit page"
 msgstr ""
 
-#: index.php:1968 templates/room.php:37
+#: index.php:1994 templates/room.php:37
 msgid "Edit room"
 msgstr ""
 
-#: index.php:1767 templates/song.php:39
+#: index.php:1788 templates/song.php:40
 msgid "Edit song"
 msgstr ""
 
-#: index.php:1872 templates/user.php:47
+#: index.php:1898 templates/user.php:47
 msgid "Edit user"
 msgstr ""
 
@@ -431,7 +431,7 @@ msgstr ""
 msgid "Enter your current password once and the new one twice. The new password applies from the next sign-in; this session stays."
 msgstr ""
 
-#: index.php:2096
+#: index.php:2122
 msgid "Error"
 msgstr ""
 
@@ -499,7 +499,7 @@ msgstr ""
 msgid "First name or nickname"
 msgstr ""
 
-#: index.php:1625 templates/footer.php:59 templates/footer.php:112 templates/layout.php:370 templates/layout.php:530 templates/pages.php:38
+#: index.php:1646 templates/footer.php:59 templates/footer.php:112 templates/layout.php:370 templates/layout.php:530 templates/pages.php:38
 msgid "Footer"
 msgstr ""
 
@@ -515,7 +515,7 @@ msgstr ""
 msgid "General"
 msgstr ""
 
-#: src/SongRepository.php:191 templates/home.php:27 templates/song.php:100 templates/wishes.php:110 templates/wishes.php:147
+#: src/SongRepository.php:202 templates/home.php:27 templates/song.php:113 templates/wishes.php:110 templates/wishes.php:147
 msgid "Genre"
 msgstr ""
 
@@ -551,11 +551,11 @@ msgstr ""
 msgid "In the same browser session."
 msgstr ""
 
-#: index.php:1559 templates/layout.php:367 templates/ui.php:58
+#: index.php:1580 templates/layout.php:367 templates/ui.php:58
 msgid "Interface"
 msgstr ""
 
-#: templates/song.php:45
+#: templates/song.php:46
 msgid "It was suggested in room “{room}”, so the song is offered there as well."
 msgstr ""
 
@@ -563,7 +563,7 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: index.php:1602 templates/footer.php:209 templates/languages.php:28 templates/layout.php:364 templates/page_edit.php:95 templates/pages.php:39 templates/pages.php:69
+#: index.php:1623 templates/footer.php:209 templates/languages.php:28 templates/layout.php:364 templates/page_edit.php:95 templates/pages.php:39 templates/pages.php:69
 msgid "Languages"
 msgstr ""
 
@@ -583,15 +583,15 @@ msgstr ""
 msgid "Leave the field empty to wish without a name."
 msgstr ""
 
-#: templates/home.php:27 templates/song.php:88 templates/wishes.php:109 templates/wishes.php:146
+#: templates/home.php:27 templates/song.php:101 templates/wishes.php:109 templates/wishes.php:146
 msgid "Length"
 msgstr ""
 
-#: src/SongRepository.php:204
+#: src/SongRepository.php:215
 msgid "Length is unrealistic – at most 23:59:59."
 msgstr ""
 
-#: src/SongRepository.php:202
+#: src/SongRepository.php:213
 msgid "Length not understood. Examples: 3:45 or 225 (seconds)."
 msgstr ""
 
@@ -599,7 +599,7 @@ msgstr ""
 msgid "Lift the closing of all rooms"
 msgstr ""
 
-#: index.php:1570 templates/layout.php:368 templates/limits.php:51
+#: index.php:1591 templates/layout.php:368 templates/limits.php:51
 msgid "Limits"
 msgstr ""
 
@@ -615,7 +615,7 @@ msgstr ""
 msgid "Live updates"
 msgstr ""
 
-#: index.php:1711 templates/layout.php:421 templates/login.php:13 templates/login.php:33
+#: index.php:1732 templates/layout.php:421 templates/login.php:13 templates/login.php:33
 msgid "Log in"
 msgstr ""
 
@@ -635,7 +635,7 @@ msgstr ""
 msgid "Logo {id}"
 msgstr ""
 
-#: index.php:1543 templates/layout.php:366 templates/logos.php:31
+#: index.php:1564 templates/layout.php:366 templates/logos.php:31
 msgid "Logos"
 msgstr ""
 
@@ -719,7 +719,7 @@ msgstr ""
 msgid "Move {label} up"
 msgstr ""
 
-#: index.php:1167 src/RoomRepository.php:270 src/RoomRepository.php:272 templates/room.php:77
+#: index.php:1188 src/RoomRepository.php:270 src/RoomRepository.php:272 templates/room.php:77
 msgid "Name"
 msgstr ""
 
@@ -731,11 +731,11 @@ msgstr ""
 msgid "New password"
 msgstr ""
 
-#: index.php:1154
+#: index.php:1175
 msgid "New visitors now start in “{name}”."
 msgstr ""
 
-#: index.php:1146
+#: index.php:1167
 msgid "New visitors start in “General” again."
 msgstr ""
 
@@ -811,7 +811,7 @@ msgstr ""
 msgid "Nothing yet – the footer stays empty until a page is moved here."
 msgstr ""
 
-#: templates/song.php:121
+#: templates/song.php:134
 msgid "On the wish list"
 msgstr ""
 
@@ -875,7 +875,7 @@ msgstr ""
 msgid "Page “{title}” has been saved."
 msgstr ""
 
-#: index.php:1586 templates/_pager.php:26 templates/footer.php:69 templates/footer.php:79 templates/layout.php:369 templates/pages.php:33
+#: index.php:1607 templates/_pager.php:26 templates/footer.php:69 templates/footer.php:79 templates/layout.php:369 templates/pages.php:33
 msgid "Pages"
 msgstr ""
 
@@ -935,7 +935,7 @@ msgstr ""
 msgid "Pick your song – we will play it"
 msgstr ""
 
-#: index.php:396 index.php:415 index.php:514 index.php:663 index.php:855 index.php:1023 index.php:1168 index.php:1206 index.php:1336
+#: index.php:396 index.php:415 index.php:514 index.php:663 index.php:855 index.php:1023 index.php:1189 index.php:1227 index.php:1357
 msgid "Please check the highlighted fields."
 msgstr ""
 
@@ -975,7 +975,7 @@ msgstr ""
 msgid "Print"
 msgstr ""
 
-#: index.php:2010 templates/room.php:60 templates/rooms.php:221
+#: index.php:2036 templates/room.php:60 templates/rooms.php:221
 msgid "QR code"
 msgstr ""
 
@@ -1041,7 +1041,7 @@ msgstr ""
 msgid "Rename"
 msgstr ""
 
-#: index.php:1944 templates/room.php:37
+#: index.php:1970 templates/room.php:37
 msgid "Rename “General”"
 msgstr ""
 
@@ -1049,7 +1049,7 @@ msgstr ""
 msgid "Repeat password"
 msgstr ""
 
-#: index.php:2065 templates/home.php:53 templates/layout.php:255 templates/rooms.php:117
+#: index.php:2091 templates/home.php:53 templates/layout.php:255 templates/rooms.php:117
 msgid "Repertoire"
 msgstr ""
 
@@ -1085,23 +1085,23 @@ msgstr ""
 msgid "Room state, rooms and songs: seconds between two checks"
 msgstr ""
 
-#: index.php:1242
+#: index.php:1263
 msgid "Room “{name}” has been archived and closed."
 msgstr ""
 
-#: index.php:1237
+#: index.php:1258
 msgid "Room “{name}” has been created. Now pick its songs from the main list."
 msgstr ""
 
-#: index.php:1260
+#: index.php:1281
 msgid "Room “{name}” has been deleted together with its wishes."
 msgstr ""
 
-#: index.php:1243
+#: index.php:1264
 msgid "Room “{name}” has been saved."
 msgstr ""
 
-#: index.php:1909 templates/layout.php:249 templates/rooms.php:40 templates/wishes.php:64
+#: index.php:1935 templates/layout.php:249 templates/rooms.php:40 templates/wishes.php:64
 msgid "Rooms"
 msgstr ""
 
@@ -1117,7 +1117,7 @@ msgstr ""
 msgid "SVG, {kb} KB"
 msgstr ""
 
-#: templates/footer.php:243 templates/limits.php:89 templates/page_edit.php:161 templates/room.php:116 templates/settings.php:154 templates/song.php:138 templates/ui.php:133 templates/user.php:135
+#: templates/footer.php:243 templates/limits.php:89 templates/page_edit.php:161 templates/room.php:116 templates/settings.php:154 templates/song.php:151 templates/ui.php:133 templates/user.php:135
 msgid "Save"
 msgstr ""
 
@@ -1213,7 +1213,7 @@ msgstr ""
 msgid "Skip to content"
 msgstr ""
 
-#: index.php:1799 templates/suggestions.php:50
+#: index.php:1825 templates/suggestions.php:50
 msgid "Song suggestions"
 msgstr ""
 
@@ -1221,7 +1221,7 @@ msgstr ""
 msgid "Songs in the room"
 msgstr ""
 
-#: index.php:2039
+#: index.php:2065
 msgid "Songs of the room"
 msgstr ""
 
@@ -1261,7 +1261,7 @@ msgstr ""
 msgid "Suggesting"
 msgstr ""
 
-#: index.php:1122
+#: index.php:1143
 msgid "Suggestion deleted."
 msgstr ""
 
@@ -1285,7 +1285,7 @@ msgstr ""
 msgid "Switch room"
 msgstr ""
 
-#: src/Schema.php:232
+#: src/Schema.php:233
 msgid "Table \"{table}\" does not have the expected structure, the columns {columns} are missing. Rename it or recreate it from sql/schema.sql."
 msgstr ""
 
@@ -1317,7 +1317,7 @@ msgstr ""
 msgid "The SVG contains scripting and was rejected."
 msgstr ""
 
-#: templates/song.php:49
+#: templates/song.php:50
 msgid "The audience can pick the song right away."
 msgstr ""
 
@@ -1501,7 +1501,7 @@ msgstr ""
 msgid "The slower brake for the same sender."
 msgstr ""
 
-#: templates/song.php:131
+#: templates/song.php:144
 msgid "The song is put on the wish list of the room the suggestion was made in."
 msgstr ""
 
@@ -1565,7 +1565,7 @@ msgstr ""
 msgid "This machine name is reserved."
 msgstr ""
 
-#: index.php:482 index.php:536 index.php:593 index.php:606 index.php:1652
+#: index.php:482 index.php:536 index.php:593 index.php:606 index.php:1673
 msgid "This page was not found."
 msgstr ""
 
@@ -1577,19 +1577,19 @@ msgstr ""
 msgid "This room has no songs yet."
 msgstr ""
 
-#: index.php:717 index.php:943 index.php:1150 index.php:1190 index.php:1252 index.php:1961 src/RoomRepository.php:303
+#: index.php:717 index.php:943 index.php:1171 index.php:1211 index.php:1273 index.php:1987 src/RoomRepository.php:303
 msgid "This room was not found."
 msgstr ""
 
-#: index.php:775 index.php:1103 index.php:1749 src/SongRepository.php:230
+#: index.php:775 index.php:1124 index.php:1770 src/SongRepository.php:241
 msgid "This song was not found."
 msgstr ""
 
-#: index.php:1124 index.php:1755
+#: index.php:1145 index.php:1776
 msgid "This suggestion was not found."
 msgstr ""
 
-#: index.php:1303 index.php:1366 index.php:1865
+#: index.php:1324 index.php:1387 index.php:1891
 msgid "This user was not found."
 msgstr ""
 
@@ -1601,7 +1601,7 @@ msgstr ""
 msgid "Times wished"
 msgstr ""
 
-#: src/PageRepository.php:457 src/PageRepository.php:459 src/SongRepository.php:174 src/SuggestionRepository.php:126 templates/footer.php:89 templates/footer.php:131 templates/home.php:27 templates/page_edit.php:124 templates/pages.php:67 templates/room_songs.php:129 templates/room_songs.php:172 templates/song.php:81 templates/suggestions.php:79 templates/suggestions.php:172 templates/wishes.php:108 templates/wishes.php:145
+#: src/PageRepository.php:457 src/PageRepository.php:459 src/SongRepository.php:185 src/SuggestionRepository.php:126 templates/footer.php:89 templates/footer.php:131 templates/home.php:27 templates/page_edit.php:124 templates/pages.php:67 templates/room_songs.php:129 templates/room_songs.php:172 templates/song.php:94 templates/suggestions.php:79 templates/suggestions.php:172 templates/wishes.php:108 templates/wishes.php:145
 msgid "Title"
 msgstr ""
 
@@ -1633,19 +1633,19 @@ msgstr ""
 msgid "Uploaded logos"
 msgstr ""
 
-#: index.php:1832 templates/layout.php:354 templates/settings.php:52
+#: index.php:1858 templates/layout.php:354 templates/settings.php:52
 msgid "User settings"
 msgstr ""
 
-#: index.php:1342
+#: index.php:1363
 msgid "User “{name}” has been created."
 msgstr ""
 
-#: index.php:1372
+#: index.php:1393
 msgid "User “{name}” has been deleted."
 msgstr ""
 
-#: index.php:1355
+#: index.php:1376
 msgid "User “{name}” has been saved."
 msgstr ""
 
@@ -1669,7 +1669,7 @@ msgstr ""
 msgid "Username: {min} to {max} characters."
 msgstr ""
 
-#: index.php:1847 templates/layout.php:365 templates/users.php:23
+#: index.php:1873 templates/layout.php:365 templates/users.php:23
 msgid "Users"
 msgstr ""
 
@@ -1697,7 +1697,7 @@ msgstr ""
 msgid "Wish deleted."
 msgstr ""
 
-#: index.php:1725 templates/wishes.php:57
+#: index.php:1746 templates/wishes.php:57
 msgid "Wish list"
 msgstr ""
 
@@ -1717,7 +1717,7 @@ msgstr ""
 msgid "Wishes"
 msgstr ""
 
-#: templates/song.php:50
+#: templates/song.php:51
 msgid "Wishes already received keep their previous wording."
 msgstr ""
 
@@ -1765,15 +1765,15 @@ msgstr ""
 msgid "You are here"
 msgstr ""
 
-#: index.php:1352
+#: index.php:1373
 msgid "You are no longer admin. Your other roles stay; another admin can give the role back."
 msgstr ""
 
-#: index.php:1326
+#: index.php:1347
 msgid "You are the only active admin – make another user admin first."
 msgstr ""
 
-#: index.php:1369
+#: index.php:1390
 msgid "You cannot delete yourself."
 msgstr ""
 
@@ -1797,7 +1797,7 @@ msgstr ""
 msgid "Your account has no role that may delete anything, so there is nothing else to set here."
 msgstr ""
 
-#: index.php:1817 templates/_name_form.php:35 templates/name.php:19
+#: index.php:1843 templates/_name_form.php:35 templates/name.php:19
 msgid "Your name"
 msgstr ""
 
@@ -1992,11 +1992,11 @@ msgstr[1] ""
 msgid "{editor} maintains the repertoire, {moderator} the wish list; {admin} manages users, hands out every role and may do everything. Roles can be combined; at least one active admin always remains."
 msgstr ""
 
-#: index.php:656 src/PageRepository.php:428 src/PageRepository.php:457 src/PageRepository.php:464 src/RoomRepository.php:252 src/RoomRepository.php:270 src/SongRepository.php:181 src/SuggestionRepository.php:134 src/UserRepository.php:129 src/UserRepository.php:146
+#: index.php:656 src/PageRepository.php:428 src/PageRepository.php:457 src/PageRepository.php:464 src/RoomRepository.php:252 src/RoomRepository.php:270 src/SongRepository.php:192 src/SuggestionRepository.php:134 src/UserRepository.php:129 src/UserRepository.php:146
 msgid "{field} is required."
 msgstr ""
 
-#: index.php:1167 src/PageRepository.php:459 src/RoomRepository.php:272 src/SongRepository.php:183 src/SongRepository.php:191 src/SuggestionRepository.php:136
+#: index.php:1188 src/PageRepository.php:459 src/RoomRepository.php:272 src/SongRepository.php:194 src/SongRepository.php:202 src/SuggestionRepository.php:136
 msgid "{field} is too long: at most {max} characters."
 msgstr ""
 
@@ -2092,7 +2092,7 @@ msgid_plural "{n} songs"
 msgstr[0] ""
 msgstr[1] ""
 
-#: index.php:1289
+#: index.php:1310
 msgid "{n} song added to the room."
 msgid_plural "{n} songs added to the room."
 msgstr[0] ""
@@ -2110,13 +2110,13 @@ msgid_plural "{n} songs in the room"
 msgstr[0] ""
 msgstr[1] ""
 
-#: index.php:1290
+#: index.php:1311
 msgid "{n} song removed from the room."
 msgid_plural "{n} songs removed from the room."
 msgstr[0] ""
 msgstr[1] ""
 
-#: index.php:1133
+#: index.php:1154
 msgid "{n} suggestion deleted."
 msgid_plural "{n} suggestions deleted."
 msgstr[0] ""
@@ -2186,7 +2186,7 @@ msgstr ""
 msgid "– no wishes or suggestions right now."
 msgstr ""
 
-#: index.php:1273
+#: index.php:1294
 msgid "“General” always offers the whole repertoire."
 msgstr ""
 
@@ -2194,7 +2194,7 @@ msgstr ""
 msgid "“General” and every room are closed."
 msgstr ""
 
-#: index.php:1174
+#: index.php:1195
 msgid "“General” has its default name again."
 msgstr ""
 
@@ -2202,7 +2202,7 @@ msgstr ""
 msgid "“General” is always there and lives at the root address; only its name can change. Leave the field empty for the default name."
 msgstr ""
 
-#: index.php:1178
+#: index.php:1199
 msgid "“General” is now called “{name}”."
 msgstr ""
 
@@ -2218,19 +2218,19 @@ msgstr ""
 msgid "“{title}” by {artist} has already been suggested."
 msgstr ""
 
-#: index.php:1076
+#: index.php:1097
 msgid "“{title}” by {artist} has been added to the repertoire and to room “{room}”, put on its wish list and taken off the suggestions."
 msgstr ""
 
-#: index.php:1077
+#: index.php:1098
 msgid "“{title}” by {artist} has been added to the repertoire, put on the wish list and taken off the suggestions."
 msgstr ""
 
-#: index.php:1078
+#: index.php:1099
 msgid "“{title}” by {artist} has been added to the repertoire."
 msgstr ""
 
-#: index.php:1083
+#: index.php:1104
 msgid "“{title}” by {artist} has been saved."
 msgstr ""
 
@@ -2242,7 +2242,19 @@ msgstr ""
 msgid "“{title}” by {artist} is in."
 msgstr ""
 
-#: index.php:1110
+#: templates/song.php:67
+msgid "“{title}” by {artist} is on the repertoire already. Add creates no second copy: the existing song is offered in the room, put on the wish list and the suggestion taken off."
+msgstr ""
+
+#: index.php:1095
+msgid "“{title}” by {artist} was on the repertoire already – it has been added to room “{room}”, put on its wish list and taken off the suggestions."
+msgstr ""
+
+#: index.php:1096
+msgid "“{title}” by {artist} was on the repertoire already – it has been put on the wish list and taken off the suggestions."
+msgstr ""
+
+#: index.php:1131
 msgid "“{title}” has been removed from the repertoire. Wishes already received are kept."
 msgstr ""
 

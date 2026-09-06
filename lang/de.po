@@ -1796,3 +1796,13 @@ msgid "{n} room"
 msgid_plural "{n} rooms"
 msgstr[0] "{n} Raum"
 msgstr[1] "{n} Räume"
+
+# ---- Adopting a suggestion whose song is on the repertoire already ----------
+msgid "“{title}” by {artist} is on the repertoire already. Add creates no second copy: the existing song is offered in the room, put on the wish list and the suggestion taken off."
+msgstr "„{title}“ von {artist} steht bereits im Repertoire. Hinzufügen legt keine zweite Kopie an: der vorhandene Song wird im Raum angeboten, auf die Wunschliste gesetzt und der Vorschlag entfernt."
+
+msgid "“{title}” by {artist} was on the repertoire already – it has been added to room “{room}”, put on its wish list and taken off the suggestions."
+msgstr "„{title}“ von {artist} stand bereits im Repertoire – der Song ist jetzt im Raum „{room}“, auf dessen Wunschliste gesetzt und aus den Vorschlägen entfernt."
+
+msgid "“{title}” by {artist} was on the repertoire already – it has been put on the wish list and taken off the suggestions."
+msgstr "„{title}“ von {artist} stand bereits im Repertoire – der Song ist auf die Wunschliste gesetzt und aus den Vorschlägen entfernt."

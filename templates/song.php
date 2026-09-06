@@ -9,6 +9,7 @@ use Songwunsch\SongRepository;
 /** @var int $key                           0 = new song */
 /** @var array<string,mixed>|null $adopt    the suggestion this new song adopts, if any */
 /** @var array<string,mixed>|null $adoptRoom  the room the suggestion was made in -- the song joins it */
+/** @var array<string,mixed>|null $adoptExisting  the song of the same artist and title already on the repertoire, if any */
 /** @var array<string,string> $values */
 /** @var array<string,string> $errors */
 /** @var string $back */
@@ -56,6 +57,18 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 
 <?php if (isset($errors['form'])): ?>
     <p class="flash flash--error" role="alert"><?= $e($errors['form']) ?></p>
+<?php endif; ?>
+
+<?php if ($adopt !== null && $adoptExisting !== null): ?>
+    <?php /* The song is there already -- suggested in another room and
+             adopted there, most likely. Add reuses it; the editor's length
+             and genre are not applied, so the fields are left as they are. */ ?>
+    <p class="flash flash--info" role="status">
+        <?= $e(t('“{title}” by {artist} is on the repertoire already. Add creates no second copy: the existing song is offered in the room, put on the wish list and the suggestion taken off.', [
+            'title'  => (string) $adoptExisting['title'],
+            'artist' => (string) $adoptExisting['artist'],
+        ])) ?>
+    </p>
 <?php endif; ?>
 
 <div class="login login--wide">

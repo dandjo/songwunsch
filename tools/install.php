@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 /**
  * Create the tables up front and set up the first admin -- the same
- * routines the application runs itself, just without a web server:
+ * routines the application runs itself, just without a web server -- and
+ * add the indexes the table definitions declare but the live tables lack
+ * (an index added in a later version; the application itself never alters
+ * an existing table):
  *
  *   php tools/install.php
  *   docker compose exec web php tools/install.php
  *
  * Reads config.php (or the environment variables) like the application does.
- * Exit code 0 when every table exists or has been created.
+ * Exit code 0 when every table exists or has been created and every index
+ * is in place. Safe to run again at any time.
  */
 
 use Songwunsch\Database;
@@ -35,7 +39,9 @@ $config = require $configFile;
 
 try {
     $db      = new Database($config['db']);
-    $created = (new Schema($db))->ensure();
+    $schema  = new Schema($db);
+    $created = $schema->ensure();
+    $indexed = $schema->addIndexes();
     $seeded  = (new UserRepository($db))->ensureAdmin($config['auth']);
 } catch (Throwable $e) {
     fwrite(STDERR, 'Error: ' . $e->getMessage() . "\n");
@@ -45,6 +51,9 @@ try {
 echo $created === []
     ? "All tables present.\n"
     : 'Created: ' . implode(', ', $created) . "\n";
+echo $indexed === []
+    ? "All indexes present.\n"
+    : 'Indexes added: ' . implode(', ', $indexed) . "\n";
 echo $seeded
     ? 'First admin "' . $config['auth']['user'] . "\" created from config.php.\n"
     : "Users present, no first admin needed.\n";

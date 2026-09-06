@@ -1026,9 +1026,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 try {
                     if ($key === 0) {
-                        $newId = $songs->create($checked['values']);
-                        $settings->increment(RoomRepository::REVISION_KEY);
-                        $args  = ['title' => $input['title'], 'artist' => $input['artist']];
+                        // Adopting a song the repertoire already has -- it was
+                        // suggested in another room and adopted there, or
+                        // overlooked: no second copy. The existing song joins
+                        // the room and the wish list instead; what the editor
+                        // typed for length and genre is not applied to it.
+                        $existing = $adopting > 0
+                            ? $songs->findByName($checked['values']['artist'], $checked['values']['title'])
+                            : null;
+                        if ($existing !== null) {
+                            $newId = (int) $existing['id'];
+                        } else {
+                            $newId = $songs->create($checked['values']);
+                            $settings->increment(RoomRepository::REVISION_KEY);
+                        }
+                        $args = ['title' => $input['title'], 'artist' => $input['artist']];
 
                         // The suggestion has served its purpose. If someone
                         // deleted it meanwhile, the song is in all the same.
@@ -1042,24 +1054,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $suggestions->delete($adopting);
                             $settings->increment(SuggestionRepository::REVISION_KEY);
                         }
-                        if ($joinRoom !== null) {
-                            $rooms->addSongs((int) $joinRoom['id'], [$newId]);
+                        if ($joinRoom !== null && $rooms->addSongs((int) $joinRoom['id'], [$newId]) > 0 && $existing !== null) {
+                            // A new song raised the revision above already.
+                            $settings->increment(RoomRepository::REVISION_KEY);
                         }
                         // An adopted suggestion is a wish already: it goes
                         // onto the wish list of the room it was made in, in
-                        // the name of whoever suggested it.
+                        // the name of whoever suggested it. A song that is
+                        // open on that list already is counted once more
+                        // instead, like a guest's repeated wish.
                         if ($adopted !== null) {
                             $wishRoomId = $joinRoom !== null ? (int) $joinRoom['id'] : RoomRepository::DEFAULT_ID;
                             $newSong    = $songs->find($newId);
                             if ($newSong !== null) {
                                 $wishList = new WishRepository($db, $wishRoomId);
-                                $wishId   = $wishList->add($newSong, (string) ($adopted['suggester'] ?? ''));
-                                // add() appends, which is the bottom. The top
-                                // is the default because the editor adopts a
-                                // suggestion right when it comes up, and the
-                                // audience should see it played soon.
-                                if ($input['wish_position'] === 'top') {
-                                    $wishList->moveToEnd($wishId, true);
+                                $counted  = $existing !== null ? $wishList->wishAgain($newId) : null;
+                                if ($counted === null) {
+                                    $wishId = $wishList->add($newSong, (string) ($adopted['suggester'] ?? ''));
+                                    // add() appends, which is the bottom. The
+                                    // top is the default because the editor
+                                    // adopts a suggestion right when it comes
+                                    // up, and the audience should see it
+                                    // played soon.
+                                    if ($input['wish_position'] === 'top') {
+                                        $wishList->moveToEnd($wishId, true);
+                                    }
                                 }
                                 $wishGuard = $wishRoomId === $roomId ? $guard : new WishGuard(
                                     $db,
@@ -1073,6 +1092,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
 
                         flash('ok', match (true) {
+                            $existing !== null && $joinRoom !== null => t('“{title}” by {artist} was on the repertoire already – it has been added to room “{room}”, put on its wish list and taken off the suggestions.', $args + ['room' => (string) $joinRoom['name']]),
+                            $existing !== null => t('“{title}” by {artist} was on the repertoire already – it has been put on the wish list and taken off the suggestions.', $args),
                             $joinRoom !== null => t('“{title}” by {artist} has been added to the repertoire and to room “{room}”, put on its wish list and taken off the suggestions.', $args + ['room' => (string) $joinRoom['name']]),
                             $adopted !== null  => t('“{title}” by {artist} has been added to the repertoire, put on the wish list and taken off the suggestions.', $args),
                             default            => t('“{title}” by {artist} has been added to the repertoire.', $args),
@@ -1772,6 +1793,11 @@ try {
             $view['adopt']    = $adopt;
             // The room the suggestion was made in -- the song will join it.
             $view['adoptRoom'] = $adopt !== null && (int) $adopt['room_id'] > 0 ? $rooms->find((int) $adopt['room_id']) : null;
+            // Already on the repertoire? Then Add offers the existing song
+            // instead of creating a second one (song_save) -- the form says so.
+            $view['adoptExisting'] = $adopt !== null
+                ? $songs->findByName((string) $adopt['artist'], (string) $adopt['title'])
+                : null;
             $view['errors']   = $kept['errors'] ?? [];
             $view['back']     = destination(url(['p' => $adopt !== null ? 'suggestions' : 'songs']));
             $view['values']   = $kept['values'] ?? [
