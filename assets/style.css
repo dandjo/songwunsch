@@ -1443,14 +1443,24 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     .picker { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Phones: the room switcher takes a row of its own above the page tabs, as
-   wide as the header, the name filling the room between label and chevron.
-   Its overlay follows that width. */
+/* The room switcher takes a row of its own above the page tabs, as wide as
+   the header, the name filling the room between label and chevron, its
+   overlay following that width -- whenever the tabs would not fit beside it
+   (.nav--rows, set by app.js, which the stacked tab bar always implies) and
+   on phones regardless, as the fallback for pages without the script. */
+.nav--rows .roomswitch,
+.nav--stacked .roomswitch { flex: 1 1 100%; margin-right: 0; }
+.nav--rows .roomswitch__toggle,
+.nav--stacked .roomswitch__toggle { display: flex; width: 100%; }
+.nav--rows .roomswitch__current,
+.nav--stacked .roomswitch__current { flex: 1 1 auto; max-width: none; }
+.nav--rows .roomswitch__panel,
+.nav--stacked .roomswitch__panel { right: 0; max-width: none; }
 @media (max-width: 720px) {
-    .roomswitch { flex: 1 1 100%; margin-right: 0; }
-    .roomswitch__toggle { display: flex; width: 100%; }
-    .roomswitch__current { flex: 1 1 auto; max-width: none; }
-    .roomswitch__panel { right: 0; max-width: none; }
+    .nav:not(.nav--inline) .roomswitch { flex: 1 1 100%; margin-right: 0; }
+    .nav:not(.nav--inline) .roomswitch__toggle { display: flex; width: 100%; }
+    .nav:not(.nav--inline) .roomswitch__current { flex: 1 1 auto; max-width: none; }
+    .nav:not(.nav--inline) .roomswitch__panel { right: 0; max-width: none; }
 }
 
 .picker__col { min-width: 0; }

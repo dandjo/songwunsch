@@ -76,12 +76,15 @@
 
     // ---- Tab bar: stacked as soon as the tabs would wrap --------------------
 
-    // The page tabs stand side by side while they fit on one row (with the
-    // room switcher, where it shares the row) and stack icon over word like
-    // an app's tab bar otherwise -- decided by measuring, not by a fixed
-    // width, so any language, number of tabs and font size gets the right
-    // layout. The row is measured in its side-by-side form each time; the
-    // CSS carries a phone-width fallback for pages without this script.
+    // The page tabs stand side by side while they fit on one row and stack
+    // icon over word like an app's tab bar otherwise -- decided by measuring,
+    // not by a fixed width, so any language, number of tabs and font size
+    // gets the right layout. The room switcher shares the tabs' row while
+    // everything fits; as soon as something has to give way, it takes a row
+    // of its own above the tabs (.nav--rows), and only if the tabs still do
+    // not fit on that second row do they stack. The row is measured in its
+    // side-by-side form each time; the CSS carries a phone-width fallback
+    // for pages without this script.
     var fitTabs = (function () {
         var pending = false;
         var measure = function () {
@@ -90,7 +93,7 @@
             if (!nav) {
                 return;
             }
-            nav.classList.remove('nav--stacked');
+            nav.classList.remove('nav--stacked', 'nav--rows');
             nav.classList.add('nav--inline');
             var visible = function (el) {
                 return getComputedStyle(el).display !== 'none';
@@ -101,17 +104,22 @@
             if (tabs.length === 0) {
                 return;
             }
-            var top = tabs[0].getBoundingClientRect().top;
-            var wraps = tabs.some(function (tab) {
-                return Math.abs(tab.getBoundingClientRect().top - top) > 1;
-            });
+            var top = function (el) {
+                return el.getBoundingClientRect().top;
+            };
+            var oneRow = function () {
+                var first = top(tabs[0]);
+                return tabs.every(function (tab) {
+                    return Math.abs(top(tab) - first) <= 1;
+                });
+            };
             var room = nav.querySelector(':scope > .roomswitch');
-            // On phones the room switcher spans the row on purpose; where it
-            // is narrower it belongs on the tabs' row.
-            if (!wraps && room && visible(room) && room.getBoundingClientRect().width < nav.getBoundingClientRect().width - 1) {
-                wraps = Math.abs(room.getBoundingClientRect().top - top) > 1;
+            if (oneRow() && !(room && visible(room) && Math.abs(top(room) - top(tabs[0])) > 1)) {
+                return;
             }
-            if (wraps) {
+            // The switcher moves to its own row; the tabs get the full width.
+            nav.classList.add('nav--rows');
+            if (!oneRow()) {
                 nav.classList.remove('nav--inline');
                 nav.classList.add('nav--stacked');
             }
