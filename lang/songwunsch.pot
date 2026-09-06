@@ -1466,7 +1466,7 @@ msgid "The repertoire is not available right now. Please try again later."
 msgstr ""
 
 #: templates/ui.php:36
-msgid "The result of an action – a wish is in, a song was added, a row was deleted – pops up at the bottom edge and disappears after this many seconds; 0 keeps it until it is dismissed. Error messages always stay until dismissed."
+msgid "The result of an action – a wish is in, a song was added, a row was deleted – pops up at the bottom edge and disappears after this many seconds; 0 keeps it until it is dismissed."
 msgstr ""
 
 #: templates/wishes.php:60

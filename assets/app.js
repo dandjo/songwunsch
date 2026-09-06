@@ -304,9 +304,9 @@
         // The result of an action (the flash with data-toast) is lifted out
         // of the content into the pop-up stack at the bottom edge, so it is
         // seen wherever the page is scrolled to, and goes away after the
-        // seconds set under Limits (0: until dismissed). An error stays until
-        // dismissed. Pointer or focus on it holds it. Without JavaScript the
-        // message stands at the top of the content.
+        // seconds set under Interface (0: until dismissed), errors included.
+        // Pointer or focus on it holds it. Without JavaScript the message
+        // stands at the top of the content.
         root.querySelectorAll('[data-toast]').forEach(toast);
 
         // The QR code page: a print button that exists only with JavaScript
@@ -389,7 +389,6 @@
         }
 
         var seconds = parseInt(document.body.getAttribute('data-toast-sec') || '5', 10);
-        var isError = message.classList.contains('flash--error');
         var timer = null;
 
         var leave = function () {
@@ -408,7 +407,7 @@
         };
         var hold = function () { clearTimeout(timer); timer = null; };
         var arm = function () {
-            if (!isError && seconds > 0 && timer === null) {
+            if (seconds > 0 && timer === null) {
                 timer = setTimeout(leave, seconds * 1000);
             }
         };

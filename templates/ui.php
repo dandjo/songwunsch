@@ -33,7 +33,7 @@ $areas = [
 // Label and explanation per number field, grouped as the form shows them.
 $groups = [
     [t('Messages'), [
-        'toast_sec' => [t('Seconds a message is shown'), t('The result of an action – a wish is in, a song was added, a row was deleted – pops up at the bottom edge and disappears after this many seconds; 0 keeps it until it is dismissed. Error messages always stay until dismissed.')],
+        'toast_sec' => [t('Seconds a message is shown'), t('The result of an action – a wish is in, a song was added, a row was deleted – pops up at the bottom edge and disappears after this many seconds; 0 keeps it until it is dismissed.')],
     ]],
     [t('Live updates'), [
         'poll_wishes_sec'      => [t('Wish list: seconds between two checks'),   t('Every open wish list asks the server this often whether a wish arrived, a row moved or was deleted, and redraws itself. 0 switches the live update off; the page is then current after a reload.')],

@@ -360,9 +360,9 @@ accessibility tools of the browser after a change.
 
 **Messages.** The result of an action – a wish is in, a song was added, a row
 was deleted – pops up at the bottom edge and disappears after *Seconds a
-message is shown* (default 5; 0 keeps it until it is dismissed). Error
-messages always stay until dismissed; notices that belong to the page one
-lands on stand at the top of the content and stay as well.
+message is shown* (default 5; 0 keeps it until it is dismissed), error
+messages included. Notices that belong to the page one lands on stand at
+the top of the content and stay.
 
 **Live updates.** One interval per case, in seconds between two checks: the
 wish list (default 4), the suggestions (4) and the room's state (10) on the
