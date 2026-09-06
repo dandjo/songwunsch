@@ -200,6 +200,15 @@ final class RoomRepository
     }
 
     /**
+     * Number of active rooms besides the main one -- the badge on the Rooms
+     * tab. Archived rooms are put away and not counted.
+     */
+    public function count(): int
+    {
+        return (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE . ' WHERE active = 1')['c'] ?? 0);
+    }
+
+    /**
      * Ids of every room, active and archived -- for switches that act on all
      * rooms at once (the admin's pause).
      *

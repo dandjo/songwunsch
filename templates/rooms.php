@@ -40,12 +40,11 @@ $hasActions = $canPause || $canEdit;
 <h1 class="sr-only"><?= $e(t('Rooms')) ?></h1>
 <?php ob_start(); ?>
 <p>
+    <?php /* The count of rooms stands on the tab; here only what a search found or how many are archived. */ ?>
     <?php if ($q !== ''): ?>
         <?= $e(tn('{n} room found for “{q}”.', '{n} rooms found for “{q}”.', $total, ['q' => $q])) ?>
     <?php elseif ($filter === 'archived'): ?>
         <?= $e(tn('{n} archived room.', '{n} archived rooms.', $total)) ?>
-    <?php else: ?>
-        <?= $e(tn('{n} room besides “General”.', '{n} rooms besides “General”.', $total)) ?>
     <?php endif; ?>
     <?= $e(t('Every room has its own repertoire, picked from the main list, and its own wish list.')) ?>
     <?php if ($canEdit): ?>

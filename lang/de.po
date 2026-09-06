@@ -570,11 +570,6 @@ msgstr "Adresse"
 msgid "Wishes"
 msgstr "Wünsche"
 
-msgid "{n} room besides “General”."
-msgid_plural "{n} rooms besides “General”."
-msgstr[0] "Ein Raum neben „Allgemein“."
-msgstr[1] "{n} Räume neben „Allgemein“."
-
 msgid "Every room has its own repertoire, picked from the main list, and its own wish list."
 msgstr "Jeder Raum hat ein eigenes Repertoire, zusammengestellt aus der Hauptliste, und eine eigene Wunschliste."
 
@@ -1798,3 +1793,9 @@ msgstr "Die Songs, die dieser Raum anbietet – sein Repertoire."
 
 msgid "Every song on offer – the whole repertoire."
 msgstr "Alle Songs im Angebot – das ganze Repertoire."
+
+# ---- Rooms tab: the badge's count for screen readers -------------------------
+msgid "{n} room"
+msgid_plural "{n} rooms"
+msgstr[0] "{n} Raum"
+msgstr[1] "{n} Räume"

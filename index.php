@@ -1396,6 +1396,7 @@ $view = [
     'csrf'       => $security->csrfToken(),
     'flash'      => flash_take(),
     'toastSec'   => $ui->get('toast_sec'), // how long a pop-up message stays, 0 = until dismissed
+    'roomCount'  => null,  // badge on the Rooms tab: active rooms besides the main one (editors and admins)
     'songCount'  => null,  // badge on the Repertoire tab: songs in the room, or on the main list
     'wishCount'  => null,
     'suggestionCount' => null, // badge on the Suggestions tab, for everyone
@@ -2070,6 +2071,10 @@ try {
 
     // The counters on the Repertoire, Wish list and Suggestions tabs -- for
     // everyone, guests included; the pages behind them are public as well.
+    // The Rooms tab, and so its counter, only for those who see the tab.
+    if ($view['roomCount'] === null && $security->can('rooms')) {
+        $view['roomCount'] = $rooms->count();
+    }
     if ($view['songCount'] === null) {
         $view['songCount'] = $songs->count($roomId);
     }
