@@ -1,10 +1,10 @@
 # Songwunsch -- Apache: every address goes through the front controller,
 # nothing else is reachable from outside.
-# Needs Apache 2.4 with mod_rewrite and AllowOverride FileInfo Limit (or All).
-# For nginx see README, section "Webserver".
+# Needs Apache 2.4 with mod_rewrite and AllowOverride FileInfo AuthConfig (or All).
+# For nginx see docs/installation.md, section "Web server".
 
 # Only index.php may be executed. Every other PHP file, the configuration,
-# the SQL and translation files and the README stay hidden.
+# the SQL and translation files, the README and the docs stay hidden.
 <FilesMatch "\.(php|sql|po|pot|md|ini|log|env)$">
     Require all denied
 </FilesMatch>

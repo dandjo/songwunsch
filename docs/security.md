@@ -1,0 +1,125 @@
+# Security and data protection
+
+## Database
+
+* Every value reaches the database through a prepared statement. PDO runs with
+  `ATTR_EMULATE_PREPARES` off, so the server does the binding.
+* Table and column names are fixed in the code (`src/Schema.php` and the
+  repositories). Sort parameters from the address are looked up in a fixed
+  list of allowed fields; anything else falls back to the default sort.
+  Wildcards in search terms (`%`, `_`, `\`) are escaped before a `LIKE`.
+* Changes to a single record address it by its id (and, for wishes and
+  suggestions, by its room) and are limited to one row. Only actions that mean
+  a whole set delete more than one row: clearing a wish list, clearing the
+  suggestions, deleting a room (its wishes, suggestions and song selection go
+  with it) and the `--replace` import.
+* The connection error hides the credentials: the message carries only the
+  error code.
+
+## Output
+
+* Output goes through `Format::e()` (`htmlspecialchars` with `ENT_QUOTES`).
+  Three deliberate exceptions:
+  * The body of a page and the footer line. Admins write them in the editor.
+    On saving, `src/Html.php` reduces the HTML to text structure (headings,
+    paragraphs, lists, links, tables, quotes, emphasis). Scripts, styles,
+    frames and forms are dropped with their content. A link may only point to
+    `http(s)://`, `mailto:`, `tel:`, an anchor or a path of this site; a link
+    with `target="_blank"` gets `rel="noopener"`. See
+    [Pages and footer](pages.md).
+  * The colours admins set under *Interface*, printed as a `<style>` block.
+    They are validated as `#rrggbb` before they are stored.
+  * Translations that contain HTML placeholders (a link, `<strong>`). The HTML
+    parts are escaped before they are inserted.
+* Uploaded logos and QR images are delivered with
+  `X-Content-Type-Options: nosniff` and a Content Security Policy of
+  `default-src 'none'`. A logo's type is detected from its content, not its
+  file name. Raster logos are re-encoded as WebP; an SVG is stored as it is and
+  only ever shown through `<img>`, where scripts do not run.
+
+## Cookies and session
+
+* The session cookie is named `songwunsch`. Its lifetime is the browser
+  session. Flags: `HttpOnly`, `SameSite=Lax`, `Secure` as soon as HTTPS is
+  active (also detected from `X-Forwarded-Proto` behind a proxy), `path`
+  limited to the base path, so several applications on one domain do not share
+  a session. Signing in calls `session_regenerate_id(true)`; signing out
+  empties the session and deletes the cookie.
+* The session holds the user's id, never the password. The user record is
+  loaded on every request, so a locked or deleted user is signed out with the
+  next click.
+* The other cookies carry the same flags and are valid for one year:
+
+  | Cookie | Content |
+  | --- | --- |
+  | `songwunsch_lang` | The chosen language code |
+  | `songwunsch_name` | The name a guest gave for the wish list (at most 40 characters), see [The guest's name](guest-name.md) |
+  | `songwunsch_room` | The machine name of the room chosen last, or `-` for the main room |
+  | `songwunsch_rooms` | Up to five machine names of unlisted rooms a guest entered through their address |
+
+  None of them holds anything but these values.
+
+## Forms and actions
+
+* Every writing action is a POST form with a CSRF token. The token is 32
+  random bytes, kept in the session and compared with `hash_equals()`. A POST
+  without a valid token is answered with a notice and a redirect; a JSON call
+  gets 403.
+* Every operating function checks sign-in **and** role in the front controller
+  (`require_login`, `require_role` in `index.php`), not only in the templates.
+  A missing sign-in leads to the login page, a missing role to the repertoire
+  with a notice. JSON calls (drag & drop) receive 401 or 403 instead of a
+  redirect. The roles are described in [Users and roles](users-and-roles.md).
+* The return address in the `back` form field (or `?back=` parameter) is only
+  accepted when it starts with the application's base path followed by `/`. A
+  value beginning with `//` or `/\` (which browsers read as another host) or
+  containing a line break is rejected. Nothing redirects to the outside.
+* Form input that is kept for redisplay after a validation error is stored in
+  the session without the password fields.
+
+## Files and configuration
+
+* Database credentials live only in the unversioned `config.php` (listed in
+  `.gitignore`, together with `.env`). Every value can also come from an
+  environment variable. User passwords exist only as hashes in `users`.
+* Only `index.php`, the `assets/` folder and `robots.txt` are reachable from
+  outside. The root `.htaccess` denies every file ending in `.php` (except
+  `index.php`), `.sql`, `.po`, `.pot`, `.md`, `.ini`, `.log` and `.env`, and
+  sends every other address to `index.php`, which answers 404 for what it does
+  not know. `src/`, `templates/`, `tools/`, `sql/` and `lang/` each carry an
+  `.htaccess` with `Require all denied` as well. The command-line tools exit
+  when they are called through the web. For nginx see
+  [Web server](installation.md#web-server).
+* `robots.txt` asks search engines to stay out of the rooms, the lists, the
+  name and login pages, the settings and everything below `/admin`, `/users`
+  and `/song`.
+* Behind a reverse proxy, set `'trust_proxy' => true` only when the proxy is
+  the only way in. The visitor's address is then taken from the last entry of
+  `X-Forwarded-For`; otherwise senders could make up their address and bypass
+  the per-sender wish limit.
+
+## Errors
+
+* For production set `'show_errors' => false`. Technical details (table and
+  column names, SQL messages) are then shown only to signed-in users. Everyone
+  else sees a generic message, and the details go to the PHP error log.
+
+## Data stored about guests
+
+* For every wish, artist, title, length, genre, the timestamp, how often the
+  song was wished while it was open and – if the guest gave one – their name
+  are stored. **No** IP address, **no** user agent. The name is the only
+  personal data on the wish list. It is given voluntarily and goes with the
+  wish; deleting the wish deletes the name. See
+  [The guest's name](guest-name.md).
+* A song suggestion stores artist, title, the timestamp and likewise the
+  guest's name if given. It is deleted when the suggestion is adopted or
+  dropped.
+* The rate limiting keeps no plain IP address. It stores an HMAC of the address
+  with a secret that changes daily. These entries live for one hour; the
+  secrets of today and yesterday are kept, older ones are deleted. After a day
+  nothing can be attributed to a person any more. See
+  [Protecting the wishing](wish-protection.md).
+* The per-session cooldown for wishing and suggesting stores only a timestamp
+  in the session.
+* QR codes are made on this server. No address is sent to a third party.

@@ -14,8 +14,8 @@
 # excluded and therefore never deleted.
 #
 # After the sync the 'version' entry of the server's config.php is raised so
-# browsers fetch the new style.css and app.js (cache buster, see README
-# "Version und Cache"): a numeric version like 1.0.4 becomes 1.0.5, anything
+# browsers fetch the new style.css and app.js (cache buster, see
+# docs/installation.md, "Version and cache"): a numeric version like 1.0.4 becomes 1.0.5, anything
 # else becomes today's date with a counter (2026-09-03.1).
 #
 # Target host and directory come from the project's .env (DEPLOY_HOST, an SSH
@@ -67,6 +67,7 @@ rsync -rlptzv --delete $DRY \
     --exclude='/sample.env' \
     --exclude='/compose.yml' \
     --exclude='/docker/' \
+    --exclude='/docs/' \
     --exclude='.git/' \
     --exclude='.gitignore' \
     --exclude='.gitattributes' \
@@ -74,6 +75,7 @@ rsync -rlptzv --delete $DRY \
     --exclude='.gitkeep' \
     --exclude='/.github/' \
     --exclude='/.idea/' \
+    --exclude='/.claude/' \
     --exclude='/tools/deploy.sh' \
     --exclude='*.log' \
     --exclude='.DS_Store' \

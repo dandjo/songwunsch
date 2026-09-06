@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `uploads` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Pages the admins write -- an imprint, FAQs, a privacy notice. Every page is
--- public under /page/<slug> and may link to any other; the ones with a
+-- public under /pages/<slug> and may link to any other; the ones with a
 -- footer_position are linked at the bottom of every screen, in that order.
 -- The body is HTML from the editor, reduced to an allowed set of tags and
 -- attributes on save.

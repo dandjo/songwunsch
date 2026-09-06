@@ -20,7 +20,7 @@ use Songwunsch\Ui;
 
 $e = static fn (?string $v): string => Format::e($v);
 
-// Label and where the colour shows up, per area -- the same wording as the README.
+// Label and where the colour shows up, per area -- the same wording as docs/interface.md.
 $areas = [
     'accent'     => [t('Accent'),     t('Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the gold tags and notices.')],
     'secondary'  => [t('Secondary'),  t('The genre and role tags, the counters on the tabs and the edge of the info notices.')],

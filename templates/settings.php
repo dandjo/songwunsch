@@ -37,7 +37,7 @@ $rows = array_intersect_key([
     'rooms'  => [t('Confirm deleting rooms'),  t('Delete under Rooms – the room’s wishes go with it')],
 ], array_flip($kinds));
 
-// What each role may do, for the account box -- the same wording as the README.
+// What each role may do, for the account box -- the same wording as docs/users-and-roles.md.
 $isAdmin    = (int) ($account['role_admin'] ?? 0) === 1;
 $roleLabels = UserRepository::roleLabels($account);
 $roleNotes  = [
