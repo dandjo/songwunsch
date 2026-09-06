@@ -15,8 +15,8 @@ use Songwunsch\Translator;
 /** @var Translator $translator */
 /** @var array{type:string,message:string,static:bool}|null $flash  static: stays at the top of the content; else a pop-up (app.js) */
 /** @var int $toastSec  seconds a pop-up message stays, 0 = until dismissed (Ui) */
-/** @var int|null $wishCount */
-/** @var int|null $suggestionCount  open song suggestions, badge for editors */
+/** @var int|null $wishCount  open wishes in the room, badge on the tab */
+/** @var int|null $suggestionCount  open song suggestions, badge on the tab */
 /** @var bool $paused  wishing closed by the moderator */
 /** @var \Songwunsch\Settings $settings */
 /** @var array<string,mixed> $room  current room; the default room has id 0 */
@@ -232,17 +232,17 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
                 <a href="<?= $e(url(['p' => 'rooms'])) ?>"<?= in_array($page, ['rooms', 'room'], true) ? ' aria-current="page"' : '' ?>><?= icon('door') ?><?= $e(t('Rooms')) ?></a>
             <?php endif; ?>
             <a href="<?= $e(url(['p' => 'songs'])) ?>"<?= in_array($page, ['songs', 'room_songs'], true) ? ' aria-current="page"' : '' ?>><?= icon('note') ?><?= $e(t('Repertoire')) ?></a>
-            <?php /* The wish list is visible to everyone; the counter badge only
-                     for those who work it. Other areas only with a role. */ ?>
+            <?php /* The wish list and its counter are visible to everyone --
+                     guests see how long the queue is. Other areas only with a role. */ ?>
             <a href="<?= $e(url(['p' => 'wishes'])) ?>"<?= $page === 'wishes' ? ' aria-current="page"' : '' ?>>
-                <?= icon('star') ?><?= $e(t('Wish list')) ?><?php if ($wishCount !== null && $security->can('wishes')): ?>
+                <?= icon('star') ?><?= $e(t('Wish list')) ?><?php if ($wishCount !== null): ?>
                     <span class="badge"><span aria-hidden="true"><?= (int) $wishCount ?></span><span class="sr-only"><?= $e(tn('{n} open wish', '{n} open wishes', (int) $wishCount)) ?></span></span>
                 <?php endif; ?>
             </a>
-            <?php /* Song suggestions: everyone may suggest, so the tab is
-                     public; the counter only for the editors who work it. */ ?>
+            <?php /* Song suggestions: everyone may suggest and sees the open
+                     ones, so the tab and its counter are public too. */ ?>
             <a href="<?= $e(url(['p' => 'suggestions'])) ?>"<?= $page === 'suggestions' ? ' aria-current="page"' : '' ?>>
-                <?= icon('bulb') ?><?= $e(t('Suggestions')) ?><?php if ($suggestionCount !== null && $security->can('suggestions')): ?>
+                <?= icon('bulb') ?><?= $e(t('Suggestions')) ?><?php if ($suggestionCount !== null): ?>
                     <span class="badge"><span aria-hidden="true"><?= (int) $suggestionCount ?></span><span class="sr-only"><?= $e(tn('{n} open suggestion', '{n} open suggestions', (int) $suggestionCount)) ?></span></span>
                 <?php endif; ?>
             </a>

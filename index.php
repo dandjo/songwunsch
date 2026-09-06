@@ -1397,7 +1397,7 @@ $view = [
     'flash'      => flash_take(),
     'toastSec'   => $ui->get('toast_sec'), // how long a pop-up message stays, 0 = until dismissed
     'wishCount'  => null,
-    'suggestionCount' => null, // badge on the Suggestions tab, editors only
+    'suggestionCount' => null, // badge on the Suggestions tab, for everyone
     'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ..., 'interval' => seconds, 'scope' => 'page'|'header'], see below
     'paused'     => false, // wishing closed by the moderator -- notice in the header
     'roomList'   => [],    // rooms for the switcher in the header
@@ -2067,10 +2067,12 @@ try {
             break;
     }
 
-    if ($security->can('wishes') && $view['wishCount'] === null) {
+    // The counters on the Wish list and Suggestions tabs -- for everyone,
+    // guests included; the pages behind them are public as well.
+    if ($view['wishCount'] === null) {
         $view['wishCount'] = $wishes->count();
     }
-    if ($security->can('suggestions') && $view['suggestionCount'] === null) {
+    if ($view['suggestionCount'] === null) {
         $view['suggestionCount'] = $suggestions->count();
     }
 } catch (Throwable $e) {
