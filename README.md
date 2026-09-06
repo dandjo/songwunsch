@@ -779,7 +779,10 @@ Visitors see it under the name "General" ("Allgemein", "Général").
 has a display name (up to 128 characters, free) and a **machine name** for the
 address: 2 to 64 characters, lowercase `a–z`, digits and single hyphens,
 checked in `RoomRepository::validate()` against `SLUG_PATTERN`; uppercase is
-converted to lowercase beforehand. A room `sommerfest-2026` is then reachable
+converted to lowercase beforehand. While the machine name field is empty,
+the browser proposes one from the display name (`app.js`: lowercase, umlauts
+unfolded, accents dropped, everything else a hyphen); a machine name already in
+the field, whether typed or saved, is left alone. A room `sommerfest-2026` is then reachable
 at `/rooms/sommerfest-2026`, its wish list at `/rooms/sommerfest-2026/wishes`.
 Changing the machine name changes the address – links already handed out stop
 working.

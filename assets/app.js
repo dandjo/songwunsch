@@ -172,6 +172,41 @@
             }
         });
 
+        // A new room's machine name is proposed from its display name: while
+        // the machine name field is empty -- or holds nothing but what was
+        // proposed -- it follows the name, reduced to the address alphabet
+        // ("Sommerfest 2026 – Wiener Straße" becomes "sommerfest-2026-wiener-strasse").
+        // A machine name that is already there (an existing room, or typed by
+        // hand) is left alone; emptying the field makes it follow again.
+        root.querySelectorAll('[data-slug-from]').forEach(function (slug) {
+            var name = document.getElementById(slug.getAttribute('data-slug-from'));
+            if (!name || slug.hasAttribute('data-bound-from')) { return; }
+            slug.setAttribute('data-bound-from', '1');
+            var max = parseInt(slug.getAttribute('maxlength'), 10) || 64;
+            var following = slug.value === '';
+            var proposing = false;
+            var slugify = function (text) {
+                var out = text.toLowerCase()
+                    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+                    .replace(/æ/g, 'ae').replace(/ø/g, 'oe').replace(/œ/g, 'oe');
+                if (out.normalize) {
+                    out = out.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                }
+                out = out.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                return out.slice(0, max).replace(/-+$/, '');
+            };
+            name.addEventListener('input', function () {
+                if (!following) { return; }
+                proposing = true;
+                slug.value = slugify(name.value);
+                slug.dispatchEvent(new Event('input'));
+                proposing = false;
+            });
+            slug.addEventListener('input', function () {
+                if (!proposing) { following = slug.value === ''; }
+            });
+        });
+
         // Machine names (rooms, pages): the address in the hint below the
         // field follows what is typed, lower-cased like the server stores
         // it; while the field is empty the example stands in.
