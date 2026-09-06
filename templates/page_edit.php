@@ -48,11 +48,9 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e($isNew ? t('Add page') : t('Edit page')) ?></h1>
-            <?= help_button('help-page-edit') ?>
-        </div>
-        <p class="muted help" id="help-page-edit">
+        <h1><?= $e($isNew ? t('Add page') : t('Edit page')) ?></h1>
+        <?php ob_start(); ?>
+        <p>
             <?php if ($isNew): ?>
                 <?= $e(t('Everyone can read the page under its address as soon as it is saved. Whether the footer links it is decided under Footer.')) ?>
             <?php else: ?>
@@ -60,6 +58,7 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
             <?php endif; ?>
             <?= $e(t('Fill in the page in the languages you like, one tab each; readers get it in their language, or in the first language of the fallback order the page has.')) ?>
         </p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
 </div>
 

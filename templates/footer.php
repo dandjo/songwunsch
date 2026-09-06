@@ -56,15 +56,14 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e(t('Footer')) ?></h1>
-            <?= help_button('help-footer') ?>
-        </div>
-        <p class="muted help" id="help-footer">
+        <h1><?= $e(t('Footer')) ?></h1>
+        <?php ob_start(); ?>
+        <p>
             <?= $e(t('{n} of {total} pages are linked in the footer.', ['n' => $linkedTotal, 'total' => $linkedTotal + $availableTotal])) ?>
             <?= $e(t('Move pages with the arrows: to the right into the footer, to the left out of it. On the right, drag a row or use its arrows to change the order.')) ?>
             <?= $e(t('Below the links stands your own line – credits, a link to your site.')) ?>
         </p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
     <div class="panel__actions">
         <a class="link-button" href="<?= $e(url(['p' => 'pages'])) ?>"><?= icon('page') ?><?= $e(t('Pages')) ?></a>

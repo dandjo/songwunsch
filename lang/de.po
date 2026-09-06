@@ -205,11 +205,6 @@ msgstr ", aktuell absteigend, umkehren"
 
 # ---- Wish list --------------------------------------------------------------------
 
-msgid "{n} wish in the queue."
-msgid_plural "{n} wishes in the queue."
-msgstr[0] "Ein Wunsch in der Warteschlange."
-msgstr[1] "{n} Wünsche in der Warteschlange."
-
 msgid "The wishes in the order they will be played."
 msgstr "Die Wünsche in der Reihenfolge, in der sie gespielt werden."
 

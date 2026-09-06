@@ -25,15 +25,14 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e(t('Languages')) ?></h1>
-            <?= help_button('help-languages') ?>
-        </div>
-        <p class="muted help" id="help-languages">
+        <h1><?= $e(t('Languages')) ?></h1>
+        <?php ob_start(); ?>
+        <p>
             <?= $e(tn('{n} language is available.', '{n} languages are available.', count($order))) ?>
             <?= $e(t('Readers get pages and the footer line in the language they chose in the language menu. Where a text lacks it, they get the first language of this order the text has.')) ?>
             <?= $e(t('A language is a file in the lang folder – see the README to add one.')) ?>
         </p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
 </div>
 

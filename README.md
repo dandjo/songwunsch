@@ -980,16 +980,19 @@ middleware or the hoster.
 
 ## Usage
 
-**Help behind the "?".** Every page explains itself in a line or two below
-its title. So the list or form starts as high as possible, that explanation
-is folded away behind a small *?* beside the title: a press opens it, a
-second press closes it, and the browser tab remembers the choice per page
-(`sessionStorage`), so a live update or a soft navigation does not shut it
-again. The counts – how many wishes are queued, how many songs are in the
-room – and the note that the room is closed are part of that help; the
-header's notice carries the state. Without JavaScript there is no
-button and the text simply stands where it is; the text stays linked to the
-button (`aria-controls`, `aria-expanded`).
+**Help behind the "?".** Every page explains itself in a line or two, and
+that text sits behind the *?* at the top right of the header, next to the
+language and account menus: a popout like those two (a `<details>`, so it
+works without JavaScript and closes on a click elsewhere or on Escape). The
+templates hand the text up (`$help`), the layout renders the page first and
+the header after it. So the list or form starts as high as possible: the
+pages the main navigation leads to – repertoire, wish list, suggestions,
+rooms – show no visible title at all, the active tab names them and the
+`<h1>` is left to screen readers; the other pages keep their title. The
+counts – how many songs are in the room, how many rooms there are – and the
+note that the room is closed are part of that help, the number of open
+wishes and suggestions stands on the tabs; the header's notice carries the
+room's state.
 
 | What | How |
 | --- | --- |

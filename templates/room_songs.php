@@ -75,14 +75,13 @@ $card = static function (array $row, string $action, string $arrow, string $verb
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e(t('Manage {room}', ['room' => (string) $room['name']])) ?></h1>
-            <?= help_button('help-room-songs') ?>
-        </div>
-        <p class="muted help" id="help-room-songs">
+        <h1><?= $e(t('Manage {room}', ['room' => (string) $room['name']])) ?></h1>
+        <?php ob_start(); ?>
+        <p>
             <?= $e(t('{n} of {total} songs are in the room.', ['n' => Format::number($roomSongCount), 'total' => Format::number($mainCount)])) ?>
             <?= $e(t('Move songs with the arrows: to the right into the room, to the left out of it. The search filters both columns.')) ?>
         </p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
     <?php /* Back to where "Manage" was clicked: the repertoire, the room list or the room's form. */ ?>
     <div class="panel__actions">

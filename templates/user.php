@@ -44,17 +44,16 @@ $isAdmin = ($values['role_admin'] ?? '') === '1';
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e($isNew ? t('Add user') : t('Edit user')) ?></h1>
-            <?= help_button('help-user') ?>
-        </div>
-        <p class="muted help" id="help-user">
+        <h1><?= $e($isNew ? t('Add user') : t('Edit user')) ?></h1>
+        <?php ob_start(); ?>
+        <p>
             <?php if ($isNew): ?>
                 <?= $e(t('Pass on username and password – the new user can log in right away.')) ?>
             <?php else: ?>
                 <?= $e(t('Changes to roles and status take effect immediately, even for a running session.')) ?>
             <?php endif; ?>
         </p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
 </div>
 

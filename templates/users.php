@@ -20,11 +20,9 @@ $current = url(['p' => 'users', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : nul
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e(t('Users')) ?></h1>
-            <?= help_button('help-users') ?>
-        </div>
-        <p class="muted help" id="help-users">
+        <h1><?= $e(t('Users')) ?></h1>
+        <?php ob_start(); ?>
+        <p>
             <?= $e($q !== '' ? tn('{n} user found.', '{n} users found.', $total) : tn('{n} user.', '{n} users.', $total)) ?>
             <?= t('{editor} maintains the repertoire, {moderator} the wish list; {admin} manages users, hands out every role and may do everything. Roles can be combined; at least one active admin always remains.', [
                 'editor'    => '<strong>' . $e(t('Editor', [], 'role')) . '</strong>',
@@ -32,6 +30,7 @@ $current = url(['p' => 'users', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : nul
                 'admin'     => '<strong>' . $e(t('Admin', [], 'role')) . '</strong>',
             ]) ?>
         </p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
 
     <div class="panel__actions">

@@ -24,14 +24,13 @@ $roomName = (string) $room['name'];
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e(t('QR code: {room}', ['room' => $roomName])) ?></h1>
-            <?= help_button('help-room-qr') ?>
-        </div>
-        <p class="muted help" id="help-room-qr">
+        <h1><?= $e(t('QR code: {room}', ['room' => $roomName])) ?></h1>
+        <?php ob_start(); ?>
+        <p>
             <?= $e(t('Guests scan the code with their phone\'s camera and land in the room – on a table card, a poster or a slide.')) ?>
             <?= $e(t('The code is made on this server; the address is passed to no other service.')) ?>
         </p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
     <div class="panel__actions">
         <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug, 'format' => 'svg'])) ?>" download="songwunsch-<?= $e($isMain ? 'main' : $slug) ?>.svg"><?= icon('image') ?><?= $e(t('Download SVG')) ?></a>

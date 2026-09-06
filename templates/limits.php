@@ -48,14 +48,13 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e(t('Limits')) ?></h1>
-            <?= help_button('help-limits') ?>
-        </div>
-        <p class="muted help" id="help-limits">
+        <h1><?= $e(t('Limits')) ?></h1>
+        <?php ob_start(); ?>
+        <p>
             <?= $e(t('Wishing and suggesting are public and need no sign-in – these limits keep scripts and over-eager guests from flooding the lists. They apply to every room alike; 0 switches a limit off.')) ?>
             <?= $e(t('The hidden field in the forms that only scripts fill stays in place regardless.')) ?>
         </p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
 </div>
 

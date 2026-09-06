@@ -34,12 +34,20 @@
         }
     }, true);
 
-    // Header popouts (language, account, room switcher) and the sort menu
-    // on phones are <details> and work without this; with it they also close
+    // Header popouts (help, language, account, room switcher) and the sort
+    // menu on phones are <details> and work without this; with it they also close
     // on a click elsewhere or on Escape, so a menu does not stay open while
     // one uses the page.
+    // A <details> nested in another (Administration inside the account menu)
+    // follows its parent and is left alone: it stands open on the admin
+    // pages and must still be open when the menu is opened again.
+    var popouts = function () {
+        return [].filter.call(document.querySelectorAll('.dome details[open], .sortbar details[open]'), function (details) {
+            return details.parentElement.closest('details') === null;
+        });
+    };
     document.addEventListener('click', function (event) {
-        document.querySelectorAll('.dome details[open], .sortbar details[open]').forEach(function (details) {
+        popouts().forEach(function (details) {
             if (!details.contains(event.target)) {
                 details.open = false;
             }
@@ -47,7 +55,7 @@
     });
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
-            document.querySelectorAll('.dome details[open], .sortbar details[open]').forEach(function (details) {
+            popouts().forEach(function (details) {
                 details.open = false;
                 var toggle = details.querySelector('summary');
                 if (toggle && details.contains(document.activeElement)) {
@@ -212,38 +220,6 @@
                 });
             }
             follow();
-        });
-
-        // Help: the "?" beside a title folds the explanation below it away
-        // and opens it again. The button is rendered hidden and appears only
-        // here, so without JavaScript the text simply stands open. Whether
-        // it is open is kept per text for the tab (sessionStorage), so the
-        // live update and the soft navigation, which draw the page anew,
-        // leave an opened help open.
-        root.querySelectorAll('.help-toggle[aria-controls]').forEach(function (button) {
-            var text = document.getElementById(button.getAttribute('aria-controls'));
-            if (!text || button.hasAttribute('data-bound')) { return; }
-            button.setAttribute('data-bound', '1');
-            var key = 'help:' + text.id;
-            var remember = function (on) {
-                try {
-                    if (on) { sessionStorage.setItem(key, '1'); } else { sessionStorage.removeItem(key); }
-                } catch (e) {
-                    // Storage refused (private mode): the help simply starts closed next time.
-                }
-            };
-            var set = function (on) {
-                text.hidden = !on;
-                button.setAttribute('aria-expanded', on ? 'true' : 'false');
-            };
-            var open = false;
-            try { open = sessionStorage.getItem(key) === '1'; } catch (e) { /* as above */ }
-            button.hidden = false;
-            set(open);
-            button.addEventListener('click', function () {
-                set(text.hidden);
-                remember(text.hidden === false);
-            });
         });
 
         // Password fields: the eye shows the typed password and hides it

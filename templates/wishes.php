@@ -51,38 +51,37 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
 };
 ?>
 
-<div class="panel__head">
-    <div>
-        <div class="panel__title">
-            <h1><?= $e(t('Wish list')) ?><?= $inRoom ? ' <span class="muted">· ' . $e((string) $room['name']) . '</span>' : '' ?></h1>
-            <?= help_button('help-wishes') ?>
-        </div>
-        <p class="muted help" id="help-wishes">
-            <?= $e(tn('{n} wish in the queue.', '{n} wishes in the queue.', $total)) ?>
-            <?php if ($paused): ?>
-                <strong><?= $e(t('The room is closed')) ?></strong> <?= $e(t('– no wishes or suggestions right now.')) ?>
-                <?php if ($canEdit): ?>
-                    <?= t('Open it above or under {rooms}.', [
-                        'rooms' => '<a href="' . $e(url(['p' => 'rooms'])) . '">' . $e(t('Rooms')) . '</a>',
-                    ]) ?>
-                <?php endif; ?>
-            <?php endif; ?>
-            <?php if (!$canEdit): ?>
-                <?= $e(t('The wishes in the order they will be played.')) ?>
-            <?php elseif ($manual): ?>
-                <?= $e(t('Change the order with the arrows or by drag & drop. Sorting only changes the view.')) ?>
-            <?php else: ?>
-                <?= t('To reorder, switch to the {manual}.', [
-                    'manual' => '<a href="' . $e(url(['p' => 'wishes'])) . '">' . $e(t('manual order')) . '</a>',
-                ]) ?>
-            <?php endif; ?>
-        </p>
-    </div>
+<?php /* The active tab names the page (and the header the room), so the
+         title is for screen readers only; the help sits behind the "?" in
+         the header ($help, see layout.php). */ ?>
+<h1 class="sr-only"><?= $e(t('Wish list')) ?></h1>
+<?php ob_start(); ?>
+<p>
+    <?php if ($paused): ?>
+        <strong><?= $e(t('The room is closed')) ?></strong> <?= $e(t('– no wishes or suggestions right now.')) ?>
+        <?php if ($canEdit): ?>
+            <?= t('Open it above or under {rooms}.', [
+                'rooms' => '<a href="' . $e(url(['p' => 'rooms'])) . '">' . $e(t('Rooms')) . '</a>',
+            ]) ?>
+        <?php endif; ?>
+    <?php endif; ?>
+    <?php if (!$canEdit): ?>
+        <?= $e(t('The wishes in the order they will be played.')) ?>
+    <?php elseif ($manual): ?>
+        <?= $e(t('Change the order with the arrows or by drag & drop. Sorting only changes the view.')) ?>
+    <?php else: ?>
+        <?= t('To reorder, switch to the {manual}.', [
+            'manual' => '<a href="' . $e(url(['p' => 'wishes'])) . '">' . $e(t('manual order')) . '</a>',
+        ]) ?>
+    <?php endif; ?>
+</p>
+<?php $help .= ob_get_clean(); ?>
 
+<?php if ($canEdit && $rows !== []): ?>
+<div class="panel__head panel__head--quiet">
     <?php /* Closing and opening the room happens in the room list and in the
              header notice, not here. */ ?>
-    <?php if ($canEdit && $rows !== []): ?>
-        <div class="panel__actions">
+    <div class="panel__actions">
             <?php if (!$manual): ?>
                 <a class="link-button" href="<?= $e(url(['p' => 'wishes'])) ?>"><?= icon('list') ?><?= $e(t('Manual order')) ?></a>
             <?php endif; ?>
@@ -91,9 +90,9 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                 <button type="submit" class="danger-button"><?= icon('trash') ?><?= $e(t('Clear list')) ?></button>
             </form>
-        </div>
-    <?php endif; ?>
+    </div>
 </div>
+<?php endif; ?>
 
 <?php if ($rows === []): ?>
     <p class="empty"><?= $e(t('No wishes yet. The start page is waiting for an audience.')) ?></p>

@@ -45,20 +45,18 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 };
 ?>
 
-<div class="panel__head">
-    <div>
-        <div class="panel__title">
-            <h1><?= $e(t('Song suggestions')) ?><?= $inRoom ? ' <span class="muted">· ' . $e((string) $room['name']) . '</span>' : '' ?></h1>
-            <?= help_button('help-suggestions') ?>
-        </div>
-        <p class="muted help" id="help-suggestions">
-            <?= $e(t('Missing a song? Name it here – the editors decide whether it joins the repertoire.')) ?>
-            <?php if ($inRoom): ?>
-                <?= $e(t('Suggested from this room, the song is offered here once it is in.')) ?>
-            <?php endif; ?>
-        </p>
-    </div>
-</div>
+<?php /* The active tab names the page (and the header the room), so the
+         title is for screen readers only; the help sits behind the "?" in
+         the header ($help, see layout.php). */ ?>
+<h1 class="sr-only"><?= $e(t('Song suggestions')) ?></h1>
+<?php ob_start(); ?>
+<p>
+    <?= $e(t('Missing a song? Name it here – the editors decide whether it joins the repertoire.')) ?>
+    <?php if ($inRoom): ?>
+        <?= $e(t('Suggested from this room, the song is offered here once it is in.')) ?>
+    <?php endif; ?>
+</p>
+<?php $help .= ob_get_clean(); ?>
 
 <?php if ($paused): ?>
     <?php /* The moderator's pause closes the form; the header already says
@@ -115,11 +113,9 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 <section class="list-section" aria-labelledby="open-suggestions">
     <div class="panel__head">
         <div>
-            <div class="panel__title">
-                <h2 id="open-suggestions"><?= $e(t('Open suggestions')) ?></h2>
-                <?= help_button('help-open-suggestions') ?>
-            </div>
-            <p class="muted help" id="help-open-suggestions">
+            <h2 id="open-suggestions"><?= $e(t('Open suggestions')) ?></h2>
+            <?php ob_start(); ?>
+            <p>
                 <?php if ($q !== ''): ?>
                     <?= $e(tn('{n} suggestion found for “{q}”.', '{n} suggestions found for “{q}”.', $found, ['q' => $q])) ?>
                     <?= $e(tn('{n} suggestion waiting in total.', '{n} suggestions waiting in total.', $open)) ?>
@@ -131,6 +127,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                     <?= $e(tn('{n} suggestion is waiting for the editors.', '{n} suggestions are waiting for the editors.', $open)) ?>
                 <?php endif; ?>
             </p>
+            <?php $help .= ob_get_clean(); ?>
         </div>
 
         <?php if ($canEdit && $open > 0): ?>

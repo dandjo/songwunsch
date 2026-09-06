@@ -178,6 +178,21 @@ code {
 @media (min-width: 721px) {
     .dome { position: sticky; top: 0; }
 }
+/* Phones: the header is three rows high, so every row sits closer -- less
+   padding above and below, tighter row gaps, the tools' rings closer
+   together, the panel following sooner. The language menu shows the globe
+   alone; its accessible name still says which language is set. */
+@media (max-width: 560px) {
+    .dome { gap: .5rem 1rem; padding: .55rem calc(var(--gutter) + 1px) .65rem; }
+    .dome__tools { gap: 0; }
+    /* Qualified with the parent: the rules being overridden come later. */
+    .dome__tools .help__toggle,
+    .dome__tools .lang__toggle,
+    .dome__tools .account__toggle { padding: .4rem .28rem; }
+    .dome__tools .account__dot { right: .12rem; top: .3rem; }
+    .lang__current { display: none; }
+    .cabinet .panel { margin-top: .4rem; }
+}
 
 /* The word mark shares the first row with the tools (language and account
    menu) and never pushes them down: it may shrink to nothing, and its lines
@@ -259,6 +274,7 @@ code {
 }
 .lang,
 .account { position: relative; }
+.help__toggle,
 .lang__toggle,
 .account__toggle {
     display: inline-flex;
@@ -282,8 +298,36 @@ code {
 .account[open] .account__toggle { color: var(--text); background: var(--hover-soft); }
 .lang__toggle:focus-visible,
 .account__toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.help__icon,
 .lang__icon,
 .account__icon { flex: 0 0 auto; }
+/* The page's help: a popout like the account menu, wide enough for a few
+   lines of text; lit while open. It hangs from the right edge of the tools,
+   not from its own ring, so on phones it stays inside the screen. */
+.dome__tools { position: relative; }
+.help { position: static; }
+.help__toggle::-webkit-details-marker { display: none; }
+.help[open] .help__toggle { color: var(--gold); }
+.help__panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + .35rem);
+    z-index: 20;
+    width: min(26rem, calc(100vw - 2 * var(--gutter) - 2px));
+    max-height: min(70vh, 30rem);
+    overflow-y: auto;
+    padding: .8rem 1rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-deep);
+    color: var(--text);
+    font-size: .9rem;
+    line-height: 1.5;
+}
+.help__panel p { margin: 0; }
+.help__panel p + p { margin-top: .6rem; }
+.help__panel a { color: var(--gold); }
 /* Signed in: the person carries a gold dot; on the login page the toggle is lit. */
 .account__toggle { position: relative; }
 .account__toggle[aria-current="page"] { color: var(--gold); }
@@ -492,8 +536,8 @@ code {
    the language, the number of tabs or the font size -- and off again
    (.nav--inline) when they fit; without JavaScript the phone width decides. */
 .nav--stacked {
-    --nav-gap:        .75rem .3rem;
-    --nav-top:        .45rem;
+    --nav-gap:        .6rem .3rem;
+    --nav-top:        .4rem;
     --tab-direction:  column;
     --tab-flex:       1 1 auto;
     --tab-gap:        .25rem;
@@ -507,8 +551,8 @@ code {
 }
 @media (max-width: 560px) {
     .nav:not(.nav--inline) {
-        --nav-gap:        .75rem .3rem;
-        --nav-top:        .45rem;
+        --nav-gap:        .6rem .3rem;
+        --nav-top:        .4rem;
         --tab-direction:  column;
         --tab-flex:       1 1 auto;
         --tab-gap:        .25rem;
@@ -718,6 +762,10 @@ code {
     .panel__head > div:first-child { flex: 1 1 auto; min-width: 0; }
     .panel__head > .panel__actions { flex: 0 1 auto; margin-left: auto; }
 }
+/* The pages the main navigation leads to: the active tab names them, so
+   their title is for screen readers only and the head, where there is one,
+   holds just the actions -- a slim row. */
+.panel__head--quiet { margin-bottom: .9rem; }
 .panel__head h1 {
     margin: 0 0 .3rem;
     font-size: clamp(1.3rem, 2.5vw, 1.6rem);
@@ -735,37 +783,6 @@ code {
 .panel__head p { margin: 0; max-width: 60ch; font-size: .93rem; }
 .panel__actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: flex-end; }
 .panel__actions form { margin: 0; }
-
-/* The title with the "?" beside it that opens the page's help (app.js,
-   help_button()). The button is a small dashed ring in the accent colour;
-   pressed it fills with gold. Rendered hidden -- without JavaScript there is no
-   button and the help text stands open below the title. */
-.panel__title { display: flex; align-items: center; gap: .6rem; margin: 0 0 .3rem; }
-.panel__title h1,
-.panel__title h2 { margin: 0; }
-.help-toggle {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.45rem;
-    height: 1.45rem;
-    padding: 0;
-    border: 1.5px dashed var(--gold);
-    border-radius: 50%;
-    background: transparent;
-    color: var(--text-muted);
-    font: inherit;
-    font-size: .85rem;
-    font-weight: 700;
-    line-height: 1;
-    cursor: pointer;
-}
-.help-toggle:hover { color: var(--gold); border-style: solid; }
-.help-toggle:focus-visible { border-radius: 50%; }
-.help-toggle[aria-expanded="true"] { background: var(--gold); border-style: solid; color: var(--base); }
-/* Status line and help text below one title. */
-.panel__head p + p { margin-top: .35rem; }
 
 /* ---------- Tabs: the languages of a page's form ----------
    A row of links over one panel per language. Without JavaScript every panel

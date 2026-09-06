@@ -30,17 +30,16 @@ $current = url(['p' => 'pages', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : nul
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e(t('Pages')) ?></h1>
-            <?= help_button('help-pages') ?>
-        </div>
-        <p class="muted help" id="help-pages">
+        <h1><?= $e(t('Pages')) ?></h1>
+        <?php ob_start(); ?>
+        <p>
             <?= $e($q !== '' ? tn('{n} page found.', '{n} pages found.', $total) : tn('{n} page.', '{n} pages.', $total)) ?>
             <?= t('Every page is open to everyone under its address and may link to any other – for an imprint, FAQs or a privacy notice. Which pages the footer links, and in which order, is set under {footer}; the order of the language chips is the fallback order set under {languages}.', [
                 'footer'    => '<a href="' . $e(url(['p' => 'footer'])) . '">' . $e(t('Footer')) . '</a>',
                 'languages' => '<a href="' . $e(url(['p' => 'languages'])) . '">' . $e(t('Languages')) . '</a>',
             ]) ?>
         </p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
 
     <div class="panel__actions">

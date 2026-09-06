@@ -47,40 +47,40 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
 };
 ?>
 
-<div class="panel__head">
-    <div>
-        <div class="panel__title">
-            <h1><?= $e($inRoom ? (string) $room['name'] : t('Repertoire')) ?></h1>
-            <?= help_button('help-songs') ?>
-        </div>
-        <p class="muted help" id="help-songs">
-            <?= $e(tn('{n} song', '{n} songs', $total, ['n' => Format::number($total)])) ?>
-            <?= $e($q !== '' ? t('found for “{q}”.', ['q' => $q]) : ($inRoom ? t('in this room.') : t('in the repertoire.'))) ?>
-            <?php if (!$paused): ?>
-                <?= t('A click on {wish} drops the song into the list.', ['wish' => '<em>' . $e(t('Wish')) . '</em>']) ?>
-            <?php endif; ?>
-        </p>
-    </div>
-
-    <?php if (($inRoom && $security->can('rooms')) || (!$inRoom && $security->can('songs'))): ?>
-        <?php /* The main action at the right end: Manage in a room, Add song on
-                 the main list. The room's switches (start room, close/open)
-                 live on the room list and the room's edit form, not here. */ ?>
-        <div class="panel__actions">
-            <?php if ($inRoom && $security->can('rooms')): ?>
-                <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'back' => $current])) ?>">
-                    <?= icon('note') ?>
-                    <?= $e(t('Manage')) ?>
-                </a>
-            <?php elseif (!$inRoom && $security->can('songs')): ?>
-                <a class="link-button" href="<?= $e(url(['p' => 'song', 'back' => $current])) ?>">
-                    <?= icon('plus') ?>
-                    <?= $e(t('Add song')) ?>
-                </a>
-            <?php endif; ?>
-        </div>
+<?php /* The active tab names the page (and the header the room), so the
+         title is for screen readers only; the help sits behind the "?" in
+         the header ($help, see layout.php). */ ?>
+<h1 class="sr-only"><?= $e(t('Repertoire')) ?></h1>
+<?php ob_start(); ?>
+<p>
+    <?= $e(tn('{n} song', '{n} songs', $total, ['n' => Format::number($total)])) ?>
+    <?= $e($q !== '' ? t('found for “{q}”.', ['q' => $q]) : ($inRoom ? t('in this room.') : t('in the repertoire.'))) ?>
+    <?php if (!$paused): ?>
+        <?= t('A click on {wish} drops the song into the list.', ['wish' => '<em>' . $e(t('Wish')) . '</em>']) ?>
     <?php endif; ?>
+</p>
+<?php $help .= ob_get_clean(); ?>
+
+<?php if (($inRoom && $security->can('rooms')) || (!$inRoom && $security->can('songs'))): ?>
+<div class="panel__head panel__head--quiet">
+    <?php /* The main action at the right end: Manage in a room, Add song on
+             the main list. The room's switches (start room, close/open)
+             live on the room list and the room's edit form, not here. */ ?>
+    <div class="panel__actions">
+        <?php if ($inRoom && $security->can('rooms')): ?>
+            <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'back' => $current])) ?>">
+                <?= icon('note') ?>
+                <?= $e(t('Manage')) ?>
+            </a>
+        <?php elseif (!$inRoom && $security->can('songs')): ?>
+            <a class="link-button" href="<?= $e(url(['p' => 'song', 'back' => $current])) ?>">
+                <?= icon('plus') ?>
+                <?= $e(t('Add song')) ?>
+            </a>
+        <?php endif; ?>
+    </div>
 </div>
+<?php endif; ?>
 
 <?php /* Own row below the head, right-aligned. */ ?>
 <form class="search" method="get" action="<?= $e(url()) ?>" role="search">

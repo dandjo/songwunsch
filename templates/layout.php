@@ -57,6 +57,14 @@ foreach ($translator->available() as $code => $name) {
 $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translations/' . $translator->code() . '.umd.js')
     ? $translator->code()
     : null;
+
+// The page's content is rendered first, into a buffer: a template hands
+// its help text up through $help (HTML, one or more <p>), and the header
+// shows it behind the "?" next to the language and account menus.
+$help = '';
+ob_start();
+require __DIR__ . '/' . $template . '.php';
+$content = ob_get_clean();
 ?>
 <!doctype html>
 <html lang="<?= $e($translator->htmlLang()) ?>">
@@ -250,10 +258,25 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
 
         <?php /* Top right next to the word mark, outside the navigation so on
                  phones they stay in the first row while the navigation wraps
-                 below: the language menu and the account menu. Both are
-                 <details> popouts -- they work without JavaScript and are
-                 keyboard-accessible. */ ?>
+                 below: the page's help, the language menu and the account
+                 menu. All are <details> popouts -- they work without
+                 JavaScript and are keyboard-accessible. */ ?>
         <div class="dome__tools">
+        <?php if ($help !== ''): ?>
+            <?php /* What this page is and does, in a line or two -- the text the
+                     template put into $help. A question mark in a ring, like
+                     the globe and the person beside it. */ ?>
+            <details class="help">
+                <summary class="help__toggle" aria-label="<?= $e(t('Help')) ?>">
+                    <svg class="help__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.8.4-1.1 1-1.1 1.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                        <circle cx="12" cy="16.8" r="1" fill="currentColor"/>
+                    </svg>
+                </summary>
+                <div class="help__panel"><?= $help ?></div>
+            </details>
+        <?php endif; ?>
         <?php if (count($langLinks) > 1): ?>
             <?php /* Compact language menu; the list scales to any number of languages. */ ?>
             <details class="lang">
@@ -483,7 +506,7 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
             <script>(function (d) { if (d && typeof d.showModal === 'function') { d.removeAttribute('open'); d.showModal(); } }(document.currentScript.previousElementSibling));</script>
         <?php endif; ?>
 
-        <?php require __DIR__ . '/' . $template . '.php'; ?>
+        <?= $content ?>
     </main>
 
     <?php if ($footerPages !== [] || $footer !== ''): ?>

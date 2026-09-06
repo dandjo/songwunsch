@@ -36,11 +36,9 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e($adopt !== null ? t('Adopt suggestion') : ($isNew ? t('Add song') : t('Edit song'))) ?></h1>
-            <?= help_button('help-song') ?>
-        </div>
-        <p class="muted help" id="help-song">
+        <h1><?= $e($adopt !== null ? t('Adopt suggestion') : ($isNew ? t('Add song') : t('Edit song'))) ?></h1>
+        <?php ob_start(); ?>
+        <p>
             <?php if ($adopt !== null): ?>
                 <?= $e(t('Artist and title come from the suggestion – check them and add length and genre. The song goes on the list and onto the wish list, the suggestion off it.')) ?>
                 <?php if ($adoptRoom !== null): ?>
@@ -52,6 +50,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                     : t('Wishes already received keep their previous wording.')) ?>
             <?php endif; ?>
         </p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
 </div>
 

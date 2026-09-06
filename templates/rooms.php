@@ -34,52 +34,52 @@ $showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
 $hasActions = $canPause || $canEdit;
 ?>
 
-<div class="panel__head">
-    <div>
-        <div class="panel__title">
-            <h1><?= $e(t('Rooms')) ?></h1>
-            <?= help_button('help-rooms') ?>
-        </div>
-        <p class="muted help" id="help-rooms">
-            <?php if ($q !== ''): ?>
-                <?= $e(tn('{n} room found for “{q}”.', '{n} rooms found for “{q}”.', $total, ['q' => $q])) ?>
-            <?php elseif ($filter === 'archived'): ?>
-                <?= $e(tn('{n} archived room.', '{n} archived rooms.', $total)) ?>
-            <?php else: ?>
-                <?= $e(tn('{n} room besides “General”.', '{n} rooms besides “General”.', $total)) ?>
-            <?php endif; ?>
-            <?= $e(t('Every room has its own repertoire, picked from the main list, and its own wish list.')) ?>
-            <?php if ($canEdit): ?>
-                <?= $e(t('Archived rooms leave the room switcher and the list and are reachable to signed-in users only – a guest who opens the address lands on the start page.')) ?>
-                <?= $e(t('Unlisted rooms are reached through their address only: guests see them neither here nor among the rooms offered in the room switcher – only a guest who has entered one finds it there under “Your rooms”.')) ?>
-                <?= $e($startRoomId > 0
-                    ? t('The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last.')
-                    : t('Visitors who open the bare address without having chosen a room yet land in “General”; As start room sends them into another room instead.')) ?>
-            <?php endif; ?>
-        </p>
-    </div>
-
-    <?php if ($canEdit): ?>
-        <div class="panel__actions">
-            <?php if ($isAdmin): ?>
-                <form method="post" action="<?= $e(url()) ?>">
-                    <input type="hidden" name="a" value="pause_all">
-                    <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                    <input type="hidden" name="state" value="<?= $pausedAll ? '0' : '1' ?>">
-                    <button type="submit" class="link-button" aria-pressed="<?= $pausedAll ? 'true' : 'false' ?>">
-                        <?php if ($pausedAll): ?>
-                            <?= icon('play') ?>
-                        <?php else: ?>
-                            <?= icon('stop') ?>
-                        <?php endif; ?>
-                        <?= $e($pausedAll ? t('Lift the closing of all rooms') : t('Close all rooms')) ?>
-                    </button>
-                </form>
-            <?php endif; ?>
-            <a class="link-button" href="<?= $e(url(['p' => 'room', 'back' => $here])) ?>"><?= icon('plus') ?><?= $e(t('Add room')) ?></a>
-        </div>
+<?php /* Reached from the main navigation like the lists, so the active tab
+         names the page and the title is for screen readers only; the help
+         sits behind the "?" in the header ($help, see layout.php). */ ?>
+<h1 class="sr-only"><?= $e(t('Rooms')) ?></h1>
+<?php ob_start(); ?>
+<p>
+    <?php if ($q !== ''): ?>
+        <?= $e(tn('{n} room found for “{q}”.', '{n} rooms found for “{q}”.', $total, ['q' => $q])) ?>
+    <?php elseif ($filter === 'archived'): ?>
+        <?= $e(tn('{n} archived room.', '{n} archived rooms.', $total)) ?>
+    <?php else: ?>
+        <?= $e(tn('{n} room besides “General”.', '{n} rooms besides “General”.', $total)) ?>
     <?php endif; ?>
+    <?= $e(t('Every room has its own repertoire, picked from the main list, and its own wish list.')) ?>
+    <?php if ($canEdit): ?>
+        <?= $e(t('Archived rooms leave the room switcher and the list and are reachable to signed-in users only – a guest who opens the address lands on the start page.')) ?>
+        <?= $e(t('Unlisted rooms are reached through their address only: guests see them neither here nor among the rooms offered in the room switcher – only a guest who has entered one finds it there under “Your rooms”.')) ?>
+        <?= $e($startRoomId > 0
+            ? t('The start room receives visitors who open the bare address without having chosen a room yet; everyone else stays in the room they chose last.')
+            : t('Visitors who open the bare address without having chosen a room yet land in “General”; As start room sends them into another room instead.')) ?>
+    <?php endif; ?>
+</p>
+<?php $help .= ob_get_clean(); ?>
+
+<?php if ($canEdit): ?>
+<div class="panel__head panel__head--quiet">
+    <div class="panel__actions">
+        <?php if ($isAdmin): ?>
+            <form method="post" action="<?= $e(url()) ?>">
+                <input type="hidden" name="a" value="pause_all">
+                <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                <input type="hidden" name="state" value="<?= $pausedAll ? '0' : '1' ?>">
+                <button type="submit" class="link-button" aria-pressed="<?= $pausedAll ? 'true' : 'false' ?>">
+                    <?php if ($pausedAll): ?>
+                        <?= icon('play') ?>
+                    <?php else: ?>
+                        <?= icon('stop') ?>
+                    <?php endif; ?>
+                    <?= $e($pausedAll ? t('Lift the closing of all rooms') : t('Close all rooms')) ?>
+                </button>
+            </form>
+        <?php endif; ?>
+        <a class="link-button" href="<?= $e(url(['p' => 'room', 'back' => $here])) ?>"><?= icon('plus') ?><?= $e(t('Add room')) ?></a>
+    </div>
 </div>
+<?php endif; ?>
 
 <form class="search" method="get" action="<?= $e(url(['p' => 'rooms'])) ?>" role="search">
     <?php if ($canEdit): ?><input type="hidden" name="filter" value="<?= $e($filter) ?>"><?php endif; ?>

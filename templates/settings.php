@@ -49,11 +49,10 @@ $roleNotes  = [
 
 <div class="panel__head">
     <div>
-        <div class="panel__title">
-            <h1><?= $e(t('User settings')) ?></h1>
-            <?= help_button('help-settings') ?>
-        </div>
-        <p class="muted help" id="help-settings"><?= $e(t('Personal – these settings apply to your own account only.')) ?></p>
+        <h1><?= $e(t('User settings')) ?></h1>
+        <?php ob_start(); ?>
+        <p><?= $e(t('Personal – these settings apply to your own account only.')) ?></p>
+        <?php $help .= ob_get_clean(); ?>
     </div>
 </div>
 
