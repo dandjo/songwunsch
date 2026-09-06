@@ -1489,6 +1489,22 @@ try {
     // rooms they entered through their address, under "Your rooms". Rooms
     // that are gone, archived or listed by now leave that memory.
     $view['roomList'] = $rooms->names(!$security->isLoggedIn());
+    // A signed-in user in an archived room (reached through its address or
+    // the room list): the switcher offers that room as well, tagged, in its
+    // place by name -- as the entry marked current and as the way to any
+    // other room. Without it the switcher would name a room it does not
+    // list, or -- with no other room active -- not appear at all.
+    if ($security->isLoggedIn() && $roomId !== RoomRepository::DEFAULT_ID && (int) ($room['active'] ?? 1) === 0) {
+        $entry = ['id' => (int) $room['id'], 'slug' => (string) $room['slug'], 'name' => (string) $room['name'], 'active' => 0];
+        $at    = count($view['roomList']);
+        foreach ($view['roomList'] as $i => $listed) {
+            if (strcasecmp((string) $listed['name'], (string) $entry['name']) > 0) {
+                $at = $i;
+                break;
+            }
+        }
+        array_splice($view['roomList'], $at, 0, [$entry]);
+    }
     if (!$security->isLoggedIn()) {
         $own = array_values(array_filter(
             $rooms->bySlugs($roomMemory->visited()),

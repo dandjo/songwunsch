@@ -801,7 +801,10 @@ deleted there disappears from all rooms.
 checkbox in the edit form). Archived rooms vanish from the room switcher and
 from the list guests see under `/rooms`, and only signed-in users can still
 open them: a guest who follows the address, the QR code or the remembered
-room lands on the start page with a short notice. Archiving automatically
+room lands on the start page with a short notice. A signed-in user inside an
+archived room sees it in the switcher all the same, tagged *archived* and
+marked as the current room, so the way to every other room stays open.
+Archiving automatically
 closes the room; whoever reactivates it
 opens it again in the room list or the header notice. Editors see every
 room under `/rooms`, archived ones tagged, and filter by *All*, *Active* and

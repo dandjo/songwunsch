@@ -149,8 +149,9 @@ final class RoomRepository
     /**
      * Id, slug and name of every active room, by name -- for the room
      * switcher in the header, on every page. Archived rooms are not offered
-     * (signed-in users still reach them through their address); for guests
-     * the unlisted ones are left out as well.
+     * (signed-in users still reach them through their address, and the one
+     * they stand in is added to the list by index.php); for guests the
+     * unlisted ones are left out as well.
      *
      * @param  bool $listedOnly guests: only rooms with the listed switch on
      * @return array<int,array<string,mixed>>

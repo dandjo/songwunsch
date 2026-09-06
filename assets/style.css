@@ -715,6 +715,9 @@ code {
 .nav .roomswitch__item:hover { background: var(--hover); border-color: transparent; }
 .nav .roomswitch__item.is-active { color: var(--gold); background: transparent; }
 .nav .roomswitch__item.is-active::after { content: '✓'; margin-left: 1rem; font-size: .85em; }
+/* The archived room a signed-in user stands in: its tag follows the name and
+   takes the free space, so the tick stays at the right. */
+.nav .roomswitch__item .tag { margin-left: .6rem; margin-right: auto; font-size: .72rem; padding: .05em .5em; }
 
 /* Counter next to "Wishes": a solid disc, the number centred by flexbox
    (not by line-height, which sat the digit low) and large enough to read. */

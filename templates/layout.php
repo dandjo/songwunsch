@@ -137,8 +137,9 @@ if (trim(strip_tags($help)) === '') {
                          (CSS). Lists the main room and every active room -- for
                          guests only the listed ones, plus the unlisted rooms they
                          entered through their address under "Your rooms"
-                         (RoomMemory); works without JavaScript. The visible text
-                         is the accessible name. */ ?>
+                         (RoomMemory); a signed-in user inside an archived room
+                         sees that room too, tagged (index.php). Works without
+                         JavaScript. The visible text is the accessible name. */ ?>
                 <details class="roomswitch">
                     <summary class="roomswitch__toggle">
                         <?= icon('door') ?><span class="roomswitch__label"><?= $e(t('You are here')) ?>:</span>
@@ -191,6 +192,12 @@ if (trim(strip_tags($help)) === '') {
                         foreach ($group['rooms'] as $entry):
                             $active     = (int) $entry['id'] === (int) $room['id'];
                             $targetSlug = (string) ($entry['slug'] ?? '');
+                            // The archived room a signed-in user stands in
+                            // carries the same tag as the header (index.php
+                            // adds it to the list; names() offers active rooms only).
+                            $archivedTag = (int) ($entry['active'] ?? 1) === 0
+                                ? ' <span class="tag">' . $e(t('archived')) . '</span>'
+                                : '';
                             $switchPage = match (true) {
                                 $page === 'wishes'                          => 'wishes',
                                 $page === 'suggestions'                     => 'suggestions',
@@ -222,13 +229,13 @@ if (trim(strip_tags($help)) === '') {
                                         <?php endif; ?>
                                         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                         <button type="submit" class="roomswitch__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="true"' : '' ?>>
-                                            <?= $e((string) $entry['name']) ?>
+                                            <?= $e((string) $entry['name']) ?><?= $archivedTag ?>
                                         </button>
                                     </form>
                                 <?php else: ?>
                                     <a href="<?= $e(url(['p' => $switchPage, 'room' => $targetSlug])) ?>"
                                        class="roomswitch__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="true"' : '' ?>>
-                                        <?= $e((string) $entry['name']) ?>
+                                        <?= $e((string) $entry['name']) ?><?= $archivedTag ?>
                                     </a>
                                 <?php endif; ?>
                             </li>
