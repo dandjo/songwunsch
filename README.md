@@ -155,8 +155,7 @@ records share a prefix: `/rooms` lists, `/rooms/new` creates, `/rooms/<id>/edit`
 edits, and `/rooms/<name>` is the room itself (so `new` and `main` are not
 available as room names). Everything the *Administration* menu leads to sits
 below `/admin` – languages, users, logos, interface, limits, pages, footer – while a page's
-public address stays `/pages/<name>`. Anything else is a 404; there are no redirects from
-addresses of earlier versions.
+public address stays `/pages/<name>`. Anything else is a 404.
 
 The value governs everything that contains an address: links and form
 targets, `assets/style.css` and `assets/app.js`, the redirects after every
@@ -461,9 +460,7 @@ the line in their own language, otherwise in the first language of the
 fallback order that has one (with `lang="…"` on it), and a language left
 empty simply has no line of its own. Saving reduces the HTML to what the
 pages may contain (`src/Html.php`); the values live in the `settings` table
-as `footer_html.<code>`. A `footer_html` entry without a code, from earlier
-versions, is read as the first language of the fallback order until the form
-is saved once. Leave every tab empty for no line.
+as `footer_html.<code>`. Leave every tab empty for no line.
 
 ## Deployment
 
@@ -541,14 +538,7 @@ changes one changes both.
 **Existing tables** are checked: if one of the expected columns is missing
 from an existing table, the application stops with a clear message instead of
 an SQL error in the middle of operation – rename or recreate the table from
-`sql/schema.sql`. There is no automatic migration of tables from earlier
-versions. Installations from before the wish counter add the column by hand –
-it holds how often a song was wished while its entry has been open, and every
-existing wish counts as one:
-
-```sql
-ALTER TABLE song_wishes ADD COLUMN wished INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'how often the song was wished while this entry has been open';
-```
+`sql/schema.sql`. There is no automatic migration of tables.
 
 ## Languages
 
@@ -746,8 +736,10 @@ timestamp), a per-session cooldown (10 s) and a cap on open suggestions (200;
 0 = no cap); admins set both under *Administration → Limits*, see
 [Protecting the wishing](#protecting-the-wishing).
 
-**Editors** (and admins) additionally get a counter badge on the tab and
-two buttons on every row:
+The *Suggestions* tab carries a counter badge with the number of open
+suggestions, the *Wish list* tab one with the open wishes of the room –
+both for everyone, guests included. **Editors** (and admins) additionally
+get two buttons on every row:
 
 * **Adopt** opens the *Add song* form as *Adopt suggestion*: artist and
   title are filled in, the cursor waits in the length field for what is
@@ -813,13 +805,6 @@ in. An unlisted room is reached through its address or QR code alone, which is
 the right setting for private events – a room is often named after the hosts,
 and `robots.txt` keeps crawlers off the room pages but not off a list on the
 start page. Signed-in users see every active room. A new room starts unlisted.
-Installations from before this switch add the column and keep their rooms
-visible:
-
-```sql
-ALTER TABLE rooms ADD COLUMN listed TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER active;
-UPDATE rooms SET listed = 1;
-```
 
 **QR code.** Every room's address as a QR code for table cards, posters or a
 slide: *QR code* on the room's row under *Rooms* and on its edit form leads to
@@ -1066,16 +1051,15 @@ per case – wish list, suggestions, room state – in seconds; 0 switches that
 case off, its pages then do not poll at all. A WebSocket would need a
 long-running server process, which shared hosting does not offer; polling a
 counter costs a tiny request per open page and interval. Without JavaScript
-the page is current after the next reload, as before.
+the page is current after the next reload.
 
 Sorting, searching, wishing, reordering and deleting work without JavaScript –
 the ▲/▼ switches are ordinary forms and at the same time the way for keyboard
 and touch. `assets/app.js` adds drag & drop, row click, confirmations, the
 `/` key and the live updates.
 
-There is a single layout for all screen sizes: the compact card layout that
-used to be the phone view only. There is no separate desktop table view any
-more; on wide screens the shell is centred and limited to 1180 px. In the
+There is a single layout for all screen sizes, a compact card layout; on
+wide screens the shell is centred and limited to 1180 px. In the
 header the word mark, the language menu and the account menu (person icon,
 opens the guest's name with *Change name* and *Log in*, or for staff the
 username, *Name for wishes*, *View as guest* and *Log out*, as a popout like
