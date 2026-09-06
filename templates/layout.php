@@ -129,7 +129,16 @@ if (trim(strip_tags($help)) === '') {
         </div>
 
         <nav class="nav" aria-label="<?= $e(t('Main navigation')) ?>">
-            <?php if ($roomList !== [] || $ownRooms !== []): ?>
+            <?php
+            // The main room heads the offered rooms -- for guests only while
+            // it is listed, or while they stand in it (the switcher must name
+            // the place one is at). Fewer than two entries make no switch.
+            $mainRoom     = RoomRepository::defaultRoom();
+            $offeredRooms = $security->isLoggedIn() || (int) $mainRoom['listed'] === 1 || RoomRepository::isDefault($room)
+                ? array_merge([$mainRoom], $roomList)
+                : $roomList;
+            ?>
+            <?php if (count($offeredRooms) + count($ownRooms) > 1): ?>
                 <?php /* Room switcher: a <details> like the language menu, labelled
                          "You are here: <room>" so the name reads as a place, not as
                          a page. On phones it takes a row of its own above the tabs,
@@ -150,7 +159,7 @@ if (trim(strip_tags($help)) === '') {
                     </summary>
                     <div class="roomswitch__panel">
                     <p class="roomswitch__title"><?= $e(t('Switch room')) ?></p>
-                    <?php if (count($roomList) + count($ownRooms) > 6): ?>
+                    <?php if (count($offeredRooms) + count($ownRooms) > 6): ?>
                         <?php /* Filter field, wired up by app.js; without JavaScript
                                  the full list simply stays visible. */ ?>
                         <label class="roomswitch__filter">
@@ -175,7 +184,7 @@ if (trim(strip_tags($help)) === '') {
                     // filter (app.js) hides a group whose entries are all hidden.
                     $roomInAddress = in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs'], true);
                     $roomGroups    = [
-                        ['title' => '', 'rooms' => array_merge([RoomRepository::defaultRoom()], $roomList)],
+                        ['title' => '', 'rooms' => $offeredRooms],
                         ['title' => t('Your rooms'), 'rooms' => $ownRooms],
                     ];
                     foreach ($roomGroups as $group):

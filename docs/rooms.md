@@ -84,7 +84,7 @@ every active room.
 A new room starts unlisted. This is the right setting for private events: a
 room is often named after the hosts. `robots.txt` keeps crawlers away from
 everything under `/rooms`, but the room switcher on the start page names
-every listed room.
+every listed room. The main room can be unlisted as well (below).
 
 ## QR code
 
@@ -107,14 +107,22 @@ Looking at a QR code does not enter the room: the remembered room stays as
 it was. The room switcher on the QR page opens the QR page of the room
 chosen.
 
-## The main room's name
+## The main room's name and listing
 
 The main room has no row and no address part of its own, but it can be
-renamed. Editors find *Rename* on its row under *Rooms* (`/rooms/main/edit`).
-The name is kept in `settings` under `main_room_name` and shows wherever the
-main room is meant: header, room switcher, room list, notices. An empty name
-restores the default, "General" in the visitor's language. The name may be
-up to 128 characters long.
+renamed and unlisted. Editors find *Edit* on its row under *Rooms*
+(`/rooms/main/edit`). The name is kept in `settings` under `main_room_name`
+and shows wherever the main room is meant: header, room switcher, room list,
+notices. An empty name restores the default, "General" in the visitor's
+language. The name may be up to 128 characters long.
+
+*Listed* works as for any other room: unlisted, guests see the main room
+neither in the room switcher nor in the list of rooms and reach it through
+the root address only -- for an event where every party has a room of its
+own. A guest standing in the unlisted main room still sees it in the
+switcher, as the place they are at. The switch is kept in `settings` under
+`main_room_listed` (`0`; absent means listed). The main room cannot be
+archived.
 
 ## The start room
 
@@ -210,13 +218,14 @@ still be switched in the same list at any time.
 
 ## Switching rooms
 
-As soon as a room exists, the **room switcher** stands in the navigation.
-It is a button labelled *You are here: <room>* that opens an overlay with
-the rooms, like the language menu. It is a `<details>` element, so it works
-without JavaScript. The overlay lists the main room and every room offered
-to the visitor; a guest's unlisted rooms follow under *Your rooms*. When the
-switcher offers seven or more rooms besides the main room, a filter field
-hides entries as you type (JavaScript; without it the full list stays).
+As soon as there are two rooms to choose from, the **room switcher** stands
+in the navigation. It is a button labelled *You are here: <room>* that opens
+an overlay with the rooms, like the language menu. It is a `<details>`
+element, so it works without JavaScript. The overlay lists the main room --
+for guests only while it is listed or while they stand in it -- and every
+room offered to the visitor; a guest's unlisted rooms follow under *Your
+rooms*. When the switcher offers more than six rooms, a filter field hides
+entries as you type (JavaScript; without it the full list stays).
 
 On a page inside a room (repertoire, wish list, suggestions, *Manage*) the
 entries link to the same page of the chosen room. On every other page (the

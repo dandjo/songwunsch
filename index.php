@@ -104,6 +104,7 @@ $uploads  = new Uploads($db);
 // The main room may carry a name of its own (Rooms -> Edit on the main room).
 try {
     RoomRepository::nameMainRoom((string) $settings->get(RoomRepository::MAIN_NAME_KEY, ''));
+    RoomRepository::listMainRoom((string) $settings->get(RoomRepository::MAIN_LISTED_KEY, '1') === '1');
 } catch (Throwable $e) {
     // No database yet: the translated default stands; the page reports the problem.
 }
@@ -1179,24 +1180,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // no break
 
             case 'main_room_save':
-                // Rename the main room. It has no row of its own; the name
-                // lives in the settings. Empty means back to the default.
+                // Edit the main room: its name and its listed switch. It has
+                // no row of its own; both live in the settings, each absent
+                // at its default (the translated name, listed).
                 require_role($security, 'rooms');
-                $back = destination(url(['p' => 'rooms']));
-                $name = trim(preg_replace('/\s+/u', ' ', (string) ($_POST['name'] ?? '')) ?? '');
+                $back   = destination(url(['p' => 'rooms']));
+                $name   = trim(preg_replace('/\s+/u', ' ', (string) ($_POST['name'] ?? '')) ?? '');
+                $listed = (string) ($_POST['listed'] ?? '') === '1';
                 if (mb_strlen($name) > RoomRepository::MAX_NAME) {
-                    remember_input(['name' => $name], ['name' => t('{field} is too long: at most {max} characters.', ['field' => t('Name'), 'max' => RoomRepository::MAX_NAME])]);
+                    remember_input(['name' => $name, 'listed' => $listed ? '1' : '0'], ['name' => t('{field} is too long: at most {max} characters.', ['field' => t('Name'), 'max' => RoomRepository::MAX_NAME])]);
                     notice('error', t('Please check the highlighted fields.'));
                     redirect(url(['p' => 'room', 'main' => 1, 'back' => $back]));
                 }
+                $renamed = $name !== (string) $settings->get(RoomRepository::MAIN_NAME_KEY, '');
                 if ($name === '') {
                     $settings->delete(RoomRepository::MAIN_NAME_KEY);
-                    RoomRepository::nameMainRoom('');
-                    flash('ok', t('“General” has its default name again.'));
                 } else {
                     $settings->set(RoomRepository::MAIN_NAME_KEY, $name);
-                    RoomRepository::nameMainRoom($name);
+                }
+                RoomRepository::nameMainRoom($name);
+                if ($listed) {
+                    $settings->delete(RoomRepository::MAIN_LISTED_KEY);
+                } else {
+                    $settings->set(RoomRepository::MAIN_LISTED_KEY, '0');
+                }
+                RoomRepository::listMainRoom($listed);
+                if ($renamed && $name === '') {
+                    flash('ok', t('“General” has its default name again.'));
+                } elseif ($renamed) {
                     flash('ok', t('“General” is now called “{name}”.', ['name' => $name]));
+                } else {
+                    flash('ok', t('Room “{name}” has been saved.', ['name' => (string) RoomRepository::defaultRoom()['name']]));
                 }
                 $settings->increment(RoomRepository::REVISION_KEY);
                 redirect($back);
@@ -1978,12 +1992,12 @@ try {
             require_role($security, 'rooms');
             $id   = $routeId; // 0 = new room
             $edit = null;
-            // /rooms/main/edit: rename the main room -- only its name, kept in the settings.
+            // /rooms/main/edit: edit the main room -- its name and its listed switch, kept in the settings.
             $main = $routeMain;
 
             if ($main) {
                 $kept = remembered_input();
-                $view['title']    = t('Rename “General”');
+                $view['title']    = t('Edit “General”');
                 $view['template'] = 'room';
                 $view['id']       = 0;
                 $view['main']     = true;
@@ -1993,7 +2007,10 @@ try {
                 $view['roomActive']  = true;
                 $view['roomSlug']    = '';
                 $view['errors']   = $kept['errors'] ?? [];
-                $view['values']   = $kept['values'] ?? ['name' => (string) $settings->get(RoomRepository::MAIN_NAME_KEY, '')];
+                $view['values']   = $kept['values'] ?? [
+                    'name'   => (string) $settings->get(RoomRepository::MAIN_NAME_KEY, ''),
+                    'listed' => (string) $settings->get(RoomRepository::MAIN_LISTED_KEY, '1'),
+                ];
                 break;
             }
 

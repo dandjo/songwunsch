@@ -1093,11 +1093,8 @@ msgstr "Die Liste wurde aktualisiert."
 
 # ---- Main room name ----------------------------------------------------------------------
 
-msgid "Rename"
-msgstr "Umbenennen"
-
-msgid "Rename “General”"
-msgstr "„Allgemein“ umbenennen"
+msgid "Edit “General”"
+msgstr "„Allgemein“ bearbeiten"
 
 msgid "Shown in the header, the room switcher and the list of rooms wherever “General” is meant."
 msgstr "Erscheint im Kopf, im Raumwechsler und in der Raumliste überall dort, wo „Allgemein“ gemeint ist."
@@ -1105,8 +1102,11 @@ msgstr "Erscheint im Kopf, im Raumwechsler und in der Raumliste überall dort, w
 msgid "“General” has its default name again."
 msgstr "„Allgemein“ trägt wieder seinen Standardnamen."
 
-msgid "“General” is always there and lives at the root address; only its name can change. Leave the field empty for the default name."
-msgstr "„Allgemein“ ist immer da und liegt an der Wurzeladresse; nur der Name lässt sich ändern. Feld leer lassen für den Standardnamen."
+msgid "“General” is always there and lives at the root address; its name and whether guests are offered it can change. Leave the name empty for the default name."
+msgstr "„Allgemein“ ist immer da und liegt an der Wurzeladresse; ändern lassen sich der Name und ob Gäste den Raum angeboten bekommen. Namen leer lassen für den Standardnamen."
+
+msgid "guests see “General” in the room switcher and the list of rooms; unlisted, it is reached through the root address only – for an event where every party has a room of its own"
+msgstr "Gäste sehen „Allgemein“ im Raumwechsler und in der Raumliste; nicht gelistet ist der Raum nur über die Wurzeladresse erreichbar – für eine Veranstaltung, bei der jede Gesellschaft ihren eigenen Raum hat"
 
 msgid "“General” is now called “{name}”."
 msgstr "„Allgemein“ heißt jetzt „{name}“."

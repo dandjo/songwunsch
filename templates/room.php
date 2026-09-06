@@ -6,7 +6,7 @@ use Songwunsch\Format;
 use Songwunsch\RoomRepository;
 
 /** @var int $id                    0 = new room */
-/** @var bool $main                  rename the main room: only its name, no address, no status */
+/** @var bool $main                  edit the main room: its name and its listed switch, no address, no archiving */
 /** @var array<string,string> $values */
 /** @var array<string,string> $errors */
 /** @var int $startRoomId   for the switches beside the title, see _room_switches.php */
@@ -34,11 +34,11 @@ $invalid = static fn (string $field): string => isset($errors[$field])
 
 <div class="panel__head">
     <div>
-        <h1><?= $e($main ? t('Rename “General”') : ($isNew ? t('Add room') : t('Edit room'))) ?></h1>
+        <h1><?= $e($main ? t('Edit “General”') : ($isNew ? t('Add room') : t('Edit room'))) ?></h1>
         <?php ob_start(); ?>
         <p>
             <?php if ($main): ?>
-                <?= $e(t('“General” is always there and lives at the root address; only its name can change. Leave the field empty for the default name.')) ?>
+                <?= $e(t('“General” is always there and lives at the root address; its name and whether guests are offered it can change. Leave the name empty for the default name.')) ?>
             <?php elseif ($isNew): ?>
                 <?= $e(t('A room gets its own address, its own repertoire picked from the main list and its own wish list.')) ?>
             <?php else: ?>
@@ -109,6 +109,16 @@ $invalid = static fn (string $field): string => isset($errors[$field])
             <label class="check">
                 <input type="checkbox" name="listed" value="1"<?= ($values['listed'] ?? '0') === '1' ? ' checked' : '' ?>>
                 <span><strong><?= $e(t('Listed')) ?></strong> – <?= $e(t('guests see the room in the room switcher and the list of rooms; an unlisted room is reached through its address or QR code only – keep private events unlisted, above all when the name says whose event it is')) ?></span>
+            </label>
+        </fieldset>
+        <?php else: ?>
+        <?php /* The main room cannot be archived, but it can be unlisted: guests
+                 then reach it through the root address only. */ ?>
+        <fieldset class="field field--group">
+            <legend><?= $e(t('Status')) ?></legend>
+            <label class="check">
+                <input type="checkbox" name="listed" value="1"<?= ($values['listed'] ?? '1') === '1' ? ' checked' : '' ?>>
+                <span><strong><?= $e(t('Listed')) ?></strong> – <?= $e(t('guests see “General” in the room switcher and the list of rooms; unlisted, it is reached through the root address only – for an event where every party has a room of its own')) ?></span>
             </label>
         </fieldset>
         <?php endif; ?>

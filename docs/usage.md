@@ -200,8 +200,8 @@ stays a tight, centred block.
   moderators). The name is the link into the room. On the right, in the
   order of the edit form: for editors *As start room*, for moderators
   *Close room* / *Open room*, for editors *QR code*, then *Manage* and the
-  pair *Edit* / *Delete*. The main room's row has *QR code* and *Rename*
-  instead. Guests see no buttons.
+  pair *Edit* / *Delete*. The main room's row has *QR code* and *Edit*
+  only (its name and its listed switch). Guests see no buttons.
 * **Users** – name, below it roles · status (*active* or *locked*); the pair
   *Edit* / *Delete* on the right (no *Delete* for yourself).
 * **Suggestions** – title, below it the artist; on the right the time

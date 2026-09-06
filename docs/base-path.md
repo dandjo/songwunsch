@@ -33,7 +33,7 @@ Below the base path these addresses exist. Anything else answers 404.
 | `/pages/<name>` | A page for everyone (imprint, FAQ, …), in the footer or not, see [Pages and footer](pages.md) |
 | `/rooms` | List of rooms, each name leads into its room; moderators close and open rooms, editors create them here |
 | `/rooms/new`, `/rooms/<id>/edit` | Create or edit a room – editors |
-| `/rooms/main/edit` | Rename the main room – editors |
+| `/rooms/main/edit` | Edit the main room (name, listed) – editors |
 | `/rooms/<name>` | Repertoire of a room |
 | `/rooms/<name>/wishes` | Wish list of a room |
 | `/rooms/<name>/suggestions` | Song suggestions of a room – the adopted song joins the room |

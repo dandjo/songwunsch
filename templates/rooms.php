@@ -28,8 +28,11 @@ $canCount  = $security->can('wishes');
 $listUrl   = static fn (array $extra = []): string => url(array_merge(['p' => 'rooms', 'q' => $q, 'filter' => $canEdit ? $filter : null], $extra));
 // This very page of the list -- the destination the forms and the QR page return to.
 $here      = $listUrl(['page' => $pageNo > 1 ? $pageNo : null]);
-// The main room heads the list once: first page, no search, not the archive.
-$showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived';
+// The main room heads the list once: first page, no search, not the archive --
+// and, like any unlisted room, not for guests while it is unlisted.
+$mainRoom  = \Songwunsch\RoomRepository::defaultRoom();
+$showMain  = $pageNo === 1 && $q === '' && $filter !== 'archived'
+    && ($security->isLoggedIn() || (int) $mainRoom['listed'] === 1);
 // Guests get no action column: the room's name is the link into the room.
 $hasActions = $canPause || $canEdit;
 ?>
@@ -125,13 +128,13 @@ $hasActions = $canPause || $canEdit;
         </thead>
         <tbody>
         <?php
-        // The main room first: virtual, always there, not editable.
+        // The main room first: virtual, always there, neither managed nor deleted.
         $all = $showMain ? array_merge([[
             'id'         => 0,
             'slug'       => '',
-            'name'       => (string) \Songwunsch\RoomRepository::defaultRoom()['name'],
+            'name'       => (string) $mainRoom['name'],
             'active'     => 1,
-            'listed'     => 1,
+            'listed'     => (int) $mainRoom['listed'],
             'song_count' => $mainSongs,
             'wish_count' => $mainWishes,
         ]], $rows) : $rows;
@@ -161,7 +164,7 @@ $hasActions = $canPause || $canEdit;
                     <?php endif; ?>
                     <?php if ($isMain): ?><span class="tag tag--gold"><?= $e(t('always there')) ?></span><?php endif; ?>
                     <?php if ((int) $row['active'] === 0): ?><span class="tag"><?= $e(t('archived')) ?></span><?php endif; ?>
-                    <?php if ($canEdit && !$isMain && (int) ($row['listed'] ?? 0) === 0): ?><span class="tag"><?= $e(t('unlisted')) ?></span><?php endif; ?>
+                    <?php if ($canEdit && (int) ($row['listed'] ?? 0) === 0): ?><span class="tag"><?= $e(t('unlisted')) ?></span><?php endif; ?>
                     <?php if ($canPause && ($pausedRooms[(int) $row['id']] ?? false)): ?><span class="tag"><?= $e(t('closed')) ?></span><?php endif; ?>
                     <?php if ((int) $row['id'] === $startRoomId && (int) $row['active'] === 1): ?><span class="tag tag--gold"><?= $e(t('start room')) ?></span><?php endif; ?>
                     <?php if ($isHere): ?><span class="muted"><?= $e(t('(current)')) ?></span><?php endif; ?>
@@ -223,10 +226,11 @@ $hasActions = $canPause || $canEdit;
                             </a>
                         <?php endif; ?>
                         <?php if ($canEdit && $isMain): ?>
-                            <?php /* The main room cannot be managed or deleted, but renamed. */ ?>
+                            <?php /* The main room cannot be managed or deleted; Edit opens its
+                                     name and its listed switch. */ ?>
                             <a class="link-button" href="<?= $e(url(['p' => 'room', 'main' => 1, 'back' => $here])) ?>">
                                 <?= icon('pencil') ?>
-                                <span class="button__label"><?= $e(t('Rename')) ?></span>
+                                <span class="button__label"><?= $e(t('Edit')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                             </a>
                         <?php endif; ?>

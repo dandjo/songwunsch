@@ -61,6 +61,14 @@ final class RoomRepository
     public const MAIN_NAME_KEY = 'main_room_name';
 
     /**
+     * Settings key of the main room's listed switch: absent or '1' = guests
+     * see it in the room switcher and the list of rooms, '0' = unlisted, so
+     * guests reach it through the root address only (an event where every
+     * party has a room of its own).
+     */
+    public const MAIN_LISTED_KEY = 'main_room_listed';
+
+    /**
      * Settings key of the start room: the id of the room a visitor without
      * any remembered room lands in when opening the bare address. Absent or
      * 0 = the main room, as the address says.
@@ -69,6 +77,9 @@ final class RoomRepository
 
     /** @var string the main room's name as set by an editor, '' for the translated default */
     private static string $mainName = '';
+
+    /** @var bool whether guests are offered the main room (index.php reads the settings on every request) */
+    private static bool $mainListed = true;
 
     /**
      * Give the main room a name of its own (index.php reads it from the
@@ -80,13 +91,24 @@ final class RoomRepository
         self::$mainName = trim($name);
     }
 
-    /** The virtual default room, under its chosen or its default name. */
+    /** List the main room for guests, or hide it from the switcher and the list (see MAIN_LISTED_KEY). */
+    public static function listMainRoom(bool $listed): void
+    {
+        self::$mainListed = $listed;
+    }
+
+    /**
+     * The virtual default room, under its chosen or its default name. Always
+     * active; `listed` follows the editor's switch like a stored room's column.
+     */
     public static function defaultRoom(): array
     {
         return [
             'id'         => self::DEFAULT_ID,
             'slug'       => null,
             'name'       => self::$mainName !== '' ? self::$mainName : t('General'),
+            'active'     => 1,
+            'listed'     => self::$mainListed ? 1 : 0,
             'is_default' => true,
         ];
     }
