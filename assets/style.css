@@ -1245,6 +1245,9 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
     gap: 0 1rem;
 }
+/* The suggest form opens the page (its title is for screen readers only),
+   so it needs no distance from a heading above. */
+.suggest .login__form { margin-top: 0; }
 .suggest .field--group .field:last-child { margin-bottom: .5rem; }
 
 .rank {
