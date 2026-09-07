@@ -65,10 +65,11 @@
   random bytes, kept in the session and compared with `hash_equals()`. A POST
   without a valid token is answered with a notice and a redirect; a JSON call
   gets 403.
-* Every operating function checks sign-in **and** role in the front controller
-  (`require_login`, `require_role` in `index.php`), not only in the templates.
-  A missing sign-in leads to the login page, a missing role to the repertoire
-  with a notice. JSON calls (drag & drop) receive 401 or 403 instead of a
+* Every operating address names the role it needs in `config/access.php`,
+  which `AccessListener` enforces before the controller runs -- not only in
+  the templates. An address that is not listed there is public. A missing
+  sign-in leads to the login page, a missing role to the repertoire with a
+  notice. JSON calls (drag & drop) receive 401 or 403 instead of a
   redirect. The roles are described in [Users and roles](users-and-roles.md).
 * The return address in the `back` form field (or `?back=` parameter) is only
   accepted when it starts with the application's base path followed by `/`. A

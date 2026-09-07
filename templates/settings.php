@@ -83,8 +83,7 @@ $roleNotes  = [
 </div>
 
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="password_save">
+    <form method="post" action="<?= $e(url('password_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
         <fieldset class="field field--group">
@@ -135,8 +134,7 @@ $roleNotes  = [
 <?php else: ?>
 
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="settings_save">
+    <form method="post" action="<?= $e(url('settings_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
         <fieldset class="field field--group">

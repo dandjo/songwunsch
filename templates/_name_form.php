@@ -26,8 +26,7 @@ use Songwunsch\GuestName;
 $e  = static fn (?string $v): string => Format::e($v);
 $id = $nameAsk ? 'name-ask' : 'name';
 ?>
-<form method="post" action="<?= $e(url()) ?>" class="namebox__form" id="<?= $id ?>-form">
-    <input type="hidden" name="a" value="name_save">
+<form method="post" action="<?= $e(url('name_save')) ?>" class="namebox__form" id="<?= $id ?>-form">
     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
     <input type="hidden" name="back" value="<?= $e($nameBack) ?>">
 
@@ -46,8 +45,7 @@ $id = $nameAsk ? 'name-ask' : 'name';
 
 </form>
 <?php if ($nameAsk): ?>
-    <form method="post" action="<?= $e(url()) ?>" class="namebox__skip" id="<?= $id ?>-skip" data-name-skip>
-        <input type="hidden" name="a" value="name_skip">
+    <form method="post" action="<?= $e(url('name_skip')) ?>" class="namebox__skip" id="<?= $id ?>-skip" data-name-skip>
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="back" value="<?= $e($nameBack) ?>">
     </form>

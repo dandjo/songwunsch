@@ -28,20 +28,16 @@ $e = static fn (?string $v): string => Format::e($v);
         <?php /* Already where new visitors land; the main room is that by default and gets no tag. */ ?>
         <?php if ($switchId > 0): ?><span class="tag tag--gold"><?= $e(t('start room')) ?></span><?php endif; ?>
     <?php else: ?>
-        <form method="post" action="<?= $e(url(['p' => 'rooms'])) ?>">
-            <input type="hidden" name="a" value="room_start">
+        <form method="post" action="<?= $e(url('room_start', ['id' => $switchId])) ?>">
             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-            <input type="hidden" name="id" value="<?= $switchId ?>">
             <input type="hidden" name="back" value="<?= $e($switchBack) ?>">
             <button type="submit" class="link-button"><?= icon('flag') ?><?= $e(t('As start room')) ?></button>
         </form>
     <?php endif; ?>
 <?php endif; ?>
 <?php if ($security->can('wishes')): ?>
-    <form method="post" action="<?= $e(url()) ?>">
-        <input type="hidden" name="a" value="pause">
+    <form method="post" action="<?= $e(url('room_pause', ['id' => $switchId])) ?>">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-        <input type="hidden" name="id" value="<?= $switchId ?>">
         <input type="hidden" name="state" value="<?= $switchClosed ? '0' : '1' ?>">
         <input type="hidden" name="back" value="<?= $e($switchBack) ?>">
         <button type="submit" class="<?= $switchClosed ? 'wish-button' : 'link-button' ?>" aria-pressed="<?= $switchClosed ? 'true' : 'false' ?>">

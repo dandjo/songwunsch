@@ -170,6 +170,21 @@ final class Security
         };
     }
 
+    /**
+     * What this user may delete -- the kinds whose confirmation they can
+     * switch off under Settings: songs, suggestions and rooms for editors,
+     * wishes for moderators.
+     *
+     * @return list<string> subset of Settings::CONFIRM_DELETE
+     */
+    public function deletableKinds(): array
+    {
+        return array_values(array_filter(
+            Settings::CONFIRM_DELETE,
+            fn (string $what): bool => $this->can($what),
+        ));
+    }
+
     public function login(string $username, string $password): bool
     {
         $user = $this->users->findByName($username);

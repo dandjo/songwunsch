@@ -12,10 +12,6 @@
 (function () {
     'use strict';
 
-    // Address of the front controller -- comes from the layout so a base
-    // path like /songliste is taken into account.
-    var endpoint = document.body.getAttribute('data-endpoint') || '/';
-
     // True while a row is being dragged: the live update waits until the
     // drag is over so the list is not swapped under the pointer.
     var dragging = false;
@@ -651,15 +647,16 @@
                 return row.getAttribute('data-id');
             });
 
-            // The wish list posts 'reorder', the footer 'footer_reorder'. Of
-            // a paged list only this page's ids go: the server places them
-            // where these entries stood and leaves the other pages alone.
+            // Each list carries the address its order is saved at
+            // (data-reorder-url): the wish list's, the footer's, the
+            // languages'. Of a paged list only this page's ids go: the
+            // server places them where these entries stood and leaves the
+            // other pages alone.
             var payload = new URLSearchParams();
-            payload.set('a', board.getAttribute('data-reorder-action') || 'reorder');
             payload.set('csrf', board.getAttribute('data-csrf'));
             payload.set('order', ids.join(','));
 
-            fetch(endpoint, {
+            fetch(board.getAttribute('data-reorder-url'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -837,9 +834,9 @@
             });
         };
 
-        // The body's data attributes belong to the page: the endpoint of
-        // its room, the live address, its two tokens, the doorbell, the
-        // interval, the messages. Taken over from the fetched document.
+        // The body's data attributes belong to the page: the live address,
+        // its two tokens, the doorbell, the interval, the messages. Taken
+        // over from the fetched document.
         var adoptBodyData = function (fresh) {
             Array.prototype.slice.call(document.body.attributes).forEach(function (attr) {
                 if (attr.name.indexOf('data-') === 0) {
@@ -851,7 +848,6 @@
                     document.body.setAttribute(attr.name, attr.value);
                 }
             });
-            endpoint = document.body.getAttribute('data-endpoint') || '/';
         };
 
         // The colours set under Interface live in a <style id="colors"> in

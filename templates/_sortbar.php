@@ -13,7 +13,7 @@ declare(strict_types=1);
  *
  * Expects:
  * @var array<string,string> $sortbarItems  sort key => label
- * @var string               $sortbarPage   page for the links ('songs'|'wishes')
+ * @var string               $sortbarRoute  route for the links ('songs'|'wishes')
  * @var array<string,mixed>  $sortbarExtra  additional parameters (e.g. the query)
  * @var string               $sort
  * @var string               $dir
@@ -30,7 +30,7 @@ foreach ($sortbarItems as $key => $label) {
     $sortbarLinks[$key] = [
         'label'  => $label,
         'active' => $active,
-        'href'   => url(array_merge($sortbarExtra, ['p' => $sortbarPage, 'sort' => $key, 'dir' => $active && $dir === 'asc' ? 'desc' : 'asc'])),
+        'href'   => url($sortbarRoute, array_merge($sortbarExtra, ['sort' => $key, 'dir' => $active && $dir === 'asc' ? 'desc' : 'asc'])),
     ];
 }
 $arrow   = $dir === 'asc' ? '▲' : '▼';

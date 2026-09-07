@@ -30,19 +30,15 @@ $e       = static fn (?string $v): string => Format::e($v);
 // This page with its search and both columns' pages -- the moves come back
 // here; the destination travels along, so "Back" still knows it after every
 // move. Both pagers keep the other column's page.
-$address = static fn (int $page, int $roomPage): string => url([
-    'p'     => 'room_songs',
-    'q'     => $q,
+$address = static fn (int $page, int $roomPage): string => url('room_songs', ['q'     => $q,
     'page'  => $page > 1 ? $page : null,
     'rpage' => $roomPage > 1 ? $roomPage : null,
-    'back'  => $back,
-]);
+    'back'  => $back]);
 $current = $address($pageNo, $roomPageNo);
 
 /** Form that moves songs: single id, or with $all every match of the search. */
-$move = static function (string $action, string $label, ?int $key, bool $all, string $class, string $confirm = '') use ($csrf, $current, $q, $e): string {
-    $html = '<form method="post" action="' . $e(url()) . '"' . ($confirm !== '' ? ' data-confirm="' . $e($confirm) . '"' : '') . '>'
-        . '<input type="hidden" name="a" value="' . $e($action) . '">'
+$move = static function (string $route, string $label, ?int $key, bool $all, string $class, string $confirm = '') use ($csrf, $current, $q, $e): string {
+    $html = '<form method="post" action="' . $e(url($route)) . '"' . ($confirm !== '' ? ' data-confirm="' . $e($confirm) . '"' : '') . '>'
         . '<input type="hidden" name="csrf" value="' . $e($csrf) . '">'
         . '<input type="hidden" name="back" value="' . $e($current) . '">';
     if ($all) {
@@ -89,13 +85,13 @@ $card = static function (array $row, string $action, string $arrow, string $verb
     </div>
 </div>
 
-<form class="search" method="get" action="<?= $e(url(['p' => 'room_songs'])) ?>" role="search">
+<form class="search" method="get" action="<?= $e(url('room_songs')) ?>" role="search">
     <input type="hidden" name="back" value="<?= $e($back) ?>">
     <label class="sr-only" for="q"><?= $e(t('Search songs')) ?></label>
     <input type="search" id="q" name="q" value="<?= $e($q) ?>" placeholder="<?= $e(t('Artist, title, genre …')) ?>" autocomplete="off">
     <button type="submit"><?= $e(t('Search')) ?></button>
     <?php if ($q !== ''): ?>
-        <a class="search__reset" href="<?= $e(url(['p' => 'room_songs', 'back' => $back])) ?>"><?= $e(t('reset')) ?></a>
+        <a class="search__reset" href="<?= $e(url('room_songs', ['back' => $back])) ?>"><?= $e(t('reset')) ?></a>
     <?php endif; ?>
 </form>
 

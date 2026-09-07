@@ -59,8 +59,7 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
 </div>
 
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="limits_save">
+    <form method="post" action="<?= $e(url('limits_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
         <?php foreach ($groups as [$legend, $fields]): ?>

@@ -251,5 +251,7 @@ where every room's name leads into the room, is reachable for everyone.
 
 Inside a room its name stands in the header. With a logo in place the name
 is hidden on phones; the room switcher below still names the room. All
-links of the application stay within the room: `url()` in
-`src/bootstrap.php` prefixes room-bound pages with `/rooms/<name>`.
+links of the application stay within the room: a route declared
+`roomScoped()` in `config/routes.php` exists twice -- at the bare path for
+the main room and below `/rooms/<name>` for every other -- and the URL
+generator puts the room the visitor is in into every address it builds.

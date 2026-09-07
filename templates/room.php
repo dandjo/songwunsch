@@ -54,21 +54,20 @@ $invalid = static fn (string $field): string => isset($errors[$field])
             $switchId     = (int) $id;
             $switchActive = $roomActive;
             $switchClosed = $roomClosed;
-            $switchBack   = $main ? url(['p' => 'room', 'main' => 1, 'back' => $back]) : url(['p' => 'room', 'id' => $id, 'back' => $back]);
+            $switchBack   = $main ? url('room_main_edit', ['back' => $back]) : url('room_edit', ['id' => $id, 'back' => $back]);
             require __DIR__ . '/_room_switches.php';
             ?>
-            <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $roomSlug, 'back' => $switchBack])) ?>"><?= icon('qr') ?><?= $e(t('QR code')) ?></a>
+            <a class="link-button" href="<?= $e(url('room_qr', ['room' => $roomSlug, 'back' => $switchBack])) ?>"><?= icon('qr') ?><?= $e(t('QR code')) ?></a>
             <?php if (!$main): ?>
                 <?php /* The room's song selection, as "Manage" on the room list. */ ?>
-                <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'room' => $roomSlug, 'back' => $switchBack])) ?>"><?= icon('note') ?><?= $e(t('Manage')) ?></a>
+                <a class="link-button" href="<?= $e(url('room_songs', ['room' => $roomSlug, 'back' => $switchBack])) ?>"><?= icon('note') ?><?= $e(t('Manage')) ?></a>
             <?php endif; ?>
         </div>
     <?php endif; ?>
 </div>
 
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="<?= $main ? 'main_room_save' : 'room_save' ?>">
+    <form method="post" action="<?= $e(url($main ? 'room_main_save' : 'room_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="id" value="<?= (int) $id ?>">
         <input type="hidden" name="back" value="<?= $e($back) ?>">
@@ -95,7 +94,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
                      something is typed an example stands in. */ ?>
             <p class="field__hint" id="hint-slug">
                 <?= $e(t('Part of the address: lower-case letters a–z, digits and hyphens.')) ?>
-                <code data-slug-preview="slug" data-slug-base="<?= $e(substr(url(['p' => 'songs', 'room' => 'x']), 0, -1)) ?>" data-slug-example="sommerfest-2026"><?= $e(url(['p' => 'songs', 'room' => ($values['slug'] ?? '') !== '' ? $values['slug'] : 'sommerfest-2026'])) ?></code>
+                <code data-slug-preview="slug" data-slug-base="<?= $e(substr(url('songs', ['room' => 'x']), 0, -1)) ?>" data-slug-example="sommerfest-2026"><?= $e(url('songs', ['room' => ($values['slug'] ?? '') !== '' ? $values['slug'] : 'sommerfest-2026'])) ?></code>
             </p>
             <?= $fieldError('slug') ?>
         </div>

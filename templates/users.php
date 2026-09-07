@@ -15,7 +15,7 @@ use Songwunsch\UserRepository;
 
 $e = static fn (?string $v): string => Format::e($v);
 // This list with its search and page: where the forms lead back to.
-$current = url(['p' => 'users', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
+$current = url('users', ['q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
 ?>
 
 <div class="panel__head">
@@ -34,16 +34,16 @@ $current = url(['p' => 'users', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : nul
     </div>
 
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url(['p' => 'user', 'back' => $current])) ?>"><?= icon('plus') ?><?= $e(t('Add user')) ?></a>
+        <a class="link-button" href="<?= $e(url('user_new', ['back' => $current])) ?>"><?= icon('plus') ?><?= $e(t('Add user')) ?></a>
     </div>
 </div>
 
-<form class="search" method="get" action="<?= $e(url(['p' => 'users'])) ?>" role="search">
+<form class="search" method="get" action="<?= $e(url('users')) ?>" role="search">
     <label class="sr-only" for="q"><?= $e(t('Search users')) ?></label>
     <input type="search" id="q" name="q" value="<?= $e($q) ?>" placeholder="<?= $e(t('Username …')) ?>" autocomplete="off">
     <button type="submit"><?= $e(t('Search')) ?></button>
     <?php if ($q !== ''): ?>
-        <a class="search__reset" href="<?= $e(url(['p' => 'users'])) ?>"><?= $e(t('reset')) ?></a>
+        <a class="search__reset" href="<?= $e(url('users')) ?>"><?= $e(t('reset')) ?></a>
     <?php endif; ?>
 </form>
 
@@ -95,18 +95,16 @@ $current = url(['p' => 'users', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : nul
                 <td class="cell-action">
                     <div class="row-actions">
                         <div class="row-actions__pair">
-                            <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url(['p' => 'user', 'id' => (int) $row['id'], 'back' => $current])) ?>">
+                            <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url('user_edit', ['id' => (int) $row['id'], 'back' => $current])) ?>">
                                 <?= icon('pencil') ?>
                                 <span class="button__label"><?= $e(t('Edit')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['username']) ?></span>
                             </a>
                             <?php if (!$isSelf): ?>
-                                <form method="post" action="<?= $e(url()) ?>"
+                                <form method="post" action="<?= $e(url('user_delete', ['id' => (int) $row['id']])) ?>"
                                       data-confirm="<?= $e(t('Permanently delete user “{name}”?', ['name' => (string) $row['username']])) ?>">
-                                    <input type="hidden" name="a" value="user_delete">
                                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                     <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                    <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                     <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                         <?= icon('trash') ?>
                                         <span class="button__label"><?= $e(t('Delete')) ?></span>
@@ -124,7 +122,7 @@ $current = url(['p' => 'users', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : nul
 </div>
 
 <?php
-$pageUrl = static fn (int $page): string => url(['p' => 'users', 'q' => $q, 'page' => $page > 1 ? $page : null]);
+$pageUrl = static fn (int $page): string => url('users', ['q' => $q, 'page' => $page > 1 ? $page : null]);
 require __DIR__ . '/_pager.php';
 ?>
 <?php endif; ?>

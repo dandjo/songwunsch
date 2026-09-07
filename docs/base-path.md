@@ -89,7 +89,7 @@ Two applications on the same domain therefore share no session.
 Only absolute paths are generated (`/songliste/wishes?…`), never relative
 ones.
 
-The routing itself does not use the configured value. `index.php` takes the
+The routing itself does not use the configured value. `Request::fromGlobals()` takes the
 prefix from the script's own location (`SCRIPT_NAME`), so a request finds its
 page in both modes below. A wrong `base_path` therefore does not break the
 first request – but every link, redirect and cookie on the page is wrong.

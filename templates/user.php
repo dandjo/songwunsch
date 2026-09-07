@@ -58,8 +58,7 @@ $isAdmin = ($values['role_admin'] ?? '') === '1';
 </div>
 
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="user_save">
+    <form method="post" action="<?= $e(url('user_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="id" value="<?= (int) $id ?>">
         <input type="hidden" name="back" value="<?= $e($back) ?>">

@@ -52,7 +52,7 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
 
     <div class="table-wrap">
         <table class="grid grid--picker grid--langs"
-               data-reorder data-reorder-action="languages_reorder" data-csrf="<?= $e($csrf) ?>"
+               data-reorder data-reorder-url="<?= $e(url('languages_reorder')) ?>" data-csrf="<?= $e($csrf) ?>"
                data-msg-saved="<?= $e(t('Order saved.')) ?>"
                data-msg-failed="<?= $e(t('The order could not be saved.')) ?>"
                data-msg-offline="<?= $e(t('The order could not be saved – please reload the page.')) ?>">
@@ -81,10 +81,8 @@ $name = static fn (string $code): string => $languages[$code] ?? strtoupper($cod
                                 ];
                                 foreach ($moves as $dir => [$glyph, $text, $disabled]):
                                 ?>
-                                <form method="post" action="<?= $e(url()) ?>" class="move__<?= $dir ?>">
-                                    <input type="hidden" name="a" value="languages_move">
+                                <form method="post" action="<?= $e(url('languages_move', ['code' => $code])) ?>" class="move__<?= $dir ?>">
                                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                                    <input type="hidden" name="code" value="<?= $e($code) ?>">
                                     <input type="hidden" name="dir" value="<?= $dir ?>">
                                     <button type="submit" class="move-button" data-move="<?= $dir ?>" title="<?= $e($text) ?>"<?= $disabled ? ' disabled' : '' ?>>
                                         <?= $glyph ?>

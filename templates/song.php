@@ -72,8 +72,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 <?php endif; ?>
 
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="song_save">
+    <form method="post" action="<?= $e(url('song_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="key" value="<?= (int) $key ?>">
         <?php if ($adopt !== null): ?>

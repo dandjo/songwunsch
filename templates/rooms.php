@@ -25,7 +25,7 @@ use Songwunsch\Format;
 $e         = static fn (?string $v): string => Format::e($v);
 $currentId = (int) $room['id'];
 $canCount  = $security->can('wishes');
-$listUrl   = static fn (array $extra = []): string => url(array_merge(['p' => 'rooms', 'q' => $q, 'filter' => $canEdit ? $filter : null], $extra));
+$listUrl   = static fn (array $extra = []): string => url('rooms', array_merge(['q' => $q, 'filter' => $canEdit ? $filter : null], $extra));
 // This very page of the list -- the destination the forms and the QR page return to.
 $here      = $listUrl(['page' => $pageNo > 1 ? $pageNo : null]);
 // The main room heads the list once: first page, no search, not the archive --
@@ -64,8 +64,7 @@ $hasActions = $canPause || $canEdit;
 <div class="panel__head panel__head--quiet">
     <div class="panel__actions">
         <?php if ($isAdmin): ?>
-            <form method="post" action="<?= $e(url()) ?>">
-                <input type="hidden" name="a" value="pause_all">
+            <form method="post" action="<?= $e(url('rooms_pause_all')) ?>">
                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                 <input type="hidden" name="state" value="<?= $pausedAll ? '0' : '1' ?>">
                 <button type="submit" class="link-button" aria-pressed="<?= $pausedAll ? 'true' : 'false' ?>">
@@ -78,12 +77,12 @@ $hasActions = $canPause || $canEdit;
                 </button>
             </form>
         <?php endif; ?>
-        <a class="link-button" href="<?= $e(url(['p' => 'room', 'back' => $here])) ?>"><?= icon('plus') ?><?= $e(t('Add room')) ?></a>
+        <a class="link-button" href="<?= $e(url('room_new', ['back' => $here])) ?>"><?= icon('plus') ?><?= $e(t('Add room')) ?></a>
     </div>
 </div>
 <?php endif; ?>
 
-<form class="search" method="get" action="<?= $e(url(['p' => 'rooms'])) ?>" role="search">
+<form class="search" method="get" action="<?= $e(url('rooms')) ?>" role="search">
     <?php if ($canEdit): ?><input type="hidden" name="filter" value="<?= $e($filter) ?>"><?php endif; ?>
     <label class="sr-only" for="q"><?= $e(t('Search rooms')) ?></label>
     <input type="search" id="q" name="q" value="<?= $e($q) ?>" placeholder="<?= $e(t('Room name or machine name …')) ?>" autocomplete="off">
@@ -101,7 +100,7 @@ $hasActions = $canPause || $canEdit;
             <span class="sortbar__label"><?= $e(t('Show:')) ?></span>
             <?php foreach (['all' => t('All'), 'active' => t('Active'), 'archived' => t('Archived')] as $key => $label): ?>
                 <a class="sortbar__item<?= $filter === $key ? ' is-active' : '' ?>"
-                   href="<?= $e(url(['p' => 'rooms', 'q' => $q, 'filter' => $key])) ?>"<?= $filter === $key ? ' aria-current="true"' : '' ?>><?= $e($label) ?></a>
+                   href="<?= $e(url('rooms', ['q' => $q, 'filter' => $key])) ?>"<?= $filter === $key ? ' aria-current="true"' : '' ?>><?= $e($label) ?></a>
             <?php endforeach; ?>
         </div>
     </nav>
@@ -144,7 +143,7 @@ $hasActions = $canPause || $canEdit;
             $isMain  = (int) $row['id'] === 0;
             $isHere  = (int) $row['id'] === $currentId;
             $slug    = (string) $row['slug'];
-            $address = url(['p' => 'songs', 'room' => $slug]);
+            $address = url('songs', ['room' => $slug]);
             ?>
             <tr>
                 <td class="cell-title">
@@ -152,8 +151,7 @@ $hasActions = $canPause || $canEdit;
                              here. The main room is a POST that clears the remembered
                              room (RoomMemory); every other room is reached by address. */ ?>
                     <?php if ($isMain): ?>
-                        <form method="post" action="<?= $e(url(['p' => 'rooms'])) ?>" class="room-link-form">
-                            <input type="hidden" name="a" value="room_switch">
+                        <form method="post" action="<?= $e(url('room_switch')) ?>" class="room-link-form">
                             <input type="hidden" name="slug" value="">
                             <input type="hidden" name="to" value="songs">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
@@ -187,10 +185,8 @@ $hasActions = $canPause || $canEdit;
                         <?php if ($canEdit && (int) $row['id'] !== $startRoomId && (int) $row['active'] === 1): ?>
                             <?php /* Where new visitors land: the bare address leads into
                                      the start room. Setting the main room clears it. */ ?>
-                            <form method="post" action="<?= $e(url(['p' => 'rooms'])) ?>">
-                                <input type="hidden" name="a" value="room_start">
+                            <form method="post" action="<?= $e(url('room_start', ['id' => (int) $row['id']])) ?>">
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                                <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                 <input type="hidden" name="back" value="<?= $e($listUrl(['page' => $pageNo > 1 ? $pageNo : null])) ?>">
                                 <button type="submit" class="link-button">
                                     <?= icon('flag') ?>
@@ -204,10 +200,8 @@ $hasActions = $canPause || $canEdit;
                                      for the main room as well. A stop sign while open,
                                      a play triangle while closed. */ ?>
                             <?php $closed = $pausedRooms[(int) $row['id']] ?? false; ?>
-                            <form method="post" action="<?= $e(url()) ?>">
-                                <input type="hidden" name="a" value="pause">
+                            <form method="post" action="<?= $e(url('room_pause', ['id' => (int) $row['id']])) ?>">
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                                <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                 <input type="hidden" name="state" value="<?= $closed ? '0' : '1' ?>">
                                 <input type="hidden" name="back" value="<?= $e($listUrl(['page' => $pageNo > 1 ? $pageNo : null])) ?>">
                                 <button type="submit" class="<?= $closed ? 'wish-button' : 'link-button' ?>" aria-pressed="<?= $closed ? 'true' : 'false' ?>">
@@ -219,7 +213,7 @@ $hasActions = $canPause || $canEdit;
                         <?php endif; ?>
                         <?php if ($canEdit): ?>
                             <?php /* The room's address as a QR code -- the main room's as well. */ ?>
-                            <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug, 'back' => $here])) ?>">
+                            <a class="link-button" href="<?= $e(url('room_qr', ['room' => $slug, 'back' => $here])) ?>">
                                 <?= icon('qr') ?>
                                 <span class="button__label"><?= $e(t('QR code')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
@@ -228,29 +222,28 @@ $hasActions = $canPause || $canEdit;
                         <?php if ($canEdit && $isMain): ?>
                             <?php /* The main room cannot be managed or deleted; Edit opens its
                                      name and its listed switch. */ ?>
-                            <a class="link-button" href="<?= $e(url(['p' => 'room', 'main' => 1, 'back' => $here])) ?>">
+                            <a class="link-button" href="<?= $e(url('room_main_edit', ['back' => $here])) ?>">
                                 <?= icon('pencil') ?>
                                 <span class="button__label"><?= $e(t('Edit')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                             </a>
                         <?php endif; ?>
                         <?php if ($canEdit && !$isMain): ?>
-                            <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'room' => $slug, 'back' => $here])) ?>">
+                            <a class="link-button" href="<?= $e(url('room_songs', ['room' => $slug, 'back' => $here])) ?>">
                                 <?= icon('note') ?>
                                 <span class="button__label"><?= $e(t('Manage')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                             </a>
                             <div class="row-actions__pair">
-                                <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url(['p' => 'room', 'id' => (int) $row['id'], 'back' => $here])) ?>">
+                                <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url('room_edit', ['id' => (int) $row['id'], 'back' => $here])) ?>">
                                     <?= icon('pencil') ?>
                                     <span class="button__label"><?= $e(t('Edit')) ?></span>
                                     <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                                 </a>
-                                <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'rooms')): ?>
+                                <form method="post" action="<?= $e(url('room_delete', ['id' => (int) $row['id']])) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'rooms')): ?>
                                       data-confirm="<?= $e(t('Permanently delete room “{name}” together with its wishes?', ['name' => (string) $row['name']])) ?>"<?php endif; ?>>
-                                    <input type="hidden" name="a" value="room_delete">
                                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                                    <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
+                                    <input type="hidden" name="back" value="<?= $e($listUrl(['page' => $pageNo > 1 ? $pageNo : null])) ?>">
                                     <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                         <?= icon('trash') ?>
                                         <span class="button__label"><?= $e(t('Delete')) ?></span>

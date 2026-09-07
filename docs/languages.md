@@ -93,7 +93,7 @@ from ordinary texts:
 ## Template and completeness
 
 `tools/extract-strings.php` collects every `t()` and `tn()` call with literal
-strings from `index.php`, `src/*.php` and `templates/*.php` into
+strings from `index.php`, `src/`, `templates/` and `config/` into
 `lang/songwunsch.pot`. It then reports for every `.po` file how many entries
 are translated, missing and obsolete:
 

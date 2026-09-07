@@ -26,10 +26,32 @@ if (PHP_SAPI !== 'cli') {
 $root  = dirname(__DIR__);
 $check = in_array('--check', $argv, true);
 
+/**
+ * Every PHP file of the application. src/ has sub-folders (the controllers,
+ * the listeners, the routing, the HTTP layer), so it is walked rather than
+ * globbed -- a glob would quietly leave their strings out of the template
+ * and report the translations for them as obsolete.
+ *
+ * @return list<string>
+ */
+$phpFiles = static function (string $dir): array {
+    $found = [];
+    $walk  = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS));
+    foreach ($walk as $entry) {
+        if ($entry->isFile() && $entry->getExtension() === 'php') {
+            $found[] = $entry->getPathname();
+        }
+    }
+    sort($found);
+
+    return $found;
+};
+
 $files = array_merge(
     [$root . '/index.php'],
-    glob($root . '/src/*.php') ?: [],
-    glob($root . '/templates/*.php') ?: [],
+    $phpFiles($root . '/src'),
+    $phpFiles($root . '/templates'),
+    $phpFiles($root . '/config'),
 );
 
 /** @var array<string,array{msgid:string,plural:?string,context:?string,refs:array<int,string>}> $entries */

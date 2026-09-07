@@ -23,7 +23,7 @@ $inRoom  = (int) $room['id'] !== \Songwunsch\RoomRepository::DEFAULT_ID;
 // A page of the list with its sorting -- the pager's links, and where the
 // moves and deletions come back to. Bound here, before the move buttons'
 // loop below reuses $dir for its directions.
-$pageUrl = static fn (int $page): string => url(['p' => 'wishes', 'sort' => $sort, 'dir' => $dir, 'page' => $page > 1 ? $page : null]);
+$pageUrl = static fn (int $page): string => url('wishes', ['sort' => $sort, 'dir' => $dir, 'page' => $page > 1 ? $page : null]);
 $current = $pageUrl($pageNo);
 
 // Reordering only makes sense in manual order -- with any other sorting the
@@ -40,7 +40,7 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
     $nextDir  = $active && $dir === 'asc' ? 'desc' : 'asc';
     $ariaSort = $active ? ($dir === 'asc' ? 'ascending' : 'descending') : 'none';
     $arrow    = $active ? ($dir === 'asc' ? '▲' : '▼') : '';
-    $href     = url(['p' => 'wishes', 'sort' => $key, 'dir' => $nextDir]);
+    $href     = url('wishes', ['sort' => $key, 'dir' => $nextDir]);
 
     return '<th scope="col" aria-sort="' . $ariaSort . '">'
         . '<a class="sort' . ($active ? ' sort--active' : '') . '" href="' . $e($href) . '">'
@@ -61,7 +61,7 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
         <strong><?= $e(t('The room is closed')) ?></strong> <?= $e(t('– no wishes or suggestions right now.')) ?>
         <?php if ($canEdit): ?>
             <?= t('Open it above or under {rooms}.', [
-                'rooms' => '<a href="' . $e(url(['p' => 'rooms'])) . '">' . $e(t('Rooms')) . '</a>',
+                'rooms' => '<a href="' . $e(url('rooms')) . '">' . $e(t('Rooms')) . '</a>',
             ]) ?>
         <?php endif; ?>
     <?php endif; ?>
@@ -71,7 +71,7 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
         <?= $e(t('Change the order with the arrows or by drag & drop. Sorting only changes the view.')) ?>
     <?php else: ?>
         <?= t('To reorder, switch to the {manual}.', [
-            'manual' => '<a href="' . $e(url(['p' => 'wishes'])) . '">' . $e(t('manual order')) . '</a>',
+            'manual' => '<a href="' . $e(url('wishes')) . '">' . $e(t('manual order')) . '</a>',
         ]) ?>
     <?php endif; ?>
 </p>
@@ -83,10 +83,9 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
              header notice, not here. */ ?>
     <div class="panel__actions">
             <?php if (!$manual): ?>
-                <a class="link-button" href="<?= $e(url(['p' => 'wishes'])) ?>"><?= icon('list') ?><?= $e(t('Manual order')) ?></a>
+                <a class="link-button" href="<?= $e(url('wishes')) ?>"><?= icon('list') ?><?= $e(t('Manual order')) ?></a>
             <?php endif; ?>
-            <form method="post" action="<?= $e(url()) ?>" data-confirm="<?= $e(t('Really delete all wishes?')) ?>">
-                <input type="hidden" name="a" value="clear">
+            <form method="post" action="<?= $e(url('wishes_clear')) ?>" data-confirm="<?= $e(t('Really delete all wishes?')) ?>">
                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                 <button type="submit" class="danger-button"><?= icon('trash') ?><?= $e(t('Clear list')) ?></button>
             </form>
@@ -110,7 +109,7 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
             'genre'  => t('Genre'),
             'wisher' => t('From'),
         ];
-        $sortbarPage  = 'wishes';
+        $sortbarRoute = 'wishes';
         $sortbarExtra = [];
         require __DIR__ . '/_sortbar.php';
         ?>
@@ -122,7 +121,7 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
                  moves by the whole list (data-reorder-offset/-total); a drag posts
                  this page's ids and the server places them where these wishes stood. */ ?>
         <table class="grid grid--wishes<?= $sortable ? ' grid--sortable' : '' ?>"
-               <?= $sortable ? 'data-reorder data-csrf="' . $e($csrf) . '" data-reorder-offset="' . (int) $offset . '" data-reorder-total="' . (int) $total . '"' : '' ?>
+               <?= $sortable ? 'data-reorder data-reorder-url="' . $e(url('wishes_reorder')) . '" data-csrf="' . $e($csrf) . '" data-reorder-offset="' . (int) $offset . '" data-reorder-total="' . (int) $total . '"' : '' ?>
                data-msg-saved="<?= $e(t('Order saved.')) ?>"
                data-msg-failed="<?= $e(t('The order could not be saved.')) ?>"
                data-msg-offline="<?= $e(t('The order could not be saved – please reload the page.')) ?>">
@@ -133,7 +132,7 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
             <tr>
                 <th scope="col" class="cell-rank" aria-sort="<?= $manual ? 'ascending' : 'none' ?>">
                     <?php if ($canEdit): ?>
-                        <a class="sort<?= $manual ? ' sort--active' : '' ?>" href="<?= $e(url(['p' => 'wishes'])) ?>">
+                        <a class="sort<?= $manual ? ' sort--active' : '' ?>" href="<?= $e(url('wishes')) ?>">
                             <span aria-hidden="true">#</span>
                             <span class="sr-only"><?= $e(t('Position, restore manual order')) ?></span>
                         </a>
@@ -226,11 +225,9 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
                                     ];
                                     foreach ($moves as $dir => [$glyph, $text, $disabled]):
                                     ?>
-                                    <form method="post" action="<?= $e(url()) ?>" class="move__<?= $dir ?>">
-                                        <input type="hidden" name="a" value="move">
+                                    <form method="post" action="<?= $e(url('wish_move', ['id' => (int) $row['id']])) ?>" class="move__<?= $dir ?>">
                                         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                         <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                        <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                         <input type="hidden" name="dir" value="<?= $dir ?>">
                                         <button type="submit" class="move-button" data-move="<?= $dir ?>" title="<?= $e($text) ?>"<?= $disabled ? ' disabled' : '' ?>>
                                             <?= $glyph ?>
@@ -240,11 +237,9 @@ $th = static function (string $key, string $label) use ($sort, $dir, $e, $canEdi
                                     <?php endforeach; ?>
                                 </span>
                             <?php endif; ?>
-                            <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'wishes')): ?> data-confirm="<?= $e(t('Remove “{title}” from the list?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
-                                <input type="hidden" name="a" value="delete">
+                            <form method="post" action="<?= $e(url('wish_delete', ['id' => (int) $row['id']])) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'wishes')): ?> data-confirm="<?= $e(t('Remove “{title}” from the list?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                 <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                 <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                     <?= icon('trash') ?>
                                     <span class="button__label"><?= $e(t('Delete')) ?></span>

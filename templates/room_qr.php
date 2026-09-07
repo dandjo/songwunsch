@@ -33,9 +33,9 @@ $roomName = (string) $room['name'];
         <?php $help .= ob_get_clean(); ?>
     </div>
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug, 'format' => 'svg'])) ?>" download="songwunsch-<?= $e($isMain ? 'main' : $slug) ?>.svg"><?= icon('image') ?><?= $e(t('Download SVG')) ?></a>
+        <a class="link-button" href="<?= $e(url('room_qr_image', ['room' => $slug, 'format' => 'svg'])) ?>" download="songwunsch-<?= $e($isMain ? 'main' : $slug) ?>.svg"><?= icon('image') ?><?= $e(t('Download SVG')) ?></a>
         <?php if ($hasPng): ?>
-            <a class="link-button" href="<?= $e(url(['p' => 'room_qr', 'room' => $slug, 'format' => 'png'])) ?>" download="songwunsch-<?= $e($isMain ? 'main' : $slug) ?>.png"><?= icon('image') ?><?= $e(t('Download PNG')) ?></a>
+            <a class="link-button" href="<?= $e(url('room_qr_image', ['room' => $slug, 'format' => 'png'])) ?>" download="songwunsch-<?= $e($isMain ? 'main' : $slug) ?>.png"><?= icon('image') ?><?= $e(t('Download PNG')) ?></a>
         <?php endif; ?>
         <button type="button" class="wish-button" data-print hidden><?= icon('page') ?><?= $e(t('Print')) ?></button>
         <a class="link-button" href="<?= $e($back) ?>"><?= icon('arrow-left') ?><?= $e(t('Back')) ?></a>

@@ -65,8 +65,7 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
 </div>
 
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="ui_save">
+    <form method="post" action="<?= $e(url('ui_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
         <fieldset class="field field--group">

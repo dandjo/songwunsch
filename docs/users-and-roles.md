@@ -32,7 +32,7 @@ role up keeps editor and moderator. Editor and moderator combine freely.
 In the code, the checks are areas of `Security::can()`: `wishes` (moderator),
 `songs`, `suggestions` and `rooms` (editor), `users` (admin). An admin passes
 every check. Every page and every POST action that needs a role is checked in
-`index.php` (`require_role`), not only in the templates.
+`config/access.php`, before the controller runs, not only in the templates.
 
 ## What each role may open
 

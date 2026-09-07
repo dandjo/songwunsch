@@ -35,20 +35,15 @@ $last = $linkedTotal - 1;
 
 // This page with both columns' pages -- the moves come back here. Both
 // pagers keep the other column's page.
-$address = static fn (int $page, int $footerPage): string => url([
-    'p'     => 'footer',
-    'page'  => $page > 1 ? $page : null,
-    'rpage' => $footerPage > 1 ? $footerPage : null,
-]);
+$address = static fn (int $page, int $footerPage): string => url('footer', ['page'  => $page > 1 ? $page : null,
+    'rpage' => $footerPage > 1 ? $footerPage : null]);
 $current = $address($pageNo, $linkedPageNo);
 
 /** Form with one button that moves a page into or out of the footer. */
-$across = static function (string $action, int $id, string $glyph, string $verb, string $title, string $class) use ($csrf, $current, $e): string {
-    return '<form method="post" action="' . $e(url()) . '">'
-        . '<input type="hidden" name="a" value="' . $e($action) . '">'
+$across = static function (string $route, int $id, string $glyph, string $verb, string $title, string $class) use ($csrf, $current, $e): string {
+    return '<form method="post" action="' . $e(url($route, ['id' => $id])) . '">'
         . '<input type="hidden" name="csrf" value="' . $e($csrf) . '">'
         . '<input type="hidden" name="back" value="' . $e($current) . '">'
-        . '<input type="hidden" name="id" value="' . $id . '">'
         . '<button type="submit" class="' . $class . '">' . icon($glyph)
         . '<span class="sr-only">' . $e($verb) . ': ' . $e($title) . '</span></button></form>';
 };
@@ -66,7 +61,7 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
         <?php $help .= ob_get_clean(); ?>
     </div>
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url(['p' => 'pages'])) ?>"><?= icon('page') ?><?= $e(t('Pages')) ?></a>
+        <a class="link-button" href="<?= $e(url('pages')) ?>"><?= icon('page') ?><?= $e(t('Pages')) ?></a>
     </div>
 </div>
 
@@ -92,7 +87,7 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
                         <?php $label = (string) $row['title']; ?>
                         <tr>
                             <td class="cell-title"><?= $e($label) ?></td>
-                            <td class="cell-artist"><?= $e(url(['p' => 'page', 'slug' => (string) $row['slug']])) ?></td>
+                            <td class="cell-artist"><?= $e(url('page', ['slug' => (string) $row['slug']])) ?></td>
                             <td class="cell-action"><?= $across('footer_add', (int) $row['id'], 'arrow-right', t('Add'), $label, 'arrow-button') ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -122,7 +117,7 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
                          posts this page's ids and the server places them where these
                          pages stood. */ ?>
                 <table class="grid grid--picker grid--picker--room grid--picker--footer"
-                       data-reorder data-reorder-action="footer_reorder" data-csrf="<?= $e($csrf) ?>"
+                       data-reorder data-reorder-url="<?= $e(url('footer_reorder')) ?>" data-csrf="<?= $e($csrf) ?>"
                        data-reorder-offset="<?= (int) $linkedOffset ?>" data-reorder-total="<?= (int) $linkedTotal ?>"
                        data-msg-saved="<?= $e(t('Order saved.')) ?>"
                        data-msg-failed="<?= $e(t('The order could not be saved.')) ?>"
@@ -141,7 +136,7 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
                                 <span class="rank"><span class="drag-grip" aria-hidden="true">⠿</span><?= (int) $index + 1 ?></span>
                             </td>
                             <td class="cell-title"><?= $e($label) ?></td>
-                            <td class="cell-artist"><?= $e(url(['p' => 'page', 'slug' => (string) $row['slug']])) ?></td>
+                            <td class="cell-artist"><?= $e(url('page', ['slug' => (string) $row['slug']])) ?></td>
                             <?php /* The wish list's four moves: to the very top, one up, one
                                      down, to the very bottom (on phones a 2x2 block). app.js
                                      reads data-move to keep the disabled states right after
@@ -158,11 +153,9 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
                                         ];
                                         foreach ($moves as $dir => [$glyph, $text, $disabled]):
                                         ?>
-                                        <form method="post" action="<?= $e(url()) ?>" class="move__<?= $dir ?>">
-                                            <input type="hidden" name="a" value="footer_move">
+                                        <form method="post" action="<?= $e(url('footer_move', ['id' => (int) $row['id']])) ?>" class="move__<?= $dir ?>">
                                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                             <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                            <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                             <input type="hidden" name="dir" value="<?= $dir ?>">
                                             <button type="submit" class="move-button" data-move="<?= $dir ?>" title="<?= $e($text) ?>"<?= $disabled ? ' disabled' : '' ?>>
                                                 <?= $glyph ?>
@@ -197,8 +190,7 @@ $across = static function (string $action, int $id, string $glyph, string $verb,
          whatever arrives (Html), so the source view is safe too. A language
          left empty has no line and falls back like a page. */ ?>
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="footer_text_save">
+    <form method="post" action="<?= $e(url('footer_text_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
         <fieldset class="field field--group">

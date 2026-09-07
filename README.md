@@ -60,6 +60,7 @@ in [Running with Docker](docs/docker.md) and
 * [Installation without Docker](docs/installation.md) – any web host, Apache and nginx, cache busting, deployment by rsync
 * [Base path and addresses](docs/base-path.md) – domain root or sub-path, every address the application answers
 * [Database](docs/database.md) – the tables, how they are created, what to run after an update
+* [Architecture](docs/architecture.md) – routing, services, the request's way through
 * [Structure](docs/structure.md) – what each file and folder does
 
 **Running the show**

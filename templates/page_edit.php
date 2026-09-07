@@ -63,8 +63,7 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
 </div>
 
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="page_save">
+    <form method="post" action="<?= $e(url('page_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="id" value="<?= (int) $id ?>">
         <input type="hidden" name="back" value="<?= $e($back) ?>">
@@ -83,7 +82,7 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
                      address or the example. */ ?>
             <p class="field__hint" id="hint-slug">
                 <?= $e(t('Part of the address: lower-case letters a–z, digits and hyphens.')) ?>
-                <code data-slug-preview="slug" data-slug-base="<?= $e(url(['p' => 'page', 'slug' => ''])) ?>" data-slug-example="imprint"><?= $e(url(['p' => 'page', 'slug' => ($values['slug'] ?? '') !== '' ? $values['slug'] : 'imprint'])) ?></code>
+                <code data-slug-preview="slug" data-slug-base="<?= $e(url('page', ['slug' => ''])) ?>" data-slug-example="imprint"><?= $e(url('page', ['slug' => ($values['slug'] ?? '') !== '' ? $values['slug'] : 'imprint'])) ?></code>
             </p>
             <?= $fieldError('slug', 'slug') ?>
         </div>
@@ -139,7 +138,7 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
                         <textarea id="body-<?= $e($htmlCode) ?>" name="body[<?= $e($code) ?>]" rows="18" data-editor
                                   data-editor-lang="<?= $e($translator->code()) ?>"
                                   data-editor-placeholder="<?= $e(t('Write here …')) ?>" lang="<?= $e($code) ?>"<?= $invalid('body.' . $code, 'body-' . $htmlCode) ?>><?= $e($values['body'][$code] ?? '') ?></textarea>
-                        <p class="field__hint" id="hint-body-<?= $e($htmlCode) ?>"><?= $e(t('Headings, paragraphs, lists, links, tables and quotes are kept; anything else – scripts, styles, pictures – is removed when the page is saved. A link to another page is its address, e.g. {example}.', ['example' => url(['p' => 'page', 'slug' => 'faq'])])) ?></p>
+                        <p class="field__hint" id="hint-body-<?= $e($htmlCode) ?>"><?= $e(t('Headings, paragraphs, lists, links, tables and quotes are kept; anything else – scripts, styles, pictures – is removed when the page is saved. A link to another page is its address, e.g. {example}.', ['example' => url('page', ['slug' => 'faq'])])) ?></p>
                         <?= $fieldError('body.' . $code, 'body-' . $htmlCode) ?>
                     </div>
 

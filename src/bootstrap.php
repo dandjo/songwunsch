@@ -3,8 +3,19 @@
 declare(strict_types=1);
 
 /**
- * Autoloader and small helpers for the front controller.
+ * The autoloader, the container's one global handle, and the handful of
+ * helpers the templates use.
+ *
+ * Everything else that used to live here -- routing, redirects, flash
+ * messages, permission checks, pagination, error pages -- is a class now.
+ * What is left is the view layer's vocabulary: t(), url(), asset(), icon().
+ * Templates are not injected into, and Symfony reaches the same conclusion
+ * with its Twig functions; these are those functions.
  */
+
+use Songwunsch\DependencyInjection\Container;
+use Songwunsch\Routing\UrlGenerator;
+use Songwunsch\Translator;
 
 spl_autoload_register(static function (string $class): void {
     $prefix = 'Songwunsch\\';
@@ -19,38 +30,43 @@ spl_autoload_register(static function (string $class): void {
 });
 
 /**
- * The translator for this request. index.php sets it once the language is
- * known; until then t() returns the English source text unchanged.
+ * The container of this request. index.php sets it once; the helpers below
+ * read it. This is the only global handle into the application, and it
+ * exists for them alone -- no class reaches for it, every class is
+ * constructed with what it needs (config/services.php).
  */
-function translator(?\Songwunsch\Translator $set = null): ?\Songwunsch\Translator
+function app(?Container $set = null): ?Container
 {
-    /** @var \Songwunsch\Translator|null $instance */
-    static $instance = null;
+    /** @var Container|null $container */
+    static $container = null;
 
     if ($set !== null) {
-        $instance = $set;
+        $container = $set;
     }
 
-    return $instance;
+    return $container;
 }
 
 /**
  * Translate a UI string. The English text is the message id; {placeholders}
  * are filled from $args. Escape the result for HTML at the point of output.
  *
+ * Before there is a container -- a missing configuration -- the source text
+ * stands, so the emergency page can be written in the same terms as the rest.
+ *
  * @param array<string,scalar|null> $args
  */
 function t(string $message, array $args = [], ?string $context = null): string
 {
-    $tr = translator();
-    if ($tr === null) {
+    $container = app();
+    if ($container === null) {
         return $args === [] ? $message : strtr($message, array_combine(
             array_map(static fn ($k): string => '{' . $k . '}', array_keys($args)),
             array_map('strval', $args),
         ));
     }
 
-    return $tr->t($message, $args, $context);
+    return $container->get(Translator::class)->t($message, $args, $context);
 }
 
 /**
@@ -60,12 +76,26 @@ function t(string $message, array $args = [], ?string $context = null): string
  */
 function tn(string $singular, string $plural, int $count, array $args = [], ?string $context = null): string
 {
-    $tr = translator();
-    if ($tr === null) {
+    $container = app();
+    if ($container === null) {
         return t(abs($count) === 1 ? $singular : $plural, $args + ['n' => $count]);
     }
 
-    return $tr->n($singular, $plural, $count, $args, $context);
+    return $container->get(Translator::class)->n($singular, $plural, $count, $args, $context);
+}
+
+/**
+ * The address of a route by name -- Symfony spells this path() in a
+ * template. The names are the ones in config/routes.php; values that are
+ * placeholders of the path go into the path, everything else into the query
+ * string, and a room-scoped route lands in the room the visitor is in
+ * unless 'room' says otherwise.
+ *
+ * @param array<string,mixed> $params
+ */
+function url(string $route = 'songs', array $params = []): string
+{
+    return app()->get(UrlGenerator::class)->generate($route, $params);
 }
 
 /**
@@ -73,9 +103,9 @@ function tn(string $singular, string $plural, int $count, array $args = [], ?str
  * otherwise with a leading and without a trailing slash, e.g. '/songliste'.
  *
  * Without an argument the value is read, with an argument it is set (done by
- * index.php once config.php is loaded). Until something is set, the BASE_PATH
- * environment variable applies -- so render_fatal(), which runs before the
- * configuration, works too.
+ * index.php once config.php is loaded). Until something is set, the
+ * BASE_PATH environment variable applies -- so the emergency page, which
+ * runs before the configuration, works too.
  */
 function base_path(?string $value = null): string
 {
@@ -103,119 +133,6 @@ function normalize_base_path(string $value): string
 }
 
 /**
- * The room of this request. index.php sets it once the route is known; url()
- * then keeps room-bound pages (songs, wishes, suggestions, room_songs) inside
- * that room.
- * The default room has no slug and lives at the base path itself.
- *
- * @param array<string,mixed>|null $set
- * @return array<string,mixed>
- */
-function current_room(?array $set = null): array
-{
-    /** @var array<string,mixed>|null $room */
-    static $room = null;
-
-    if ($set !== null) {
-        $room = $set;
-    }
-
-    return $room ?? \Songwunsch\RoomRepository::defaultRoom();
-}
-
-/**
- * Build an address, including the base path. 'p' names the page and becomes
- * the path: '/wishes', '/login', ... The start page (songs) is the base path
- * itself, so url() without 'p' is also the target of every form. All other
- * parameters go into the query string.
- *
- * Pages that belong to a room (songs, wishes, suggestions, room_songs) are
- * placed in the current room: /rooms/<slug>, /rooms/<slug>/wishes,
- * /rooms/<slug>/suggestions, /rooms/<slug>/manage. 'room' overrides that --
- * a slug for another room, '' for the default room.
- *
- * An id is part of the path, not of the query string. Lists and their
- * records share a prefix, and everything the Administration menu leads to
- * sits below /admin: /admin/users, /admin/users/new, /admin/users/<id>/edit,
- * /admin/logos, /admin/ui, /admin/pages, /admin/pages/new,
- * /admin/pages/<id>/edit (page_edit), /admin/footer, /admin/limits.
- * Public or for editors, without the prefix:
- * /pages/<slug> for readers ('p' => 'page', 'slug' => ...), /rooms,
- * /rooms/new, /rooms/<id>/edit, /rooms/main/edit ('main' => 1, rename the
- * main room), /song/<id>|new, /logo/<id>, /users/<id>/settings (one's own
- * settings, every signed-in user) and 'suggestion' => <id> for
- * /suggestions/<id>/adopt.
- */
-function url(array $params = []): string
-{
-    $page = (string) ($params['p'] ?? 'songs');
-    $slug = array_key_exists('room', $params)
-        ? (string) $params['room']
-        : (string) (current_room()['slug'] ?? '');
-    $id   = (int) ($params['id'] ?? 0);
-    $pageSlug = (string) ($params['slug'] ?? '');
-    unset($params['p'], $params['room'], $params['id'], $params['slug']);
-
-    $params = array_filter($params, static fn ($v): bool => $v !== null && $v !== '');
-
-    $target = base_path();
-    if (in_array($page, ['songs', 'wishes', 'suggestions', 'room_songs', 'room_qr'], true)) {
-        $prefix  = $slug !== '' ? '/rooms/' . $slug : '';
-        // A room's song list is the room itself: /rooms/<slug> without a
-        // trailing slash; only the default room is the bare base path '/'.
-        // The QR code of the main room lives under /rooms/main/qr, since the
-        // main room has no address part of its own; 'format' picks the
-        // image (svg, png) over the page.
-        $format  = (string) ($params['format'] ?? '');
-        unset($params['format']);
-        $target .= match ($page) {
-            'songs'       => $prefix !== '' ? $prefix : '/',
-            'wishes'      => $prefix . '/wishes',
-            'suggestions' => $prefix . '/suggestions',
-            'room_songs'  => $prefix . '/manage',
-            'room_qr'     => ($prefix !== '' ? $prefix : '/rooms/main') . '/qr' . ($format !== '' ? '.' . $format : ''),
-        };
-    } elseif ($page === 'song' && isset($params['suggestion'])) {
-        $target .= '/suggestions/' . (int) $params['suggestion'] . '/adopt';
-        unset($params['suggestion']);
-    } elseif ($page === 'room' && isset($params['main'])) {
-        $target .= '/rooms/main/edit';
-        unset($params['main']);
-    } elseif ($page === 'song') {
-        $target .= '/song/' . ($id > 0 ? $id : 'new');
-    } elseif (in_array($page, ['user', 'room', 'page_edit'], true)) {
-        // /rooms/new, /rooms/<id>/edit; users and pages the same below /admin.
-        $list    = match ($page) { 'user' => '/admin/users', 'room' => '/rooms', 'page_edit' => '/admin/pages' };
-        $target .= $list . ($id > 0 ? '/' . $id . '/edit' : '/new');
-    } elseif (in_array($page, ['users', 'logos', 'ui', 'limits', 'pages', 'footer', 'languages'], true)) {
-        $target .= '/admin/' . $page;
-    } elseif ($page === 'logo') {
-        $target .= '/logo/' . $id;
-    } elseif ($page === 'page') {
-        $target .= '/pages/' . rawurlencode($pageSlug);
-    } elseif ($page === 'settings') {
-        // Without an id the page redirects to the signed-in user's own settings.
-        $target .= $id > 0 ? '/users/' . $id . '/settings' : '/settings';
-    } else {
-        $target .= '/' . $page;
-    }
-
-    return $params === [] ? $target : $target . '?' . http_build_query($params);
-}
-
-/**
- * An address of this installation with scheme and host, as a QR code or a
- * printout needs it: the request's host, https when the request came in
- * over https (also behind a proxy, see Security::isHttps()).
- */
-function absolute_url(string $target): string
-{
-    $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
-
-    return (\Songwunsch\Security::isHttps() ? 'https' : 'http') . '://' . $host . $target;
-}
-
-/**
  * Version of the bundled files, from config.php ('version'). index.php sets
  * it; asset() appends it as a cache buster.
  */
@@ -229,6 +146,37 @@ function asset_version(?string $set = null): string
     }
 
     return $version;
+}
+
+/**
+ * Address of a bundled file (CSS, JavaScript), including the base path and,
+ * when configured, ?v=<version> so a release invalidates the browser cache.
+ */
+function asset(string $file): string
+{
+    $url = base_path() . '/' . ltrim($file, '/');
+
+    return asset_version() === '' ? $url : $url . '?v=' . rawurlencode(asset_version());
+}
+
+/**
+ * Emergency exit for a request that fails before there is a configuration to
+ * build an answer from -- the one place outside Response::send() that writes
+ * to the output, because at that point there is nothing to write with.
+ */
+function render_fatal(string $title, string $html): never
+{
+    $e = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+
+    http_response_code(500);
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        . '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        . '<title>' . $e($title) . '</title>'
+        . '<link rel="stylesheet" href="' . $e(asset('assets/style.css')) . '"></head>'
+        . '<body class="is-fatal"><main class="fatal"><h1>' . $e($title) . '</h1>'
+        . '<p>' . $html . '</p></main></body></html>';
+    exit;
 }
 
 /**
@@ -327,280 +275,3 @@ function password_toggle(): string
         . icon('eye') . icon('eye-off') . '</button>';
 }
 
-/**
- * Address of a bundled file (CSS, JavaScript), including the base path and,
- * when configured, ?v=<version> so a release invalidates the browser cache.
- */
-function asset(string $file): string
-{
-    $url = base_path() . '/' . ltrim($file, '/');
-
-    return asset_version() === '' ? $url : $url . '?v=' . rawurlencode(asset_version());
-}
-
-/**
- * Check a return address: only the application's own addresses below the
- * base path are accepted, otherwise null. '//host' and '/\\host' would be
- * read as protocol-relative by browsers and are rejected as well.
- */
-function safe_target(?string $candidate): ?string
-{
-    $candidate = (string) $candidate;
-    $base      = base_path() . '/';
-
-    if ($candidate !== ''
-        && str_starts_with($candidate, $base)
-        && !str_starts_with($candidate, $base . '/')
-        && !str_starts_with($candidate, $base . '\\')
-        && !str_contains($candidate, "\n")
-        && !str_contains($candidate, "\r")) {
-        return $candidate;
-    }
-
-    return null;
-}
-
-/** Target address after a POST action (post/redirect/get). */
-function back(?string $fallback = null): string
-{
-    return safe_target($_POST['back'] ?? null) ?? $fallback ?? url(['p' => 'songs']);
-}
-
-/**
- * The destination of a form: where Cancel leads and where the save action
- * redirects to -- the page the visitor came from (Drupal calls this the
- * "destination"). The link into the form passes the current address as
- * 'back'; the form carries it in a hidden field, so it survives the
- * post/redirect/get round trip and a validation error; the save action
- * redirects to it. Missing or unsafe (safe_target): the fallback, normally
- * the list the form belongs to.
- */
-function destination(string $fallback): string
-{
-    return safe_target($_POST['back'] ?? $_GET['back'] ?? null) ?? $fallback;
-}
-
-/**
- * Paging for a list a repository fetches page by page: $fetch(page) returns
- * ['rows' => ..., 'total' => ...]. The number of pages follows from the
- * total; a page beyond the last (the last entry of a page was just moved or
- * deleted, an old address) falls back to the last page, so nobody stands on
- * an empty page with a pager that says "Page 4 of 3".
- *
- * @param callable(int): array{rows: array<int,mixed>, total: int} $fetch
- * @return array{rows: array<int,mixed>, total: int, page: int, pages: int}
- */
-function paged(callable $fetch, int $pageNo, int $perPage): array
-{
-    $pageNo  = max(1, $pageNo);
-    $perPage = max(1, $perPage);
-    $result  = $fetch($pageNo);
-    $pages   = max(1, (int) ceil($result['total'] / $perPage));
-
-    if ($pageNo > $pages) {
-        $pageNo = $pages;
-        $result = $fetch($pageNo);
-    }
-
-    return ['rows' => $result['rows'], 'total' => $result['total'], 'page' => $pageNo, 'pages' => $pages];
-}
-
-/**
- * The same for a list that is complete and sorted in PHP already (the pages,
- * whose order depends on the reader's language): one page cut out of it.
- *
- * @param array<int,mixed> $rows
- * @return array{rows: array<int,mixed>, total: int, page: int, pages: int}
- */
-function paged_slice(array $rows, int $pageNo, int $perPage): array
-{
-    $perPage = max(1, $perPage);
-    $total   = count($rows);
-
-    return paged(
-        static fn (int $page): array => ['rows' => array_slice($rows, ($page - 1) * $perPage, $perPage), 'total' => $total],
-        $pageNo,
-        $perPage,
-    );
-}
-
-/**
- * Carry input and errors across the redirect. After post/redirect/get the
- * form is rebuilt and should show both again instead of making the user type
- * everything once more.
- *
- * @param array<string,string> $values
- * @param array<string,string> $errors
- */
-function remember_input(array $values, array $errors): void
-{
-    $_SESSION['input'] = ['values' => $values, 'errors' => $errors];
-}
-
-/** @return array{values:array<string,string>,errors:array<string,string>}|null */
-function remembered_input(): ?array
-{
-    $kept = $_SESSION['input'] ?? null;
-    unset($_SESSION['input']);
-
-    return is_array($kept) ? $kept : null;
-}
-
-/** Does the caller expect JSON (drag & drop via fetch)? */
-function wants_json(): bool
-{
-    return ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch'
-        || str_contains((string) ($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json');
-}
-
-/** @param array<string,mixed> $payload */
-function send_json(array $payload, int $status = 200): never
-{
-    http_response_code($status);
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
-    exit;
-}
-
-function redirect(string $target, int $status = 303): never
-{
-    header('Location: ' . $target, true, $status);
-    exit;
-}
-
-/**
- * A message for the next page. The result of an action -- a wish is in, a
- * row was deleted, the order was saved -- pops up for a few seconds and goes
- * away (app.js; the layout renders it inline without JavaScript). A message
- * that explains the page one lands on stays put: see notice().
- *
- * @param string $type  'ok' | 'info' | 'error'
- */
-function flash(string $type, string $message, bool $static = false): void
-{
-    $_SESSION['flash'] = ['type' => $type, 'message' => $message, 'static' => $static];
-}
-
-/**
- * A message that belongs to the page it is shown on and stays until the
- * next page: "please log in first", "check the highlighted fields", "this
- * room was not found -- here is the start page". Rendered at the top of the
- * content, not as a pop-up.
- */
-function notice(string $type, string $message): void
-{
-    flash($type, $message, true);
-}
-
-/** @return array{type:string,message:string,static:bool}|null */
-function flash_take(): ?array
-{
-    $flash = $_SESSION['flash'] ?? null;
-    unset($_SESSION['flash']);
-    if (!is_array($flash)) {
-        return null;
-    }
-    $flash['static'] = (bool) ($flash['static'] ?? false);
-
-    return $flash;
-}
-
-function require_login(\Songwunsch\Security $security): void
-{
-    if (!$security->isLoggedIn()) {
-        if (wants_json()) {
-            send_json(['ok' => false, 'error' => t('Please log in first.')], 401);
-        }
-        notice('info', t('Please log in first.'));
-        redirect(url(['p' => 'login']));
-    }
-}
-
-/**
- * Login plus role for an area ('wishes', 'songs', 'suggestions', 'rooms',
- * 'users'). Without the role the user is sent back to the song list with a
- * notice.
- */
-function require_role(\Songwunsch\Security $security, string $area): void
-{
-    require_login($security);
-
-    if (!$security->can($area)) {
-        if (wants_json()) {
-            send_json(['ok' => false, 'error' => t('You do not have permission for that.')], 403);
-        }
-        notice('error', t('You do not have permission for that.'));
-        redirect(url(['p' => 'songs']));
-    }
-}
-
-/**
- * What this user may delete -- the kinds whose confirmation they can switch
- * off under Settings: songs, suggestions and rooms for editors, wishes for
- * moderators.
- *
- * @return list<string> subset of Settings::CONFIRM_DELETE
- */
-function deletable_kinds(\Songwunsch\Security $security): array
-{
-    return array_values(array_filter(
-        \Songwunsch\Settings::CONFIRM_DELETE,
-        static fn (string $what): bool => $security->can($what),
-    ));
-}
-
-/** Start page after logging in: the wish list for moderators, otherwise the song list. */
-function home_for(\Songwunsch\Security $security): string
-{
-    return url(['p' => $security->can('wishes') ? 'wishes' : 'songs']);
-}
-
-/**
- * Error text for display. Details (table and column names) only for
- * logged-in users or while show_errors is on.
- *
- * @param array<string,mixed> $config
- */
-function error_detail(\Throwable $e, array $config, \Songwunsch\Security $security): string
-{
-    if (($config['show_errors'] ?? false) === true || $security->isLoggedIn()) {
-        return $e->getMessage();
-    }
-
-    error_log('[songwunsch] ' . $e::class . ': ' . $e->getMessage());
-
-    return t('The repertoire is not available right now. Please try again later.');
-}
-
-/** Emergency exit when not even the configuration can be loaded. */
-function render_fatal(string $title, string $html): never
-{
-    render_bare(500, $title, $html);
-}
-
-/**
- * 404 for an address below the base path that is not the front controller.
- * The web server routes everything to index.php (.htaccess); this is the
- * answer for the rest.
- */
-function not_found(): never
-{
-    $link = '<a href="' . htmlspecialchars(url(), ENT_QUOTES, 'UTF-8') . '">'
-        . htmlspecialchars(t('To the repertoire'), ENT_QUOTES, 'UTF-8') . '</a>';
-
-    render_bare(404, t('Page not found'), htmlspecialchars(t('There is nothing at this address.'), ENT_QUOTES, 'UTF-8') . ' ' . $link);
-}
-
-/** Minimal page without layout, database or session -- for the cases above. */
-function render_bare(int $status, string $title, string $html): never
-{
-    http_response_code($status);
-    header('Content-Type: text/html; charset=utf-8');
-    echo '<!doctype html><html lang="en"><head><meta charset="utf-8">'
-        . '<meta name="viewport" content="width=device-width, initial-scale=1">'
-        . '<title>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</title>'
-        . '<link rel="stylesheet" href="' . htmlspecialchars(asset('assets/style.css'), ENT_QUOTES, 'UTF-8') . '"></head>'
-        . '<body class="is-fatal"><main class="fatal"><h1>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</h1>'
-        . '<p>' . $html . '</p></main></body></html>';
-    exit;
-}

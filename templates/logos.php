@@ -19,9 +19,9 @@ use Songwunsch\Uploads;
 
 $e = static fn (?string $v): string => Format::e($v);
 
-$logoUrl = static fn (int $id): string => url(['p' => 'logo', 'room' => '', 'id' => $id]);
+$logoUrl = static fn (int $id): string => url('logo', ['id' => $id]);
 $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
-$pageUrl = static fn (int $page): string => url(['p' => 'logos', 'page' => $page > 1 ? $page : null]);
+$pageUrl = static fn (int $page): string => url('logos', ['page' => $page > 1 ? $page : null]);
 // This page of the list: where switching and deleting lead back to.
 $current = $pageUrl($pageNo);
 ?>
@@ -36,8 +36,7 @@ $current = $pageUrl($pageNo);
 </div>
 
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url()) ?>" enctype="multipart/form-data" class="login__form">
-        <input type="hidden" name="a" value="logo_upload">
+    <form method="post" action="<?= $e(url('logo_upload')) ?>" enctype="multipart/form-data" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
         <fieldset class="field field--group">
@@ -80,11 +79,9 @@ $current = $pageUrl($pageNo);
                     <?php if ($activeId === 0): ?>
                         <span class="tag tag--gold"><?= $e(t('live')) ?></span>
                     <?php else: ?>
-                        <form method="post" action="<?= $e(url()) ?>">
-                            <input type="hidden" name="a" value="logo_activate">
+                        <form method="post" action="<?= $e(url('logo_activate', ['id' => 0])) ?>">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                             <input type="hidden" name="back" value="<?= $e($current) ?>">
-                            <input type="hidden" name="id" value="0">
                             <button type="submit" class="link-button"><?= icon('check') ?><?= $e(t('Switch live')) ?></button>
                         </form>
                     <?php endif; ?>
@@ -111,19 +108,15 @@ $current = $pageUrl($pageNo);
                         <?php if ($isActive): ?>
                             <span class="tag tag--gold"><?= $e(t('live')) ?></span>
                         <?php else: ?>
-                            <form method="post" action="<?= $e(url()) ?>">
-                                <input type="hidden" name="a" value="logo_activate">
+                            <form method="post" action="<?= $e(url('logo_activate', ['id' => (int) $upload['id']])) ?>">
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                 <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                <input type="hidden" name="id" value="<?= $upload['id'] ?>">
                                 <button type="submit" class="link-button"><?= icon('check') ?><?= $e(t('Switch live')) ?></button>
                             </form>
                         <?php endif; ?>
-                        <form method="post" action="<?= $e(url()) ?>" data-confirm="<?= $e($isActive ? t('Delete the live logo? The header shows the word mark again.') : t('Delete this logo?')) ?>">
-                            <input type="hidden" name="a" value="logo_delete">
+                        <form method="post" action="<?= $e(url('logo_delete', ['id' => (int) $upload['id']])) ?>" data-confirm="<?= $e($isActive ? t('Delete the live logo? The header shows the word mark again.') : t('Delete this logo?')) ?>">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                             <input type="hidden" name="back" value="<?= $e($current) ?>">
-                            <input type="hidden" name="id" value="<?= $upload['id'] ?>">
                             <?php /* Icon only, like the delete buttons in every list -- the label stays for screen readers and as tooltip. */ ?>
                             <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                 <?= icon('trash') ?>

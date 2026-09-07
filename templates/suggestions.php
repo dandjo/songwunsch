@@ -23,7 +23,7 @@ use Songwunsch\SuggestionRepository;
 /** @var string $csrf */
 
 $e       = static fn (?string $v): string => Format::e($v);
-$current = url(['p' => 'suggestions', 'q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
+$current = url('suggestions', ['q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
 $open    = (int) ($suggestionCount ?? count($rows));
 $inRoom  = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
 
@@ -64,8 +64,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
          side by side where there is room, the button below. Bot hurdles as
          on the wish form: honeypot and signed timestamp. */ ?>
 <div class="login login--wide suggest">
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="suggest">
+    <form method="post" action="<?= $e(url('suggest')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
         <input type="hidden" name="t" value="<?= $e($formToken) ?>">
         <div class="hp" aria-hidden="true">
@@ -135,8 +134,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
         <?php if ($canEdit && $open > 0): ?>
             <div class="panel__actions">
                 <?php /* Bulk deletion always asks, whatever the personal setting says. */ ?>
-                <form method="post" action="<?= $e(url()) ?>" data-confirm="<?= $e(t('Really delete all suggestions?')) ?>">
-                    <input type="hidden" name="a" value="suggestions_clear">
+                <form method="post" action="<?= $e(url('suggestions_clear')) ?>" data-confirm="<?= $e(t('Really delete all suggestions?')) ?>">
                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                     <button type="submit" class="danger-button"><?= icon('trash') ?><?= $e(t('Clear list')) ?></button>
                 </form>
@@ -146,12 +144,12 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 
     <?php if ($open > 0 || $q !== ''): ?>
         <?php /* Search over artist, title and name -- the same form as on the song list. */ ?>
-        <form class="search" method="get" action="<?= $e(url(['p' => 'suggestions'])) ?>" role="search">
+        <form class="search" method="get" action="<?= $e(url('suggestions')) ?>" role="search">
             <label class="sr-only" for="q"><?= $e(t('Search suggestions')) ?></label>
             <input type="search" id="q" name="q" value="<?= $e($q) ?>" placeholder="<?= $e(t('Artist, title, name …')) ?>" autocomplete="off">
             <button type="submit"><?= $e(t('Search')) ?></button>
             <?php if ($q !== ''): ?>
-                <a class="search__reset" href="<?= $e(url(['p' => 'suggestions'])) ?>"><?= $e(t('reset')) ?></a>
+                <a class="search__reset" href="<?= $e(url('suggestions')) ?>"><?= $e(t('reset')) ?></a>
             <?php endif; ?>
         </form>
     <?php endif; ?>
@@ -202,14 +200,12 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                             <div class="row-actions">
                                 <?php /* Adopt leads to the song form with artist and
                                          title filled in; the song is created there. */ ?>
-                                <a class="wish-button" href="<?= $e(url(['p' => 'song', 'suggestion' => (int) $row['id'], 'back' => $current])) ?>">
+                                <a class="wish-button" href="<?= $e(url('song_adopt', ['id' => (int) $row['id'], 'back' => $current])) ?>">
                                     <?= icon('plus') ?><?= $e(t('Adopt')) ?><span class="sr-only">: <?= $e($label) ?></span>
                                 </a>
-                                <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'suggestions')): ?> data-confirm="<?= $e(t('Delete the suggestion “{title}”?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
-                                    <input type="hidden" name="a" value="suggestion_delete">
+                                <form method="post" action="<?= $e(url('suggestion_delete', ['id' => (int) $row['id']])) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'suggestions')): ?> data-confirm="<?= $e(t('Delete the suggestion “{title}”?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
                                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                     <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                    <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
                                     <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                         <?= icon('trash') ?>
                                         <span class="button__label"><?= $e(t('Delete')) ?></span>
@@ -226,7 +222,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
         </div>
 
         <?php
-        $pageUrl = static fn (int $page): string => url(['p' => 'suggestions', 'q' => $q, 'page' => $page > 1 ? $page : null]);
+        $pageUrl = static fn (int $page): string => url('suggestions', ['q' => $q, 'page' => $page > 1 ? $page : null]);
         require __DIR__ . '/_pager.php';
         ?>
     <?php endif; ?>

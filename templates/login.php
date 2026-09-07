@@ -13,8 +13,7 @@ $e = static fn (?string $v): string => Format::e($v);
     <h1><?= $e(t('Log in')) ?></h1>
     <p class="muted"><?= $e(t('Editing the wish list, the songs and the users is reserved for staff.')) ?></p>
 
-    <form method="post" action="<?= $e(url()) ?>" class="login__form">
-        <input type="hidden" name="a" value="login">
+    <form method="post" action="<?= $e(url('login_submit')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
         <div class="field">

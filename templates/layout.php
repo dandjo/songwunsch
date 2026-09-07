@@ -30,7 +30,10 @@ use Songwunsch\Translator;
 /** @var string $footer  the operator's own footer line (Administration -> Footer), cleaned HTML; empty = none */
 /** @var string $footerLang  the language that line fell back to, '' when it is the interface language */
 /** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
-/** @var array<string,mixed> $hereParams  the current address as url() parameters, see index.php */
+/** @var string $routeName  the matched route (config/routes.php); several routes share one $page */
+/** @var string $here      the current address, query string and all */
+/** @var array<string,array{name:string,href:string}> $langLinks  the current address with ?lang=<code>, per language */
+/** @var string|null $backParam  a checked ?back= of this address, for links that pass it on */
 /** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
 /** @var string $colorsCss :root colour overrides the admins set under Interface, see Colors; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
@@ -42,18 +45,6 @@ $inRoom = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
 // where $security->user() and everything else answer as for a stranger.
 $account   = $security->account();
 $guestView = $security->guestView();
-// The current address as url() parameters (index.php: the page plus the id,
-// machine name or format from the path). Forms that must land back on the
-// current page post here; $here adds the query string.
-$hereBase   = url($hereParams);
-$here       = url(array_merge($hereParams, $_GET));
-
-// Language switcher: the current address with ?lang=<code> added.
-$langLinks = [];
-foreach ($translator->available() as $code => $name) {
-    $langLinks[$code] = ['name' => $name, 'href' => url(array_merge($hereParams, $_GET, ['lang' => $code]))];
-}
-
 // CKEditor speaks the site's language when its translation file is bundled;
 // otherwise the interface stays English (built in).
 $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translations/' . $translator->code() . '.umd.js')
@@ -63,10 +54,13 @@ $editorLang = $editor && is_file(__DIR__ . '/../assets/vendor/ckeditor5/translat
 // The page's content is rendered first, into a buffer: a template hands
 // its help text up through $help (HTML, one or more <p>), and the header
 // shows it behind the "?" next to the language and account menus.
+// $pageContent, not $content: the reader's page hands its record down in
+// $content, and the buffer must not take that name away from the footer
+// below, which marks the page being read.
 $help = '';
 ob_start();
 require __DIR__ . '/' . $template . '.php';
-$content = ob_get_clean();
+$pageContent = ob_get_clean();
 // A help that came out blank (every sentence conditional) shows no "?".
 if (trim(strip_tags($help)) === '') {
     $help = '';
@@ -108,7 +102,7 @@ if (trim(strip_tags($help)) === '') {
          asking PHP, and only when its content differs from data-live-gate-rev
          does it go to data-live for the tokens. Both are absent when the file
          cannot be written -- then every poll goes to PHP, as before. */ ?>
-<body data-endpoint="<?= $e(url()) ?>" data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>" data-toast-sec="<?= (int) $toastSec ?>" data-msg-dismiss="<?= $e(t('Dismiss')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-live-head="<?= $e($live['head']) ?>" data-live-interval="<?= (int) $live['interval'] ?>"<?php if ($live['gate'] !== ''): ?> data-live-gate="<?= $e($live['gate']) ?>" data-live-gate-rev="<?= $e($live['signal']) ?>"<?php endif; ?> data-msg-updated="<?= $e(t('The list has been updated.')) ?>" data-msg-state="<?= $e($paused
+<body data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>" data-toast-sec="<?= (int) $toastSec ?>" data-msg-dismiss="<?= $e(t('Dismiss')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-live-head="<?= $e($live['head']) ?>" data-live-interval="<?= (int) $live['interval'] ?>"<?php if ($live['gate'] !== ''): ?> data-live-gate="<?= $e($live['gate']) ?>" data-live-gate-rev="<?= $e($live['signal']) ?>"<?php endif; ?> data-msg-updated="<?= $e(t('The list has been updated.')) ?>" data-msg-state="<?= $e($paused
     ? t('{room} is closed right now.', ['room' => (string) $room['name']])
     : t('“{name}” is open again.', ['name' => (string) $room['name']])) ?>"<?php endif; ?>>
 <a class="skip-link" href="#content"><?= $e(t('Skip to content')) ?></a>
@@ -122,11 +116,11 @@ if (trim(strip_tags($help)) === '') {
                          layout still while it loads. In a room the room's name stands
                          beside it. */ ?>
                 <p class="dome__brand dome__brand--logo">
-                    <a href="<?= $e(url(['p' => 'songs'])) ?>"><img class="dome__logo" src="<?= $e(url(['p' => 'logo', 'room' => '', 'id' => $logo['id']])) ?>" alt="Songwunsch"<?php
+                    <a href="<?= $e(url('songs')) ?>"><img class="dome__logo" src="<?= $e(url('logo', ['id' => $logo['id']])) ?>" alt="Songwunsch"<?php
                         if ($logo['width'] !== null && $logo['height'] !== null): ?> width="<?= (int) $logo['width'] ?>" height="<?= (int) $logo['height'] ?>"<?php endif; ?>></a>
                 </p>
             <?php else: ?>
-                <p class="dome__brand"><a href="<?= $e(url(['p' => 'songs'])) ?>">Song<span>wunsch</span></a></p>
+                <p class="dome__brand"><a href="<?= $e(url('songs')) ?>">Song<span>wunsch</span></a></p>
             <?php endif; ?>
             <?php if ($inRoom): ?>
                 <p class="dome__room"><span class="sr-only"><?= $e(t('Room')) ?>: </span><?= $e((string) $room['name']) ?><?php if ((int) ($room['active'] ?? 1) === 0 && $security->can('rooms')): ?> <span class="tag"><?= $e(t('archived')) ?></span><?php endif; ?></p>
@@ -226,18 +220,17 @@ if (trim(strip_tags($help)) === '') {
                             // target room, the main room's rename form, its QR
                             // code. The form for a new room and every other
                             // page keep their address.
-                            $onEditForm = $page === 'room' && (($hereParams['id'] ?? 0) > 0 || isset($hereParams['main']));
+                            $onEditForm = $routeName === 'room_edit' || $routeName === 'room_main_edit';
                             $switchBack = match (true) {
-                                $onEditForm && $targetSlug === '' => url(['p' => 'room', 'main' => 1, 'back' => safe_target($_GET['back'] ?? null)]),
-                                $onEditForm                       => url(['p' => 'room', 'id' => (int) $entry['id'], 'back' => safe_target($_GET['back'] ?? null)]),
-                                $page === 'room_qr'               => url(['p' => 'room_qr', 'room' => $targetSlug, 'back' => safe_target($_GET['back'] ?? null)]),
+                                $onEditForm && $targetSlug === '' => url('room_main_edit', ['back' => $backParam]),
+                                $onEditForm                       => url('room_edit', ['id' => (int) $entry['id'], 'back' => $backParam]),
+                                $page === 'room_qr'               => url('room_qr', ['room' => $targetSlug, 'back' => $backParam]),
                                 default                           => $here,
                             };
                         ?>
                             <li>
                                 <?php if ($targetSlug === '' || !$roomInAddress): ?>
-                                    <form method="post" action="<?= $e($hereBase) ?>">
-                                        <input type="hidden" name="a" value="room_switch">
+                                    <form method="post" action="<?= $e(url('room_switch')) ?>">
                                         <input type="hidden" name="slug" value="<?= $e($targetSlug) ?>">
                                         <input type="hidden" name="to" value="<?= $e($switchPage) ?>">
                                         <?php if (!$roomInAddress): ?>
@@ -249,7 +242,7 @@ if (trim(strip_tags($help)) === '') {
                                         </button>
                                     </form>
                                 <?php else: ?>
-                                    <a href="<?= $e(url(['p' => $switchPage, 'room' => $targetSlug])) ?>"
+                                    <a href="<?= $e(url($switchPage, ['room' => $targetSlug])) ?>"
                                        class="roomswitch__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="true"' : '' ?>>
                                         <?= $e((string) $entry['name']) ?><?= $archivedTag ?>
                                     </a>
@@ -268,25 +261,25 @@ if (trim(strip_tags($help)) === '') {
                      tabs, for everyone, the songs in the room, the open wishes --
                      guests see how long the queue is -- and the open suggestions. */ ?>
             <?php if ($security->can('rooms')): ?>
-                <a href="<?= $e(url(['p' => 'rooms'])) ?>"<?= in_array($page, ['rooms', 'room'], true) ? ' aria-current="page"' : '' ?>>
+                <a href="<?= $e(url('rooms')) ?>"<?= in_array($page, ['rooms', 'room'], true) ? ' aria-current="page"' : '' ?>>
                     <?= icon('door') ?><?= $e(t('Rooms')) ?><?php if ($roomCount !== null): ?>
                         <span class="badge"><span aria-hidden="true"><?= (int) $roomCount ?></span><span class="sr-only"><?= $e(tn('{n} room', '{n} rooms', (int) $roomCount, ['n' => Format::number((int) $roomCount)])) ?></span></span>
                     <?php endif; ?>
                 </a>
             <?php endif; ?>
-            <a href="<?= $e(url(['p' => 'songs'])) ?>"<?= in_array($page, ['songs', 'room_songs'], true) ? ' aria-current="page"' : '' ?>>
+            <a href="<?= $e(url('songs')) ?>"<?= in_array($page, ['songs', 'room_songs'], true) ? ' aria-current="page"' : '' ?>>
                 <?= icon('note') ?><?= $e(t('Repertoire')) ?><?php if ($songCount !== null): ?>
                     <span class="badge"><span aria-hidden="true"><?= (int) $songCount ?></span><span class="sr-only"><?= $e(tn('{n} song', '{n} songs', (int) $songCount, ['n' => Format::number((int) $songCount)])) ?></span></span>
                 <?php endif; ?>
             </a>
-            <a href="<?= $e(url(['p' => 'wishes'])) ?>"<?= $page === 'wishes' ? ' aria-current="page"' : '' ?>>
+            <a href="<?= $e(url('wishes')) ?>"<?= $page === 'wishes' ? ' aria-current="page"' : '' ?>>
                 <?= icon('star') ?><?= $e(t('Wishes')) ?><?php if ($wishCount !== null): ?>
                     <span class="badge"><span aria-hidden="true"><?= (int) $wishCount ?></span><span class="sr-only"><?= $e(tn('{n} open wish', '{n} open wishes', (int) $wishCount)) ?></span></span>
                 <?php endif; ?>
             </a>
             <?php /* Song suggestions: everyone may suggest and sees the open
                      ones, so the tab and its counter are public too. */ ?>
-            <a href="<?= $e(url(['p' => 'suggestions'])) ?>"<?= $page === 'suggestions' ? ' aria-current="page"' : '' ?>>
+            <a href="<?= $e(url('suggestions')) ?>"<?= $page === 'suggestions' ? ' aria-current="page"' : '' ?>>
                 <?= icon('bulb') ?><?= $e(t('Suggestions')) ?><?php if ($suggestionCount !== null): ?>
                     <span class="badge"><span aria-hidden="true"><?= (int) $suggestionCount ?></span><span class="sr-only"><?= $e(tn('{n} open suggestion', '{n} open suggestions', (int) $suggestionCount)) ?></span></span>
                 <?php endif; ?>
@@ -349,7 +342,7 @@ if (trim(strip_tags($help)) === '') {
                 default           => t('Account: signed in as {name}', ['name' => (string) $account['username']]),
             };
             // Where the name form leads: /name, back to the current address.
-            $nameHref = url(['p' => 'name', 'back' => $here]);
+            $nameHref = url('name', ['back' => $here]);
             ?>
             <details class="account">
                 <summary class="account__toggle" aria-label="<?= $e($accountLabel) ?>"<?= $page === 'login' ? ' aria-current="page"' : '' ?>>
@@ -373,7 +366,7 @@ if (trim(strip_tags($help)) === '') {
                         <?php /* Personal settings (password, delete confirmations)
                                  -- they concern the account only, so they live here
                                  and not among the page tabs. */ ?>
-                        <a class="account__item<?= $page === 'settings' ? ' is-active' : '' ?>" href="<?= $e(url(['p' => 'settings', 'id' => (int) $account['id']])) ?>"<?= $page === 'settings' ? ' aria-current="page"' : '' ?>>
+                        <a class="account__item<?= $page === 'settings' ? ' is-active' : '' ?>" href="<?= $e(url('settings', ['id' => (int) $account['id']])) ?>"<?= $page === 'settings' ? ' aria-current="page"' : '' ?>>
                             <?= icon('gear', 14) ?><span class="account__label"><?= $e(t('User settings')) ?></span>
                         </a>
                         <?php if ($security->can('users')): ?>
@@ -405,7 +398,7 @@ if (trim(strip_tags($help)) === '') {
                                     <?php foreach ($adminItems as [$target, $pagesOf, $glyph, $label]): ?>
                                         <?php $active = in_array($page, $pagesOf, true); ?>
                                         <li>
-                                            <a href="<?= $e(url(['p' => $target])) ?>" class="account__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="page"' : '' ?>>
+                                            <a href="<?= $e(url($target)) ?>" class="account__item<?= $active ? ' is-active' : '' ?>"<?= $active ? ' aria-current="page"' : '' ?>>
                                                 <?= icon($glyph, 14) ?><span class="account__label"><?= $e($label) ?></span>
                                             </a>
                                         </li>
@@ -417,15 +410,17 @@ if (trim(strip_tags($help)) === '') {
                                  -- to check what guests get -- and back. Posts
                                  to the current page so the server knows where
                                  the switch happened. */ ?>
-                        <form method="post" action="<?= $e($hereBase) ?>">
-                            <input type="hidden" name="a" value="guest_view">
+                        <form method="post" action="<?= $e(url('guest_view')) ?>">
                             <input type="hidden" name="on" value="<?= $guestView ? '0' : '1' ?>">
                             <input type="hidden" name="back" value="<?= $e($here) ?>">
+                            <?php /* Which screen the switch happened on: a guest may
+                                     not see every page, and the action has an address
+                                     of its own, so the page names itself. */ ?>
+                            <input type="hidden" name="page" value="<?= $e($page) ?>">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                             <button type="submit" class="account__item<?= $guestView ? ' is-active' : '' ?>" aria-pressed="<?= $guestView ? 'true' : 'false' ?>"><?= icon('eye', 14) ?><span class="account__label"><?= $e(t('View as guest')) ?></span></button>
                         </form>
-                        <form method="post" action="<?= $e(url()) ?>">
-                            <input type="hidden" name="a" value="logout">
+                        <form method="post" action="<?= $e(url('logout')) ?>">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                             <button type="submit" class="account__item"><?= icon('logout', 14) ?><span class="account__label"><?= $e(t('Log out')) ?></span></button>
                         </form>
@@ -441,7 +436,7 @@ if (trim(strip_tags($help)) === '') {
                         <a class="account__item<?= $page === 'name' ? ' is-active' : '' ?>" href="<?= $e($nameHref) ?>"<?= $page === 'name' ? ' aria-current="page"' : '' ?>>
                             <?= icon('user', 14) ?><span class="account__label"><?= $e($guestName !== null ? t('Change name') : t('Set name')) ?></span>
                         </a>
-                        <a class="account__item<?= $page === 'login' ? ' is-active' : '' ?>" href="<?= $e(url(['p' => 'login'])) ?>"<?= $page === 'login' ? ' aria-current="page"' : '' ?>><?= icon('login', 14) ?><span class="account__label"><?= $e(t('Log in')) ?></span></a>
+                        <a class="account__item<?= $page === 'login' ? ' is-active' : '' ?>" href="<?= $e(url('login')) ?>"<?= $page === 'login' ? ' aria-current="page"' : '' ?>><?= icon('login', 14) ?><span class="account__label"><?= $e(t('Log in')) ?></span></a>
                     <?php endif; ?>
                 </div>
             </details>
@@ -459,10 +454,10 @@ if (trim(strip_tags($help)) === '') {
                     <strong><?= $e(t('Guest view.')) ?></strong>
                     <?= $e(t('The site as visitors see it.')) ?>
                 </span>
-                <form method="post" action="<?= $e($hereBase) ?>" class="dome__notice-action">
-                    <input type="hidden" name="a" value="guest_view">
+                <form method="post" action="<?= $e(url('guest_view')) ?>" class="dome__notice-action">
                     <input type="hidden" name="on" value="0">
                     <input type="hidden" name="back" value="<?= $e($here) ?>">
+                    <input type="hidden" name="page" value="<?= $e($page) ?>">
                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                     <button type="submit" class="link-button"><?= $e(t('End guest view')) ?></button>
                 </form>
@@ -487,8 +482,7 @@ if (trim(strip_tags($help)) === '') {
                     ]) ?></strong>
                 </span>
                 <?php if ($security->can('wishes')): ?>
-                    <form method="post" action="<?= $e($hereBase) ?>" class="dome__notice-action">
-                        <input type="hidden" name="a" value="pause">
+                    <form method="post" action="<?= $e(url('room_pause', ['id' => (int) $room['id']])) ?>" class="dome__notice-action">
                         <input type="hidden" name="state" value="0">
                         <input type="hidden" name="back" value="<?= $e($here) ?>">
                         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
@@ -511,7 +505,7 @@ if (trim(strip_tags($help)) === '') {
                 <span>
                     <strong><?= $e(t('Default password in use.')) ?></strong>
                     <?= t('Anyone who knows this software can sign in – {change}.', [
-                        'change' => '<a href="' . $e(url(['p' => 'settings', 'id' => (int) $security->user()['id']])) . '">' . $e(t('change it now')) . '</a>',
+                        'change' => '<a href="' . $e(url('settings', ['id' => (int) $security->user()['id']])) . '">' . $e(t('change it now')) . '</a>',
                     ]) ?>
                 </span>
             </p>
@@ -542,7 +536,7 @@ if (trim(strip_tags($help)) === '') {
             <script>(function (d) { if (d && typeof d.showModal === 'function') { d.removeAttribute('open'); d.showModal(); } }(document.currentScript.previousElementSibling));</script>
         <?php endif; ?>
 
-        <?= $content ?>
+        <?= $pageContent ?>
     </main>
 
     <?php if ($footerPages !== [] || $footer !== ''): ?>
@@ -554,7 +548,7 @@ if (trim(strip_tags($help)) === '') {
                     <ul role="list">
                         <?php foreach ($footerPages as $entry): ?>
                             <?php $reading = $page === 'page' && (string) ($content['slug'] ?? '') === $entry['slug']; ?>
-                            <li><a href="<?= $e(url(['p' => 'page', 'slug' => $entry['slug']])) ?>"<?= $reading ? ' aria-current="page"' : '' ?>><?= $e($entry['title']) ?></a></li>
+                            <li><a href="<?= $e(url('page', ['slug' => $entry['slug']])) ?>"<?= $reading ? ' aria-current="page"' : '' ?>><?= $e($entry['title']) ?></a></li>
                         <?php endforeach; ?>
                     </ul>
                 </nav>

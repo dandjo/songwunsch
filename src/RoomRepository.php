@@ -43,7 +43,10 @@ final class RoomRepository
     public const MAX_NAME = 128;
 
     /** Lower-case letters, digits and single hyphens in between -- safe in a path without encoding. */
-    public const SLUG_PATTERN = '/^[a-z0-9]+(?:-[a-z0-9]+)*$/';
+    public const SLUG_RAW = '[a-z0-9]+(?:-[a-z0-9]+)*';
+
+    /** The same shape anchored, for validating a value rather than a path. */
+    public const SLUG_PATTERN = '/^' . self::SLUG_RAW . '$/';
 
     /** Words the address /rooms/<...> uses for other things: /rooms/new, /rooms/main/edit. */
     public const RESERVED_SLUGS = ['new', 'main'];

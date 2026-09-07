@@ -22,7 +22,7 @@ use Songwunsch\SongRepository;
 
 $e        = static fn (?string $v): string => Format::e($v);
 $inRoom   = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
-$current  = url(['p' => 'songs', 'q' => $q, 'sort' => $sort, 'dir' => $dir, 'page' => $pageNo > 1 ? $pageNo : null]);
+$current  = url('songs', ['q' => $q, 'sort' => $sort, 'dir' => $dir, 'page' => $pageNo > 1 ? $pageNo : null]);
 $sortable = $repo->sortableFields();
 $columns  = ['artist' => t('Artist'), 'title' => t('Title'), 'length' => t('Length'), 'genre' => t('Genre')];
 
@@ -36,7 +36,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
     $nextDir  = $active && $dir === 'asc' ? 'desc' : 'asc';
     $ariaSort = $active ? ($dir === 'asc' ? 'ascending' : 'descending') : 'none';
     $arrow    = $active ? ($dir === 'asc' ? '▲' : '▼') : '';
-    $href     = url(['p' => 'songs', 'q' => $q, 'sort' => $key, 'dir' => $nextDir]);
+    $href     = url('songs', ['q' => $q, 'sort' => $key, 'dir' => $nextDir]);
 
     return '<th scope="col" class="col-' . $e($key) . '" aria-sort="' . $ariaSort . '">'
         . '<a class="sort' . ($active ? ' sort--active' : '') . '" href="' . $e($href) . '">'
@@ -72,12 +72,12 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
              live on the room list and the room's edit form, not here. */ ?>
     <div class="panel__actions">
         <?php if ($inRoom && $security->can('rooms')): ?>
-            <a class="link-button" href="<?= $e(url(['p' => 'room_songs', 'back' => $current])) ?>">
+            <a class="link-button" href="<?= $e(url('room_songs', ['back' => $current])) ?>">
                 <?= icon('note') ?>
                 <?= $e(t('Manage')) ?>
             </a>
         <?php elseif (!$inRoom && $security->can('songs')): ?>
-            <a class="link-button" href="<?= $e(url(['p' => 'song', 'back' => $current])) ?>">
+            <a class="link-button" href="<?= $e(url('song', ['id' => 'new', 'back' => $current])) ?>">
                 <?= icon('plus') ?>
                 <?= $e(t('Add song')) ?>
             </a>
@@ -94,7 +94,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
     <input type="search" id="q" name="q" value="<?= $e($q) ?>" placeholder="<?= $e(t('Artist, title, genre …')) ?>" autocomplete="off">
     <button type="submit"><?= $e(t('Search')) ?></button>
     <?php if ($q !== ''): ?>
-        <a class="search__reset" href="<?= $e(url(['p' => 'songs', 'sort' => $sort, 'dir' => $dir])) ?>"><?= $e(t('reset')) ?></a>
+        <a class="search__reset" href="<?= $e(url('songs', ['sort' => $sort, 'dir' => $dir])) ?>"><?= $e(t('reset')) ?></a>
     <?php endif; ?>
 </form>
 
@@ -103,7 +103,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
         <p class="empty">
             <?= $e(t('This room has no songs yet.')) ?>
             <?php if ($security->can('rooms')): ?>
-                <a href="<?= $e(url(['p' => 'room_songs', 'back' => $current])) ?>"><?= $e(t('Manage the room: pick its songs from the main list.')) ?></a>
+                <a href="<?= $e(url('room_songs', ['back' => $current])) ?>"><?= $e(t('Manage the room: pick its songs from the main list.')) ?></a>
             <?php endif; ?>
         </p>
     <?php else: ?>
@@ -112,7 +112,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
 <?php else: ?>
     <?php
     $sortbarItems = array_intersect_key($columns, $sortable);
-    $sortbarPage  = 'songs';
+    $sortbarRoute = 'songs';
     $sortbarExtra = ['q' => $q];
     require __DIR__ . '/_sortbar.php';
     ?>
@@ -155,8 +155,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                         <td class="cell-action">
                             <div class="row-actions">
                                 <?php if (!$paused): ?>
-                                    <form method="post" action="<?= $e(url()) ?>">
-                                        <input type="hidden" name="a" value="wish">
+                                    <form method="post" action="<?= $e(url('wish')) ?>">
                                         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                         <input type="hidden" name="back" value="<?= $e($current) ?>">
                                         <input type="hidden" name="key" value="<?= $e($rowKey) ?>">
@@ -173,15 +172,14 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                                 <?php if ($security->can('songs')): ?>
                                     <div class="row-actions__pair">
                                         <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>"
-                                           href="<?= $e(url(['p' => 'song', 'id' => $rowKey, 'back' => $current])) ?>">
+                                           href="<?= $e(url('song', ['id' => $rowKey, 'back' => $current])) ?>">
                                             <?= icon('pencil') ?>
                                             <span class="button__label"><?= $e(t('Edit')) ?></span>
                                             <span class="sr-only">: <?= $e($rowLabel) ?></span>
                                         </a>
                                         <?php if ($inRoom): ?>
                                             <?php /* In a room the song only leaves the room; the main list keeps it. */ ?>
-                                            <form method="post" action="<?= $e(url()) ?>">
-                                                <input type="hidden" name="a" value="room_songs_remove">
+                                            <form method="post" action="<?= $e(url('room_songs_remove')) ?>">
                                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                                 <input type="hidden" name="back" value="<?= $e($current) ?>">
                                                 <input type="hidden" name="key[]" value="<?= $e($rowKey) ?>">
@@ -192,12 +190,10 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                                                 </button>
                                             </form>
                                         <?php else: ?>
-                                            <form method="post" action="<?= $e(url()) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'songs')): ?>
+                                            <form method="post" action="<?= $e(url('song_delete', ['id' => $rowKey])) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'songs')): ?>
                                                   data-confirm="<?= $e(t('Permanently delete “{title}” from the repertoire?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
-                                                <input type="hidden" name="a" value="song_delete">
                                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                                 <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                                <input type="hidden" name="key" value="<?= $e($rowKey) ?>">
                                                 <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                                     <?= icon('trash') ?>
                                                     <span class="button__label"><?= $e(t('Delete')) ?></span>
@@ -217,7 +213,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
     </div>
 
     <?php
-    $pageUrl = static fn (int $page): string => url(['p' => 'songs', 'q' => $q, 'sort' => $sort, 'dir' => $dir, 'page' => $page > 1 ? $page : null]);
+    $pageUrl = static fn (int $page): string => url('songs', ['q' => $q, 'sort' => $sort, 'dir' => $dir, 'page' => $page > 1 ? $page : null]);
     require __DIR__ . '/_pager.php';
     ?>
 <?php endif; ?>

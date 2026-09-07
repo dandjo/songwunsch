@@ -36,7 +36,10 @@ final class PageRepository
     public const MAX_BODY  = 200000;
 
     /** Address part: lower-case letters, digits and single hyphens, like a room's slug. */
-    public const SLUG_PATTERN = '/^[a-z0-9]+(?:-[a-z0-9]+)*$/';
+    public const SLUG_RAW = '[a-z0-9]+(?:-[a-z0-9]+)*';
+
+    /** The same shape anchored, for validating a value rather than a path. */
+    public const SLUG_PATTERN = '/^' . self::SLUG_RAW . '$/';
 
     /** @var array<int,string>|null the fallback order, lazily read */
     private ?array $order = null;
