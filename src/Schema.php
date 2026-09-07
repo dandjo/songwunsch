@@ -203,10 +203,13 @@ final class Schema
      *
      * A single query against the INFORMATION_SCHEMA answers every question:
      * which tables exist and which columns they have. The answer is kept for
-     * the rest of the request: several places call this before they touch the
-     * database -- the room route, the action switch, the page -- and nothing
-     * drops a table between two of them. It saves that query on every request
-     * and matters most on the live-update poll, which is little else.
+     * the rest of the request, so the four places that call this before they
+     * touch the database -- RoomListener when it looks a room up and when it
+     * reads the start room, LiveUpdateListener before the poll tokens, and
+     * the kernel before the controller -- cost one query between them, and
+     * nothing drops a table in between. Each of them is its own guard on
+     * purpose: a request that reaches none of them (an unknown address, an
+     * address a visitor may not open) asks nothing at all.
      *
      * @return array<int,string> names of the tables that were created
      */
