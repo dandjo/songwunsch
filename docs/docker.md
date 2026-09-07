@@ -68,6 +68,19 @@ uses its own self-signed certificate, and the browser shows a warning.
 `songwunsch`. The `web` service waits until the database answers its health
 check before it starts.
 
+**The writable `assets/`.** Apache in the container runs as `www-data`, while
+the mounted project folder belongs to the user on the host. So that the live
+update can write its signal file there (`assets/live.txt`, see *Live updates*
+under [Usage](usage.md)), give the folder write permission once:
+
+```bash
+chmod o+w assets
+```
+
+Without it nothing breaks – every poll then goes to PHP, which is what
+happened before the signal file existed – but the local stack no longer
+behaves like the server, where PHP runs as the account that owns the files.
+
 **The `web` image** (`docker/Dockerfile`) adds the PHP extensions
 `pdo_mysql`, `opcache` and `gd` (with JPEG and WebP support, used to scale
 uploaded logos and to draw PNG QR codes). It enables the Apache modules

@@ -7,7 +7,9 @@
 #
 # Copies everything the application needs to run and leaves out what belongs
 # to development only: config.php (lives only on the server), the Docker
-# stack, environment files, all git metadata, editor files, this script.
+# stack, environment files, all git metadata, editor files, this script --
+# and assets/live.txt, which the application writes on the server itself
+# (src/LiveSignal.php) and which --delete would otherwise remove.
 #
 # --delete removes files on the server that no longer exist locally, so old
 # templates or an index.htm in the target do not linger. config.php is
@@ -77,6 +79,8 @@ rsync -rlptzv --delete $DRY \
     --exclude='/.idea/' \
     --exclude='/.claude/' \
     --exclude='/tools/deploy.sh' \
+    --exclude='/assets/live.txt' \
+    --exclude='/assets/live.txt.*.tmp' \
     --exclude='*.log' \
     --exclude='.DS_Store' \
     "$SRC/" "$HOST:$DIR/"

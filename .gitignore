@@ -6,6 +6,15 @@
 .DS_Store
 .idea/
 
+# The live-update signal, written by the application itself (LiveSignal);
+# the temp file only shows up when a write was interrupted
+/assets/live.txt
+/assets/live.txt.*.tmp
+
 # Docker
 /.env
 .claude/
+
+# AI tools
+CLAUDE.md
+AGENTS.md

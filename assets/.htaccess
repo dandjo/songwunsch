@@ -1,0 +1,8 @@
+# The web server hands this folder out itself (see the .htaccess in the root),
+# so nothing in it may ever be executed: the application writes its live
+# signal here (src/LiveSignal.php), and a folder that is written into must not
+# be able to run what lands in it. The rule in the root grants index.php by
+# name, which would otherwise apply here as well.
+<FilesMatch "\.php$">
+    Require all denied
+</FilesMatch>

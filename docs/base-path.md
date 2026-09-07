@@ -67,7 +67,7 @@ still open it. See [Rooms](rooms.md).
 A trailing slash is ignored: `/wishes` and `/wishes/` are the same page.
 Sorting, search and page number are query parameters
 (`/wishes?sort=artist`, `/rooms?q=fest&page=2`). `?lang=<code>` switches the
-language. Every page also answers `?poll=1` with a small JSON token for the
+language. Every page also answers `?poll=1` with two small JSON tokens for the
 live updates, see [Interface](interface.md).
 
 Lists and their records share a prefix: `/rooms` lists, `/rooms/new`

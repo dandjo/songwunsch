@@ -15,7 +15,9 @@ declare(strict_types=1);
  */
 
 use Songwunsch\Database;
+use Songwunsch\RoomRepository;
 use Songwunsch\Schema;
+use Songwunsch\Settings;
 
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);
@@ -74,6 +76,13 @@ try {
         }
     }
     $pdo->commit();
+    if ($inserted > 0) {
+        // Open pages poll this counter and redraw their repertoire. After
+        // the commit, not before: raising it also rings the doorbell for
+        // those pages (LiveSignal), and they must not come looking for songs
+        // that are not visible to them yet.
+        (new Settings($db))->increment(RoomRepository::REVISION_KEY);
+    }
 } catch (Throwable $e) {
     fwrite(STDERR, 'Error: ' . $e->getMessage() . "\n");
     exit(1);

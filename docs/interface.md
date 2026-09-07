@@ -38,6 +38,9 @@ Keep the contrast readable. Gold on a light background, for example, will
 not do. Check the result with the accessibility tools of the browser after a
 change, see [Accessibility](accessibility.md).
 
+A saved colour behaves the same way: every page that is open picks it up at
+its next check.
+
 ### How the colours reach the page
 
 The stylesheet (`assets/style.css`) keeps every colour as a custom property
@@ -74,16 +77,26 @@ the page one lands on stand at the top of the content and stay.
 
 ## Live updates
 
-Lists keep themselves current without a reload. Each case has its own
-interval, in seconds between two checks. The range is 0 to 300. `0` switches
-that case off; the page is then current only after a reload. See *Live
-updates* under [Usage](usage.md) for what each case does.
+Lists keep themselves current without a reload, and the counters on the tabs
+follow on every page. Each case has its own interval, in seconds between two
+checks. The range is 0 to 300. `0` switches that case off; the page is then
+current only after a reload. See *Live updates* under [Usage](usage.md) for
+what each case does.
+
+The interval belongs to the page one is looking at, not to what changed: a
+page checks at its own pace for everything, its own list as well as the
+header.
+
+A change here reaches the pages that are already open. They check once more
+at the old pace, take on the new colours, the new message duration and the
+new interval with their next check, and go on from there – nobody has to
+reload.
 
 | Setting | Default | What it checks |
 | --- | --- | --- |
-| Wish list | 4 | Whether a wish arrived, a row moved or was deleted |
-| Suggestions | 4 | The same for the list of suggestions |
-| Room state, rooms and songs | 10 | Whether the room was closed or opened and whether rooms or songs changed. The repertoire and the list of rooms redraw themselves; every other page renews the header only |
+| Wish list | 4 | How often the wish list looks for changes |
+| Suggestions | 4 | How often the suggestions look for changes |
+| Room state, rooms and songs | 10 | How often the repertoire, the room's song picker, the list of rooms and every page that is no list look for changes |
 
 The numbers are stored even when they are left at their default. A later
 change of a built-in default therefore does not change a site whose admins

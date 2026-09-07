@@ -838,8 +838,8 @@
         };
 
         // The body's data attributes belong to the page: the endpoint of
-        // its room, the live address, token, interval and scope, the
-        // messages. Taken over from the fetched document.
+        // its room, the live address, its two tokens, the doorbell, the
+        // interval, the messages. Taken over from the fetched document.
         var adoptBodyData = function (fresh) {
             Array.prototype.slice.call(document.body.attributes).forEach(function (attr) {
                 if (attr.name.indexOf('data-') === 0) {
@@ -873,16 +873,31 @@
 
         // Renew the header alone from the fetched page: the room's notice
         // appears or goes, the menus are drawn afresh, the content -- a form
-        // someone may be filling in -- stays as it is. False when the page
-        // is not one of ours.
-        var renderHeader = function (html) {
+        // someone may be filling in -- stays as it is. The colours come along
+        // (they sit in the head, not in the header) because an admin who
+        // changes them changes them for every page, this one included.
+        // False when the page is not one of ours.
+        //
+        // The page that came back may already show more than the one on
+        // screen: something changed while it was on its way. Its content
+        // token says so, and keeping only its header would take that token
+        // over without the content it stands for -- the change would be
+        // counted as seen and never appear. Then the whole content goes in
+        // instead, which is what it was going to take anyway.
+        var renderHeader = function (html, used) {
             var fresh = new DOMParser().parseFromString(html, 'text/html');
             var dome = fresh.querySelector('.dome');
             var current = document.querySelector('.dome');
             if (!dome || !current) {
                 return false;
             }
+            var here = document.body.getAttribute('data-live-rev');
+            var there = fresh.body.getAttribute('data-live-rev');
+            if (there && there !== here) {
+                return render(html, used);
+            }
             current.replaceWith(document.importNode(dome, true));
+            adoptColors(fresh);
             adoptBodyData(fresh);
             enhance(document.querySelector('.dome'));
             return true;
@@ -1100,57 +1115,79 @@
         };
     }());
 
-    // ---- Live update: poll the revision, reload the page's content --------
-    // Every page carries data-live (the poll address), data-live-rev (the
-    // token it was rendered with), data-live-interval (seconds between two
-    // polls, set under Interface per case; a case set to 0 carries no
-    // data-live at all) and data-live-scope. Every interval the token is
-    // fetched -- a few bytes; only when it moved on is the page fetched
-    // again. On the lists (scope "page": song list, wish list, suggestions)
-    // the content is swapped in, so everyone sees a wish arrive, a row move
-    // or the room close without touching reload; the song list's token is
-    // the room's state alone, so a wish does not reload it. Everywhere else
-    // (scope "header") the token is the room's state and only the header is
-    // renewed, so the closed-room notice follows the moderator while a form
-    // being filled in keeps its input. Hidden tabs do not poll; a drag in
-    // progress or an open header menu postpones the swap.
+    // ---- Live update: poll the revisions, reload what moved ---------------
+    // Every page carries data-live (the poll address), data-live-interval
+    // (seconds between two polls, set under Interface per case; a case set to
+    // 0 carries no data-live at all) and two tokens it was rendered with:
+    // data-live-head for the header and data-live-rev for the content of a
+    // list -- a page that is no list carries an empty one. Every interval
+    // both are fetched -- a few bytes; only when one moved on is the page
+    // fetched again.
+    // The content token brings the whole page with it, so everyone on a list
+    // sees a wish arrive, a song appear or the room close without touching
+    // reload. When only the head token moved, the header alone is renewed:
+    // the counters on the tabs and the closed-room notice follow everywhere,
+    // on a list as well as on a form, and a form being filled in -- or a
+    // search term just typed into a list -- keeps its input.
+    // Hidden tabs do not poll; a drag in progress or an open header menu
+    // postpones the swap.
+    //
+    // Asking costs almost nothing, because the question is not put to PHP.
+    // data-live-gate names a static file that every change of the
+    // application rewrites (LiveSignal) and that the web server hands out by
+    // itself -- no PHP process, no database, and with an ETag, so a page that
+    // asks again gets "304 Not Modified" and an empty body. Only when its
+    // content differs from data-live-gate-rev, the value this page was given,
+    // is data-live asked for the real tokens. In a quiet room that never
+    // happens. Every minute the tokens are fetched anyway, so a page cannot
+    // stay behind if the file stops being written or a signal is lost.
+    // Without data-live-gate -- the file cannot be written -- every poll goes
+    // to PHP, as it did before.
     var live = (function () {
         var failures = 0;
         var timer = null;
         var busy = false;
         var pending = false;
+        var pendingOn = '';  // the address the postponed swap belongs to
+        var asking = false;  // a round is in flight: do not start a second one
+        // When the tokens were last fetched from PHP, and how long the
+        // doorbell alone may answer for the page.
+        var asked = 0;
+        var FALLBACK = 60000;
 
         if (!window.fetch) {
             return { check: function () {} };
         }
 
-        // On a list the whole content is drawn anew; elsewhere
-        // (data-live-scope="header") the header alone, so a form being
-        // filled in keeps its input.
-        var headerOnly = function () {
-            return document.body.getAttribute('data-live-scope') === 'header';
-        };
         // A header menu that is open would snap shut with the swap: wait.
+        // Only the popouts themselves count -- the Administration group
+        // nested in the account menu stands open on the admin pages, and
+        // counting it would postpone every swap there for good.
         var menuOpen = function () {
-            return document.querySelector('.dome details[open], .sortbar details[open]') !== null;
+            return popouts().length > 0;
         };
 
-        // The token starts with the room's state (closed or open): when that
+        // Both tokens start with the room's state (closed or open): when that
         // part moved, the fresh page's data-msg-state says which; any other
         // change -- a wish, a song, a room -- is announced on a list only.
         var statePart = function (rev) {
             return (rev || '').split('.')[0];
         };
 
-        var swap = function () {
+        // content: the list's own token moved, so the whole page is drawn
+        // anew (the header comes with it); otherwise the header alone. The
+        // doorbell value is not written here: a swap that goes through
+        // brings the fetched page's own value along (adoptBodyData), and one
+        // that does not must be tried again on the next round.
+        var swap = function (content) {
             busy = true;
-            var before = document.body.getAttribute('data-live-rev');
-            (headerOnly() ? page.refreshHeader() : page.refresh()).then(function (swapped) {
+            var before = document.body.getAttribute('data-live-head');
+            (content ? page.refresh() : page.refreshHeader()).then(function (swapped) {
                 if (swapped) {
                     var status = document.getElementById('live-status');
-                    var message = statePart(before) !== statePart(document.body.getAttribute('data-live-rev'))
+                    var message = statePart(before) !== statePart(document.body.getAttribute('data-live-head'))
                         ? document.body.getAttribute('data-msg-state')
-                        : (headerOnly() ? '' : document.body.getAttribute('data-msg-updated') || 'The list has been updated.');
+                        : (content ? document.body.getAttribute('data-msg-updated') || 'The list has been updated.' : '');
                     if (status && message) {
                         status.textContent = message;
                     }
@@ -1162,13 +1199,64 @@
             });
         };
 
+        // Ask PHP for the two tokens and act on them. `signal` is the
+        // doorbell value this answer belongs to, remembered on the body so
+        // the next round knows what it has already asked about.
+        var tokens = function (url, signal) {
+            asked = Date.now();
+            return fetch(url, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'fetch' },
+                credentials: 'same-origin',
+                cache: 'no-store'
+            }).then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                failures = 0;
+                if (!data || typeof data.head !== 'string') {
+                    return;
+                }
+                // The tokens shown are read afresh: a soft navigation may
+                // have exchanged the content meanwhile.
+                var content = typeof data.rev === 'string' && data.rev !== ''
+                    && data.rev !== document.body.getAttribute('data-live-rev');
+                if (!content && data.head === document.body.getAttribute('data-live-head')) {
+                    // Nothing to draw: this ring of the doorbell is answered,
+                    // and the next round may go back to the static file.
+                    if (signal) {
+                        document.body.setAttribute('data-live-gate-rev', signal);
+                    }
+                    return;
+                }
+                if (dragging || menuOpen()) {
+                    // A content swap that waits stays a content swap: its
+                    // token keeps differing until it has happened. It belongs
+                    // to this address; a soft navigation drops it.
+                    pending = content ? 'content' : 'header';
+                    pendingOn = window.location.href;
+                    return;
+                }
+                return swap(content);
+            }).catch(function () {
+                // Back off a little on errors: the wait doubles per failed
+                // poll, up to sixteen times the interval.
+                failures = Math.min(failures + 1, 4);
+            });
+        };
+
         var check = function () {
-            if (busy || document.hidden) {
+            if (busy || asking || document.hidden) {
                 return;
             }
-            if (pending && !dragging && !menuOpen()) {
+            // A postponed swap belongs to the page it was postponed on: after
+            // a soft navigation it would exchange a content nobody asked
+            // about -- and take a form being filled in with it.
+            if (pending && pendingOn !== window.location.href) {
                 pending = false;
-                swap();
+            }
+            if (pending && !dragging && !menuOpen()) {
+                var postponed = pending;
+                pending = false;
+                swap(postponed === 'content');
                 return;
             }
             // Read afresh each time: the soft navigation may have brought a
@@ -1177,27 +1265,34 @@
             if (!url) {
                 return;
             }
-            fetch(url, {
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'fetch' },
-                credentials: 'same-origin',
-                cache: 'no-store'
-            }).then(function (response) {
-                return response.json();
-            }).then(function (data) {
-                failures = 0;
-                // The revision shown is read afresh: a soft navigation may
-                // have exchanged the content meanwhile.
-                if (data && typeof data.rev === 'string' && data.rev !== document.body.getAttribute('data-live-rev')) {
-                    if (dragging || menuOpen()) {
-                        pending = true;
-                    } else {
-                        swap();
-                    }
+            var done = function () { asking = false; };
+            asking = true;
+            var gate = document.body.getAttribute('data-live-gate');
+            if (!gate || Date.now() - asked > FALLBACK) {
+                tokens(url, null).then(done, done);
+                return;
+            }
+            // 'no-cache', not 'no-store': the browser is meant to ask with
+            // the ETag it has, so an unchanged file comes back as a 304 with
+            // no body at all. A doorbell that answers says nothing about PHP,
+            // so it does not clear the back-off -- only an answered ?poll=1
+            // does.
+            fetch(gate, { credentials: 'same-origin', cache: 'no-cache' }).then(function (response) {
+                if (!response.ok) {
+                    throw new Error('gate');
                 }
+                return response.text();
+            }).then(function (text) {
+                var signal = text.replace(/\s+/g, '');
+                if (signal !== '' && signal === document.body.getAttribute('data-live-gate-rev')) {
+                    return; // Nothing has happened anywhere: no PHP, no database.
+                }
+                return tokens(url, signal);
             }).catch(function () {
-                // Back off a little on errors, up to a minute.
-                failures = Math.min(failures + 1, 4);
-            });
+                // No doorbell (missing after a deployment, or unreachable):
+                // ask PHP itself, which writes the file again as it renders.
+                return tokens(url, null);
+            }).then(done, done);
         };
 
         // Read afresh for every poll, like the address: a soft navigation

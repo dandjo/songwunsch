@@ -63,39 +63,78 @@ back to it via *#* or *Manual order*.
 
 ## Live updates
 
-The lists keep themselves current without a reload. Every change raises a
-revision counter in the `settings` table:
+The lists keep themselves current without a reload, and the counters on the
+tabs follow on every page. Every change raises a revision counter in the
+`settings` table:
 
 - `wishes_rev` (main room) and `wishes_rev:<room id>`: a wish coming in,
   deleted or moved, the list cleared, the room closed or opened.
+- `wishes_all_rev`: the same for any room at once, for the list of rooms.
 - `suggestions_rev`: a suggestion made, adopted or deleted.
 - `catalog_rev`: a room created, renamed, archived or deleted, the main room
   renamed, the start room chosen, a song added, edited or removed, a room's
   selection changed.
+- `ui_rev`: something the page shell shows – the colours, the message
+  duration, the polling intervals (*Administration → Interface*) and the logo
+  in the header (*Administration → Logos*).
 
 The counters wrap at a million; only the difference matters.
 
-Every page has a token. It starts with the room's state, closed or open, and
-carries `catalog_rev`, because the header's room switcher and tab counters
-show that. The wish list adds its own wish revision. The suggestions add
-`suggestions_rev` and the room's wish revision, since closing the room hides
-their form as well.
+Every page has two tokens, and both start with the room's state, closed or
+open.
 
-The repertoire, the list of rooms, the wish list and the suggestions redraw
-their whole content when the token moves; a search term stays in place.
-When a moderator closes the room, the *Wish* buttons disappear and the
-closed-room notice appears as soon as the token moves, and both come back
-when it opens. Every other page (a form, an admin page) polls the same token
-and on a change renews only the header. So the closed-room notice and the
-room switcher follow everywhere while a form being filled in keeps its
-input. The announcement for screen readers tells a closing or opening apart
-from any other change.
+The **head token** stands for the header, which every page carries: it holds
+`catalog_rev` behind the room switcher and the counters on the *Rooms* and
+*Repertoire* tabs, the room's wish revision behind the counter on *Wishes*,
+`suggestions_rev` behind the one on *Suggestions* and `ui_rev` behind the
+look of the shell. When it moves, the header alone is drawn anew – on a form
+as on a list, and the colours come with it. So the counters, the closed-room
+notice, the logo, the message duration and the polling pace itself follow
+everywhere while a form being filled in, or a search term just typed, keeps
+its input.
 
-An open page polls `?poll=1` on its own address. The answer is a JSON object
-of a few bytes. Only when the token has moved does the page fetch itself
-again and swap the content in. Focus and scroll position stay. A drag in
-progress or an open menu postpones the swap. Hidden tabs do not poll. After
-an error the wait doubles, up to 16 times the interval.
+An admin who changes a polling interval therefore changes it for the pages
+that are already open: they renew their header at their old pace one last
+time and go on at the new one.
+
+The **page token** stands for the content, and only a list has one. When it
+moves, the whole page is drawn anew and a search term stays in place. The
+repertoire and the room's song picker follow `catalog_rev`; the list of rooms
+follows `wishes_all_rev` as well, because it counts the wishes of every room
+and marks the closed ones; the wish list follows its own wish revision, the
+suggestions theirs plus the room's wish revision, since closing the room
+hides their form as well. When a moderator closes the room, the *Wish*
+buttons disappear and the closed-room notice appears, and both come back when
+it opens. The announcement for screen readers tells a closing or opening
+apart from any other change.
+
+### What a page actually asks for
+
+An open page does not ask PHP whether something happened. It asks the web
+server for one small file, `assets/live.txt`, whose content the application
+rewrites whenever anything in the `settings` table changes – and every change
+above raises a counter there. The web server hands that file out by itself:
+no PHP process, no database query, and because it carries an ETag, a page
+that asks again is answered with *304 Not Modified* and an empty body. In a
+quiet room that is all that ever happens.
+
+Only when the content differs from the value the page was given does it ask
+`?poll=1` on its own address for the two tokens – a JSON object of a few
+bytes – and only when a token has moved does it fetch itself again and swap
+in what changed. Once a minute the tokens are fetched anyway, so a page
+cannot fall behind if the file stops being written.
+
+The file says *something changed*, never what: it is readable by anyone, and
+a room is often named after the hosts of a private party. Room names, room
+ids and how busy a room is stay out of it.
+
+If the file cannot be written – `assets/` not writable for the web server –
+nothing breaks: every poll then goes to PHP, as it did before. See
+[Installation](installation.md).
+
+Focus and scroll position stay through a swap. A drag in progress or an open
+menu postpones it. Hidden tabs do not poll. After an error the wait doubles,
+up to 16 times the interval.
 
 How often a page asks is set under *Administration → Interface*
 (`/admin/ui`), one interval per case in seconds: wish list (default 4),

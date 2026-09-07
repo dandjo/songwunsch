@@ -53,6 +53,7 @@ use Songwunsch\Format;
 use Songwunsch\GuestName;
 use Songwunsch\Html;
 use Songwunsch\Limits;
+use Songwunsch\LiveSignal;
 use Songwunsch\PageRepository;
 use Songwunsch\RoomMemory;
 use Songwunsch\RoomRepository;
@@ -103,8 +104,11 @@ $uploads  = new Uploads($db);
 // $wishes and $guard are bound to the room and are created after routing.
 // The main room may carry a name of its own (Rooms -> Edit on the main room).
 try {
-    RoomRepository::nameMainRoom((string) $settings->get(RoomRepository::MAIN_NAME_KEY, ''));
-    RoomRepository::listMainRoom((string) $settings->get(RoomRepository::MAIN_LISTED_KEY, '1') === '1');
+    // Both entries in one query: they share the prefix, and this runs on
+    // every request, the live-update poll included.
+    $mainRoom = $settings->withPrefix(RoomRepository::MAIN_KEY_PREFIX);
+    RoomRepository::nameMainRoom((string) ($mainRoom['name'] ?? ''));
+    RoomRepository::listMainRoom((string) ($mainRoom['listed'] ?? '1') === '1');
 } catch (Throwable $e) {
     // No database yet: the translated default stands; the page reports the problem.
 }
@@ -399,6 +403,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 Colors::save($settings, $colors['values']);
                 $ui->save($numbers['values']);
+                // Pages that are open take on the new colours, the new
+                // message duration and the new polling pace at their next
+                // poll -- they carry this counter in their head token.
+                $settings->increment(Ui::REVISION_KEY);
                 flash('ok', t('The interface settings have been saved.'));
                 redirect(url(['p' => 'ui']));
                 // no break
@@ -433,6 +441,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $newId = $uploads->add(Uploads::LOGO, $check);
                 if ((string) ($_POST['activate'] ?? '') === '1') {
                     $settings->set(Settings::LOGO_ID, (string) $newId);
+                    $settings->increment(Ui::REVISION_KEY); // the header changed for everyone
                     flash('ok', t('The logo has been uploaded and is live in the header.'));
                 } else {
                     flash('ok', t('The logo has been uploaded – switch it live below when you want it shown.'));
@@ -449,6 +458,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     redirect(back(url(['p' => 'logos'])));
                 }
                 $settings->set(Settings::LOGO_ID, (string) $id);
+                $settings->increment(Ui::REVISION_KEY); // the header changed for everyone
                 flash('ok', $id > 0 ? t('The header shows this logo now.') : t('The header shows the word mark again.'));
                 redirect(back(url(['p' => 'logos'])));
                 // no break
@@ -462,6 +472,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 if ((int) $settings->get(Settings::LOGO_ID, '0') === $id) {
                     $settings->delete(Settings::LOGO_ID); // no logo: no entry, the reads default to 0
+                    $settings->increment(Ui::REVISION_KEY); // the header changed for everyone
                     flash('ok', t('The logo has been deleted – the header shows the word mark again.'));
                 } else {
                     flash('ok', t('The logo has been deleted.'));
@@ -1433,6 +1444,96 @@ $hereParams = ['p' => $page]
     + ($routeSuggestion > 0 ? ['suggestion' => $routeSuggestion] : [])
     + ($routeSlug !== '' ? ['slug' => $routeSlug] : [])
     + ($routeFormat !== '' ? ['format' => $routeFormat] : []);
+// --- Live updates -----------------------------------------------------------
+// Every page polls two tokens (app.js); ?poll=1 answers with them and nothing
+// else. Both start with the room's state -- closed or open -- so that app.js
+// can tell a closing from any other change and announce it.
+//
+// This stands before the page below is put together, because that is the
+// point: a poll is not a page. It builds no view, takes no flash message off
+// the session and reads no setting its answer does not need.
+$livePaused   = false; // wishing closed in this room -- notice in the header
+$liveHead     = '';
+$livePage     = '';
+$liveInterval = 0;
+$liveOff      = $page === 'logo' || $routeFormat !== ''; // resources without a header
+try {
+    // The tables are there before the settings are read; after the first
+    // call in this request this costs nothing (Schema::ensure()).
+    $schema->ensure();
+
+    // The head token stands for the header, which every page carries: the
+    // catalogue revision (rooms and songs, see RoomRepository::REVISION_KEY)
+    // behind the room switcher and the counters on the Rooms and Repertoire
+    // tabs, the room's wish revision behind the counter on the Wishes tab and
+    // the revision of the suggestions behind theirs -- and the interface
+    // revision (Ui::REVISION_KEY) behind the look of the shell: the colours,
+    // the logo, how long a message stays and how often the page asks. When it
+    // moves, the header alone is drawn anew, so all of that follows on every
+    // page while a form being filled in keeps its input; an interval saved
+    // under Interface thus reaches the pages that are already open.
+    // The suggestions count per room but their revision is one for all
+    // rooms: a suggestion elsewhere renews a header for nothing, and never
+    // misses one.
+    //
+    // The page token stands for the content, and only a list has one -- a
+    // form must not be exchanged under the hands filling it in. When it
+    // moves, the whole content is drawn anew. The repertoire and the room's
+    // song picker follow the catalogue; the list of rooms follows every
+    // room's wish list too (WishGuard::allRevision()), because it counts the
+    // wishes of each room and marks the closed ones -- a room the visitor is
+    // not in must reach it as well; the wish list follows its own revision,
+    // the suggestions theirs plus the room's wish revision, since closing the
+    // room hides their form as well.
+    //
+    // How often a page asks is set under Interface, one interval per case;
+    // 0 switches the case off: its pages carry no live address and do not
+    // poll. The poll itself answers all the same, so a page opened before
+    // the switch keeps working until it loads again. Resources without a
+    // header (a logo, a QR image) have no token at all.
+    //
+    // Every token below builds on the one above it, so a page names the
+    // shortest one that covers what it shows; the head token is the longest.
+    //
+    // The rows they are made of, in one query instead of one apiece.
+    $settings->prefetch(array_merge($guard->liveKeys(), [
+        RoomRepository::REVISION_KEY,
+        SuggestionRepository::REVISION_KEY,
+        Ui::REVISION_KEY,
+    ]));
+    $livePaused = $guard->isPaused();
+    $roomState  = $livePaused ? '1' : '0';
+    $catalogRev = $roomState . '.' . $settings->get(RoomRepository::REVISION_KEY, '0');
+    $wishesRev  = $catalogRev . '.' . $guard->revision();
+    $suggestRev = $wishesRev . '.' . $settings->get(SuggestionRepository::REVISION_KEY, '0');
+    // The head token alone carries the interface revision: the look, the
+    // message duration and the polling pace belong to the shell, not to any
+    // list, so a save there renews headers and leaves every content alone.
+    $liveHead   = $suggestRev . '.' . $settings->get(Ui::REVISION_KEY, '0');
+    [$livePage, $liveEvery] = match (true) {
+        $page === 'songs'       => [$catalogRev, 'poll_room_sec'],
+        $page === 'room_songs'  => [$catalogRev, 'poll_room_sec'],
+        $page === 'rooms'       => [$catalogRev . '.' . $guard->allRevision(), 'poll_room_sec'],
+        $page === 'wishes'      => [$wishesRev, 'poll_wishes_sec'],
+        $page === 'suggestions' => [$suggestRev, 'poll_suggestions_sec'],
+        default                 => ['', 'poll_room_sec'],
+    };
+    if (!$liveOff && isset($_GET['poll'])) {
+        header('Cache-Control: no-store');
+        // Nothing below this line needs the session, and its file is locked
+        // for as long as it is open: letting go now lets a page this same
+        // browser is loading in parallel carry on.
+        session_write_close();
+        send_json(['rev' => $livePage, 'head' => $liveHead]);
+    }
+    // Only now, past the answer above: reading it costs the poll a query.
+    $liveInterval = $liveOff ? 0 : $ui->get($liveEvery);
+} catch (Throwable $e) {
+    // No database, no tokens: the page below reports the problem, and there
+    // is nothing an open page could poll for.
+    $liveOff = true;
+}
+
 $view = [
     'page'       => $page,
     'hereParams' => $hereParams,
@@ -1447,7 +1548,7 @@ $view = [
     'songCount'  => null,  // badge on the Repertoire tab: songs in the room, or on the main list
     'wishCount'  => null,
     'suggestionCount' => null, // badge on the Suggestions tab, for everyone
-    'live'       => null,  // polling for live updates: ['url' => ..., 'rev' => ..., 'interval' => seconds, 'scope' => 'page'|'header'], see below
+    'live'       => null,  // polling for live updates, filled below from the block above; see it for the two tokens
     'paused'     => false, // wishing closed by the moderator -- notice in the header
     'roomList'   => [],    // rooms for the switcher in the header
     'ownRooms'   => [],    // guests: the unlisted rooms they entered, "Your rooms" in the switcher
@@ -1462,43 +1563,25 @@ $view = [
 
 try {
     $schema->ensure();
-    $view['paused']   = $guard->isPaused();
-
-    // Live updates (app.js): every page polls a token that changes with
-    // every change of what it shows; ?poll=1 answers with that token alone.
-    // The token starts with the room's state -- closed or open -- so that
-    // app.js can tell a closing from any other change and announce it; then
-    // the catalogue revision (rooms and songs, see RoomRepository::
-    // REVISION_KEY), which every page carries because the header's room
-    // switcher and tab counters show it. The wish list adds its own
-    // revision, the suggestions theirs plus the room's wish revision, since
-    // closing the room hides their form as well. The lists redraw
-    // themselves whole ('scope' => 'page'); every other page renews the
-    // header alone ('scope' => 'header'): the closed-room notice and the
-    // room switcher follow while a form being filled in stays untouched.
-    // How often a page asks is set under Interface, one interval per case;
-    // 0 switches the case off: its pages carry no live address and do not
-    // poll. The poll itself answers all the same, so a page opened before
-    // the switch keeps working until it loads again. Resources without a
-    // header (a logo, a QR image) have no token.
-    $roomState  = $guard->isPaused() ? '1' : '0';
-    $catalogRev = $roomState . '.' . $settings->get(RoomRepository::REVISION_KEY, '0');
-    [$liveToken, $liveInterval, $liveScope] = match (true) {
-        $page === 'songs'       => [$catalogRev, $ui->get('poll_room_sec'), 'page'],
-        $page === 'rooms'       => [$catalogRev, $ui->get('poll_room_sec'), 'page'],
-        $page === 'wishes'      => [$catalogRev . '.' . $guard->revision(), $ui->get('poll_wishes_sec'), 'page'],
-        $page === 'suggestions' => [$catalogRev . '.' . $settings->get(SuggestionRepository::REVISION_KEY, '0') . '.' . $guard->revision(), $ui->get('poll_suggestions_sec'), 'page'],
-        $page === 'logo' || $routeFormat !== '' => [null, 0, 'page'],
-        default                 => [$catalogRev, $ui->get('poll_room_sec'), 'header'],
-    };
-    if ($liveToken !== null && isset($_GET['poll'])) {
-        header('Cache-Control: no-store');
-        send_json(['rev' => $liveToken]);
-    }
-    if ($liveToken !== null && $liveInterval > 0) {
+    $view['paused'] = $livePaused;
+    if (!$liveOff && $liveInterval > 0) {
+        // The doorbell open pages ask for instead of asking PHP, and its
+        // value right now; written here if it is missing, which it is after
+        // a deployment. Empty when it cannot be written -- an assets folder
+        // the web server may not write into: then every poll goes to PHP, as
+        // it did before the doorbell existed (LiveSignal).
+        $liveSignal = LiveSignal::ensure();
         // The poll address is this page's own, ids and all (see $hereParams).
-        $view['live'] = ['url' => url($hereParams + ['poll' => 1]), 'rev' => $liveToken, 'interval' => $liveInterval, 'scope' => $liveScope];
+        $view['live'] = [
+            'url'      => url($hereParams + ['poll' => 1]),
+            'rev'      => $livePage,
+            'head'     => $liveHead,
+            'interval' => $liveInterval,
+            'gate'     => $liveSignal === '' ? '' : LiveSignal::url(),
+            'signal'   => $liveSignal,
+        ];
     }
+
     // The room switcher: guests get the listed rooms only, plus the unlisted
     // rooms they entered through their address, under "Your rooms". Rooms
     // that are gone, archived or listed by now leave that memory.
@@ -1960,7 +2043,13 @@ try {
             $filter  = $canEdit && in_array($filter, RoomRepository::FILTERS, true) ? $filter : 'active';
             $pageNo  = max(1, (int) ($_GET['page'] ?? 1));
 
-            $roomResult = $rooms->search($q, $filter, $pageNo, $perPage, !$security->isLoggedIn());
+            // Through paged(), like the repertoire: a room deleted meanwhile
+            // must not leave the viewer on a page that no longer exists.
+            $roomResult = paged(
+                static fn (int $page): array => $rooms->search($q, $filter, $page, $perPage, !$security->isLoggedIn()),
+                $pageNo,
+                $perPage,
+            );
 
             $view['title']        = t('Rooms');
             $view['template']     = 'rooms';
@@ -1968,8 +2057,8 @@ try {
             $view['total']        = $roomResult['total'];
             $view['q']            = $q;
             $view['filter']       = $filter;
-            $view['pageNo']       = $pageNo;
-            $view['pages']        = max(1, (int) ceil($roomResult['total'] / $perPage));
+            $view['pageNo']       = $roomResult['page'];
+            $view['pages']        = $roomResult['pages'];
             $view['canEdit']      = $canEdit;
             $view['startRoomId']  = (int) $settings->get(RoomRepository::START_ROOM_KEY, '0');
             // The admins' switch closes wishing in every room at once and later
@@ -2119,7 +2208,14 @@ try {
             $q       = trim((string) ($_GET['q'] ?? ''));
             $pageNo  = max(1, (int) ($_GET['page'] ?? 1));
 
-            $result = $songs->search($q, $sort, $dir, $pageNo, $perPage, $roomId);
+            // Through paged(): when the last songs of a page are gone -- a
+            // live update brings the delete of another editor -- the page
+            // that is left takes its place instead of an empty list.
+            $result = paged(
+                static fn (int $page): array => $songs->search($q, $sort, $dir, $page, $perPage, $roomId),
+                $pageNo,
+                $perPage,
+            );
 
             $view['title']     = t('Repertoire');
             $view['template']  = 'home';
@@ -2130,9 +2226,9 @@ try {
             $view['q']         = $q;
             $view['sort']      = array_key_exists($sort, $songs->sortableFields()) ? $sort : 'artist';
             $view['dir']       = strtolower($dir) === 'desc' ? 'desc' : 'asc';
-            $view['pageNo']    = $pageNo;
+            $view['pageNo']    = $result['page'];
             $view['perPage']   = $perPage;
-            $view['pages']     = max(1, (int) ceil($result['total'] / $perPage));
+            $view['pages']     = $result['pages'];
             break;
     }
 

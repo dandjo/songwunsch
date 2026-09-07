@@ -208,11 +208,14 @@ try {
         $insert->execute([$song['artist'], $song['title'], $song['length_sec'], $song['genre']]);
         $inserted++;
     }
+    $pdo->commit();
     if ($inserted > 0 || $removed > 0) {
-        // Open pages poll this counter and redraw their repertoire.
+        // Open pages poll this counter and redraw their repertoire. After
+        // the commit, not before: raising it also rings the doorbell for
+        // those pages (LiveSignal), and they must not come looking for songs
+        // that are not visible to them yet.
         (new Settings($db))->increment(RoomRepository::REVISION_KEY);
     }
-    $pdo->commit();
 } catch (Throwable $e) {
     if (isset($pdo) && $pdo->inTransaction()) {
         $pdo->rollBack();

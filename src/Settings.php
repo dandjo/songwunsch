@@ -33,15 +33,90 @@ final class Settings
     /** What a user can switch the delete confirmation off for -- each an area of Security::can(). */
     public const CONFIRM_DELETE = ['songs', 'suggestions', 'wishes', 'rooms'];
 
+    /**
+     * What was read already, for the rest of the request: name => value, or
+     * null for a name the table does not have. The same entries are asked for
+     * several times while a page is built -- the room's open/closed switch
+     * once for the header notice and once for the live token, the main room's
+     * name, the colours -- and the live-update poll is almost nothing but
+     * such reads. Every write empties the cache again, so a value that was
+     * just saved is never served from it.
+     *
+     * @var array<string,?string>
+     */
+    private array $cache = [];
+
+    /** @var array<string,array<string,string>> the same for withPrefix() */
+    private array $groups = [];
+
     public function __construct(private readonly Database $db)
     {
     }
 
+    /**
+     * A write went through: forget what was read and ring the doorbell for
+     * the open pages (LiveSignal). Everything an open page watches -- the
+     * room's open/closed switch, the revision counters of the catalogue, the
+     * wish lists and the suggestions -- is a row of this table, so this one
+     * place catches every change; a write that moves no token at most costs
+     * one page a single ?poll=1 that finds nothing.
+     *
+     * $rows is what the statement really changed; a statement that changed
+     * nothing must not ring. The case that matters is the DELETE that matched
+     * no row: the wish guard sweeps the old daily secrets on every single
+     * request, and without this the doorbell would ring for every visitor all
+     * evening and the pages would be back to asking PHP every time. Saving a
+     * value that stood already does ring, because updated_at moves with it --
+     * that is an admin pressing Save, not a hot path.
+     */
+    private function changed(int $rows): void
+    {
+        if ($rows < 1) {
+            return;
+        }
+        $this->cache  = [];
+        $this->groups = [];
+        LiveSignal::touch();
+    }
+
     public function get(string $name, ?string $default = null): ?string
     {
-        $row = $this->db->one('SELECT value FROM ' . self::TABLE . ' WHERE name = ?', [$name]);
+        if (!array_key_exists($name, $this->cache)) {
+            $row = $this->db->one('SELECT value FROM ' . self::TABLE . ' WHERE name = ?', [$name]);
+            $this->cache[$name] = $row === null ? null : (string) $row['value'];
+        }
 
-        return $row === null ? $default : (string) $row['value'];
+        return $this->cache[$name] ?? $default;
+    }
+
+    /**
+     * Read several entries in one query and keep them for the rest of the
+     * request. The live-update poll is nothing but four such reads (the
+     * room's open/closed switch and three revision counters), and four
+     * round trips for four small rows of one table are three too many.
+     * Names that the table does not have are remembered as missing, so the
+     * get() that follows does not go looking for them either.
+     *
+     * @param array<int,string> $names
+     */
+    public function prefetch(array $names): void
+    {
+        $wanted = array_values(array_unique(array_filter($names, fn (string $n): bool => !array_key_exists($n, $this->cache))));
+        if ($wanted === []) {
+            return;
+        }
+
+        $rows = $this->db->all(
+            'SELECT name, value FROM ' . self::TABLE . ' WHERE name IN (' . implode(', ', array_fill(0, count($wanted), '?')) . ')',
+            $wanted,
+        );
+
+        foreach ($wanted as $name) {
+            $this->cache[$name] = null;
+        }
+        foreach ($rows as $row) {
+            $this->cache[(string) $row['name']] = (string) $row['value'];
+        }
     }
 
     /**
@@ -53,6 +128,10 @@ final class Settings
      */
     public function withPrefix(string $prefix): array
     {
+        if (isset($this->groups[$prefix])) {
+            return $this->groups[$prefix];
+        }
+
         $rows = $this->db->all(
             'SELECT name, value FROM ' . self::TABLE . ' WHERE name LIKE ?',
             [str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $prefix) . '%'],
@@ -63,16 +142,20 @@ final class Settings
             $out[substr((string) $row['name'], strlen($prefix))] = (string) $row['value'];
         }
 
-        return $out;
+        return $this->groups[$prefix] = $out;
     }
 
     public function set(string $name, string $value): void
     {
-        $this->db->exec(
+        // MySQL counts an INSERT ... ON DUPLICATE KEY UPDATE as 1 for a new
+        // row, 2 for one it really changed and 0 when the value stood
+        // already -- exactly what changed() wants to know.
+        $rows = $this->db->exec(
             'INSERT INTO ' . self::TABLE . ' (name, value, updated_at) VALUES (?, ?, ?)
              ON DUPLICATE KEY UPDATE value = VALUES(value), updated_at = VALUES(updated_at)',
             [$name, $value, date('Y-m-d H:i:s')],
         );
+        $this->changed($rows);
     }
 
     /**
@@ -84,16 +167,22 @@ final class Settings
      */
     public function increment(string $name): void
     {
-        $this->db->exec(
+        $rows = $this->db->exec(
             'INSERT INTO ' . self::TABLE . " (name, value, updated_at) VALUES (?, '1', ?)
              ON DUPLICATE KEY UPDATE value = (CAST(value AS UNSIGNED) + 1) % 1000000, updated_at = VALUES(updated_at)",
             [$name, date('Y-m-d H:i:s')],
         );
+        $this->changed($rows);
     }
 
     /**
      * Create a value only if it does not exist yet. Two concurrent calls thus
      * agree on the same value -- important for secrets.
+     *
+     * No doorbell here: this runs on every request for the day's secret and
+     * writes nothing almost every time, so ringing would signal a change that
+     * did not happen. The read afterwards must not come from the cache
+     * either, in case another request created the row meanwhile.
      */
     public function setIfMissing(string $name, string $value): string
     {
@@ -101,6 +190,7 @@ final class Settings
             'INSERT IGNORE INTO ' . self::TABLE . ' (name, value, updated_at) VALUES (?, ?, ?)',
             [$name, $value, date('Y-m-d H:i:s')],
         );
+        unset($this->cache[$name]);
 
         return (string) $this->get($name, $value);
     }
@@ -136,7 +226,7 @@ final class Settings
 
     public function delete(string $name): void
     {
-        $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE name = ?', [$name]);
+        $this->changed($this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE name = ?', [$name]));
     }
 
     /** Delete every entry with this prefix except the ones listed. */
@@ -150,6 +240,6 @@ final class Settings
             $params = array_merge($params, array_values($keep));
         }
 
-        $this->db->exec($sql, $params);
+        $this->changed($this->db->exec($sql, $params));
     }
 }

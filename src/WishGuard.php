@@ -29,6 +29,7 @@ final class WishGuard
     private const THROTTLE      = '`' . Schema::THROTTLE . '`';
     private const PAUSED_KEY    = 'wishes_paused'; // + ':<room id>' for rooms other than the default
     private const REVISION_KEY  = 'wishes_rev';    // + ':<room id>' -- counts every change of the room's wish list
+    private const ALL_REVISION_KEY = 'wishes_all_rev'; // counts every change of any room's wish list, for the room list
     private const PAUSED_ALL    = 'wishes_paused_all'; // JSON {room id: 0|1}: the states before the admin paused everywhere
     private const SECRET_KEY    = 'secret:'; // + date, e.g. secret:2026-09-02
     private const KEEP_SECONDS  = 3600;      // lifetime of the sender entries
@@ -84,7 +85,30 @@ final class WishGuard
      */
     public function revision(): int
     {
-        return (int) $this->settings->get(self::REVISION_KEY . ($this->roomId === RoomRepository::DEFAULT_ID ? '' : ':' . $this->roomId), '0');
+        return (int) $this->settings->get(self::revisionKeyFor($this->roomId), '0');
+    }
+
+    /**
+     * Revision of every wish list at once, raised together with each room's
+     * own counter. The list of rooms polls this one: it counts the wishes of
+     * every room and marks the closed ones, so a change in a room the
+     * visitor is not in has to reach it as well.
+     */
+    public function allRevision(): int
+    {
+        return (int) $this->settings->get(self::ALL_REVISION_KEY, '0');
+    }
+
+    /**
+     * The settings entries the live update reads for this room, so they can
+     * be fetched in one query (Settings::prefetch(), see index.php). The keys
+     * are built here because this class owns them.
+     *
+     * @return array<int,string>
+     */
+    public function liveKeys(): array
+    {
+        return [self::pausedKeyFor($this->roomId), self::revisionKeyFor($this->roomId), self::ALL_REVISION_KEY];
     }
 
     /** The wish list changed: raise the revision. */
@@ -95,7 +119,14 @@ final class WishGuard
 
     private static function touchRoom(Settings $settings, int $roomId): void
     {
-        $settings->increment(self::REVISION_KEY . ($roomId === RoomRepository::DEFAULT_ID ? '' : ':' . $roomId));
+        $settings->increment(self::revisionKeyFor($roomId));
+        $settings->increment(self::ALL_REVISION_KEY);
+    }
+
+    /** The main room keeps the original key, every other room carries its id. */
+    private static function revisionKeyFor(int $roomId): string
+    {
+        return $roomId === RoomRepository::DEFAULT_ID ? self::REVISION_KEY : self::REVISION_KEY . ':' . $roomId;
     }
 
     /**
@@ -165,7 +196,7 @@ final class WishGuard
             return;
         }
         $this->settings->delete(self::pausedKeyFor($roomId));
-        $this->settings->delete(self::REVISION_KEY . ':' . $roomId);
+        $this->settings->delete(self::revisionKeyFor($roomId));
     }
 
     private static function pausedKeyFor(int $roomId): string

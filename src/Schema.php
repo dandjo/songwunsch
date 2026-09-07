@@ -190,6 +190,9 @@ final class Schema
             SQL,
     ];
 
+    /** The answer of ensure(), kept for the rest of the request; null = not asked yet. */
+    private ?array $ensured = null;
+
     public function __construct(private readonly Database $db)
     {
     }
@@ -199,12 +202,20 @@ final class Schema
      * Indexes are not checked here, see missingIndexes().
      *
      * A single query against the INFORMATION_SCHEMA answers every question:
-     * which tables exist and which columns they have.
+     * which tables exist and which columns they have. The answer is kept for
+     * the rest of the request: several places call this before they touch the
+     * database -- the room route, the action switch, the page -- and nothing
+     * drops a table between two of them. It saves that query on every request
+     * and matters most on the live-update poll, which is little else.
      *
      * @return array<int,string> names of the tables that were created
      */
     public function ensure(): array
     {
+        if ($this->ensured !== null) {
+            return $this->ensured;
+        }
+
         $tables = array_keys(self::COLUMNS);
         $rows   = $this->db->all(
             'SELECT TABLE_NAME, COLUMN_NAME
@@ -238,7 +249,7 @@ final class Schema
             }
         }
 
-        return $created;
+        return $this->ensured = $created;
     }
 
     /**

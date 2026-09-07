@@ -12,6 +12,16 @@
     Require all granted
 </Files>
 
+# The live-update signal (assets/live.txt, see src/LiveSignal.php) is asked
+# for every few seconds and must never be answered from a cache without
+# asking: "no-cache" still allows the 304 that makes it cheap, it only forbids
+# handing out a stored copy unchecked.
+<IfModule mod_headers.c>
+    <Files "live.txt">
+        Header set Cache-Control "no-cache"
+    </Files>
+</IfModule>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
     # Static assets and the robots.txt are delivered directly ...

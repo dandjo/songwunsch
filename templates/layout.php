@@ -26,7 +26,7 @@ use Songwunsch\Translator;
 /** @var array<int,array<string,mixed>> $ownRooms  guests: the unlisted rooms they entered, "Your rooms" in the switcher */
 /** @var string|null $guestName  the visitor's name for wishes, from the cookie */
 /** @var bool $askName           first visit: ask for the name in a dialog */
-/** @var array{url:string,rev:string,interval:int,scope:string}|null $live  live update (app.js): polling address, the token the page was rendered with, seconds between two polls (Ui), and what a change renews -- 'page' (song list, wish list, suggestions) or 'header' (every other page: the room's notice) */
+/** @var array{url:string,rev:string,head:string,interval:int,gate:string,signal:string}|null $live  live update (app.js): polling address, the two tokens the page was rendered with -- rev for its content ('' on a page that is no list), head for the header -- the seconds between two polls (Ui), and the doorbell: the address of the static signal file and its value now ('' when there is none) */
 /** @var string $footer  the operator's own footer line (Administration -> Footer), cleaned HTML; empty = none */
 /** @var string $footerLang  the language that line fell back to, '' when it is the interface language */
 /** @var array<int,array{id:int,slug:string,title:string}> $footerPages  the admins' pages, linked in the footer in this order */
@@ -95,13 +95,20 @@ if (trim(strip_tags($help)) === '') {
 </head>
 <?php /* data-msg-failed: what app.js announces when a form's request fails
          on the way (soft navigation). data-live: every page polls this
-         address every data-live-interval seconds for its token and, when it
-         moved on, reloads itself -- the lists whole, the others the header
-         alone (data-live-scope) -- see index.php. The token starts with the
-         room's state: when that part moved, the room was closed or opened
-         and app.js announces data-msg-state, which the fresh page carries;
-         any other change on a list announces data-msg-updated. */ ?>
-<body data-endpoint="<?= $e(url()) ?>" data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>" data-toast-sec="<?= (int) $toastSec ?>" data-msg-dismiss="<?= $e(t('Dismiss')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-live-interval="<?= (int) $live['interval'] ?>" data-live-scope="<?= $e($live['scope']) ?>" data-msg-updated="<?= $e(t('The list has been updated.')) ?>" data-msg-state="<?= $e($paused
+         address every data-live-interval seconds for its two tokens and, when
+         one of them moved on, reloads itself -- data-live-head stands for the
+         header, which is then drawn anew alone, data-live-rev for the content
+         of a list, which brings the whole page with it; a page that is no
+         list carries an empty data-live-rev -- see index.php. Both tokens
+         start with the room's state: when that part moved, the room was
+         closed or opened and app.js announces data-msg-state, which the fresh
+         page carries; any other change of a list announces data-msg-updated.
+         data-live-gate is the static file every change of the application
+         rewrites (LiveSignal): the page asks the web server for it instead of
+         asking PHP, and only when its content differs from data-live-gate-rev
+         does it go to data-live for the tokens. Both are absent when the file
+         cannot be written -- then every poll goes to PHP, as before. */ ?>
+<body data-endpoint="<?= $e(url()) ?>" data-msg-failed="<?= $e(t('The page could not be updated – please reload it.')) ?>" data-toast-sec="<?= (int) $toastSec ?>" data-msg-dismiss="<?= $e(t('Dismiss')) ?>"<?php if (($live ?? null) !== null): ?> data-live="<?= $e($live['url']) ?>" data-live-rev="<?= $e($live['rev']) ?>" data-live-head="<?= $e($live['head']) ?>" data-live-interval="<?= (int) $live['interval'] ?>"<?php if ($live['gate'] !== ''): ?> data-live-gate="<?= $e($live['gate']) ?>" data-live-gate-rev="<?= $e($live['signal']) ?>"<?php endif; ?> data-msg-updated="<?= $e(t('The list has been updated.')) ?>" data-msg-state="<?= $e($paused
     ? t('{room} is closed right now.', ['room' => (string) $room['name']])
     : t('“{name}” is open again.', ['name' => (string) $room['name']])) ?>"<?php endif; ?>>
 <a class="skip-link" href="#content"><?= $e(t('Skip to content')) ?></a>

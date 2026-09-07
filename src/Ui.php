@@ -20,6 +20,16 @@ final class Ui extends NumberSettings
     public const PREFIX = 'ui.';
 
     /**
+     * Settings key of the interface revision: a counter raised whenever
+     * something the page shell shows changes -- the colours, the message
+     * duration, the polling intervals (this form) and the logo in the header
+     * (Administration -> Logos). Every page carries it in its head token, so
+     * an open page renews its header and takes on the new look, the new
+     * message duration and the new pace without being reloaded (index.php).
+     */
+    public const REVISION_KEY = 'ui_rev';
+
+    /**
      * Every setting: default, smallest and largest allowed value.
      *
      * @var array<string,array{0:int,1:int,2:int}>

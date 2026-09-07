@@ -57,8 +57,11 @@ final class RoomRepository
     {
     }
 
+    /** What the main room's own settings share, so both are read in one query (index.php). */
+    public const MAIN_KEY_PREFIX = 'main_room_';
+
     /** Settings key under which the main room's chosen name is kept ('' = the default name). */
-    public const MAIN_NAME_KEY = 'main_room_name';
+    public const MAIN_NAME_KEY = self::MAIN_KEY_PREFIX . 'name';
 
     /**
      * Settings key of the main room's listed switch: absent or '1' = guests
@@ -66,7 +69,7 @@ final class RoomRepository
      * guests reach it through the root address only (an event where every
      * party has a room of its own).
      */
-    public const MAIN_LISTED_KEY = 'main_room_listed';
+    public const MAIN_LISTED_KEY = self::MAIN_KEY_PREFIX . 'listed';
 
     /**
      * Settings key of the start room: the id of the room a visitor without

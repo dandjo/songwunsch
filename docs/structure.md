@@ -19,10 +19,11 @@ src/Schema.php         Fixed table definition: creates missing tables, checks co
 src/SongRepository.php Repertoire: search, sort, paginate, maintain
 src/WishRepository.php Wish list of a room: create, count repeated wishes, read, sort, reorder, delete
 src/SuggestionRepository.php  Song suggestions of a room: validate, store, search, delete
-src/WishGuard.php      Protection of wishing: limits, bot trap, signed form token, pause per room, revision counter
+src/WishGuard.php      Protection of wishing: limits, bot trap, signed form token, pause per room, revision counters
 src/NumberSettings.php Whole-number settings under one prefix: defaults, ranges, validate, save (base of Limits and Ui)
 src/Limits.php         The limits on wishing and suggesting and the page size the admins set (Administration -> Limits)
 src/Ui.php             Message duration and live-update intervals the admins set (Administration -> Interface)
+src/LiveSignal.php     The live update's doorbell: assets/live.txt, rewritten on every change, polled instead of PHP
 src/Colors.php         The colours the admins set (Administration -> Interface): shades, the :root block
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
 src/QrCode.php         QR codes of the room addresses, made here: encoding, Reed-Solomon, masks, SVG and PNG
@@ -57,4 +58,5 @@ templates. Every template is rendered inside `layout.php`, which draws the
 header, the menus, the messages and the footer.
 
 Files that are not in the repository: `config.php` and `.env` (credentials,
-see `.gitignore`).
+see `.gitignore`) and `assets/live.txt`, which the application writes itself
+at runtime (`src/LiveSignal.php`).
