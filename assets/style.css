@@ -34,16 +34,16 @@
     --line:         #2c3335;
 
     /* Accents: a pale blue for actions, a lighter blue-grey as the secondary,
-       coral for danger. Every shade and tint below derives from its base
-       colour with the ratios src/Colors.php uses, so a colour the admins set
-       under Interface lands in the same family of shades. */
-    --gold:         #a1c2d8;
-    --gold-bright:  #bdd4e4;
-    --gold-deep:    #5a6e7b;
-    --gold-wash:        rgba(161, 194, 216, .06);  /* faint row highlight */
-    --gold-tint:        rgba(161, 194, 216, .12);  /* hover of accent-framed buttons */
-    --gold-tint-mid:    rgba(161, 194, 216, .14);  /* notices */
-    --gold-tint-strong: rgba(161, 194, 216, .22);  /* chips inside notices */
+       coral for danger, a leaf green for success. Every shade and tint below
+       derives from its base colour with the ratios src/Colors.php uses, so a
+       colour the admins set under Interface lands in the same family. */
+    --gold:         #93b9d2;
+    --gold-bright:  #b3cee0;
+    --gold-deep:    #536a78;
+    --gold-wash:        rgba(147, 185, 210, .06);  /* faint row highlight */
+    --gold-tint:        rgba(147, 185, 210, .12);  /* hover of accent-framed buttons */
+    --gold-tint-mid:    rgba(147, 185, 210, .14);  /* notices */
+    --gold-tint-strong: rgba(147, 185, 210, .22);  /* chips inside notices */
     --violet:       #d4e3e5;
     --violet-bright: #e1ebed;
     --violet-soft:  rgba(212, 227, 229, .13);
@@ -114,28 +114,28 @@
     --panel:        #fdfeff;   /* content surface         */
     --surface:      #f5f6f8;   /* recessed: table, input fields */
     --base:         #ffffff;   /* text on accent surfaces */
-    --sunken:       rgba(44, 62, 80, .05); /* behind code and preformatted text */
+    --sunken:       rgba(5, 8, 10, .05); /* behind code and preformatted text */
 
     --line:         #d5d6d8;
 
-    /* Accents: the slate the text is set in for actions, a steel blue as the
-       secondary, a deep red for danger, an olive green for success. Deep as
-       ink, because text has to read on white; the softness lives in the
-       tints and the pale frames. "Bright" is the hover state and darker. */
-    --gold:         #2c3e50;
-    --gold-bright:  #1f2b38;
-    --gold-deep:    #9ea6b0;
-    --gold-wash:        rgba(44, 62, 80, .05);  /* faint row highlight */
-    --gold-tint:        rgba(44, 62, 80, .09);  /* hover of accent-framed buttons */
-    --gold-tint-mid:    rgba(44, 62, 80, .12);  /* notices */
-    --gold-tint-strong: rgba(44, 62, 80, .18);  /* chips inside notices */
-    --violet:       #5b80a4;
-    --violet-bright: #405a73;
-    --violet-soft:  rgba(91, 128, 164, .09);
-    --violet-line:  rgba(91, 128, 164, .24);
+    /* Accents: a slate blue for actions, a steel blue as the secondary, a
+       deep red for danger, a leaf green for success. Deep as ink, because
+       text has to read on white; the softness lives in the tints and the
+       pale frames. "Bright" is the hover state and darker. */
+    --gold:         #3c556d;
+    --gold-bright:  #2a3c4c;
+    --gold-deep:    #a5b1bd;
+    --gold-wash:        rgba(60, 85, 109, .05);  /* faint row highlight */
+    --gold-tint:        rgba(60, 85, 109, .09);  /* hover of accent-framed buttons */
+    --gold-tint-mid:    rgba(60, 85, 109, .12);  /* notices */
+    --gold-tint-strong: rgba(60, 85, 109, .18);  /* chips inside notices */
+    --violet:       #6487aa;
+    --violet-bright: #465e77;
+    --violet-soft:  rgba(100, 135, 170, .09);
+    --violet-line:  rgba(100, 135, 170, .24);
 
-    --text:         #2c3e50;
-    --text-muted:   #5a6876;
+    --text:         #05080a;
+    --text-muted:   #3b3e40;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
     --danger:       #973227;
     --danger-bright: #6a231b;
@@ -147,18 +147,18 @@
     --ok:           #7db22e;
 
     /* Neutral overlays: veils of the ink instead of light. */
-    --hover-soft:   rgba(44, 62, 80, .035);
-    --hover:        rgba(44, 62, 80, .06);
-    --hover-strong: rgba(44, 62, 80, .1);
-    --backdrop:     rgba(44, 62, 80, .45);
+    --hover-soft:   rgba(5, 8, 10, .035);
+    --hover:        rgba(5, 8, 10, .06);
+    --hover-strong: rgba(5, 8, 10, .1);
+    --backdrop:     rgba(5, 8, 10, .45);
 
     /* Shadows carry much less on a pale ground; the same geometry, far less
        weight, or they read as dirt. */
-    --shadow-deep:  0 12px 32px rgba(44, 62, 80, .12);
-    --shadow-soft:  0 1px 2px rgba(44, 62, 80, .06);
-    --shadow-lift:  0 6px 18px rgba(44, 62, 80, .1);
-    --shade:        rgba(44, 62, 80, .16);
-    --shade-soft:   rgba(44, 62, 80, .09);
+    --shadow-deep:  0 12px 32px rgba(5, 8, 10, .12);
+    --shadow-soft:  0 1px 2px rgba(5, 8, 10, .06);
+    --shadow-lift:  0 6px 18px rgba(5, 8, 10, .1);
+    --shade:        rgba(5, 8, 10, .16);
+    --shade-soft:   rgba(5, 8, 10, .09);
 }
 
 /* The same list once more, for the visitor who follows their device. CSS
@@ -176,28 +176,28 @@
     --panel:        #fdfeff;   /* content surface         */
     --surface:      #f5f6f8;   /* recessed: table, input fields */
     --base:         #ffffff;   /* text on accent surfaces */
-    --sunken:       rgba(44, 62, 80, .05); /* behind code and preformatted text */
+    --sunken:       rgba(5, 8, 10, .05); /* behind code and preformatted text */
 
     --line:         #d5d6d8;
 
-    /* Accents: the slate the text is set in for actions, a steel blue as the
-       secondary, a deep red for danger, an olive green for success. Deep as
-       ink, because text has to read on white; the softness lives in the
-       tints and the pale frames. "Bright" is the hover state and darker. */
-    --gold:         #2c3e50;
-    --gold-bright:  #1f2b38;
-    --gold-deep:    #9ea6b0;
-    --gold-wash:        rgba(44, 62, 80, .05);  /* faint row highlight */
-    --gold-tint:        rgba(44, 62, 80, .09);  /* hover of accent-framed buttons */
-    --gold-tint-mid:    rgba(44, 62, 80, .12);  /* notices */
-    --gold-tint-strong: rgba(44, 62, 80, .18);  /* chips inside notices */
-    --violet:       #5b80a4;
-    --violet-bright: #405a73;
-    --violet-soft:  rgba(91, 128, 164, .09);
-    --violet-line:  rgba(91, 128, 164, .24);
+    /* Accents: a slate blue for actions, a steel blue as the secondary, a
+       deep red for danger, a leaf green for success. Deep as ink, because
+       text has to read on white; the softness lives in the tints and the
+       pale frames. "Bright" is the hover state and darker. */
+    --gold:         #3c556d;
+    --gold-bright:  #2a3c4c;
+    --gold-deep:    #a5b1bd;
+    --gold-wash:        rgba(60, 85, 109, .05);  /* faint row highlight */
+    --gold-tint:        rgba(60, 85, 109, .09);  /* hover of accent-framed buttons */
+    --gold-tint-mid:    rgba(60, 85, 109, .12);  /* notices */
+    --gold-tint-strong: rgba(60, 85, 109, .18);  /* chips inside notices */
+    --violet:       #6487aa;
+    --violet-bright: #465e77;
+    --violet-soft:  rgba(100, 135, 170, .09);
+    --violet-line:  rgba(100, 135, 170, .24);
 
-    --text:         #2c3e50;
-    --text-muted:   #5a6876;
+    --text:         #05080a;
+    --text-muted:   #3b3e40;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
     --danger:       #973227;
     --danger-bright: #6a231b;
@@ -209,18 +209,18 @@
     --ok:           #7db22e;
 
     /* Neutral overlays: veils of the ink instead of light. */
-    --hover-soft:   rgba(44, 62, 80, .035);
-    --hover:        rgba(44, 62, 80, .06);
-    --hover-strong: rgba(44, 62, 80, .1);
-    --backdrop:     rgba(44, 62, 80, .45);
+    --hover-soft:   rgba(5, 8, 10, .035);
+    --hover:        rgba(5, 8, 10, .06);
+    --hover-strong: rgba(5, 8, 10, .1);
+    --backdrop:     rgba(5, 8, 10, .45);
 
     /* Shadows carry much less on a pale ground; the same geometry, far less
        weight, or they read as dirt. */
-    --shadow-deep:  0 12px 32px rgba(44, 62, 80, .12);
-    --shadow-soft:  0 1px 2px rgba(44, 62, 80, .06);
-    --shadow-lift:  0 6px 18px rgba(44, 62, 80, .1);
-    --shade:        rgba(44, 62, 80, .16);
-    --shade-soft:   rgba(44, 62, 80, .09);
+    --shadow-deep:  0 12px 32px rgba(5, 8, 10, .12);
+    --shadow-soft:  0 1px 2px rgba(5, 8, 10, .06);
+    --shadow-lift:  0 6px 18px rgba(5, 8, 10, .1);
+    --shade:        rgba(5, 8, 10, .16);
+    --shade-soft:   rgba(5, 8, 10, .09);
 }
 }
 

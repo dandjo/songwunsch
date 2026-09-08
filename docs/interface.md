@@ -23,7 +23,7 @@ The table below names the **dark** defaults; the light ones stand under
 
 | Area | Used for | Default (dark) |
 | --- | --- | --- |
-| Accent | Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, accent tags and notices | `#a1c2d8` |
+| Accent | Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, accent tags and notices | `#93b9d2` |
 | Secondary | Genre and role tags, the counters on the tabs, the frame of info notices | `#d4e3e5` |
 | Danger | Closed rooms, delete buttons, warnings, errors | `#ff6f61` |
 | Success | The frame of confirmation notices, the tick on a saved language tab, the confirm buttons in the page editor's dialogs | `#7db22e` |
@@ -138,16 +138,16 @@ values:
 
 | Area | Light default |
 | --- | --- |
-| Accent | `#2c3e50` |
-| Secondary | `#5b80a4` |
+| Accent | `#3c556d` |
+| Secondary | `#6487aa` |
 | Danger | `#973227` |
 | Success | `#7db22e` |
 | Background | `#fbfcfe` |
-| Text | `#2c3e50` |
+| Text | `#05080a` |
 
 The light design: a near-white ground with a white card lifted off it,
-the slate of the text doubling as the action colour, a steel blue for tags
-and counters, a deep red for danger and a leaf green for success. The
+a slate blue for actions, a steel blue for tags and counters, a deep red
+for danger and a leaf green for success, all on a near-black text. The
 softness lives in the tints – the veils behind notices, chips, row highlights
 and hover states – and in the pale frames.
 

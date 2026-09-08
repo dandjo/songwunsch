@@ -40,7 +40,7 @@ final class Colors
 
     /** The stylesheet's dark colours (assets/style.css, :root). */
     public const DEFAULTS = [
-        'accent'    => '#a1c2d8',
+        'accent'    => '#93b9d2',
         'secondary' => '#d4e3e5',
         'danger'    => '#ff6f61',
         'success'   => '#7db22e',
@@ -50,12 +50,12 @@ final class Colors
 
     /** The stylesheet's light colours (assets/style.css, :root[data-theme="light"]). */
     public const DEFAULTS_LIGHT = [
-        'accent'    => '#2c3e50',
-        'secondary' => '#5b80a4',
+        'accent'    => '#3c556d',
+        'secondary' => '#6487aa',
         'danger'    => '#973227',
         'success'   => '#7db22e',
         'background' => '#fbfcfe',
-        'text'      => '#2c3e50',
+        'text'      => '#05080a',
     ];
 
     /**
