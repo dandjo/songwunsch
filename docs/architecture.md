@@ -126,6 +126,14 @@ reflection that would work it out, it needs no cache directory on a host
 that may not have a writable one, and it puts every dependency of every
 class on one screen.
 
+`Settings` reads its table in one query on first access and answers from
+memory afterwards; a write empties that again, so a value that was just
+saved is never served stale. It is a small table by construction -- a live
+installation has some 40 rows -- and the values are read from all over while
+a page is assembled, which used to cost eleven queries against it. Measured
+against the general log, one page is now nine to twelve queries and a
+live-update poll is two.
+
 Everything is lazy. The database connection is opened on first use, the
 tables are checked once per request by whoever needs them, and a service
 nobody asks for is never made. The room-scoped services -- the wish list,
@@ -134,66 +142,6 @@ they may not be asked for before `RoomListener` has run. The few places
 that must reach into *another* room (closing a room from the room list,
 archiving one, adopting a suggestion whose song joins the wish list of the
 room it was suggested in) go through `RoomServices`.
-
-### Settings: one query, not eleven
-
-`Settings` reads its table in a single query on the first access of a
-request and answers everything from memory afterwards.
-
-That is the opposite of what it used to do, and the reason is worth writing
-down. The values in this table are read from all over while a page is
-assembled, and no caller can know in advance which ones it will need:
-
-| Read | By |
-|---|---|
-| `main_room_*` | `RoomListener`, for the main room's name and whether it is listed |
-| `start_room` | `RoomListener`, for a visitor with no remembered room |
-| `limits.*` | `Limits`, for the page size and the brakes on wishing |
-| `ui.*` | `Ui`, for the message duration and the polling pace |
-| `limits.toast_sec` | `Ui`, where the message duration used to live |
-| the pause switch and five revision counters | `LiveTokens`, for the two poll tokens |
-| `footer_html.*`, `footer_html` | `PageRepository`, for the operator's own footer line |
-| `pages_languages` | `PageRepository`, for the fallback order of the languages |
-| `logo_id` | the page shell, for the logo in the header |
-| `colors.*` | `Colors`, for the `:root` block over the stylesheet |
-
-Eleven queries against one table for one page, five of them prefix scans and
-five of them single keys. There used to be a `prefetch()` for batching a
-known set of names, and `LiveTokens` used it for its six -- but a batch only
-helps the caller that knows its list, and most of these do not know each
-other at all.
-
-The table is small by construction: one row per switch, per revision counter
-and per value the admins set, two per room (its pause switch and its wish
-revision), a handful per user, and the wish guard's rotating daily secret.
-The live installation has 44 rows and about a kilobyte in them. Reading all
-of it once is cheaper than reading parts of it eleven times, and it takes
-the question away from every caller.
-
-**Writes still invalidate.** Every write that really changed a row empties
-the cache and rings the live-update doorbell (see below), so a value that
-was just saved is never served from a copy read before it -- an admin's save
-followed by the redirected page showing the new value is one request each
-way, and correct in both.
-
-**One deliberate exception.** `setIfMissing()` reads past the cache with a
-query of its own. It creates the day's secret for the wish guard, and
-another request may have created it a moment earlier; the value that won in
-the database is the one to return, not the one this request happened to read
-before. That is the second settings query visible on pages that carry a wish
-or a suggestion form.
-
-Measured against the MySQL general log, the same pages before and after:
-`/wishes` went from 19 queries to 9, `/rooms` from 22 to 10, and a
-live-update poll from 4 to 2. Whatever a page costs in total, **exactly one**
-of those queries reads the settings table -- two on the pages that carry a
-wish or a suggestion form, for the reason just above.
-
-**When adding a feature:** read what you need through `Settings` and do not
-add a key-by-key read path or a new batching call back in; both would be
-slower than what is already in memory. Keep the table what it is -- short
-names, short values, one row per fact. Anything that could grow per song, per
-wish or per visitor belongs in a table of its own.
 
 ## Controllers and views
 
@@ -225,10 +173,9 @@ Unchanged in substance, and described in full under
 [Interface](interface.md): there is no push. Every open page carries two
 tokens and asks whether they moved on -- the head token for the header, the
 content token for a list, and only a list has one. Both are built in
-`LiveTokens` out of rows the request already holds (see *Settings* above),
-and that is also what the poll listener answers from. Before asking PHP at
-all, `app.js` fetches `assets/state/live.txt`, a static file the web server
-answers with a 304 when nothing changed.
+`LiveTokens`, which is also what the poll listener answers from. Before
+asking PHP at all, `app.js` fetches `assets/state/live.txt`, a static file the
+web server answers with a 304 when nothing changed.
 
 What to keep in mind when adding a feature:
 
