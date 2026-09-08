@@ -106,62 +106,61 @@
    selector, so they win here as they do on the dark scheme -- see
    src/Colors.php. */
 :root[data-theme="light"] {
-    /* Surfaces: pastel, not grey. The ground is a lavender-tinted white and
-       the chrome a shade of the same, so the white card lifts off it -- a
-       neutral grey ground would read as an unfinished dark scheme. */
-    --ink:          #f7f7fb;   /* page ground             */
-    --shell:        #eeeef7;   /* shell around the content */
+    /* Surfaces: a cool, neutral slate -- the register of today's light
+       interfaces. A near-white ground, the chrome one step greyer, the card
+       pure white so it lifts off the page. No tint of the accent in the
+       greys: a coloured grey reads dated fast. */
+    --ink:          #f8fafc;   /* page ground             */
+    --shell:        #f1f5f9;   /* shell around the content */
     --panel:        #fff;      /* content surface         */
-    --surface:      #f3f3fa;   /* recessed: table, input fields */
-    --base:         #fffdf8;   /* text on gold surfaces   */
-    --sunken:       rgba(60, 55, 90, .05); /* behind code and preformatted text */
+    --surface:      #f4f6f9;   /* recessed: table, input fields */
+    --base:         #fffbeb;   /* text on gold surfaces   */
+    --sunken:       rgba(15, 23, 42, .05); /* behind code and preformatted text */
 
-    --line:         #e2e1f0;
+    --line:         #e2e8f0;
 
-    /* The accents carry the pastel in their tints, not in their ink: a veil
-       of colour over a pale ground is soft by itself, while the same colour
-       as text or a glyph has to be deep enough to read (4.5:1 or better).
-       So the base colours are deep, the tints faint, and the "deep" shades
-       -- frames around transparent buttons -- are the pastel of the family.
-       "Bright" is the hover state and therefore darker still. */
-    --gold:         #9a5a12;
-    --gold-bright:  #74400a;
-    --gold-deep:    #d9b283;                     /* soft apricot frame */
-    --gold-wash:        rgba(154, 90, 18, .05);  /* faint row highlight */
-    --gold-tint:        rgba(154, 90, 18, .09);  /* hover of gold-framed buttons */
-    --gold-tint-mid:    rgba(154, 90, 18, .12);  /* notices */
-    --gold-tint-strong: rgba(154, 90, 18, .18);  /* chips inside notices */
-    --violet:       #5b4bd6;
-    --violet-bright: #4235a8;
-    --violet-soft:  rgba(91, 75, 214, .09);
-    --violet-line:  rgba(91, 75, 214, .24);
+    /* The accents: the brand stays warm -- a saturated amber, not the brown
+       an ochre turns into once it is dark enough to read -- beside a clean
+       violet, rose and emerald. Deep as ink, because text has to reach
+       4.5:1 on white; the softness lives in the tints and the frames, which
+       are the pale of each family. "Bright" is the hover state and darker. */
+    --gold:         #b45309;
+    --gold-bright:  #92400e;
+    --gold-deep:    #f6d18b;                     /* pale amber frame */
+    --gold-wash:        rgba(180, 83, 9, .05);   /* faint row highlight */
+    --gold-tint:        rgba(180, 83, 9, .09);   /* hover of gold-framed buttons */
+    --gold-tint-mid:    rgba(180, 83, 9, .12);   /* notices */
+    --gold-tint-strong: rgba(180, 83, 9, .18);   /* chips inside notices */
+    --violet:       #6d28d9;
+    --violet-bright: #5b21b6;
+    --violet-soft:  rgba(109, 40, 217, .09);
+    --violet-line:  rgba(109, 40, 217, .24);
 
-    --text:         #23212e;                     /* near-black with the ground's cast */
-    --text-muted:   #62607a;
+    --text:         #0f172a;                     /* slate, near black */
+    --text-muted:   #475569;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
-    --danger:       #c22a4c;
-    --danger-bright: #8e1b36;
-    --danger-deep:  #7c1730;
-    --danger-line:  #e8a8b8;                     /* soft rose frame */
-    --danger-tint:        rgba(194, 42, 76, .08);
-    --danger-tint-strong: rgba(194, 42, 76, .16);
-    --danger-glow:        rgba(194, 42, 76, .12);
-    --ok:           #157f5b;
+    --danger:       #be123c;
+    --danger-bright: #9f1239;
+    --danger-deep:  #881337;
+    --danger-line:  #fbcfe0;                     /* pale rose frame */
+    --danger-tint:        rgba(190, 18, 60, .08);
+    --danger-tint-strong: rgba(190, 18, 60, .16);
+    --danger-glow:        rgba(190, 18, 60, .12);
+    --ok:           #047857;
 
-    /* Neutral overlays: veils of ink instead of light, and tinted like the
-       ground rather than plain black, which would grey the pastel out. */
-    --hover-soft:   rgba(60, 55, 90, .035);
-    --hover:        rgba(60, 55, 90, .06);
-    --hover-strong: rgba(60, 55, 90, .1);
-    --backdrop:     rgba(35, 33, 46, .4);
+    /* Neutral overlays: veils of the slate ink instead of light. */
+    --hover-soft:   rgba(15, 23, 42, .035);
+    --hover:        rgba(15, 23, 42, .06);
+    --hover-strong: rgba(15, 23, 42, .1);
+    --backdrop:     rgba(15, 23, 42, .45);
 
     /* Shadows carry much less on a pale ground; the same geometry, far less
        weight, or they read as dirt. */
-    --shadow-deep:  0 12px 32px rgba(60, 55, 90, .12);
-    --shadow-soft:  0 1px 2px rgba(60, 55, 90, .06);
-    --shadow-lift:  0 6px 18px rgba(60, 55, 90, .1);
-    --shade:        rgba(60, 55, 90, .16);
-    --shade-soft:   rgba(60, 55, 90, .09);
+    --shadow-deep:  0 12px 32px rgba(15, 23, 42, .1);
+    --shadow-soft:  0 1px 2px rgba(15, 23, 42, .06);
+    --shadow-lift:  0 6px 18px rgba(15, 23, 42, .09);
+    --shade:        rgba(15, 23, 42, .14);
+    --shade-soft:   rgba(15, 23, 42, .08);
 }
 
 /* The same list once more, for the visitor who follows their device. CSS
@@ -172,62 +171,61 @@
    hand. */
 @media (prefers-color-scheme: light) {
 :root[data-theme="system"] {
-    /* Surfaces: pastel, not grey. The ground is a lavender-tinted white and
-       the chrome a shade of the same, so the white card lifts off it -- a
-       neutral grey ground would read as an unfinished dark scheme. */
-    --ink:          #f7f7fb;   /* page ground             */
-    --shell:        #eeeef7;   /* shell around the content */
+    /* Surfaces: a cool, neutral slate -- the register of today's light
+       interfaces. A near-white ground, the chrome one step greyer, the card
+       pure white so it lifts off the page. No tint of the accent in the
+       greys: a coloured grey reads dated fast. */
+    --ink:          #f8fafc;   /* page ground             */
+    --shell:        #f1f5f9;   /* shell around the content */
     --panel:        #fff;      /* content surface         */
-    --surface:      #f3f3fa;   /* recessed: table, input fields */
-    --base:         #fffdf8;   /* text on gold surfaces   */
-    --sunken:       rgba(60, 55, 90, .05); /* behind code and preformatted text */
+    --surface:      #f4f6f9;   /* recessed: table, input fields */
+    --base:         #fffbeb;   /* text on gold surfaces   */
+    --sunken:       rgba(15, 23, 42, .05); /* behind code and preformatted text */
 
-    --line:         #e2e1f0;
+    --line:         #e2e8f0;
 
-    /* The accents carry the pastel in their tints, not in their ink: a veil
-       of colour over a pale ground is soft by itself, while the same colour
-       as text or a glyph has to be deep enough to read (4.5:1 or better).
-       So the base colours are deep, the tints faint, and the "deep" shades
-       -- frames around transparent buttons -- are the pastel of the family.
-       "Bright" is the hover state and therefore darker still. */
-    --gold:         #9a5a12;
-    --gold-bright:  #74400a;
-    --gold-deep:    #d9b283;                     /* soft apricot frame */
-    --gold-wash:        rgba(154, 90, 18, .05);  /* faint row highlight */
-    --gold-tint:        rgba(154, 90, 18, .09);  /* hover of gold-framed buttons */
-    --gold-tint-mid:    rgba(154, 90, 18, .12);  /* notices */
-    --gold-tint-strong: rgba(154, 90, 18, .18);  /* chips inside notices */
-    --violet:       #5b4bd6;
-    --violet-bright: #4235a8;
-    --violet-soft:  rgba(91, 75, 214, .09);
-    --violet-line:  rgba(91, 75, 214, .24);
+    /* The accents: the brand stays warm -- a saturated amber, not the brown
+       an ochre turns into once it is dark enough to read -- beside a clean
+       violet, rose and emerald. Deep as ink, because text has to reach
+       4.5:1 on white; the softness lives in the tints and the frames, which
+       are the pale of each family. "Bright" is the hover state and darker. */
+    --gold:         #b45309;
+    --gold-bright:  #92400e;
+    --gold-deep:    #f6d18b;                     /* pale amber frame */
+    --gold-wash:        rgba(180, 83, 9, .05);   /* faint row highlight */
+    --gold-tint:        rgba(180, 83, 9, .09);   /* hover of gold-framed buttons */
+    --gold-tint-mid:    rgba(180, 83, 9, .12);   /* notices */
+    --gold-tint-strong: rgba(180, 83, 9, .18);   /* chips inside notices */
+    --violet:       #6d28d9;
+    --violet-bright: #5b21b6;
+    --violet-soft:  rgba(109, 40, 217, .09);
+    --violet-line:  rgba(109, 40, 217, .24);
 
-    --text:         #23212e;                     /* near-black with the ground's cast */
-    --text-muted:   #62607a;
+    --text:         #0f172a;                     /* slate, near black */
+    --text-muted:   #475569;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
-    --danger:       #c22a4c;
-    --danger-bright: #8e1b36;
-    --danger-deep:  #7c1730;
-    --danger-line:  #e8a8b8;                     /* soft rose frame */
-    --danger-tint:        rgba(194, 42, 76, .08);
-    --danger-tint-strong: rgba(194, 42, 76, .16);
-    --danger-glow:        rgba(194, 42, 76, .12);
-    --ok:           #157f5b;
+    --danger:       #be123c;
+    --danger-bright: #9f1239;
+    --danger-deep:  #881337;
+    --danger-line:  #fbcfe0;                     /* pale rose frame */
+    --danger-tint:        rgba(190, 18, 60, .08);
+    --danger-tint-strong: rgba(190, 18, 60, .16);
+    --danger-glow:        rgba(190, 18, 60, .12);
+    --ok:           #047857;
 
-    /* Neutral overlays: veils of ink instead of light, and tinted like the
-       ground rather than plain black, which would grey the pastel out. */
-    --hover-soft:   rgba(60, 55, 90, .035);
-    --hover:        rgba(60, 55, 90, .06);
-    --hover-strong: rgba(60, 55, 90, .1);
-    --backdrop:     rgba(35, 33, 46, .4);
+    /* Neutral overlays: veils of the slate ink instead of light. */
+    --hover-soft:   rgba(15, 23, 42, .035);
+    --hover:        rgba(15, 23, 42, .06);
+    --hover-strong: rgba(15, 23, 42, .1);
+    --backdrop:     rgba(15, 23, 42, .45);
 
     /* Shadows carry much less on a pale ground; the same geometry, far less
        weight, or they read as dirt. */
-    --shadow-deep:  0 12px 32px rgba(60, 55, 90, .12);
-    --shadow-soft:  0 1px 2px rgba(60, 55, 90, .06);
-    --shadow-lift:  0 6px 18px rgba(60, 55, 90, .1);
-    --shade:        rgba(60, 55, 90, .16);
-    --shade-soft:   rgba(60, 55, 90, .09);
+    --shadow-deep:  0 12px 32px rgba(15, 23, 42, .1);
+    --shadow-soft:  0 1px 2px rgba(15, 23, 42, .06);
+    --shadow-lift:  0 6px 18px rgba(15, 23, 42, .09);
+    --shade:        rgba(15, 23, 42, .14);
+    --shade-soft:   rgba(15, 23, 42, .08);
 }
 }
 

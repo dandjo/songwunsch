@@ -135,20 +135,21 @@ values:
 
 | Area | Light default |
 | --- | --- |
-| Accent | `#9a5a12` |
-| Secondary | `#5b4bd6` |
-| Danger | `#c22a4c` |
-| Success | `#157f5b` |
-| Background | `#f7f7fb` |
-| Text | `#23212e` |
+| Accent | `#b45309` |
+| Secondary | `#6d28d9` |
+| Danger | `#be123c` |
+| Success | `#047857` |
+| Background | `#f8fafc` |
+| Text | `#0f172a` |
 
-The light design is a pastel one: the ground is a lavender-tinted white
-rather than grey, and the soft colour is in the tints – the veils behind
-notices, chips, row highlights and hover states – while the base colours
-themselves stay deep. That is not a matter of taste but of arithmetic: a
-veil of colour over a pale ground is soft by itself, and the same colour as
-text has to reach 4.5:1 to be read. A pastel *accent* would be a pastel
-nothing.
+The light design sits in the register of today's light interfaces: a cool,
+neutral slate for the surfaces – near-white ground, the chrome one step
+greyer, pure white cards – with no tint of the accent in the greys, which
+reads dated fast. The brand stays warm through a saturated amber rather than
+the brown an ochre turns into once it is dark enough to read, beside a clean
+violet, rose and emerald. The base colours are deep because text has to
+reach 4.5:1 on white; the softness lives in the tints – the veils behind
+notices, chips, row highlights and hover states – and in the pale frames.
 
 They are separate on purpose. A colour picked against black is rarely
 readable on white – gold at `#e6b450` has a contrast of 10:1 on the dark

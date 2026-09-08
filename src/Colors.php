@@ -50,12 +50,12 @@ final class Colors
 
     /** The stylesheet's light colours (assets/style.css, :root[data-theme="light"]). */
     public const DEFAULTS_LIGHT = [
-        'accent'     => '#9a5a12',
-        'secondary'  => '#5b4bd6',
-        'danger'     => '#c22a4c',
-        'success'    => '#157f5b',
-        'background' => '#f7f7fb',
-        'text'       => '#23212e',
+        'accent'     => '#b45309',
+        'secondary'  => '#6d28d9',
+        'danger'     => '#be123c',
+        'success'    => '#047857',
+        'background' => '#f8fafc',
+        'text'       => '#0f172a',
     ];
 
     /**
