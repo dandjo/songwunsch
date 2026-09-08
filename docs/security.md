@@ -33,7 +33,8 @@
     parts are escaped before they are inserted.
 * Uploaded logos and QR images are delivered with
   `X-Content-Type-Options: nosniff` and a Content Security Policy of
-  `default-src 'none'`. A logo's type is detected from its content, not its
+  `default-src 'none'; style-src 'unsafe-inline'` – an SVG may draw, and style
+  what it draws, and nothing else. A logo's type is detected from its content, not its
   file name. Raster logos are re-encoded as WebP; an SVG is stored as it is and
   only ever shown through `<img>`, where scripts do not run.
 
@@ -41,7 +42,8 @@
 
 * The session cookie is named `songwunsch`. Its lifetime is the browser
   session. Flags: `HttpOnly`, `SameSite=Lax`, `Secure` as soon as HTTPS is
-  active (also detected from `X-Forwarded-Proto` behind a proxy), `path`
+  active – the server's own `HTTPS`, or port 443, and `X-Forwarded-Proto` only
+  where `trust_proxy` names a proxy –, `path`
   limited to the base path, so several applications on one domain do not share
   a session. Signing in calls `session_regenerate_id(true)`; signing out
   empties the session and deletes the cookie.
@@ -70,7 +72,8 @@
   gets 403.
 * Every operating address names the role it needs in `config/access.php`,
   which `AccessListener` enforces before the controller runs -- not only in
-  the templates. An address that is not listed there is public. A missing
+  the templates. A public GET page needs no entry; a POST route or an address under
+  `/admin` does — see *Who may open an address* below. A missing
   sign-in leads to the login page, a missing role to the repertoire with a
   notice. JSON calls (drag & drop) receive 401 or 403 instead of a
   redirect. The roles are described in [Users and roles](users-and-roles.md).
@@ -90,7 +93,7 @@
   outside. The root `.htaccess` denies every file ending in `.php` (except
   `index.php`), `.sql`, `.po`, `.pot`, `.md`, `.ini`, `.log` and `.env`, and
   sends every other address to `index.php`, which answers 404 for what it does
-  not know. `src/`, `templates/`, `tools/`, `sql/` and `lang/` each carry an
+  not know. `src/`, `config/`, `templates/`, `tools/`, `sql/` and `lang/` each carry an
   `.htaccess` with `Require all denied` as well. The command-line tools exit
   when they are called through the web. For nginx see
   [Web server](installation.md#web-server).

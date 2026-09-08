@@ -93,7 +93,7 @@ slide. Editors find *QR code* on the room's row under *Rooms* and on its edit
 form. It leads to `/rooms/<name>/qr`; the main room's code is at
 `/rooms/main/qr`. The page shows the code with the address beneath it, a
 print button (JavaScript only; in print only the code and the address
-remain) and downloads as SVG (`/qr.svg`) and PNG (`/qr.png`). The files are
+remain) and downloads as SVG (`/rooms/<name>/qr.svg`) and PNG (`.png`). The files are
 named `songwunsch-<name>.svg` and `.png`, `songwunsch-main` for the main
 room. PNG needs the `gd` extension; without it the page offers SVG alone.
 *Back* returns to where one came from, the list or the edit form.

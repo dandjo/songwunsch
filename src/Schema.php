@@ -88,9 +88,10 @@ final class Schema
                 -- One entry per song and room, held here and not only by the
                 -- code that checks first and writes second: two wishes
                 -- arriving together would otherwise make two rows of the same
-                -- song. A wish whose song was deleted keeps artist and title
-                -- with song_id NULL, and MySQL allows any number of NULLs in
-                -- a unique index, so those rows are unaffected.
+                -- song. song_id is nullable and no foreign key -- a wish
+                -- carries its own artist and title and outlives the song it
+                -- names -- and MySQL allows any number of NULLs in a unique
+                -- index, so a row without one is unaffected.
                 UNIQUE KEY `uniq_room_song` (`room_id`, `song_id`),
                 KEY `idx_created_at` (`created_at`),
                 KEY `idx_position` (`position`),

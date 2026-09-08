@@ -45,8 +45,8 @@
     --gold-tint:        rgba(147, 197, 253, .12);  /* hover of accent-framed buttons */
     --gold-tint-mid:    rgba(147, 197, 253, .14);  /* notices */
     --gold-tint-strong: rgba(147, 197, 253, .22);  /* chips inside notices */
-    /* The chrome the actions sit in: the room switcher, the tabs that are
-       not the current page. Derived from the secondary colour. */
+    /* The disc a counter sits on, and nothing else -- a supporting colour on
+       the menu, which is drawn in the primary one. */
     --steel:        #60a5fa;
 
     --violet:       #fbbf24;
@@ -134,8 +134,8 @@
     --gold-tint:        rgba(30, 64, 175, .09);  /* hover of accent-framed buttons */
     --gold-tint-mid:    rgba(30, 64, 175, .12);  /* notices */
     --gold-tint-strong: rgba(30, 64, 175, .18);  /* chips inside notices */
-    /* The chrome the actions sit in: the room switcher, the tabs that are
-       not the current page. Derived from the secondary colour. */
+    /* The disc a counter sits on, and nothing else -- a supporting colour on
+       the menu, which is drawn in the primary one. */
     --steel:        #3b82f6;
 
     --violet:       #b45309;
@@ -201,8 +201,8 @@
     --gold-tint:        rgba(30, 64, 175, .09);  /* hover of accent-framed buttons */
     --gold-tint-mid:    rgba(30, 64, 175, .12);  /* notices */
     --gold-tint-strong: rgba(30, 64, 175, .18);  /* chips inside notices */
-    /* The chrome the actions sit in: the room switcher, the tabs that are
-       not the current page. Derived from the secondary colour. */
+    /* The disc a counter sits on, and nothing else -- a supporting colour on
+       the menu, which is drawn in the primary one. */
     --steel:        #3b82f6;
 
     --violet:       #b45309;

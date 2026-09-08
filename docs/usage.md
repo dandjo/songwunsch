@@ -42,7 +42,7 @@ on the tabs. The header's notice shows whether the room is closed.
 | Delete a song | Editor: *Delete* in the row (asks for confirmation unless switched off). In a room the same bin reads *Remove* and only takes the song out of the room |
 | Change room | Room switcher in the navigation (*You are here: <room>*, opens the list). It shares the tabs' row while everything fits, otherwise it takes a row of its own above the tabs. Or Rooms → click the room's name. The choice is remembered in a cookie, see [Rooms](rooms.md) |
 | Create a room | Editor: Rooms → *Add room* → *Create*; the new room leads on to *Manage* |
-| Manage a room's songs | Editor: *Manage* under Rooms or on the room's edit form |
+| Manage a room's songs | Editor: *Manage* above the room's repertoire, on the room's row under Rooms, or on its edit form |
 | Create a user | Admins: Users → *Add user* |
 | Make a user admin | Admins: Users → *Edit* → tick *Admin* (this also ticks the other roles); untick it to take the role away (the only active admin keeps it) |
 | Switch off delete confirmations | Signed in: account menu → User settings → *Delete confirmations*, per account and separately for songs, suggestions, wishes and rooms, each only with the matching role (all on by default; *Clear list* always asks) |
@@ -164,14 +164,14 @@ dialog load the normal way.
 ## Light and dark
 
 The menu in the header – a sun, a crescent or a half circle – offers three
-designs: *Light*, *Dark* and *Follow my device*, which takes the light or
-dark setting of one's own system. Choosing takes effect at once, without a
+designs: *Follow my device*, which takes the light or dark setting of one's
+own system, *Light* and *Dark*. Choosing takes effect at once, without a
 reload, and a form being filled in keeps what is in it.
 
 The choice belongs to the visitor, not to the site: it is kept in a cookie
 on that device and holds for every room and every page. Whoever never opens
-the menu gets the design the admins set as the default – *Dark*, unless they
-changed it.
+the menu gets the design the admins set as the default – *Follow my device*,
+unless they changed it.
 
 The menu works without JavaScript as well; the page then reloads and comes
 back where it was. The two colour sets and the default are under
@@ -207,9 +207,9 @@ do not fit side by side on the full width do they stack; the switcher then
 has its own row as well. Without JavaScript the CSS fallback gives the
 switcher its own row up to 720 px and stacks the tabs up to 560 px.
 
-Every page's head puts the title and its description at the left and the
-page actions (*Add room*, *Close all rooms*, *Manage*, *Clear list*, …) at
-the top right beside them from 721 px on. On narrower screens the actions
+Every page's head puts the title at the left – the description sits behind
+the *?* – and the page actions (*Add room*, *Close all rooms*, *Manage*,
+*Clear list*, …) at the top right beside it from 721 px on. On narrower screens the actions
 drop below the text, right-aligned.
 
 The popouts (help, language, account, room switcher, the sort menu on
@@ -230,8 +230,9 @@ is through, like Drupal's `destination`.
 
 The form carries the address in a hidden field, so it survives a validation
 error, a language change and a room switch. Without a usable `back` the
-form falls back to its list (`destination()` in `src/bootstrap.php`;
-`safe_target()` only accepts addresses of this site). One exception: a
+form falls back to its list (`Controller::destination()` in
+`src/Controller/Controller.php`; `UrlGenerator::safeTarget()` only accepts
+addresses of this site). One exception: a
 newly created room leads on to *Manage*, since it has no songs yet. *Back*
 there leads to where *Add room* was clicked. On *Manage* the address
 survives every move, search and page change.
@@ -248,15 +249,20 @@ stays a tight, centred block.
 
 * **Repertoire** – title, below it artist · length · genre; *Wish* on the
   right, for editors the pair *Edit* / *Delete* below it (*Remove* in a
-  room).
+  room). A row whose song is already on the room's wish list is marked – a
+  veil in the accent colour with an edge in it – and its *Wish* button says
+  so to a screen reader; wishing again counts up on the entry instead of
+  adding a second one.
 * **Rooms** – name with its tags (*always there*, *archived*, *unlisted*,
   *closed*, *start room*, *(current)*), below it the address, below that
   the counts spelled out ("50 songs · 7 wishes"; the wishes only for
   moderators). The name is the link into the room. On the right, in the
   order of the edit form: for editors *As start room*, for moderators
   *Close room* / *Open room*, for editors *QR code*, then *Manage* and the
-  pair *Edit* / *Delete*. The main room's row has *QR code* and *Edit*
-  only (its name and its listed switch). Guests see no buttons.
+  pair *Edit* / *Delete*. The main room's row carries the same switches but
+  neither *Manage* nor *Delete*: *As start room* while another room is the
+  start room, *Close room* / *Open room*, *QR code* and *Edit* (its name and
+  its listed switch). Guests see no buttons.
 * **Users** – name, below it roles · status (*active* or *locked*); the pair
   *Edit* / *Delete* on the right (no *Delete* for yourself).
 * **Suggestions** – title, below it the artist; on the right the time

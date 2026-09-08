@@ -10,7 +10,7 @@ Four files decide what happens on a request, and nothing outside them does:
 | `src/Kernel.php` | the order the pieces run in |
 
 There is no framework and no dependency: the router, the container and the
-response object are about 700 lines of hand-written PHP in `src/Routing`,
+response object are about 1,200 lines of hand-written PHP in `src/Routing`,
 `src/DependencyInjection` and `src/Http`. What is borrowed from Symfony is
 the shape, not the code.
 
@@ -110,13 +110,21 @@ declares one where it differs from the other.
 
 ## Access
 
-`config/access.php` maps a route name to the role area it needs, or to
-`AccessListener::ANY` for "any signed-in user". A route that is not in the
-table is public. This replaced 44 `require_role()` calls in the first line
-of 44 branches, which meant that whether an address was protected could
-only be answered by reading all of them; `check-routes.php` also verifies
-that every name in the table is a route, so a typo cannot silently leave an
-address open. See [Users and roles](users-and-roles.md).
+`config/access.php` maps a route name to the role area it needs, to
+`AccessListener::ANY` for "any signed-in user", or to `AccessListener::OPEN`
+for "deliberately open to everyone". A public GET page needs no entry. For a
+**POST route and for everything under `/admin`** an entry is required:
+silence is a refusal there, not a permission, so a route of those classes
+that nobody classified is refused rather than served -- forgetting a line
+closes an address instead of opening one. The list of those routes comes off
+the route table itself (`config/services.php`), so a new POST route is
+guarded the moment it is added.
+
+This replaced 44 `require_role()` calls in the first line of 44 branches,
+which meant that whether an address was protected could only be answered by
+reading all of them. `check-routes.php` checks both directions: that every
+name in the table is a route, and that every POST route and every `/admin`
+address is in the table. See [Users and roles](users-and-roles.md).
 
 ## Services
 

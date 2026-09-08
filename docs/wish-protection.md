@@ -23,6 +23,16 @@ song exists in the room, then the global and per-sender limits. Only an
 accepted wish is counted for the per-sender and per-minute limits;
 suggestions are not.
 
+Those checks decide the message a guest gets. What actually happens is
+decided by the write. The unique keys on the wishes and the suggestions mean
+a song is listed once per room whatever order two requests arrive in:
+`WishRepository::wish()` turns a second wish into a count-up,
+`SuggestionRepository::add()` lets a duplicate fall away, and both take a row
+back out again when it made the list longer than the cap. The per-minute and
+per-sender limits and the session brake stay best-effort – they dampen a
+flood, and making them exact would mean a lock on the one path that has to
+stay quick.
+
 ## The Limits page
 
 Admins set the limits under **Limits** (`/admin/limits`, in the

@@ -88,7 +88,8 @@ from ordinary texts:
   (`M j, H:i`) – formats for PHP's `date()`. Here the format is translated,
   not a text.
 * `role` – the role names *Admin*, *Editor*, *Moderator*.
-* `language tab` – the labels of the language tabs in the page form.
+* `language tab` – the labels on the language tabs of the page form and the
+  footer line, and in the list of pages.
 
 ## Template and completeness
 

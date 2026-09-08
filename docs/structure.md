@@ -8,9 +8,10 @@ file and folder in the repository and what it does.
 
 ```
 index.php              Front controller: load the configuration, build the container, hand the request to the kernel
-.htaccess              Apache: everything to index.php, other files blocked (also in src/, templates/, tools/, sql/, lang/, config/)
-config.example.php     Template for config.php (database, base path, first admin, version, trust_proxy, show_errors)
+.htaccess              Apache: everything to index.php, other files blocked (also in src/, templates/, tools/, sql/, lang/, config/; assets/ refuses to execute PHP)
+config.example.php     Template for config.php (database, base path, first admin, version, trust_proxy, schema_ddl, show_errors)
 README.md              Overview and entry to the documentation
+.gitignore             What never goes into the repository (config.php, .env, the runtime signal)
 docs/                  Topic documentation, one file per topic (this folder)
 LICENSE                Licence of the project
 robots.txt             What search engines may index: the start page and the pages, not the rooms, lists and operating pages
@@ -27,6 +28,7 @@ src/Http/Exception/    NotFoundException, AccessDeniedException
 src/Routing/Route.php  One address: path, controller, name, room scope
 src/Routing/RouteCollection.php  Every route, in the order they are declared
 src/Routing/RouteMatcher.php     Which route a path belongs to (two passes, see Architecture)
+src/Routing/RouteMatch.php       What the matcher found: the route and the values its path carried
 src/Routing/UrlGenerator.php     The address of a route by name -- and the check on a return address
 src/DependencyInjection/Container.php  Service ids, factories, and the objects they made; lazy
 src/EventListener/     The steps between route and controller: room, live update, language, CSRF, access
@@ -36,7 +38,7 @@ src/Template/ShellContext.php Everything the page shell shows around a page
 src/Template/View.php         What a controller hands back: template, title, values
 
 src/Database.php       PDO connection, prepared statements only
-src/Schema.php         Fixed table definition: creates missing tables, checks columns, lists missing indexes
+src/Schema.php         Fixed table definition: creates missing tables (unless schema_ddl forbids it), checks their columns
 src/SongRepository.php Repertoire: search, sort, paginate, maintain
 src/WishRepository.php Wish list of a room: create, count repeated wishes, read, sort, reorder, delete
 src/SuggestionRepository.php  Song suggestions of a room: validate, store, search, delete

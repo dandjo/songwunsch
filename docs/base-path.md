@@ -82,8 +82,9 @@ The base path is put in front of every address the application generates:
 links and form targets, the address of `assets/style.css` and
 `assets/app.js`, the redirect after every action, the address `app.js` posts
 to for drag & drop and the poll address for live updates. It also sets the
-scope of the cookies: the session cookie, the guest's name, the remembered
-room and the language cookie all carry `path=/songliste/` for a sub-path.
+scope of the cookies: the session cookie, the guest's name, the two room
+cookies (the room chosen last and the unlisted rooms entered), the language
+cookie and the colour scheme all carry `path=/songliste/` for a sub-path.
 Two applications on the same domain therefore share no session.
 
 Only absolute paths are generated (`/songliste/wishes?…`), never relative

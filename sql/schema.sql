@@ -46,8 +46,9 @@ CREATE TABLE IF NOT EXISTS `song_wishes` (
     `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id, 0 = default room',
     `wished`     INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'how often the song was wished while this entry has been open',
     PRIMARY KEY (`id`),
-    -- One entry per song and room; a wish whose song was deleted keeps artist
-    -- and title with song_id NULL, and a unique index allows any number of NULLs.
+    -- One entry per song and room. song_id is nullable and no foreign key --
+    -- a wish carries its own artist and title -- and a unique index allows any
+    -- number of NULLs.
     UNIQUE KEY `uniq_room_song` (`room_id`, `song_id`),
     KEY `idx_created_at` (`created_at`),
     KEY `idx_position` (`position`),
@@ -59,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `song_wishes` (
 -- (adding length and genre) or deletes it; either way it leaves this table.
 -- Like the wishes, the suggestions are kept per room (room_id, 0 = main
 -- room): a room lists what was suggested there. The adopted song goes onto
--- the master list and is offered in that room right away. suggester is the
+-- the main list and is offered in that room right away. suggester is the
 -- guest's name if given, and goes with the suggestion.
 CREATE TABLE IF NOT EXISTS `song_suggestions` (
     `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -118,7 +119,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 -- Rooms: a capsule of song list and wish list with its own address
 -- /rooms/<slug>. The default room (/ and /wishes) is virtual -- id 0, no row,
--- the whole master list -- and always there.
+-- the whole main list -- and always there.
 CREATE TABLE IF NOT EXISTS `rooms` (
     `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `slug`       VARCHAR(64)  NOT NULL COMMENT 'machine name in the address: /rooms/<slug>',
@@ -131,10 +132,10 @@ CREATE TABLE IF NOT EXISTS `rooms` (
     UNIQUE KEY `uq_slug` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Which songs of the master list a room offers.
+-- Which songs of the main list a room offers.
 CREATE TABLE IF NOT EXISTS `room_songs` (
     `room_id` INT UNSIGNED NOT NULL,
-    `song_id` INT UNSIGNED NOT NULL COMMENT 'songs.id -- the room picks from the master list',
+    `song_id` INT UNSIGNED NOT NULL COMMENT 'songs.id -- the room picks from the main list',
     PRIMARY KEY (`room_id`, `song_id`),
     KEY `idx_song_id` (`song_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

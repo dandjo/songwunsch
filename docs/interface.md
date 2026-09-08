@@ -2,9 +2,9 @@
 
 Under *Administration → Interface* (`/admin/ui`, admins only) admins set how
 the interface looks and behaves. The settings apply to every visitor and
-every room alike. There are five groups: the colours of the dark design, the
-colours of the light one, which of the two a visitor gets by default, how
-long a message stays, and how often the lists look for changes.
+every room alike. There are four groups: the colours – the dark design's set
+and the light one's, behind two tabs –, which of the two a visitor gets by
+default, how long a message stays, and how often the lists look for changes.
 
 The values are kept in the `settings` table: `colors.<area>` and
 `colors.light.<area>` for the two colour sets (`src/Colors.php`), `ui.theme`
@@ -23,8 +23,8 @@ The table below names the **dark** defaults; the light ones stand under
 
 | Area | Used for | Default (dark) |
 | --- | --- | --- |
-| Primary | Buttons, links, the active tab and focus rings, “wunsch” in the word mark, primary tags and notices | `#93c5fd` |
-| Secondary | The room switcher, the tabs that are not the current page, their hover, and the counter discs on them | `#60a5fa` |
+| Primary | The menu and what a visitor acts on: buttons, links, every tab and the room switcher, focus rings, the primary tags and notices | `#93c5fd` |
+| Secondary | The counter discs on the tabs, and the ×N disc on a wish that was wished more than once – nothing else | `#60a5fa` |
 | Accent | “wunsch” in the word mark, genre and role tags, what an editor does (*Edit*, *Add …*, *Adopt*, and the *Save* that finishes their forms), the switched-on sort chip, the dot on the account menu, a song already on the wish list, the frame of info notices | `#fbbf24` |
 | Danger | Closed rooms, delete buttons, warnings, errors | `#f87171` |
 | Success | The frame of confirmation notices, the tick on a saved language tab, the confirm buttons in the page editor's dialogs | `#4ade80` |
@@ -39,7 +39,7 @@ three carry the interface between them: the menu and its actions, the
 counters on it, and what stands out from both.
 
 Each area has a colour picker and a text field for the hex value, in each of
-the two groups. Both follow each other. A *Default* button brings the built-in colour back. The
+the two sets. Both follow each other. A *Default* button brings the built-in colour back. The
 picker and the *Default* button need JavaScript; without it the text field
 alone does the job. The built-in value is shown as a hint under each field.
 
@@ -56,6 +56,11 @@ write, and lays it over the saved one. Nothing is stored, so leaving the page
 or saving drops the preview; the derivation stays in PHP, so there is no
 second copy of the ratios in JavaScript. Without JavaScript the fields simply
 show their values and *Save* is what applies them.
+
+*Reset*, beside *Save as my palette*, puts the saved colours back into the
+fourteen fields and drops the preview, so the page shows what is actually
+stored again. Like the pickers it needs JavaScript; without one there is no
+preview to undo.
 
 ### Presets
 
@@ -89,8 +94,9 @@ the counters the tabs carry, and what stands out from both.
 The first entry in the row is **your own palette**, once *Save as my palette*
 has been pressed: it keeps the fourteen colours that stand in the fields at
 that moment, under `colors.own` in the `settings` table, and saving it again
-replaces it. It behaves like any other preset afterwards – a click fills the
-fields, *Save* applies them. *Delete my palette* removes the entry again and
+replaces it. A field left empty is kept as the built-in colour of its scheme,
+so the palette can always fill every field it offers. It behaves like any
+other preset afterwards – a click fills the fields, *Save* applies them. *Delete my palette* removes the entry again and
 appears only while there is one; it changes no colour, neither in the fields
 nor on the site.
 
@@ -107,8 +113,9 @@ character is red or green (Holiday Magic, Forest Green) shares those values
 rather than shifting them. `php tools/check-colors.php`
 checks every preset, in both schemes, for the contrast WCAG 2.2 AA asks for
 on the surfaces the stylesheet puts each colour on – 4.5:1 for text, links
-and button labels, 3:1 for the number on a counter disc – and a new preset
-has to pass the same check.
+and button labels, 3:1 for the number on a counter disc and for the dot that
+says there is something new – and a new preset has to pass the same check.
+The success colour is left out: it only frames a notice and draws a tick.
 
 Keep the contrast readable. Check the result with the accessibility tools of
 the browser after a change – in both schemes, see *Light and dark* below and
@@ -134,9 +141,9 @@ What each area derives:
   (row highlight, hover, notices, chips inside notices). The focus glow of the
   editor is drawn with the strongest of them, so it follows without a token
   of its own.
-- Secondary: `--steel`, a brighter and a deeper shade, and two transparent
-  tints – the frame, the veil and the label of the room switcher and of the
-  tabs that are not the current page, and the discs their counters sit on.
+- Secondary: `--steel` alone – the disc a counter sits on. It carries a
+  number, so what has to read is the text on it; there is no hover and no
+  frame, and therefore nothing to derive shades for.
 - Accent: `--violet`, a brighter shade, and three transparent tints – the
     wash under a row that is already wished, the soft veil of a tag, the line
     of its frame.

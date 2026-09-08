@@ -41,7 +41,9 @@
   is honoured for the third. Both built-in palettes and every preset hold the
   contrast WCAG 2.2 AA asks for on the surfaces the stylesheet puts them on –
   4.5:1 for text, links and button labels, 3:1 for the number on a counter
-  disc – and `tools/check-colors.php` checks that. `<html data-theme>` and
+  disc and for the dot that says there is something new – and
+  `tools/check-colors.php` checks that. The success colour is left out: it
+  only frames a notice and draws a tick. `<html data-theme>` and
   `<meta name="color-scheme">` say which one is in use, so the browser's own
   furniture follows.
 * **Motion and contrast modes.** `prefers-reduced-motion: reduce` switches

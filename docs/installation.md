@@ -25,12 +25,17 @@ compatible) database. No Composer, no build step: the files run as they are.
    environment variable (`DB_HOST`, `DB_NAME`, …; the names are in the file).
    `config.php` is excluded from version control through `.gitignore`.
 
-   Two more values matter later: `trust_proxy` (set to `true` only behind a
-   reverse proxy that is the only way in, see
-   [Protecting the wishing](wish-protection.md)) and `show_errors`, which is
+   Three more values matter later. `trust_proxy` is set to `true` only behind
+   a reverse proxy that is the only way in (see
+   [Protecting the wishing](wish-protection.md)); the same switch decides
+   whether `X-Forwarded-Proto` is believed, and therefore whether the cookies
+   are marked secure behind a proxy that terminates TLS. `show_errors` is
    `false` and should stay that way – technical error messages then reach
    signed-in users only, and the error log; `true` shows them to every
-   visitor.
+   visitor. `schema_ddl` is `true` and lets the application create a table it
+   finds missing; set it to `false` once the tables are in place, and the
+   database account needs no `CREATE` rights at all – a missing table is then
+   reported instead of created (see [Database](database.md)).
 
 3. Define the first admin:
 
@@ -48,9 +53,11 @@ compatible) database. No Composer, no build step: the files run as they are.
    the first use.**
 
 4. Create the database and its user. The database must exist; the tables are
-   created by the application on the first request. To have them beforehand,
-   run `php tools/install.php`. If the database user may not `CREATE TABLE`,
-   import `sql/schema.sql` instead. See [Database](database.md).
+   created by the application on the first request, as long as `schema_ddl`
+   is on. To have them beforehand, run `php tools/install.php` – it creates
+   them whatever `schema_ddl` says. With `schema_ddl` off, or a database user
+   that may not `CREATE TABLE`, run `tools/install.php` once with an account
+   that may, or import `sql/schema.sql`. See [Database](database.md).
 
 5. For a first test without your own data, import the 50 demo titles:
 
@@ -70,7 +77,8 @@ To the outside exactly one PHP file exists: `index.php`. Every address below
 the base path lands there; unknown addresses are answered with 404. Only
 `assets/` and `robots.txt` are served directly by the web server. All other
 PHP files, `config.php`, `sql/`, `lang/`, `tools/`, `templates/`, `src/` and
-the Markdown files (README, `docs/`) are blocked from outside (403).
+the Markdown files that are deployed (the README) are blocked from outside
+(403); `docs/` is not deployed at all.
 
 **One writable folder.** `assets/state/` should be writable for the user the
 web server runs PHP as – that folder alone, and it holds exactly one file:
@@ -105,7 +113,7 @@ sub-path in front of every address.
 application folder does both. It blocks every file ending in `.php`, `.sql`,
 `.po`, `.pot`, `.md`, `.ini`, `.log` or `.env` and then allows `index.php`
 again; and it rewrites every address except `assets/` and `robots.txt` to
-`index.php`. In addition there are `.htaccess` files in `src/`,
+`index.php`. In addition there are `.htaccess` files in `src/`, `config/`,
 `templates/`, `tools/`, `sql/` and `lang/` with `Require all denied`, so
 these folders stay blocked even when `mod_rewrite` is missing. The vhost
 must allow `.htaccess`: `AllowOverride All`, or at least `FileInfo` (for the
@@ -150,7 +158,10 @@ location = /index.php {
 
 Since only `index.php` is handed to PHP-FPM, all other PHP files are
 unreachable by themselves. Behind nginx or another proxy that terminates TLS,
-the application reads `X-Forwarded-Proto` to mark its cookies as secure.
+set `'trust_proxy' => true` in `config.php`: only then is `X-Forwarded-Proto`
+believed and the cookies are marked secure. Set it only where the proxy is
+the only way in – the same value decides whether `X-Forwarded-For` may name
+the sender of a wish.
 
 In the Docker stack `mod_rewrite` and `AllowOverride All` are already
 enabled; the same `.htaccess` files apply there.
@@ -169,9 +180,9 @@ starts with `1.0.0`. Without a value the suffix is omitted.
 `tools/deploy.sh` syncs the application folder to the host with `rsync` over
 SSH. It copies everything needed to run and leaves out what belongs to
 development only: `config.php`, `.env` and `sample.env`, `compose.yml` and
-`docker/`, all git metadata (`.git/`, `.gitignore`, `.gitattributes`,
-`.gitmodules`, `.gitkeep`, `.github/`), `.idea/`, `*.log`, `.DS_Store` and
-the script itself. It copies from the working folder, not from git: a file
+`docker/`, the documentation folder `docs/`, all git metadata (`.git/`,
+`.gitignore`, `.gitattributes`, `.gitmodules`, `.gitkeep`, `.github/`),
+`.idea/`, `.claude/`, `*.log`, `.DS_Store` and the script itself. It copies from the working folder, not from git: a file
 that git ignores is copied too unless it is on this list.
 
 Target host and directory are read from the `.env`: `DEPLOY_HOST` (SSH host

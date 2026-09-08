@@ -10,10 +10,14 @@ only reads it.
 * In a room, the list shows the room's selection of the main list. The button
   above it is *Manage*, which picks songs from the main list (see
   [Rooms](rooms.md)). New songs are always added to the main list first.
-* Every row carries *Edit* and *Delete*, on the main list and in a room alike.
-  *Delete* asks for confirmation. Each user can switch that question off under
-  *User settings*.
-* While a room is closed, the *Wish* buttons are gone but *Edit* and *Delete*
+* Every row carries *Edit* and a bin, on the main list and in a room alike.
+  On the main list the bin is *Delete* and asks for confirmation; each user
+  can switch that question off under *User settings*. In a room it is
+  *Remove*, takes the song out of that room only, and asks nothing.
+* A row whose song is already on the room's wish list is marked – a veil in
+  the accent colour with an edge in it – and its *Wish* button says so to a
+  screen reader.
+* While a room is closed, the *Wish* buttons are gone but *Edit* and the bin
   stay.
 
 ## The song form

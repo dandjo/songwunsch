@@ -75,8 +75,10 @@ all, because PHP runs as the account that owns the files. In the container
 Apache runs as `www-data`, while the mounted project folder belongs to the
 user on the host – so the image puts `www-data` into that user's group
 (`docker/Dockerfile`), and the group may write the folder already. Nothing is
-opened up for anyone else, and `assets/` itself stays read-only for the web
-server.
+opened up for anyone else: only the host account's own group gains access,
+and only inside the mount. The application still writes exactly one file –
+`assets/state/.htaccess` refuses to serve anything but `live.txt`, which is
+what keeps the target small.
 
 The group comes from `HOST_GID` in the `.env`, and `1000` is right for a
 first user account on Linux. If `id -g` on your host says something else, put
@@ -107,7 +109,8 @@ variables, and `compose.yml` passes those in from the `.env`: the database
 credentials (`DB_HOST` is fixed to `db`, `DB_PORT` to `3306`), `AUTH_USER`,
 `AUTH_HASH`, `BASE_PATH`, `SHOW_ERRORS`, `SCHEMA_DDL` and `TZ`. `TRUST_PROXY` is fixed to
 `1`, because Traefik is the only way into the container and its
-`X-Forwarded-For` header can be trusted (see
+`X-Forwarded-For` (the sender of a wish) and its `X-Forwarded-Proto` (the
+secure flag on the cookies) can both be trusted (see
 [Protecting the wishing](wish-protection.md)). After a change to the `.env`,
 run `docker compose up -d` again so the containers get the new values.
 
@@ -135,6 +138,7 @@ PhpStorm. It is not reachable from other machines.
 | `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` | Database name, application user and the two passwords |
 | `DB_PORT_HOST` | Host port for database clients, on `127.0.0.1` only (`3399`) |
 | `AUTH_USER`, `AUTH_HASH` | The first admin, see below |
+| `HOST_GID` | Group of the account that owns the working copy (`id -g`), so PHP in the container may write `assets/state/` (`1000`) |
 | `SHOW_ERRORS` | `0` (the default) shows technical error messages to signed-in users only, `1` to everyone |
 | `SCHEMA_DDL` | `1` lets a request create a missing table, `0` requires `tools/install.php` and needs no CREATE rights |
 | `TRAEFIK_HTTP_PORT`, `TRAEFIK_HTTPS_PORT`, `TRAEFIK_DASHBOARD_PORT` | Ports of the standalone Traefik (`80`, `443`, `8081`) |

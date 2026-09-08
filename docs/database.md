@@ -6,9 +6,9 @@ a prerequisite; there is no detection or mapping of other tables.
 | Table | Columns | Purpose |
 | --- | --- | --- |
 | `songs` | `id`, `artist`, `title`, `length_sec` (seconds, `NULL` = unknown), `genre` | Repertoire, see [Maintaining the repertoire](repertoire.md) |
-| `song_wishes` | `id`, `song_id`, `artist`, `title`, `length_sec`, `genre`, `wisher`, `created_at`, `position`, `room_id`, `wished` | Wish list. `wisher` = the guest's name if given; `position` = manual order (drag & drop); `room_id` 0 = main room; `wished` = how often the song was wished while the entry has been open |
-| `song_suggestions` | `id`, `artist`, `title`, `suggester`, `created_at`, `room_id` | Open song suggestions, see [Song suggestions](suggestions.md). `suggester` = the guest's name if given; `room_id` = the room whose list it is on (0 = main room). An adopted or deleted suggestion leaves the table |
-| `settings` | `name`, `value`, `updated_at` | Key/value store: the open/closed switch per room (`wishes_paused`, `wishes_paused:<room id>`), the marker of *Close all rooms* (`wishes_paused_all`), the daily secrets of the wish guard (`secret:<date>`), the live logo (`logo_id`), the main room's name and the start room, the languages' fallback order, the footer line, the colours (`colors.*`), the interface settings (`ui.*`), the limits (`limits.*`) and the revision counters for live updates |
+| `song_wishes` | `id`, `song_id`, `artist`, `title`, `length_sec`, `genre`, `wisher`, `created_at`, `position`, `room_id`, `wished` | Wish list, one row per song and room, held by a unique key on (`room_id`, `song_id`). `wisher` = the guest's name if given; `position` = manual order (drag & drop); `room_id` 0 = main room; `wished` = how often the song was wished while the entry has been open |
+| `song_suggestions` | `id`, `artist`, `title`, `suggester`, `created_at`, `room_id` | Open song suggestions, unique per room, artist and title, see [Song suggestions](suggestions.md). `suggester` = the guest's name if given; `room_id` = the room whose list it is on (0 = main room). An adopted or deleted suggestion leaves the table |
+| `settings` | `name`, `value`, `updated_at` | Key/value store: the open/closed switch per room (`wishes_paused`, `wishes_paused:<room id>`), the marker of *Close all rooms* (`wishes_paused_all`), the daily secrets of the wish guard (`secret:<date>`), the live logo per design (`logo_id`, `logo_id_light`), the main room's name and the start room, the languages' fallback order, the footer line per language (`footer_html.<code>`), the colours (`colors.*`, and `colors.own` for the admins' own palette), the interface settings (`ui.*`), the limits (`limits.*`), each user's own preferences (`user.<id>.…`, for instance the delete confirmations) and the revision counters for live updates |
 | `wish_throttle` | `id`, `sender`, `created_at` | Rate limiting, see [Protecting the wishing](wish-protection.md). `sender` is an HMAC of the IP address with the daily secret, never a plain IP; entries older than an hour are deleted |
 | `users` | `id`, `username`, `password_hash`, `role_admin`, `role_moderator`, `role_editor`, `active`, `created_at`, `updated_at` | Staff accounts, see [Users and roles](users-and-roles.md). `username` is unique |
 | `rooms` | `id`, `slug`, `name`, `active`, `listed`, `created_at`, `updated_at` | Rooms, see [Rooms](rooms.md). `slug` = the machine name in the address (unique); `active` 0 = archived; `listed` 1 = guests see the room in the switcher and the list, 0 = reached through its address only. The main room has no row (id 0) |
@@ -21,7 +21,8 @@ All tables use InnoDB with `utf8mb4` / `utf8mb4_unicode_ci`. There are no
 foreign keys. A wish copies artist, title, length and genre; `song_id` is
 deliberately not a foreign key, so a deleted song does not take its wishes
 with it. A song wished again while it is still open gets no second row –
-`wished` counts on the existing one. Wishes and suggestions hold no IP
+`wished` counts on the existing one, and a unique key makes that the
+database's rule rather than the caller's timing. Wishes and suggestions hold no IP
 address and no user agent; the only personal data is the name a guest chose
 to give, and it goes when the wish or suggestion goes.
 
@@ -35,7 +36,14 @@ environment – Docker, shared host, local. For that the database user needs
 `CREATE TABLE` once, and `SELECT`, `INSERT`, `UPDATE`, `DELETE` in
 operation. The database itself must exist.
 
-Three ways lead to the same result:
+Whether a request may create a table at all is `schema_ddl` in `config.php`
+(`SCHEMA_DDL` in the `.env`), on by default. With it off, a missing table is
+reported – *Run tools/install.php or load sql/schema.sql* – and the account
+the site runs under needs `SELECT`, `INSERT`, `UPDATE` and `DELETE` and
+nothing more.
+
+Three ways lead to the same result; the second one only while `schema_ddl`
+is on, while `tools/install.php` creates the tables either way:
 
 ```bash
 php tools/install.php        # beforehand, without a web server (exit code 0 = all there)
@@ -44,9 +52,9 @@ php tools/install.php        # beforehand, without a web server (exit code 0 = a
 ```
 
 `tools/install.php` reads `config.php` (or the environment variables) like
-the application. It creates the missing tables, adds missing indexes (see
-below) and creates the first admin from `auth.user` / `auth.hash` if the
-`users` table is empty. Exit code 0 means everything is in place; on an error
+the application. It creates the missing tables and the first admin from
+`auth.user` / `auth.hash` if the `users` table is empty – nothing else.
+Exit code 0 means everything is in place; on an error
 it prints the message and exits with 1. It is safe to run at any time. In
 the Docker stack: `docker compose exec web php tools/install.php`.
 
