@@ -48,9 +48,9 @@ src/NumberSettings.php Whole-number settings under one prefix: defaults, ranges,
 src/Limits.php         The limits on wishing and suggesting and the page size the admins set (Administration -> Limits)
 src/Ui.php             Message duration and live-update intervals the admins set (Administration -> Interface)
 src/LiveSignal.php     The live update's doorbell: assets/state/live.txt, rewritten on every change, polled instead of PHP
-src/Colors.php         The colours the admins set (Administration -> Interface): shades per scheme, the block over :root
+src/Colors.php         The colours the admins set (Administration -> Interface): two sets of six, shades per scheme, the block over the stylesheet
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
-src/Theme.php          Light or dark, the visitor's own choice: cookie, the two allowed values
+src/Theme.php          Which scheme a page is drawn in: the visitor's cookie, the admins' default (ui.theme), the three values
 src/QrCode.php         QR codes of the room addresses, made here: encoding, Reed-Solomon, masks, SVG and PNG
 src/RoomMemory.php     The room chosen last and the unlisted rooms a guest entered: two cookies
 src/Settings.php       Key/value store in the settings table, per-user settings
@@ -78,6 +78,7 @@ tools/install.php      Create the tables beforehand, add missing indexes, set up
 tools/demo.php         Import the demo repertoire from sql/demo.sql (CLI)
 tools/import-csv.php   Import songs from a CSV file, optionally replacing the list (CLI)
 tools/check-routes.php Generate every address and match it back: the route table checked against itself (CLI)
+tools/check-colors.php The three colour palettes in style.css against each other and against Colors (CLI)
 tools/extract-strings.php  Generate the translation template, check .po files (CLI)
 tools/deploy.sh        Sync to the web host via rsync and raise the version, see Deployment in installation.md
 compose.yml            Docker stack: web, db, traefik (profile "standalone")

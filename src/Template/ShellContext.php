@@ -98,11 +98,11 @@ final class ShellContext
             'security'   => $this->security,
             'settings'   => $this->settings,
             'translator' => $this->translator,
-            // Light or dark: the visitor's own choice, on <html data-theme>
-            // and the scheme the admins' colours are derived for.
-            'theme'      => $this->theme->current(),
-            // The one the switch in the header offers.
-            'themeOther' => $this->theme->other(),
+            // Light, dark or the device's word: on <html data-theme>, and the
+            // scheme the admins' colours are derived for. The real answer
+            // needs the settings table and is filled in by withData(); an
+            // error page that never reaches the database stays dark.
+            'theme'      => Theme::FALLBACK,
             'csrf'       => $this->security->csrfToken(),
             'flash'      => $this->flash->take(),
             'here'       => $here,
@@ -166,6 +166,7 @@ final class ShellContext
     private function withData(array $shell, View $view, string $page, int $roomId, array $room): array
     {
         $shell['guestName'] = $this->guestName->current();
+        $shell['theme']     = $this->theme->current();
         $shell['toastSec']  = $this->ui->get('toast_sec');
         $shell['paused']    = $this->live->paused();
 
@@ -243,8 +244,9 @@ final class ShellContext
         $logoId        = (int) $this->settings->get(Settings::LOGO_ID, '0');
         $shell['logo'] = $logoId > 0 ? $this->uploads->info($logoId) : null;
         // The colours set under Interface, as a block over the stylesheet --
-        // derived for the scheme this page is rendered in.
-        $shell['colorsCss'] = Colors::css(Colors::load($this->settings), $this->theme->isDark());
+        // for the scheme this page is drawn in; a visitor following their
+        // device gets both, see Colors::stylesheet().
+        $shell['colorsCss'] = Colors::stylesheet($this->settings, $shell['theme']);
 
         // The counters on the Repertoire, Wish list and Suggestions tabs --
         // for everyone, guests included; the pages behind them are public as

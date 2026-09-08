@@ -1033,31 +1033,45 @@
             });
         };
 
-        // Light or dark. The switch stands in the header, which lives inside
-        // the swapped area -- posting it the ordinary way would exchange the
-        // whole content and lose a wish someone was half way through typing.
-        // So the scheme is turned over here and now (one attribute on the
-        // root element, and the stylesheet does the rest), the button is set
-        // to offer the other one, and the post goes off in the background
-        // for the cookie alone; its answer is not rendered. What comes back
-        // is the same page in the new scheme, which nobody needs to see
-        // twice.
+        // Light, dark or the device's word. The switch stands in the header,
+        // which lives inside the swapped area -- posting it the ordinary way
+        // would exchange the whole content and lose a wish someone was half
+        // way through typing. So the scheme is turned over here and now (one
+        // attribute on the root element, and the stylesheet does the rest),
+        // the menu is marked accordingly, and the post goes off in the
+        // background for the cookie alone; its answer is not rendered. What
+        // comes back is the same page in the same scheme, which nobody needs
+        // to see twice.
+        var schemes = { system: true, light: true, dark: true };
         var switchTheme = function (form) {
             var field = form.elements.theme;
             var wanted = field ? field.value : '';
-            if (wanted !== 'light' && wanted !== 'dark') {
+            if (!schemes[wanted]) {
                 return;
             }
-            // The body is read first, while the form still says what was
-            // asked for; the button is turned around afterwards.
-            var body = new URLSearchParams(new FormData(form));
             document.documentElement.setAttribute('data-theme', wanted);
-            field.value = wanted === 'light' ? 'dark' : 'light';
+            // Which entry the menu calls the current one. The glyph and the
+            // toggle's accessible name follow the attribute by themselves
+            // (CSS), so there is no text to translate here.
+            document.querySelectorAll('.theme__item').forEach(function (item) {
+                var active = item.getAttribute('data-theme-value') === wanted;
+                item.classList.toggle('is-active', active);
+                if (active) {
+                    item.setAttribute('aria-current', 'true');
+                } else {
+                    item.removeAttribute('aria-current');
+                }
+            });
+            // The menu has done its job; close it as a real navigation would.
+            var menu = form.closest('details');
+            if (menu) {
+                menu.open = false;
+            }
             fetch(form.action, {
                 method: 'POST',
                 credentials: 'same-origin',
                 headers: { 'Accept': 'text/html' },
-                body: body
+                body: new URLSearchParams(new FormData(form))
             }).catch(function () {
                 // The scheme is already on screen; only remembering it
                 // failed. Saying so would be noise -- the next click tries

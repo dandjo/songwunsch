@@ -1472,9 +1472,6 @@ msgstr "„{title}“ gibt es nicht mehr in {language}."
 
 # ---- Colours and wish limits (Administration) ----------------------------------
 
-msgid "Colours"
-msgstr "Farben"
-
 msgid "Accent"
 msgstr "Akzent"
 
@@ -1505,17 +1502,8 @@ msgstr "Geschlossene Räume, Löschen-Buttons, Warnungen und Fehler."
 msgid "The edge of the confirmation notices and the confirm buttons in the dialogs of the page editor."
 msgstr "Der Rand der Bestätigungen und die Bestätigen-Buttons in den Dialogen des Seiteneditors."
 
-msgid "The page ground; shell, panels, fields and lines are lightened steps of it, and so is the text on gold buttons and counters."
-msgstr "Der Seitengrund; Rahmen, Flächen, Felder und Linien sind aufgehellte Stufen davon, ebenso der Text auf goldenen Buttons und Zählern."
-
 msgid "The text; the muted text is a step towards the background."
 msgstr "Der Text; der gedämpfte Text ist eine Stufe zum Hintergrund hin."
-
-msgid "The interface is dark with gold for actions, violet for tags and counters, red for danger and green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it."
-msgstr "Die Oberfläche ist dunkel, mit Gold für Aktionen, Violett für Tags und Zähler, Rot für Gefahr und Grün für Erfolg. Jeder Bereich hat eine Grundfarbe; die nötigen Abstufungen – Hover, Rahmen, Hinweise – werden daraus abgeleitet."
-
-msgid "Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change."
-msgstr "Ein leeres Feld behält die eingebaute Farbe. Der Kontrast zum Hintergrund muss lesbar bleiben – nach einer Änderung mit den Barrierefreiheits-Werkzeugen des Browsers prüfen."
 
 msgid "Pick the colour: {area}"
 msgstr "Farbe wählen: {area}"
@@ -1807,12 +1795,43 @@ msgstr "„{title}“ von {artist} stand bereits im Repertoire – der Song ist 
 msgid "“{title}” by {artist} was on the repertoire already – it has been put on the wish list and taken off the suggestions."
 msgstr "„{title}“ von {artist} stand bereits im Repertoire – der Song ist auf die Wunschliste gesetzt und aus den Vorschlägen entfernt."
 
-# ---- The light/dark switch in the header -------------------------------------
-msgid "Switch to the light design"
-msgstr "Auf helles Design umschalten"
+# ---- The design switch in the header and the two colour sets ----------------
 
-msgid "Switch to the dark design"
-msgstr "Auf dunkles Design umschalten"
+msgid "Colours – dark"
+msgstr "Farben – dunkel"
 
-msgid "Every visitor may read the site light instead of dark. The four accents apply there too, darkened as far as they have to be to stay readable; background and text shape the dark version only."
-msgstr "Jeder Besucher kann die Seite hell statt dunkel lesen. Die vier Akzente gelten dort ebenfalls, so weit nachgedunkelt wie nötig, damit sie lesbar bleiben; Hintergrund und Text formen nur die dunkle Fassung."
+msgid "Colours – light"
+msgstr "Farben – hell"
+
+msgid "The dark interface: gold for actions, violet for tags and counters, red for danger, green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it."
+msgstr "Die dunkle Oberfläche: Gold für Aktionen, Violett für Tags und Zähler, Rot für Gefahr, Grün für Erfolg. Jeder Bereich hat eine Grundfarbe; alle Abstufungen und Schleier, die daraus nötig sind – Hover, Rahmen, Hinweise – werden davon abgeleitet."
+
+msgid "The light interface, for visitors who choose it. The same six areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above."
+msgstr "Die helle Oberfläche, für Besucher, die sie wählen. Dieselben sechs Bereiche, aber gegen den hellen Grund gewählt – eine Farbe, die auf Schwarz leuchtet, ist auf Weiß selten lesbar. Es sind daher eigene Werte und keine Übersetzung der Farben oben."
+
+msgid "Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change – in the scheme the colour belongs to."
+msgstr "Ein leeres Feld behält die eingebaute Farbe. Achten Sie auf lesbaren Kontrast zum Hintergrund und prüfen Sie nach einer Änderung mit den Barrierefreiheits-Werkzeugen des Browsers – und zwar in dem Schema, zu dem die Farbe gehört."
+
+msgid "The page ground; shell, panels, fields and lines are steps away from it, and so is the text on gold buttons and counters."
+msgstr "Der Seitengrund; Hülle, Flächen, Felder und Linien sind Stufen davon weg, ebenso der Text auf goldenen Schaltflächen und Zählern."
+
+msgid "Default design"
+msgstr "Voreingestelltes Design"
+
+msgid "Visitors who have not chosen see"
+msgstr "Besucher ohne eigene Wahl sehen"
+
+msgid "Everyone may switch for themselves in the header at any time; this is only the starting point. “Follow my device” takes the light or dark setting of the visitor's own system."
+msgstr "Jede und jeder kann im Kopfbereich jederzeit selbst umschalten; das hier ist nur der Ausgangspunkt. „Meinem Gerät folgen“ übernimmt die Hell-/Dunkel-Einstellung des jeweiligen Systems."
+
+msgid "Follow my device"
+msgstr "Meinem Gerät folgen"
+
+msgid "Light"
+msgstr "Hell"
+
+msgid "Dark"
+msgstr "Dunkel"
+
+msgid "Design: {scheme}"
+msgstr "Design: {scheme}"

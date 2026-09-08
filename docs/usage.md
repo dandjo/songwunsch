@@ -163,14 +163,18 @@ dialog load the normal way.
 
 ## Light and dark
 
-The interface is dark. The sun in the header switches it to light, the
-crescent switches it back – one click, no reload, and a form being filled in
-keeps what is in it. The choice belongs to the visitor, not to the site: it
-is kept in a cookie on that device and holds for every room and every page.
-Whoever never touches the switch keeps the dark interface.
+The menu in the header – a sun, a crescent or a half circle – offers three
+designs: *Light*, *Dark* and *Follow my device*, which takes the light or
+dark setting of one's own system. Choosing takes effect at once, without a
+reload, and a form being filled in keeps what is in it.
 
-The switch works without JavaScript as well; the page then reloads and comes
-back where it was. What the admins' colours do in the light version is under
+The choice belongs to the visitor, not to the site: it is kept in a cookie
+on that device and holds for every room and every page. Whoever never opens
+the menu gets the design the admins set as the default – *Dark*, unless they
+changed it.
+
+The menu works without JavaScript as well; the page then reloads and comes
+back where it was. The two colour sets and the default are under
 [Interface](interface.md).
 
 ## Layout and screen sizes
@@ -179,7 +183,7 @@ There is a single layout for all screen sizes, a compact card layout. On
 wide screens the shell is centred and limited to 1180 px.
 
 The header has two rows. The word mark (or the logo), the *?*, the language
-menu, the light/dark switch and the account menu share the first row. The account menu (person
+menu, the design menu and the account menu share the first row. The account menu (person
 icon) opens the guest's name with *Change name* and *Log in*, or for staff
 the username, *Name for wishes*, *User settings*, for admins
 *Administration* with its pages as sub-entries, *View as guest* and *Log

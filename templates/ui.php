@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 use Songwunsch\Format;
 use Songwunsch\Colors;
+use Songwunsch\Theme;
 use Songwunsch\Ui;
 
 /**
- * Admin only: the interface -- the site's colours (one base colour per
- * area of use, picked with the browser's colour picker or typed as #rrggbb;
- * both follow each other, app.js; an empty field keeps the stylesheet's
- * built-in colour), how long a pop-up message stays, and how often the pages
+ * Admin only: the interface -- the site's colours, which scheme a visitor
+ * gets by default, how long a pop-up message stays, and how often the pages
  * ask for changes (one interval per case, 0 = no live update).
  *
- * The colours here are the operator's, for everyone. Which of the two
- * schemes a visitor reads them in is that visitor's own choice and is not
- * set here -- see src/Theme.php and the switch in the header.
+ * The colours come as two sets of six, one per scheme: a base colour per
+ * area of use, picked with the browser's colour picker or typed as #rrggbb
+ * (both follow each other, app.js), and an empty field keeps the
+ * stylesheet's built-in colour for that scheme. Which set a visitor sees is
+ * their own choice, made with the switch in the header; the default below
+ * only decides what someone gets who has not used it -- see src/Theme.php.
  *
  * @var array<string,string> $values  area => '#rrggbb' ('' = built-in colour) and field => number as text; what was typed after a failed save
  * @var array<string,string> $errors  area or field => message, after a failed save
@@ -30,7 +32,7 @@ $areas = [
     'secondary'  => [t('Secondary'),  t('The genre and role tags, the counters on the tabs and the edge of the info notices.')],
     'danger'     => [t('Danger'),     t('Closed rooms, delete buttons, warnings and errors.')],
     'success'    => [t('Success'),    t('The edge of the confirmation notices and the confirm buttons in the dialogs of the page editor.')],
-    'background' => [t('Background'), t('The page ground; shell, panels, fields and lines are lightened steps of it, and so is the text on gold buttons and counters.')],
+    'background' => [t('Background'), t('The page ground; shell, panels, fields and lines are steps away from it, and so is the text on gold buttons and counters.')],
     'text'       => [t('Text'),       t('The text; the muted text is a step towards the background.')],
 ];
 
@@ -72,20 +74,27 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
     <form method="post" action="<?= $e(url('ui_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
+        <?php /* One group per scheme, six fields each. Two plain groups and
+                 not tabs: they work without JavaScript, print, and a screen
+                 reader walks them in order -- and the operator sees both
+                 sets at once, which is what one wants when matching them. */ ?>
+        <?php foreach ([[true, t('Colours – dark')], [false, t('Colours – light')]] as [$isDark, $legend]): ?>
         <fieldset class="field field--group">
-            <legend><?= $e(t('Colours')) ?></legend>
+            <legend><?= $e($legend) ?></legend>
             <p class="field__hint">
-                <?= $e(t('The interface is dark with gold for actions, violet for tags and counters, red for danger and green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it.')) ?>
-                <?= $e(t('Every visitor may read the site light instead of dark. The four accents apply there too, darkened as far as they have to be to stay readable; background and text shape the dark version only.')) ?>
-                <?= $e(t('Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change.')) ?>
+                <?= $isDark
+                    ? $e(t('The dark interface: gold for actions, violet for tags and counters, red for danger, green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it.'))
+                    : $e(t('The light interface, for visitors who choose it. The same six areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above.')) ?>
+                <?= $e(t('Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change – in the scheme the colour belongs to.')) ?>
             </p>
             <div class="field-pair">
                 <?php foreach (Colors::AREAS as $area): ?>
                     <?php [$label, $where] = $areas[$area]; ?>
-                    <?php $default = Colors::DEFAULTS[$area]; ?>
-                    <?php $value = (string) ($values[$area] ?? ''); ?>
+                    <?php $field   = Colors::field($area, $isDark); ?>
+                    <?php $default = Colors::defaults($isDark)[$area]; ?>
+                    <?php $value   = (string) ($values[$field] ?? ''); ?>
                     <div class="field">
-                        <label for="colors-<?= $e($area) ?>"><?= $e($label) ?></label>
+                        <label for="colors-<?= $e($field) ?>"><?= $e($label) ?></label>
                         <?php /* The picker and the "Default" button are rendered hidden and
                                  appear with JavaScript (app.js); without it the hex field
                                  stands alone and does the job. */ ?>
@@ -93,21 +102,45 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
                             <input type="color" value="<?= $e(Colors::parse($value) !== null ? $value : $default) ?>" hidden
                                    data-default="<?= $e($default) ?>"
                                    aria-label="<?= $e(t('Pick the colour: {area}', ['area' => $label])) ?>">
-                            <input type="text" id="colors-<?= $e($area) ?>" name="<?= $e($area) ?>" value="<?= $e($value) ?>"
+                            <input type="text" id="colors-<?= $e($field) ?>" name="<?= $e($field) ?>" value="<?= $e($value) ?>"
                                    placeholder="<?= $e($default) ?>" maxlength="7" autocomplete="off" spellcheck="false"
                                    pattern="#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})"
-                                   aria-describedby="<?= $e($describedBy($area)) ?>"<?= isset($errors[$area]) ? ' aria-invalid="true"' : '' ?>>
+                                   aria-describedby="<?= $e($describedBy($field)) ?>"<?= isset($errors[$field]) ? ' aria-invalid="true"' : '' ?>>
                             <button type="button" class="colour__reset" hidden data-colour-reset>
                                 <?= $e(t('Default')) ?><span class="sr-only">: <?= $e($label) ?></span>
                             </button>
                         </div>
-                        <p class="field__hint" id="hint-<?= $e($area) ?>">
+                        <p class="field__hint" id="hint-<?= $e($field) ?>">
                             <?= $e($where) ?>
                             <?= $e(t('Built-in: {colour}', ['colour' => $default])) ?>
                         </p>
-                        <?= $fieldError($area) ?>
+                        <?= $fieldError($field) ?>
                     </div>
                 <?php endforeach; ?>
+            </div>
+        </fieldset>
+        <?php endforeach; ?>
+
+        <?php /* Which scheme someone gets who never used the switch. "Follow
+                 my device" hands the decision to the browser's own setting
+                 (prefers-color-scheme); the other two fix it. */ ?>
+        <fieldset class="field field--group">
+            <legend><?= $e(t('Default design')) ?></legend>
+            <div class="field">
+                <label for="ui-theme"><?= $e(t('Visitors who have not chosen see')) ?></label>
+                <select id="ui-theme" name="theme" aria-describedby="hint-theme">
+                    <?php foreach ([
+                        Theme::DARK   => t('Dark'),
+                        Theme::LIGHT  => t('Light'),
+                        Theme::SYSTEM => t('Follow my device'),
+                    ] as $value => $label): ?>
+                        <option value="<?= $e($value) ?>"<?= ($values['theme'] ?? Theme::FALLBACK) === $value ? ' selected' : '' ?>><?= $e($label) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="field__hint" id="hint-theme">
+                    <?= $e(t('Everyone may switch for themselves in the header at any time; this is only the starting point. “Follow my device” takes the light or dark setting of the visitor\'s own system.')) ?>
+                    <?= $e(t('Default: {n}.', ['n' => t('Dark')])) ?>
+                </p>
             </div>
         </fieldset>
 

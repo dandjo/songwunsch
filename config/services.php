@@ -154,6 +154,7 @@ $container->set(RoomMemory::class, static fn (Container $c): RoomMemory => new R
     Security::isHttps(),
 ));
 $container->set(Theme::class, static fn (Container $c): Theme => new Theme(
+    $c->get(Settings::class),
     (string) $c->param('cookie_path'),
     Security::isHttps(),
 ));
@@ -326,6 +327,7 @@ $container->set(AdminController::class, static fn (Container $c): AdminControlle
     $c->get(Uploads::class),
     $c->get(Ui::class),
     $c->get(Limits::class),
+    $c->get(Theme::class),
 ));
 $container->set(PageController::class, static fn (Container $c): PageController => new PageController(
     $c->get(Support::class),

@@ -196,6 +196,7 @@ There is no test suite. What there is:
 ```bash
 docker compose exec -T web php -l <file>                          # syntax
 docker compose exec -T web php tools/check-routes.php             # the route table against itself
+docker compose exec -T web php tools/check-colors.php             # the three colour palettes against each other
 docker compose exec -T web php tools/extract-strings.php --check  # 0 missing for de and fr
 ```
 

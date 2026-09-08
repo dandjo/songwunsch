@@ -11,6 +11,7 @@ use Songwunsch\Limits;
 use Songwunsch\Pagination;
 use Songwunsch\Settings;
 use Songwunsch\Template\View;
+use Songwunsch\Theme;
 use Songwunsch\Ui;
 use Songwunsch\Uploads;
 
@@ -28,6 +29,7 @@ final class AdminController extends Controller
         private readonly Uploads $uploads,
         private readonly Ui $ui,
         private readonly Limits $limits,
+        private readonly Theme $theme,
     ) {
         parent::__construct($support);
     }
@@ -166,7 +168,12 @@ final class AdminController extends Controller
         $kept = $this->support->forms->take();
 
         return $this->view('ui', t('Interface'), [
-            'values' => $kept['values'] ?? Colors::load($this->settings) + array_map('strval', $this->ui->all()),
+            // Two colour sets -- one per scheme, keyed by field name so they
+            // cannot collide -- the default scheme, and the numbers.
+            'values' => $kept['values'] ?? Colors::fields($this->settings, true)
+                + Colors::fields($this->settings, false)
+                + ['theme' => $this->theme->fallback()]
+                + array_map('strval', $this->ui->all()),
             'errors' => $kept['errors'] ?? [],
         ]);
     }
@@ -175,15 +182,20 @@ final class AdminController extends Controller
     {
         $input = [];
         foreach (Colors::AREAS as $area) {
-            $input[$area] = $request->post($area);
+            foreach ([true, false] as $dark) {
+                $field         = Colors::field($area, $dark);
+                $input[$field] = $request->post($field);
+            }
         }
         foreach (array_keys(Ui::FIELDS) as $name) {
             $input[$name] = $request->post($name);
         }
+        $input['theme'] = $request->post('theme');
 
-        $colors  = Colors::validate($input);
+        $dark    = Colors::validate($input, true);
+        $light   = Colors::validate($input, false);
         $numbers = $this->ui->validate($input);
-        $errors  = $colors['errors'] + $numbers['errors'];
+        $errors  = $dark['errors'] + $light['errors'] + $numbers['errors'];
 
         if ($errors !== []) {
             $this->support->forms->remember($input, $errors);
@@ -192,7 +204,11 @@ final class AdminController extends Controller
             return $this->redirect('ui');
         }
 
-        Colors::save($this->settings, $colors['values']);
+        Colors::save($this->settings, $dark['values'], true);
+        Colors::save($this->settings, $light['values'], false);
+        // Which scheme a visitor without a choice of their own gets. An
+        // unknown value keeps the current one -- the field is a select.
+        $this->theme->saveFallback((string) $input['theme']);
         $this->ui->save($numbers['values']);
         // Pages that are open take on the new colours, the new message
         // duration and the new polling pace at their next poll -- they carry

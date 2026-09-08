@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Songwunsch\Format;
 use Songwunsch\RoomRepository;
 use Songwunsch\Security;
+use Songwunsch\Theme;
 use Songwunsch\Translator;
 
 /** @var string $title */
@@ -35,8 +36,7 @@ use Songwunsch\Translator;
 /** @var array<string,array{name:string,href:string}> $langLinks  the current address with ?lang=<code>, per language */
 /** @var string|null $backParam  a checked ?back= of this address, for links that pass it on */
 /** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
-/** @var string $theme  the visitor's colour scheme, 'dark' or 'light' (Theme) */
-/** @var string $themeOther  the other one, what the switch in the header offers */
+/** @var string $theme  the colour scheme this page is drawn in: 'dark', 'light' or 'system' (Theme) */
 /** @var string $colorsCss colour overrides the admins set under Interface, see Colors; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
 
@@ -81,7 +81,7 @@ if (trim(strip_tags($help)) === '') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php /* So the browser's own furniture -- scrollbars, form controls,
              the canvas behind the page -- follows the scheme. */ ?>
-    <meta name="color-scheme" content="<?= $e($theme) ?>">
+    <meta name="color-scheme" content="<?= $e(Theme::colorScheme($theme)) ?>">
     <title><?= $e($title) ?><?= $inRoom ? ' · ' . $e((string) $room['name']) : '' ?> · Songwunsch</title>
     <?php if ($editor): ?>
         <?php /* Before style.css, whose overrides for the editor must win --
@@ -342,19 +342,29 @@ if (trim(strip_tags($help)) === '') {
             </details>
         <?php endif; ?>
 
-        <?php /* Light or dark. One button, because there are two schemes:
-                 it carries the one it would switch to. Glyph and label are
-                 rendered for both cases and CSS shows the pair that fits the
-                 current scheme -- so app.js switches the whole button by
-                 setting data-theme on <html> and needs no translated text of
-                 its own. Without JavaScript it is a plain POST that comes
-                 back to this address. */ ?>
-        <form method="post" action="<?= $e(url('theme')) ?>" class="theme" data-theme-switch>
-            <input type="hidden" name="theme" value="<?= $e($themeOther) ?>">
-            <input type="hidden" name="back" value="<?= $e($here) ?>">
-            <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-            <button type="submit" class="theme__toggle">
-                <?php /* A sun for "make it light", a crescent for "make it dark". */ ?>
+        <?php /* Light, dark, or whatever the device says. A <details> like the
+                 language menu -- three states do not fit on one button -- and
+                 every entry is a POST, because it changes something. The
+                 toggle's glyph and its accessible name are rendered for all
+                 three cases and CSS shows the one that fits data-theme on the
+                 root element; that way app.js switches the whole menu by
+                 setting that single attribute and needs no translated text of
+                 its own. Works without JavaScript. */ ?>
+        <?php
+        $themeLabels = [
+            Theme::SYSTEM => t('Follow my device'),
+            Theme::LIGHT  => t('Light'),
+            Theme::DARK   => t('Dark'),
+        ];
+        ?>
+        <details class="theme">
+            <summary class="theme__toggle">
+                <?php /* A half-filled circle for "ask the device", a sun for light,
+                         a crescent for dark. */ ?>
+                <svg class="theme__icon theme__icon--auto" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                    <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M12 3.6a8.4 8.4 0 0 1 0 16.8z" fill="currentColor"/>
+                </svg>
                 <svg class="theme__icon theme__icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
                     <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/>
                     <path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.4 5.4l1.8 1.8M16.8 16.8l1.8 1.8M18.6 5.4l-1.8 1.8M7.2 16.8l-1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -362,10 +372,27 @@ if (trim(strip_tags($help)) === '') {
                 <svg class="theme__icon theme__icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
                     <path d="M20 14.4A8.4 8.4 0 0 1 9.6 4a8.4 8.4 0 1 0 10.4 10.4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
                 </svg>
-                <span class="sr-only theme__label--light"><?= $e(t('Switch to the light design')) ?></span>
-                <span class="sr-only theme__label--dark"><?= $e(t('Switch to the dark design')) ?></span>
-            </button>
-        </form>
+                <span class="sr-only theme__name--auto"><?= $e(t('Design: {scheme}', ['scheme' => $themeLabels[Theme::SYSTEM]])) ?></span>
+                <span class="sr-only theme__name--light"><?= $e(t('Design: {scheme}', ['scheme' => $themeLabels[Theme::LIGHT]])) ?></span>
+                <span class="sr-only theme__name--dark"><?= $e(t('Design: {scheme}', ['scheme' => $themeLabels[Theme::DARK]])) ?></span>
+            </summary>
+            <ul class="theme__menu" role="list">
+                <?php foreach ($themeLabels as $value => $label): ?>
+                    <?php $active = $value === $theme; ?>
+                    <li>
+                        <form method="post" action="<?= $e(url('theme')) ?>" data-theme-switch>
+                            <input type="hidden" name="theme" value="<?= $e($value) ?>">
+                            <input type="hidden" name="back" value="<?= $e($here) ?>">
+                            <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                            <button type="submit" class="theme__item<?= $active ? ' is-active' : '' ?>"
+                                    data-theme-value="<?= $e($value) ?>"<?= $active ? ' aria-current="true"' : '' ?>>
+                                <?= $e($label) ?>
+                            </button>
+                        </form>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </details>
 
             <?php /* Account menu behind a person icon: Log in for guests; name,
                      guest view switch and Log out for the signed-in user. In

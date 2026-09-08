@@ -1468,9 +1468,6 @@ msgstr "« {title} » n’est plus disponible en {language}."
 
 # ---- Colours and wish limits (Administration) ----------------------------------
 
-msgid "Colours"
-msgstr "Couleurs"
-
 msgid "Accent"
 msgstr "Accent"
 
@@ -1501,17 +1498,8 @@ msgstr "Salles fermées, boutons de suppression, avertissements et erreurs."
 msgid "The edge of the confirmation notices and the confirm buttons in the dialogs of the page editor."
 msgstr "La bordure des confirmations et les boutons de validation dans les dialogues de l’éditeur de pages."
 
-msgid "The page ground; shell, panels, fields and lines are lightened steps of it, and so is the text on gold buttons and counters."
-msgstr "Le fond de la page ; cadre, panneaux, champs et lignes en sont des nuances éclaircies, comme le texte sur les boutons et compteurs dorés."
-
 msgid "The text; the muted text is a step towards the background."
 msgstr "Le texte ; le texte atténué est une nuance vers l’arrière-plan."
-
-msgid "The interface is dark with gold for actions, violet for tags and counters, red for danger and green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it."
-msgstr "L’interface est sombre, avec de l’or pour les actions, du violet pour les étiquettes et les compteurs, du rouge pour le danger et du vert pour le succès. Chaque domaine a une couleur de base ; les nuances nécessaires – survol, cadres, avis – en sont dérivées."
-
-msgid "Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change."
-msgstr "Un champ vide conserve la couleur intégrée. Gardez un contraste lisible avec l’arrière-plan et vérifiez avec les outils d’accessibilité du navigateur après un changement."
 
 msgid "Pick the colour: {area}"
 msgstr "Choisir la couleur : {area}"
@@ -1803,12 +1791,43 @@ msgstr "« {title} » de {artist} figurait déjà dans la liste – il a été a
 msgid "“{title}” by {artist} was on the repertoire already – it has been put on the wish list and taken off the suggestions."
 msgstr "« {title} » de {artist} figurait déjà dans la liste – il a été placé sur la liste de souhaits et retiré des suggestions."
 
-# ---- The light/dark switch in the header -------------------------------------
-msgid "Switch to the light design"
-msgstr "Passer au thème clair"
+# ---- The design switch in the header and the two colour sets ----------------
 
-msgid "Switch to the dark design"
-msgstr "Passer au thème sombre"
+msgid "Colours – dark"
+msgstr "Couleurs – sombre"
 
-msgid "Every visitor may read the site light instead of dark. The four accents apply there too, darkened as far as they have to be to stay readable; background and text shape the dark version only."
-msgstr "Chaque visiteur peut lire le site en clair plutôt qu’en sombre. Les quatre couleurs d’accent s’y appliquent aussi, assombries autant qu’il le faut pour rester lisibles ; l’arrière-plan et le texte ne façonnent que la version sombre."
+msgid "Colours – light"
+msgstr "Couleurs – clair"
+
+msgid "The dark interface: gold for actions, violet for tags and counters, red for danger, green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it."
+msgstr "L’interface sombre : or pour les actions, violet pour les étiquettes et les compteurs, rouge pour le danger, vert pour la réussite. Chaque zone a une couleur de base ; toutes les nuances et voiles nécessaires – survol, cadres, avis – en sont dérivés."
+
+msgid "The light interface, for visitors who choose it. The same six areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above."
+msgstr "L’interface claire, pour les visiteurs qui la choisissent. Les mêmes six zones, mais choisies sur le fond pâle – une couleur qui brille sur le noir est rarement lisible sur le blanc. Ce sont donc des valeurs propres et non une traduction de celles ci-dessus."
+
+msgid "Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change – in the scheme the colour belongs to."
+msgstr "Un champ vide conserve la couleur intégrée. Veillez à un contraste lisible avec l’arrière-plan et vérifiez après chaque modification avec les outils d’accessibilité du navigateur – dans le thème auquel la couleur appartient."
+
+msgid "The page ground; shell, panels, fields and lines are steps away from it, and so is the text on gold buttons and counters."
+msgstr "Le fond de la page ; l’enveloppe, les panneaux, les champs et les lignes en sont des degrés écartés, de même que le texte sur les boutons et compteurs dorés."
+
+msgid "Default design"
+msgstr "Design par défaut"
+
+msgid "Visitors who have not chosen see"
+msgstr "Les visiteurs sans choix propre voient"
+
+msgid "Everyone may switch for themselves in the header at any time; this is only the starting point. “Follow my device” takes the light or dark setting of the visitor's own system."
+msgstr "Chacun peut basculer lui-même à tout moment dans l’en-tête ; ceci n’est que le point de départ. « Suivre mon appareil » reprend le réglage clair ou sombre du système du visiteur."
+
+msgid "Follow my device"
+msgstr "Suivre mon appareil"
+
+msgid "Light"
+msgstr "Clair"
+
+msgid "Dark"
+msgstr "Sombre"
+
+msgid "Design: {scheme}"
+msgstr "Design : {scheme}"

@@ -5,36 +5,40 @@ declare(strict_types=1);
 namespace Songwunsch;
 
 /**
- * The site's colours, set by the admins under Administration -> Interface
- * and kept in the `settings` table as `colors.<area>`: one colour per area of
- * use -- accent, secondary, danger, success, background, text. The
- * stylesheet carries the defaults as custom properties on :root; this class
- * derives the shades and tints the stylesheet uses (bright, deep, line,
- * tint ...) from a configured base colour and hands the layout a block
- * that overrides them. What is not configured is not emitted, so the
- * stylesheet's own values apply.
+ * The site's colours, set by the admins under Administration -> Interface.
  *
- * There are two schemes (Theme), and the same ratios serve both once the
- * directions are named instead of written down: "brighter" means away from
- * the page ground, a frame means towards it. Two areas are the exception --
- * background and text shape the dark scheme only, because a ground the
- * admins picked dark would make the light scheme dark again and the switch
- * in the header would look broken. On the light scheme an accent is first
- * moved far enough to be readable there (see readable()): it was chosen
- * against a dark ground, and a pale yellow that shines on black cannot be
- * read on white.
+ * There are two schemes (Theme) and therefore two sets of six: one base
+ * colour per area of use -- accent, secondary, danger, success, background,
+ * text -- for the dark scheme in `colors.<area>` and for the light one in
+ * `colors.light.<area>`. The stylesheet carries both sets as the built-in
+ * values (assets/style.css); this class derives from a base colour every
+ * shade and tint the stylesheet needs (bright, deep, line, tint ...) and
+ * hands the layout a block that overrides them. What is not configured is
+ * not emitted, so the stylesheet's own value applies.
+ *
+ * The same ratios serve both schemes once the directions are named instead
+ * of written down: "brighter" means away from the page ground, a frame means
+ * towards it. Only the surfaces need numbers of their own per scheme -- on
+ * the dark scheme every surface is a lightened step of the ground, on the
+ * light one the content surface is lifted towards white while the chrome
+ * around it sinks. That is the light design's own idiom, not a translation
+ * of the dark one.
+ *
+ * The colour a scheme gets is the colour the admins typed for that scheme.
+ * Nothing here corrects it: a light set is chosen against the light ground,
+ * so nudging it would override a deliberate choice. Whether it can be read
+ * is the admins' to check, and the Interface page and docs/accessibility.md
+ * say so.
  */
 final class Colors
 {
-    public const PREFIX = 'colors.';
+    public const PREFIX       = 'colors.';
+    public const PREFIX_LIGHT = 'colors.light.';
 
     /** The configurable areas, in the order the Interface page shows them. */
     public const AREAS = ['accent', 'secondary', 'danger', 'success', 'background', 'text'];
 
-    /** The light scheme's page ground (assets/style.css, :root[data-theme="light"]). */
-    private const LIGHT_GROUND = [246, 246, 249];
-
-    /** The stylesheet's own colours (assets/style.css, :root) -- for the Interface page's pickers and hints. */
+    /** The stylesheet's dark colours (assets/style.css, :root). */
     public const DEFAULTS = [
         'accent'     => '#e6b450',
         'secondary'  => '#8d7ce0',
@@ -44,15 +48,51 @@ final class Colors
         'text'       => '#e9ebf1',
     ];
 
+    /** The stylesheet's light colours (assets/style.css, :root[data-theme="light"]). */
+    public const DEFAULTS_LIGHT = [
+        'accent'     => '#8a5f0a',
+        'secondary'  => '#5348bd',
+        'danger'     => '#c01f36',
+        'success'    => '#0f7346',
+        'background' => '#f5f6f9',
+        'text'       => '#1a1c23',
+    ];
+
     /**
-     * The configured colours, area => '#rrggbb'; areas left at their default
-     * are ''. One query.
+     * Everything the layout puts into its <style> for the scheme this
+     * request is answered in, '' when nothing is configured.
+     *
+     * Three cases, because there are three answers to "which scheme":
+     * an explicit dark one overrides the stylesheet's :root, an explicit
+     * light one its light block -- and a visitor who follows their device
+     * may see either, so both blocks go out, the light one behind the same
+     * media query the stylesheet uses.
+     */
+    public static function stylesheet(Settings $settings, string $scheme): string
+    {
+        if ($scheme === Theme::LIGHT) {
+            return self::css(self::load($settings, false), false);
+        }
+
+        $dark = self::css(self::load($settings, true), true);
+        if ($scheme !== Theme::SYSTEM) {
+            return $dark;
+        }
+
+        $light = self::css(self::load($settings, false), false, Theme::SYSTEM);
+
+        return $dark . ($light === '' ? '' : '@media (prefers-color-scheme: light){' . $light . '}');
+    }
+
+    /**
+     * The configured colours of one scheme, area => '#rrggbb'; areas left at
+     * their default are ''. One query.
      *
      * @return array<string,string>
      */
-    public static function load(Settings $settings): array
+    public static function load(Settings $settings, bool $dark): array
     {
-        $stored = $settings->withPrefix(self::PREFIX);
+        $stored = $settings->withPrefix($dark ? self::PREFIX : self::PREFIX_LIGHT);
         $out    = [];
         foreach (self::AREAS as $area) {
             $rgb        = self::parse((string) ($stored[$area] ?? ''));
@@ -63,61 +103,101 @@ final class Colors
     }
 
     /**
-     * Check the colour fields of the Interface form: every area either empty (the built-in colour)
-     * or a hex colour, normalised to lower-case '#rrggbb'.
+     * The configured colours of one scheme, keyed the way the Interface
+     * form names its fields.
      *
-     * @param array<string,string> $input  area => what was typed
+     * @return array<string,string>
+     */
+    public static function fields(Settings $settings, bool $dark): array
+    {
+        $out = [];
+        foreach (self::load($settings, $dark) as $area => $value) {
+            $out[self::field($area, $dark)] = $value;
+        }
+
+        return $out;
+    }
+
+    /** The built-in colours of one scheme -- the Interface page's pickers and hints. */
+    public static function defaults(bool $dark): array
+    {
+        return $dark ? self::DEFAULTS : self::DEFAULTS_LIGHT;
+    }
+
+    /**
+     * What one colour field of the Interface form is called. The dark set
+     * keeps the bare area names it always had, so nothing an existing
+     * install stored has to move.
+     */
+    public static function field(string $area, bool $dark): string
+    {
+        return $dark ? $area : 'light_' . $area;
+    }
+
+    /**
+     * Check the colour fields of one scheme: every area either empty (the
+     * built-in colour) or a hex colour, normalised to lower-case '#rrggbb'.
+     * Values and errors come back keyed by field name, so the two schemes
+     * cannot collide.
+     *
+     * @param array<string,string> $input  field name => what was typed
      * @return array{values: array<string,string>, errors: array<string,string>}
      */
-    public static function validate(array $input): array
+    public static function validate(array $input, bool $dark): array
     {
         $values = [];
         $errors = [];
         foreach (self::AREAS as $area) {
-            $raw = trim((string) ($input[$area] ?? ''));
+            $field = self::field($area, $dark);
+            $raw   = trim((string) ($input[$field] ?? ''));
             if ($raw === '') {
-                $values[$area] = '';
+                $values[$field] = '';
                 continue;
             }
             $rgb = self::parse($raw[0] === '#' ? $raw : '#' . $raw);
             if ($rgb === null) {
-                $errors[$area] = t('Please enter a colour as #rrggbb.');
+                $errors[$field] = t('Please enter a colour as #rrggbb.');
                 continue;
             }
-            $values[$area] = self::hex($rgb);
+            $values[$field] = self::hex($rgb);
         }
 
         return ['values' => $values, 'errors' => $errors];
     }
 
     /**
-     * Store validated colours; an empty value drops the entry so the
-     * stylesheet's colour applies again.
+     * Store the validated colours of one scheme; an empty value drops the
+     * entry so the stylesheet's colour applies again.
      *
-     * @param array<string,string> $values  from validate()
+     * @param array<string,string> $values  from validate(), keyed by field name
      */
-    public static function save(Settings $settings, array $values): void
+    public static function save(Settings $settings, array $values, bool $dark): void
     {
+        $prefix = $dark ? self::PREFIX : self::PREFIX_LIGHT;
         foreach (self::AREAS as $area) {
-            if (!isset($values[$area])) {
+            $field = self::field($area, $dark);
+            if (!isset($values[$field])) {
                 continue;
             }
-            if ($values[$area] === '') {
-                $settings->delete(self::PREFIX . $area);
+            if ($values[$field] === '') {
+                $settings->delete($prefix . $area);
             } else {
-                $settings->set(self::PREFIX . $area, $values[$area]);
+                $settings->set($prefix . $area, $values[$field]);
             }
         }
     }
 
     /**
-     * CSS for the layout's <style>, '' when nothing is configured.
+     * One :root block for one scheme, '' when that scheme has nothing set.
      *
      * @param array<string,mixed> $colors area => '#rrggbb' (see load()); '' or missing = default
-     * @param bool                $dark   the scheme the block is for (Theme);
-     *                                    no default, so a caller has to say
+     * @param bool                $dark   which scheme these colours are for
+     * @param string              $scope  the scheme the page is rendered in, when it
+     *                                    differs from $dark -- a light block for a
+     *                                    visitor following their device belongs to
+     *                                    data-theme="system", not to "light"
      */
-    public static function css(array $colors, bool $dark): string
+    public static function css(array $colors, bool $dark, string $scope = ''): string
     {
         $vars = [];
         $rgb  = [];
@@ -131,85 +211,95 @@ final class Colors
             return '';
         }
 
-        // The two directions every shade below travels in. Away from the
-        // ground is where a colour gets more contrast -- towards white on the
-        // dark scheme, towards black on the light one -- and the ground
-        // itself is where frames and muted text lean.
-        $away   = $dark ? [255, 255, 255] : [0, 0, 0];
+        // The two directions every shade travels in. Away from the ground is
+        // where a colour gains contrast -- towards white on the dark scheme,
+        // towards black on the light one -- and the ground itself is where
+        // frames and muted text lean.
+        $white  = [255, 255, 255];
         $black  = [0, 0, 0];
-        $ground = $dark
-            ? ($rgb['background'] ?? (array) self::parse(self::DEFAULTS['background']))
-            : self::LIGHT_GROUND;
-        // How far a frame is moved towards the ground. The contrast formula
-        // is not symmetric: against a near-black ground half the way still
-        // stands out, against a near-white one it has all but vanished. The
-        // two ratios keep a gold-framed button about equally visible on
-        // either scheme (~3.5:1 against the ground).
+        $away   = $dark ? $white : $black;
+        $ground = $rgb['background'] ?? (array) self::parse(self::defaults($dark)['background']);
+
+        // A frame is the base colour moved towards the ground. How far
+        // differs per scheme: the contrast formula is not symmetric --
+        // against a near-black ground half the way still stands out, against
+        // a near-white one it has all but vanished. These two keep a framed
+        // button about equally visible on either scheme.
         $frame = $dark ? .48 : .20;
+        // The transparent tints are a shade weaker on the light scheme,
+        // where a veil of colour over white reads stronger than over black.
+        $tints = $dark ? [.06, .12, .14, .22] : [.05, .10, .12, .20];
 
         if (isset($rgb['accent'])) {
-            $c = $dark ? $rgb['accent'] : self::readable($rgb['accent'], $ground, $away);
+            $c = $rgb['accent'];
             $vars += [
                 '--gold'             => self::hex($c),
                 '--gold-bright'      => self::hex(self::mix($c, $away, .30)),
                 '--gold-deep'        => self::hex(self::mix($c, $ground, $frame)),
-                '--gold-wash'        => self::rgba($c, .06),
-                '--gold-tint'        => self::rgba($c, .12),
-                '--gold-tint-mid'    => self::rgba($c, .14),
-                '--gold-tint-strong' => self::rgba($c, .22),
+                '--gold-wash'        => self::rgba($c, $tints[0]),
+                '--gold-tint'        => self::rgba($c, $tints[1]),
+                '--gold-tint-mid'    => self::rgba($c, $tints[2]),
+                '--gold-tint-strong' => self::rgba($c, $tints[3]),
                 '--glow-gold'        => '0 0 0 3px ' . self::rgba($c, .2),
             ];
         }
         if (isset($rgb['secondary'])) {
-            $c = $dark ? $rgb['secondary'] : self::readable($rgb['secondary'], $ground, $away);
+            $c = $rgb['secondary'];
             $vars += [
                 '--violet'        => self::hex($c),
                 '--violet-bright' => self::hex(self::mix($c, $away, .30)),
-                '--violet-soft'   => self::rgba($c, .13),
-                '--violet-line'   => self::rgba($c, .32),
+                '--violet-soft'   => self::rgba($c, $dark ? .13 : .10),
+                '--violet-line'   => self::rgba($c, $dark ? .32 : .30),
             ];
         }
         if (isset($rgb['danger'])) {
-            $c = $dark ? $rgb['danger'] : self::readable($rgb['danger'], $ground, $away);
+            $c = $rgb['danger'];
             $vars += [
-                '--danger'             => self::hex($c),
-                '--danger-bright'      => self::hex(self::mix($c, $away, .30)),
+                '--danger'        => self::hex($c),
+                '--danger-bright' => self::hex(self::mix($c, $away, .30)),
                 // The filled hover of a danger button, with white on it:
                 // darker than the base on either scheme.
-                '--danger-deep'        => self::hex(self::mix($c, $black, .35)),
-                '--danger-line'        => self::hex(self::mix($c, $ground, .60)),
-                '--danger-tint'        => self::rgba($c, .12),
-                '--danger-tint-strong' => self::rgba($c, .25),
-                '--danger-glow'        => self::rgba($c, .15),
+                '--danger-deep'   => self::hex(self::mix($c, $black, .35)),
+                '--danger-line'   => self::hex(self::mix($c, $ground, .60)),
+                '--danger-tint'        => self::rgba($c, $dark ? .12 : .09),
+                '--danger-tint-strong' => self::rgba($c, $dark ? .25 : .20),
+                '--danger-glow'        => self::rgba($c, $dark ? .15 : .13),
             ];
         }
         if (isset($rgb['success'])) {
-            $vars['--ok'] = self::hex($dark
-                ? $rgb['success']
-                : self::readable($rgb['success'], $ground, $away));
+            $vars['--ok'] = self::hex($rgb['success']);
         }
-        // Ground and text belong to the dark scheme; the light one keeps its
-        // own, see the class comment.
-        if ($dark && isset($rgb['background'])) {
+        if (isset($rgb['background'])) {
             $c = $rgb['background'];
-            $vars += [
-                '--ink'     => self::hex($c),
-                '--surface' => self::hex(self::mix($c, $away, .015)),
-                '--shell'   => self::hex(self::mix($c, $away, .03)),
-                '--base'    => self::hex(self::mix($c, $away, .03)),
-                '--panel'   => self::hex(self::mix($c, $away, .055)),
-                '--line'    => self::hex(self::mix($c, $away, .13)),
-            ];
+            // Dark: every surface is a lightened step of the ground. Light:
+            // the content surface and the text on a filled accent are lifted
+            // towards white, while the chrome around the content and the
+            // recessed fields sink -- a white card on a grey page, which is
+            // how a light interface reads.
+            $vars += $dark
+                ? [
+                    '--ink'     => self::hex($c),
+                    '--surface' => self::hex(self::mix($c, $white, .015)),
+                    '--shell'   => self::hex(self::mix($c, $white, .03)),
+                    '--base'    => self::hex(self::mix($c, $white, .03)),
+                    '--panel'   => self::hex(self::mix($c, $white, .055)),
+                    '--line'    => self::hex(self::mix($c, $white, .13)),
+                ]
+                : [
+                    '--ink'     => self::hex($c),
+                    '--surface' => self::hex(self::mix($c, $black, .025)),
+                    '--shell'   => self::hex(self::mix($c, $black, .035)),
+                    '--base'    => self::hex(self::mix($c, $white, .92)),
+                    '--panel'   => self::hex(self::mix($c, $white, .55)),
+                    '--line'    => self::hex(self::mix($c, $black, .15)),
+                ];
         }
-        if ($dark && isset($rgb['text'])) {
+        if (isset($rgb['text'])) {
             $c = $rgb['text'];
             $vars += [
                 '--text'       => self::hex($c),
                 '--text-muted' => self::hex(self::mix($c, $ground, .37)),
             ];
-        }
-        if ($vars === []) {
-            return '';
         }
 
         $lines = [];
@@ -217,70 +307,24 @@ final class Colors
             $lines[] = $name . ':' . $value;
         }
 
-        // The light scheme's own tokens sit on :root[data-theme="light"] in
-        // the stylesheet. Specificity beats document order, so a block that
-        // is to override them has to be written with the same selector --
-        // a plain :root would lose although it comes later.
-        $selector = $dark ? ':root' : ':root[data-theme="light"]';
-
-        return $selector . '{' . implode(';', $lines) . '}';
+        return self::selector($dark, $scope) . '{' . implode(';', $lines) . '}';
     }
 
     /**
-     * A base colour moved far enough to be read on a ground it was not
-     * picked for: mixed towards the pole in twentieths until it reaches the
-     * contrast WCAG asks for body text (4.5:1). Only the light scheme uses
-     * this -- there the admins' colour was chosen against the dark ground,
-     * and the site would be unreadable if it were taken as it stands. On the
-     * dark scheme the colour is left exactly as it was typed in.
-     *
-     * @param array{0:int,1:int,2:int} $c
-     * @param array{0:int,1:int,2:int} $ground
-     * @param array{0:int,1:int,2:int} $pole
-     * @return array{0:int,1:int,2:int}
+     * Which selector a block has to carry. The light values live on
+     * :root[data-theme="light"] in the stylesheet, and specificity beats
+     * document order -- a block meant to override them has to be written
+     * with the same selector or it loses, however late it comes.
      */
-    private static function readable(array $c, array $ground, array $pole): array
+    private static function selector(bool $dark, string $scope): string
     {
-        for ($step = 0; $step < 20; $step++) {
-            $try = $step === 0 ? $c : self::mix($c, $pole, $step * .05);
-            if (self::contrast($try, $ground) >= 4.5) {
-                return $try;
-            }
+        if ($dark) {
+            return ':root';
         }
 
-        return $pole;
-    }
-
-    /**
-     * The WCAG contrast ratio between two colours, 1 (equal) to 21 (black
-     * on white).
-     *
-     * @param array{0:int,1:int,2:int} $a
-     * @param array{0:int,1:int,2:int} $b
-     */
-    private static function contrast(array $a, array $b): float
-    {
-        $la = self::luminance($a);
-        $lb = self::luminance($b);
-
-        return (max($la, $lb) + .05) / (min($la, $lb) + .05);
-    }
-
-    /**
-     * Relative luminance as WCAG defines it: the channels back off the
-     * display's gamma curve, then weighted by how bright the eye finds them.
-     *
-     * @param array{0:int,1:int,2:int} $c
-     */
-    private static function luminance(array $c): float
-    {
-        $linear = [];
-        foreach ($c as $channel) {
-            $s        = $channel / 255;
-            $linear[] = $s <= .03928 ? $s / 12.92 : (($s + .055) / 1.055) ** 2.4;
-        }
-
-        return .2126 * $linear[0] + .7152 * $linear[1] + .0722 * $linear[2];
+        return $scope === Theme::SYSTEM
+            ? ':root[data-theme="' . Theme::SYSTEM . '"]'
+            : ':root[data-theme="' . Theme::LIGHT . '"]';
     }
 
     /**
