@@ -43,7 +43,7 @@ final class Colors
         'accent'    => '#a1c2d8',
         'secondary' => '#d4e3e5',
         'danger'    => '#ff6f61',
-        'success'   => '#6e8f3d',
+        'success'   => '#7db22e',
         'background' => '#0d1417',
         'text'      => '#f6f8f8',
     ];
@@ -53,7 +53,7 @@ final class Colors
         'accent'    => '#2c3e50',
         'secondary' => '#5b80a4',
         'danger'    => '#973227',
-        'success'   => '#88b04b',
+        'success'   => '#7db22e',
         'background' => '#fbfcfe',
         'text'      => '#2c3e50',
     ];

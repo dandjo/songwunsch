@@ -59,7 +59,7 @@
     --danger-tint:        rgba(255, 111, 97, .08);
     --danger-tint-strong: rgba(255, 111, 97, .25);
     --danger-glow:        rgba(255, 111, 97, .15);
-    --ok:           #6e8f3d;
+    --ok:           #7db22e;
 
     /* Neutral overlays: hover and pressed states on dark surfaces, the
        backdrop behind the name dialog. */
@@ -144,7 +144,7 @@
     --danger-tint:        rgba(151, 50, 39, .08);
     --danger-tint-strong: rgba(151, 50, 39, .16);
     --danger-glow:        rgba(151, 50, 39, .12);
-    --ok:           #88b04b;
+    --ok:           #7db22e;
 
     /* Neutral overlays: veils of the ink instead of light. */
     --hover-soft:   rgba(44, 62, 80, .035);
@@ -206,7 +206,7 @@
     --danger-tint:        rgba(151, 50, 39, .08);
     --danger-tint-strong: rgba(151, 50, 39, .16);
     --danger-glow:        rgba(151, 50, 39, .12);
-    --ok:           #88b04b;
+    --ok:           #7db22e;
 
     /* Neutral overlays: veils of the ink instead of light. */
     --hover-soft:   rgba(44, 62, 80, .035);
