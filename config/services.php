@@ -58,6 +58,7 @@ use Songwunsch\SongRepository;
 use Songwunsch\SuggestionRepository;
 use Songwunsch\Template\Renderer;
 use Songwunsch\Template\ShellContext;
+use Songwunsch\Theme;
 use Songwunsch\Translator;
 use Songwunsch\Ui;
 use Songwunsch\Uploads;
@@ -152,6 +153,10 @@ $container->set(RoomMemory::class, static fn (Container $c): RoomMemory => new R
     (string) $c->param('cookie_path'),
     Security::isHttps(),
 ));
+$container->set(Theme::class, static fn (Container $c): Theme => new Theme(
+    (string) $c->param('cookie_path'),
+    Security::isHttps(),
+));
 
 // Which language this request speaks is decided here, on first use: an
 // explicit ?lang=, the session, the cookie, the browser's Accept-Language,
@@ -206,6 +211,7 @@ $container->set(ShellContext::class, static fn (Container $c): ShellContext => n
     $c->get(Ui::class),
     $c->get(LiveTokens::class),
     $c->get(GuestName::class),
+    $c->get(Theme::class),
     $c->get(FlashBag::class),
 ));
 $container->set(Renderer::class, static fn (Container $c): Renderer => new Renderer(
@@ -306,6 +312,7 @@ $container->set(AuthController::class, static fn (Container $c): AuthController 
 $container->set(GuestController::class, static fn (Container $c): GuestController => new GuestController(
     $c->get(Support::class),
     $c->get(GuestName::class),
+    $c->get(Theme::class),
 ));
 $container->set(UserController::class, static fn (Container $c): UserController => new UserController(
     $c->get(Support::class),

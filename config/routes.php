@@ -137,10 +137,13 @@ return [
     Route::post('settings_save', '/settings/save', [UserController::class, 'saveSettings']),
     Route::post('password_save', '/settings/password', [UserController::class, 'savePassword']),
 
-    // ---- The visitor's name for the wish list -----------------------------
+    // ---- What a visitor sets for themselves -------------------------------
+    // The name that goes with their wishes, and the colour scheme. Both live
+    // in a cookie, so both are public addresses -- a guest has no account.
     Route::get('name', '/name', [GuestController::class, 'form']),
     Route::post('name_save', '/name/save', [GuestController::class, 'save']),
     Route::post('name_skip', '/name/skip', [GuestController::class, 'skip']),
+    Route::post('theme', '/theme', [GuestController::class, 'theme']),
 
     // ---- A page for everyone: imprint, FAQ, ... ---------------------------
     Route::get('page', '/pages/{slug}', [PageController::class, 'show'])

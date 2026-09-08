@@ -35,16 +35,24 @@
 * **Language.** `<html lang>` carries the interface language. A page or footer
   line that falls back to another language marks that text with its own
   `lang` attribute.
+* **Light and dark.** The interface is dark and a switch in the header makes
+  it light, per visitor, kept in a cookie. Both palettes are built to the
+  contrast WCAG 2.2 AA asks for: 4.5:1 for text and links against the surface
+  they sit on. `<html data-theme>` and `<meta name="color-scheme">` say which
+  one is in use, so the browser's own furniture follows.
 * **Motion and contrast modes.** `prefers-reduced-motion: reduce` switches
   animations and transitions off. `forced-colors: active` (Windows high
   contrast) gives buttons and links a visible border.
 
 ## What to check yourself
 
-* **Contrast.** The stylesheet ships with a dark theme. Admins can change the
-  colours under *Interface*; the form checks only that a value is a valid
-  `#rrggbb` colour, not its contrast. Check the contrast of your own colours
-  before going live.
+* **Contrast.** Admins can change the colours under *Interface*; the form
+  checks only that a value is a valid `#rrggbb` colour, not its contrast.
+  Check the contrast of your own colours before going live, in the light
+  scheme as well as the dark one. In the light scheme an accent is darkened
+  automatically until it reaches 4.5:1 against the ground – that keeps text
+  readable, but it does not check the pairs the two schemes make of the rest
+  of your colours.
 * **Screen reader test.** A test with a screen reader and keyboard before
   going live is still worthwhile, in particular for the wish list and the room
   switcher.

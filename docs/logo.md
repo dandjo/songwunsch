@@ -52,6 +52,14 @@ The size limit is the server's `upload_max_filesize`. In the Docker stack it
 is 20 MB (`docker/php.ini`, `post_max_size` 21 MB). A file over the limit
 gets an error message that names the limit.
 
+## Light and dark
+
+There is one logo per site, not one per scheme. A logo drawn for the dark
+ground – pale lettering, a transparent background – still reads on the light
+one, but flatly; a logo with its own light-coloured plate reads on both. If
+the site's visitors mostly read it light, draw for that. See
+[Interface](interface.md) for the two schemes.
+
 ## Where the files live
 
 The files live in the `uploads` table, not on disk (see

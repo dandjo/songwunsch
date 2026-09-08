@@ -867,6 +867,16 @@
             }
         };
 
+        // Light or dark sits on the root element, outside the swapped area
+        // (src/Theme.php). Taken over from the fetched document so a page
+        // that was switched in another tab does not stay in the old scheme.
+        var adoptTheme = function (fresh) {
+            var wanted = fresh.documentElement.getAttribute('data-theme');
+            if (wanted && wanted !== document.documentElement.getAttribute('data-theme')) {
+                document.documentElement.setAttribute('data-theme', wanted);
+            }
+        };
+
         // Renew the header alone from the fetched page: the room's notice
         // appears or goes, the menus are drawn afresh, the content -- a form
         // someone may be filling in -- stays as it is. The colours come along
@@ -893,6 +903,7 @@
                 return render(html, used);
             }
             current.replaceWith(document.importNode(dome, true));
+            adoptTheme(fresh);
             adoptColors(fresh);
             adoptBodyData(fresh);
             enhance(document.querySelector('.dome'));
@@ -910,6 +921,7 @@
             var focus = remember(used);
             document.querySelector('.cabinet').innerHTML = cabinet.innerHTML;
             document.title = fresh.title;
+            adoptTheme(fresh);
             adoptColors(fresh);
             adoptBodyData(fresh);
             // The name dialog's inline script (layout) does not run on a
@@ -1021,6 +1033,38 @@
             });
         };
 
+        // Light or dark. The switch stands in the header, which lives inside
+        // the swapped area -- posting it the ordinary way would exchange the
+        // whole content and lose a wish someone was half way through typing.
+        // So the scheme is turned over here and now (one attribute on the
+        // root element, and the stylesheet does the rest), the button is set
+        // to offer the other one, and the post goes off in the background
+        // for the cookie alone; its answer is not rendered. What comes back
+        // is the same page in the new scheme, which nobody needs to see
+        // twice.
+        var switchTheme = function (form) {
+            var field = form.elements.theme;
+            var wanted = field ? field.value : '';
+            if (wanted !== 'light' && wanted !== 'dark') {
+                return;
+            }
+            // The body is read first, while the form still says what was
+            // asked for; the button is turned around afterwards.
+            var body = new URLSearchParams(new FormData(form));
+            document.documentElement.setAttribute('data-theme', wanted);
+            field.value = wanted === 'light' ? 'dark' : 'light';
+            fetch(form.action, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Accept': 'text/html' },
+                body: body
+            }).catch(function () {
+                // The scheme is already on screen; only remembering it
+                // failed. Saying so would be noise -- the next click tries
+                // again.
+            });
+        };
+
         // Which links and forms are ours: inside the page's content, not in
         // the header's menus (language, account, room switcher change more
         // than the content) and not in the name dialog.
@@ -1071,6 +1115,11 @@
                     action.search = new URLSearchParams(new FormData(form)).toString();
                     go(action.href, true, event.submitter);
                 }
+                return;
+            }
+            if (form.hasAttribute('data-theme-switch')) {
+                event.preventDefault();
+                switchTheme(form);
                 return;
             }
             event.preventDefault();

@@ -13,6 +13,10 @@ use Songwunsch\Ui;
  * built-in colour), how long a pop-up message stays, and how often the pages
  * ask for changes (one interval per case, 0 = no live update).
  *
+ * The colours here are the operator's, for everyone. Which of the two
+ * schemes a visitor reads them in is that visitor's own choice and is not
+ * set here -- see src/Theme.php and the switch in the header.
+ *
  * @var array<string,string> $values  area => '#rrggbb' ('' = built-in colour) and field => number as text; what was typed after a failed save
  * @var array<string,string> $errors  area or field => message, after a failed save
  * @var string $csrf
@@ -72,6 +76,7 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
             <legend><?= $e(t('Colours')) ?></legend>
             <p class="field__hint">
                 <?= $e(t('The interface is dark with gold for actions, violet for tags and counters, red for danger and green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it.')) ?>
+                <?= $e(t('Every visitor may read the site light instead of dark. The four accents apply there too, darkened as far as they have to be to stay readable; background and text shape the dark version only.')) ?>
                 <?= $e(t('Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change.')) ?>
             </p>
             <div class="field-pair">

@@ -1802,3 +1802,13 @@ msgstr "« {title} » de {artist} figurait déjà dans la liste – il a été a
 
 msgid "“{title}” by {artist} was on the repertoire already – it has been put on the wish list and taken off the suggestions."
 msgstr "« {title} » de {artist} figurait déjà dans la liste – il a été placé sur la liste de souhaits et retiré des suggestions."
+
+# ---- The light/dark switch in the header -------------------------------------
+msgid "Switch to the light design"
+msgstr "Passer au thème clair"
+
+msgid "Switch to the dark design"
+msgstr "Passer au thème sombre"
+
+msgid "Every visitor may read the site light instead of dark. The four accents apply there too, darkened as far as they have to be to stay readable; background and text shape the dark version only."
+msgstr "Chaque visiteur peut lire le site en clair plutôt qu’en sombre. Les quatre couleurs d’accent s’y appliquent aussi, assombries autant qu’il le faut pour rester lisibles ; l’arrière-plan et le texte ne façonnent que la version sombre."

@@ -35,7 +35,9 @@ use Songwunsch\Translator;
 /** @var array<string,array{name:string,href:string}> $langLinks  the current address with ?lang=<code>, per language */
 /** @var string|null $backParam  a checked ?back= of this address, for links that pass it on */
 /** @var bool $editor  load CKEditor (assets/vendor/ckeditor5) for a textarea[data-editor] on this page */
-/** @var string $colorsCss :root colour overrides the admins set under Interface, see Colors; '' = none */
+/** @var string $theme  the visitor's colour scheme, 'dark' or 'light' (Theme) */
+/** @var string $themeOther  the other one, what the switch in the header offers */
+/** @var string $colorsCss colour overrides the admins set under Interface, see Colors; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
 
 $e      = static fn (?string $v): string => Format::e($v);
@@ -67,14 +69,23 @@ if (trim(strip_tags($help)) === '') {
 }
 ?>
 <!doctype html>
-<html lang="<?= $e($translator->htmlLang()) ?>">
+<?php /* data-theme carries the visitor's own choice of scheme into the
+         stylesheet (Theme, assets/style.css). Nothing here reads
+         prefers-color-scheme: without a choice the site stays dark, the
+         way it always was. app.js takes the attribute over when it swaps
+         a page in, so a switch in another tab does not leave this one
+         behind. */ ?>
+<html lang="<?= $e($translator->htmlLang()) ?>" data-theme="<?= $e($theme) ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="dark">
+    <?php /* So the browser's own furniture -- scrollbars, form controls,
+             the canvas behind the page -- follows the scheme. */ ?>
+    <meta name="color-scheme" content="<?= $e($theme) ?>">
     <title><?= $e($title) ?><?= $inRoom ? ' · ' . $e((string) $room['name']) : '' ?> · Songwunsch</title>
     <?php if ($editor): ?>
-        <?php /* Before style.css, whose dark overrides for the editor must win. */ ?>
+        <?php /* Before style.css, whose overrides for the editor must win --
+                 they hand it the site's tokens, in either scheme. */ ?>
         <link rel="stylesheet" href="<?= $e(asset('assets/vendor/ckeditor5/ckeditor5.css')) ?>">
     <?php endif; ?>
     <link rel="stylesheet" href="<?= $e(asset('assets/style.css')) ?>">
@@ -330,6 +341,31 @@ if (trim(strip_tags($help)) === '') {
                 </ul>
             </details>
         <?php endif; ?>
+
+        <?php /* Light or dark. One button, because there are two schemes:
+                 it carries the one it would switch to. Glyph and label are
+                 rendered for both cases and CSS shows the pair that fits the
+                 current scheme -- so app.js switches the whole button by
+                 setting data-theme on <html> and needs no translated text of
+                 its own. Without JavaScript it is a plain POST that comes
+                 back to this address. */ ?>
+        <form method="post" action="<?= $e(url('theme')) ?>" class="theme" data-theme-switch>
+            <input type="hidden" name="theme" value="<?= $e($themeOther) ?>">
+            <input type="hidden" name="back" value="<?= $e($here) ?>">
+            <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+            <button type="submit" class="theme__toggle">
+                <?php /* A sun for "make it light", a crescent for "make it dark". */ ?>
+                <svg class="theme__icon theme__icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                    <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.4 5.4l1.8 1.8M16.8 16.8l1.8 1.8M18.6 5.4l-1.8 1.8M7.2 16.8l-1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+                <svg class="theme__icon theme__icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                    <path d="M20 14.4A8.4 8.4 0 0 1 9.6 4a8.4 8.4 0 1 0 10.4 10.4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                </svg>
+                <span class="sr-only theme__label--light"><?= $e(t('Switch to the light design')) ?></span>
+                <span class="sr-only theme__label--dark"><?= $e(t('Switch to the dark design')) ?></span>
+            </button>
+        </form>
 
             <?php /* Account menu behind a person icon: Log in for guests; name,
                      guest view switch and Log out for the signed-in user. In

@@ -34,9 +34,9 @@ A value is written as `#rrggbb` or `#rgb`; the `#` may be left out. The value
 is stored in lower case as `#rrggbb`. An empty field means the built-in
 colour; its entry is then removed from the `settings` table.
 
-Keep the contrast readable. Gold on a light background, for example, will
-not do. Check the result with the accessibility tools of the browser after a
-change, see [Accessibility](accessibility.md).
+Keep the contrast readable. Check the result with the accessibility tools of
+the browser after a change – in both schemes, see *Light and dark* below and
+[Accessibility](accessibility.md).
 
 A saved colour behaves the same way: every page that is open picks it up at
 its next check.
@@ -61,11 +61,56 @@ What each area derives:
 - Success: `--ok` only.
 - Background: `--ink` (the ground) and the lightened steps `--surface`,
   `--shell`, `--base`, `--panel` and `--line`.
-- Text: `--text`, the muted text (`--text-muted`) and `--chrome`, both mixed
-  towards the background.
+- Text: `--text` and the muted text (`--text-muted`), mixed towards the
+  background.
 
 The page editor's colours follow the site's colours too. CKEditor reads the
 same custom properties, see the end of `assets/style.css`.
+
+## Light and dark
+
+The interface is dark. Every visitor may read it light instead: the sun in the
+header switches over, the crescent switches back. The choice is that visitor's
+own – it is kept in a cookie (`songwunsch_theme`, one year) and applies to
+every room and every page they open, on that device and in that browser.
+
+Nobody is switched over without asking. `prefers-color-scheme` is deliberately
+not consulted: whoever says nothing keeps the dark interface the site has
+always had. There are two schemes, not three, and no setting for admins to
+preselect one.
+
+The two palettes live next to each other in `assets/style.css`: the dark one
+on `:root`, the light one on `:root[data-theme="light"]`. They hold the same
+token names with different values, which is why no rule further down the
+stylesheet ever names a scheme – and why a new colour has to be added to both
+blocks.
+
+### What the admins' colours do in the light scheme
+
+The colours above are the operator's, for everyone; the scheme is the
+visitor's. Where the two meet:
+
+* **Accent, secondary, danger, success apply in both schemes.** A base colour
+  was picked against the dark ground, so on the pale one it is first darkened
+  – as far as it has to be to reach the contrast WCAG asks for body text
+  (4.5:1), and no further. A pale yellow that shines on black arrives as a
+  dark ochre on white. The colour is left exactly as typed in for the dark
+  scheme.
+* **Background and text shape the dark scheme only.** The light scheme keeps
+  its own ground, its own surfaces and its own text. A ground the admins set
+  dark would otherwise make the light scheme dark again, and the switch in the
+  header would look broken.
+* The shades follow the scheme: "brighter" means away from the ground, so on
+  the light scheme the hover shade is *darker*; a frame is the base colour
+  moved towards the ground, so it turns pale there.
+
+`src/Colors.php` derives all of that, and writes its block with the selector
+the scheme needs (`:root` or `:root[data-theme="light"]`) – with the plain
+selector the light scheme's own tokens would win on specificity, however late
+the block comes.
+
+A logo made for the dark ground may look flat on the pale one; there is one
+logo per site, not one per scheme, see [Logo](logo.md).
 
 ## Messages
 

@@ -1,8 +1,10 @@
 /*
- * Songwunsch -- a sober, dark interface.
+ * Songwunsch -- a sober interface, dark by default and light on request.
  *
- * Surfaces are neutral dark grey and flat, stepped by brightness
- * (ground -> shell -> panel), edges are hairlines, shadows are flat. Only
+ * Surfaces are neutral grey and flat, stepped away from the page ground
+ * (ground -> shell -> panel): on the dark scheme every step is lighter, on
+ * the light one the content surface is white while the chrome around it is
+ * a shade greyer. Edges are hairlines, shadows are flat. Only
  * the accents carry colour: gold for actions, violet as the secondary accent
  * (genre chips, counters, notices). No gradients faking depth, no embossed
  * buttons, no rounding as decoration -- hierarchy comes from brightness,
@@ -12,6 +14,10 @@
  * One layout for every screen: compact cards. There is no separate desktop
  * table view; on wide screens the cabinet is simply centred with a maximum
  * width.
+ *
+ * Every colour is a custom property on :root, and the light scheme below is
+ * the same list with other values -- so a rule further down never names a
+ * scheme. Whoever adds a colour adds it in both places.
  */
 
 :root {
@@ -21,9 +27,9 @@
     --panel:        #1a1c24;   /* content surface         */
     --surface:      #101218;   /* recessed: table, input fields */
     --base:         #14151b;   /* text on gold surfaces   */
+    --sunken:       rgba(0, 0, 0, .45); /* behind code and preformatted text */
 
     --line:         #2b2e39;
-    --line-soft:    rgba(255, 255, 255, .06);
 
     /* Accents: gold for actions, violet secondary, red for danger, green
        for success. Every shade and tint below derives from its base colour;
@@ -40,7 +46,6 @@
     --violet-bright: #b3a6ea;
     --violet-soft:  rgba(141, 124, 224, .13);
     --violet-line:  rgba(141, 124, 224, .32);
-    --chrome:       #c7cad4;
 
     --text:         #e9ebf1;
     --text-muted:   #969cab;
@@ -70,11 +75,86 @@
 
     --shadow-deep:  0 12px 32px rgba(0, 0, 0, .4);
     --shadow-soft:  0 1px 2px rgba(0, 0, 0, .2);
+    --shadow-lift:  0 6px 18px rgba(0, 0, 0, .35);  /* a row that lifts under the pointer */
+    /* The colour a component draws its own shadow with (the editor's
+       balloons and dialogs), where a whole shadow value will not do. */
+    --shade:        rgba(0, 0, 0, .4);
+    --shade-soft:   rgba(0, 0, 0, .3);
     --glow-gold:    0 0 0 3px var(--gold-tint-strong);
 
     /* Side spacing shared by header and panel content, so the word mark and
        the page title sit on the same vertical line. */
     --gutter:       .7rem;
+}
+
+/* ---------- The light scheme ----------
+   The same tokens, other values. It applies only when the visitor asked for
+   it: the switch in the header writes a cookie, and the layout puts the
+   answer on <html data-theme> (src/Theme.php). prefers-color-scheme is
+   deliberately not consulted -- with no choice made the site stays dark, the
+   way it has always looked.
+
+   Three things turn around, and they are the whole trick. Gold, violet, red
+   and green have to darken to be read on a pale ground, so "bright" (the
+   hover shade) becomes darker here, not lighter. --base, the text on a
+   filled gold button, becomes near-white. And the neutral overlays are black
+   veils instead of white ones.
+
+   The admins' own colours (Administration -> Interface) override this block
+   from the layout with the same selector, so they win here as they do on the
+   dark scheme -- see src/Colors.php. */
+:root[data-theme="light"] {
+    /* Surfaces, stepped from light to dark */
+    --ink:          #f5f6f9;   /* page ground             */
+    --shell:        #ecedf3;   /* shell around the content */
+    --panel:        #fff;      /* content surface         */
+    --surface:      #f0f1f6;   /* recessed: table, input fields */
+    --base:         #fffaf0;   /* text on gold surfaces   */
+    --sunken:       rgba(20, 22, 30, .05); /* behind code and preformatted text */
+
+    --line:         #d2d5e0;
+
+    /* The accents, dark enough to be read on the pale ground (4.5:1 or
+       better); the "deep" shades stay frames, the "bright" ones are the
+       hover state and therefore darker still. */
+    --gold:         #8a5f0a;
+    --gold-bright:  #614207;
+    --gold-deep:    #9f7d3a;
+    --gold-wash:        rgba(138, 95, 10, .05);  /* faint row highlight */
+    --gold-tint:        rgba(138, 95, 10, .10);  /* hover of gold-framed buttons */
+    --gold-tint-mid:    rgba(138, 95, 10, .12);  /* notices */
+    --gold-tint-strong: rgba(138, 95, 10, .20);  /* chips inside notices */
+    --violet:       #5348bd;
+    --violet-bright: #3a3284;
+    --violet-soft:  rgba(83, 72, 189, .10);
+    --violet-line:  rgba(83, 72, 189, .30);
+
+    --text:         #1a1c23;
+    --text-muted:   #5b6070;
+    --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
+    --danger:       #c01f36;
+    --danger-bright: #861626;
+    --danger-deep:  #7d1423;
+    --danger-line:  #e0a0ab;
+    --danger-tint:        rgba(192, 31, 54, .09);
+    --danger-tint-strong: rgba(192, 31, 54, .20);
+    --danger-glow:        rgba(192, 31, 54, .13);
+    --ok:           #0f7346;
+
+    /* Neutral overlays: the same steps as on the dark scheme, but veils of
+       ink instead of light. */
+    --hover-soft:   rgba(20, 22, 30, .03);
+    --hover:        rgba(20, 22, 30, .05);
+    --hover-strong: rgba(20, 22, 30, .09);
+    --backdrop:     rgba(20, 22, 30, .45);
+
+    /* Shadows carry much less on a pale ground; the same geometry, far less
+       weight, or they read as dirt. */
+    --shadow-deep:  0 12px 32px rgba(20, 22, 30, .14);
+    --shadow-soft:  0 1px 2px rgba(20, 22, 30, .07);
+    --shadow-lift:  0 6px 18px rgba(20, 22, 30, .12);
+    --shade:        rgba(20, 22, 30, .18);
+    --shade-soft:   rgba(20, 22, 30, .10);
 }
 
 * { box-sizing: border-box; }
@@ -129,7 +209,7 @@ a:hover { color: var(--gold-bright); }
 .muted { color: var(--text-muted); }
 code {
     font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
-    background: rgba(0, 0, 0, .45);
+    background: var(--sunken);
     border: 1px solid var(--line);
     border-radius: 5px;
     padding: .05em .4em;
@@ -188,6 +268,7 @@ code {
     /* Qualified with the parent: the rules being overridden come later. */
     .dome__tools .help__toggle,
     .dome__tools .lang__toggle,
+    .dome__tools .theme__toggle,
     .dome__tools .account__toggle { padding: .4rem .28rem; }
     .dome__tools .account__dot { right: .12rem; top: .3rem; }
     .lang__current { display: none; }
@@ -277,6 +358,7 @@ code {
 .account { position: relative; }
 .help__toggle,
 .lang__toggle,
+.theme__toggle,
 .account__toggle {
     display: inline-flex;
     align-items: center;
@@ -295,13 +377,37 @@ code {
 .account__toggle::-webkit-details-marker { display: none; }
 .lang__toggle:hover,
 .lang[open] .lang__toggle,
+.theme__toggle:hover,
 .account__toggle:hover,
 .account[open] .account__toggle { color: var(--text); background: var(--hover-soft); }
 .lang__toggle:focus-visible,
+.theme__toggle:focus-visible,
 .account__toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .help__icon,
 .lang__icon,
+.theme__icon,
 .account__icon { flex: 0 0 auto; }
+
+/* Light or dark: one button that offers the scheme the page is not in. It
+   carries both glyphs and both labels; which pair shows is decided by
+   data-theme on the root element, so app.js can flip the button by setting
+   that one attribute and needs no translated string of its own. Exactly one
+   label is in the flow at a time, so a screen reader reads exactly one.
+   A <button>, not a <summary> like its neighbours -- so it brings its own
+   reset with it. */
+.theme { display: flex; margin: 0; }
+.theme__toggle {
+    background: none;
+    border: 0;
+    font-family: inherit;
+}
+.theme__icon--moon,
+.theme__label--dark { display: none; }
+:root[data-theme="light"] .theme__icon--sun,
+:root[data-theme="light"] .theme__label--light { display: none; }
+:root[data-theme="light"] .theme__icon--moon { display: block; }
+:root[data-theme="light"] .theme__label--dark { display: inline; }
+
 /* The page's help: a popout like the account menu, wide enough for a few
    lines of text; lit while open. It hangs from the right edge of the tools,
    not from its own ring, so on phones it stays inside the screen. */
@@ -945,7 +1051,7 @@ code {
 .grid tbody tr.is-clickable.is-pressed,
 .grid tbody tr.is-clickable:focus-within {
     border-color: var(--gold);
-    box-shadow: 0 0 0 1px var(--gold), 0 6px 18px rgba(0, 0, 0, .35);
+    box-shadow: 0 0 0 1px var(--gold), var(--shadow-lift);
     background: var(--gold-wash);
 }
 .grid tbody tr.is-clickable:hover .wish-button,
@@ -1895,7 +2001,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     border-color: var(--danger);
     box-shadow: 0 0 0 3px var(--danger-glow);
 }
-.field__hint  { margin: .35rem 0 0; font-size: .82rem; color: var(--muted); }
+.field__hint  { margin: .35rem 0 0; font-size: .82rem; color: var(--text-muted); }
 .field__error { margin: .35rem 0 0; font-size: .85rem; font-weight: 600; color: var(--danger); }
 
 /* The edit form has more fields than the login -- and a heading above it
@@ -2211,7 +2317,7 @@ code.is-example { color: var(--text-muted); font-style: italic; }
 .prose pre {
     padding: .8rem 1rem;
     overflow-x: auto;
-    background: rgba(0, 0, 0, .45);
+    background: var(--sunken);
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
@@ -2317,8 +2423,8 @@ code.is-example { color: var(--text-muted); font-style: italic; }
     --ck-color-switch-button-on-background: var(--gold);
     --ck-color-switch-button-on-hover-background: var(--gold-bright);
     --ck-color-switch-button-inner-background: var(--base);
-    --ck-color-shadow-drop: rgba(0, 0, 0, .4);
-    --ck-color-shadow-inner: rgba(0, 0, 0, .3);
+    --ck-color-shadow-drop: var(--shade);
+    --ck-color-shadow-inner: var(--shade-soft);
     --ck-color-code-block-label-background: var(--text-muted);
     --ck-border-radius: var(--radius-sm);
     --ck-font-face: inherit;
@@ -2349,8 +2455,8 @@ code.is-example { color: var(--text-muted); font-style: italic; }
 .ck-content .table table td,
 .ck-content .table table th { border-color: var(--line); }
 .ck-content .table table th { background: var(--panel); }
-.ck-content code { background: rgba(0, 0, 0, .45); color: var(--gold-bright); }
-.ck-content pre { background: rgba(0, 0, 0, .45); border: 1px solid var(--line); color: var(--text); }
+.ck-content code { background: var(--sunken); color: var(--gold-bright); }
+.ck-content pre { background: var(--sunken); border: 1px solid var(--line); color: var(--text); }
 .ck-content a { color: var(--gold); }
 .ck.ck-source-editing-area textarea {
     background: var(--surface);
@@ -2360,7 +2466,8 @@ code.is-example { color: var(--text-muted); font-style: italic; }
 }
 
 @media (forced-colors: active) {
-    .wish-button, .delete-button, .link-button, .nav a, .account__item { border: 1px solid ButtonText; }
+    .wish-button, .delete-button, .link-button, .nav a, .account__item,
+    .theme__toggle { border: 1px solid ButtonText; }
     .tabs__item[aria-selected="true"] { border-bottom-color: Highlight; }
 }
 

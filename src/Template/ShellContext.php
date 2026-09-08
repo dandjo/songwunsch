@@ -20,6 +20,7 @@ use Songwunsch\Security;
 use Songwunsch\Settings;
 use Songwunsch\SongRepository;
 use Songwunsch\SuggestionRepository;
+use Songwunsch\Theme;
 use Songwunsch\Translator;
 use Songwunsch\Ui;
 use Songwunsch\Uploads;
@@ -59,6 +60,7 @@ final class ShellContext
         private readonly Ui $ui,
         private readonly LiveTokens $live,
         private readonly GuestName $guestName,
+        private readonly Theme $theme,
         private readonly FlashBag $flash,
     ) {
     }
@@ -96,6 +98,11 @@ final class ShellContext
             'security'   => $this->security,
             'settings'   => $this->settings,
             'translator' => $this->translator,
+            // Light or dark: the visitor's own choice, on <html data-theme>
+            // and the scheme the admins' colours are derived for.
+            'theme'      => $this->theme->current(),
+            // The one the switch in the header offers.
+            'themeOther' => $this->theme->other(),
             'csrf'       => $this->security->csrfToken(),
             'flash'      => $this->flash->take(),
             'here'       => $here,
@@ -235,8 +242,9 @@ final class ShellContext
         // one falls back to the word mark by itself.
         $logoId        = (int) $this->settings->get(Settings::LOGO_ID, '0');
         $shell['logo'] = $logoId > 0 ? $this->uploads->info($logoId) : null;
-        // The colours set under Interface, as a :root block over the stylesheet.
-        $shell['colorsCss'] = Colors::css(Colors::load($this->settings));
+        // The colours set under Interface, as a block over the stylesheet --
+        // derived for the scheme this page is rendered in.
+        $shell['colorsCss'] = Colors::css(Colors::load($this->settings), $this->theme->isDark());
 
         // The counters on the Repertoire, Wish list and Suggestions tabs --
         // for everyone, guests included; the pages behind them are public as

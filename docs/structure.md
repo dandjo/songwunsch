@@ -48,8 +48,9 @@ src/NumberSettings.php Whole-number settings under one prefix: defaults, ranges,
 src/Limits.php         The limits on wishing and suggesting and the page size the admins set (Administration -> Limits)
 src/Ui.php             Message duration and live-update intervals the admins set (Administration -> Interface)
 src/LiveSignal.php     The live update's doorbell: assets/state/live.txt, rewritten on every change, polled instead of PHP
-src/Colors.php         The colours the admins set (Administration -> Interface): shades, the :root block
+src/Colors.php         The colours the admins set (Administration -> Interface): shades per scheme, the block over :root
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
+src/Theme.php          Light or dark, the visitor's own choice: cookie, the two allowed values
 src/QrCode.php         QR codes of the room addresses, made here: encoding, Reed-Solomon, masks, SVG and PNG
 src/RoomMemory.php     The room chosen last and the unlisted rooms a guest entered: two cookies
 src/Settings.php       Key/value store in the settings table, per-user settings
@@ -68,7 +69,7 @@ src/Translator.php     Discover languages, choose one, remember the choice, t()/
 src/PoFile.php         .po parser including the Plural-Forms interpreter
 
 templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, room_qr, login, settings, logos, ui, limits, pages, page_edit, page, footer, languages, name, _name_form, _room_switches, error, _sortbar, _pager
-assets/                style.css (dark interface), app.js, vendor/ckeditor5 (the page editor, see Pages and footer)
+assets/                style.css (the dark and the light palette), app.js, vendor/ckeditor5 (the page editor, see Pages and footer)
 assets/state/          The only folder the application writes into: the live signal, and its .htaccess serves nothing else
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)

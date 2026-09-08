@@ -161,13 +161,25 @@ keep working. After paging the view starts at the top. Links to another
 page (a form to fill in, an admin page), the header's menus and the name
 dialog load the normal way.
 
+## Light and dark
+
+The interface is dark. The sun in the header switches it to light, the
+crescent switches it back – one click, no reload, and a form being filled in
+keeps what is in it. The choice belongs to the visitor, not to the site: it
+is kept in a cookie on that device and holds for every room and every page.
+Whoever never touches the switch keeps the dark interface.
+
+The switch works without JavaScript as well; the page then reloads and comes
+back where it was. What the admins' colours do in the light version is under
+[Interface](interface.md).
+
 ## Layout and screen sizes
 
 There is a single layout for all screen sizes, a compact card layout. On
 wide screens the shell is centred and limited to 1180 px.
 
 The header has two rows. The word mark (or the logo), the *?*, the language
-menu and the account menu share the first row. The account menu (person
+menu, the light/dark switch and the account menu share the first row. The account menu (person
 icon) opens the guest's name with *Change name* and *Log in*, or for staff
 the username, *Name for wishes*, *User settings*, for admins
 *Administration* with its pages as sub-entries, *View as guest* and *Log

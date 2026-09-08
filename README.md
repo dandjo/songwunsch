@@ -27,9 +27,10 @@ app to install, no account for the guests, no third-party service in between.
 * **Your look, your languages.** Your logo in the header, your colours, your
   imprint and FAQ pages. English, German and French are included, another
   language is one text file away. Guests get their browser's language.
-* **Built for the stage.** A dark interface that does not blind anyone, large
-  touch targets, one layout from a 360 px phone to a wide screen, fully usable
-  by keyboard and screen reader.
+* **Built for the stage.** A dark interface that does not blind anyone – or a
+  light one, at every visitor's own choice – large touch targets, one layout
+  from a 360 px phone to a wide screen, fully usable by keyboard and screen
+  reader.
 * **Runs anywhere PHP runs.** No framework, no Composer, no build step, no
   CDN. Copy the files to any hosting with PHP 8.1 and MySQL, or start the
   Docker stack.
