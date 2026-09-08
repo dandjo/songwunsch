@@ -43,7 +43,7 @@ final class Colors
         'accent'    => '#a1c2d8',
         'secondary' => '#d4e3e5',
         'danger'    => '#ff6f61',
-        'success'   => '#ecf0f1',
+        'success'   => '#6e8f3d',
         'background' => '#0d1417',
         'text'      => '#f6f8f8',
     ];

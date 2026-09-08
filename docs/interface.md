@@ -26,13 +26,13 @@ The table below names the **dark** defaults; the light ones stand under
 | Accent | Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, accent tags and notices | `#a1c2d8` |
 | Secondary | Genre and role tags, the counters on the tabs, the frame of info notices | `#d4e3e5` |
 | Danger | Closed rooms, delete buttons, warnings, errors | `#ff6f61` |
-| Success | The frame of confirmation notices, the tick on a saved language tab, the confirm buttons in the page editor's dialogs | `#ecf0f1` |
+| Success | The frame of confirmation notices, the tick on a saved language tab, the confirm buttons in the page editor's dialogs | `#6e8f3d` |
 | Background | Page ground; shell, panels, fields and lines are steps away from it, as is the text on accent buttons and counters | `#0d1417` |
 | Text | Text; the muted text is a step towards the background | `#f6f8f8` |
 
 The dark design: a near-black blue-grey ground with a pale blue for
-actions, a lighter blue-grey for tags and counters, coral for danger, and a
-cloud white for the text.
+actions, a lighter blue-grey for tags and counters, coral for danger, an olive green for
+success, and a cloud white for the text.
 
 Each area has a colour picker and a text field for the hex value, in each of
 the two groups. Both follow each other. A *Default* button brings the built-in colour back. The
