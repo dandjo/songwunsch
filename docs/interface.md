@@ -13,9 +13,7 @@ for the default design (`src/Theme.php`), `ui.<name>` for the numbers
 
 ## Colours
 
-The built-in colours are the “Modern Urban Chic” palette – two slates, a
-cloud, concrete and one red – mapped onto six areas of use, and each area has
-its colour twice:
+Each of the six areas of use has one base colour, and it has it twice:
 once for the dark design and once for the light one. Admins can replace
 either. Every shade and tint the interface needs – hover states, frames,
 notices – is derived from the base colour of the scheme in question.
@@ -25,18 +23,16 @@ The table below names the **dark** defaults; the light ones stand under
 
 | Area | Used for | Default (dark) |
 | --- | --- | --- |
-| Accent | Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, accent tags and notices | `#f2a098` |
-| Secondary | Genre and role tags, the counters on the tabs, the frame of info notices | `#aab7b8` |
-| Danger | Closed rooms, delete buttons, warnings, errors | `#f2a098` |
+| Accent | Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, accent tags and notices | `#a1c2d8` |
+| Secondary | Genre and role tags, the counters on the tabs, the frame of info notices | `#d4e3e5` |
+| Danger | Closed rooms, delete buttons, warnings, errors | `#ff6f61` |
 | Success | The frame of confirmation notices, the tick on a saved language tab, the confirm buttons in the page editor's dialogs | `#ecf0f1` |
-| Background | Page ground; shell, panels, fields and lines are steps away from it, as is the text on accent buttons and counters | `#2c3e50` |
-| Text | Text; the muted text is a step towards the background | `#ecf0f1` |
+| Background | Page ground; shell, panels, fields and lines are steps away from it, as is the text on accent buttons and counters | `#0d1417` |
+| Text | Text; the muted text is a step towards the background | `#f6f8f8` |
 
-The palette's red, `#e74c3c`, is the action colour – but it stands at 2.9:1
-on the slate and text needs 4.5:1, so the dark design carries it lightened
-to a salmon. Danger is the same family and, on this ground, the same value:
-there is no second red in the palette that would read. Success has no colour
-of its own in the palette and takes the cloud, the text's own.
+The dark design: a near-black blue-grey ground with a pale blue for
+actions, a lighter blue-grey for tags and counters, coral for danger, and a
+cloud white for the text.
 
 Each area has a colour picker and a text field for the hex value, in each of
 the two groups. Both follow each other. A *Default* button brings the built-in colour back. The
@@ -142,20 +138,18 @@ values:
 
 | Area | Light default |
 | --- | --- |
-| Accent | `#b23b2e` |
-| Secondary | `#34495e` |
+| Accent | `#2c3e50` |
+| Secondary | `#5b80a4` |
 | Danger | `#973227` |
-| Success | `#2c3e50` |
-| Background | `#ecf0f1` |
+| Success | `#88b04b` |
+| Background | `#fbfcfe` |
 | Text | `#2c3e50` |
 
-The light design is the same palette turned over: the cloud as the ground,
-a white card lifted off it, midnight for the text and wet asphalt for the
-tags. The red is darkened a step so it reads on the cloud (the pure alizarin
-stands at 3.3:1), and here danger can be one step deeper still, so the two
-are told apart. Success takes the midnight, the text's own. The softness
-lives in the tints – the veils behind notices, chips, row highlights and
-hover states – and in the pale frames.
+The light design: a near-white ground with a white card lifted off it,
+the slate of the text doubling as the action colour, a steel blue for tags
+and counters, a deep red for danger and an olive green for success. The
+softness lives in the tints – the veils behind notices, chips, row highlights
+and hover states – and in the pale frames.
 
 They are separate on purpose. A colour picked against a dark ground is
 rarely readable on a light one – the salmon the dark design uses for actions
