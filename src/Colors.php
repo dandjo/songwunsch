@@ -295,9 +295,13 @@ final class Colors
         }
         if (isset($rgb['text'])) {
             $c = $rgb['text'];
+            // Muted text is the text moved towards the ground -- a shorter
+            // way on the light scheme: a pale ground is much nearer to a
+            // dark text in contrast terms than a dark ground is to a light
+            // one, and the same step there leaves a grey that no longer reads.
             $vars += [
                 '--text'       => self::hex($c),
-                '--text-muted' => self::hex(self::mix($c, $ground, .37)),
+                '--text-muted' => self::hex(self::mix($c, $ground, $dark ? .37 : .22)),
             ];
         }
 
