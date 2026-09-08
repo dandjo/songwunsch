@@ -27,7 +27,7 @@ $currentId = (int) $room['id'];
 $canCount  = $security->can('wishes');
 $listUrl   = static fn (array $extra = []): string => url('rooms', array_merge(['q' => $q, 'filter' => $canEdit ? $filter : null], $extra));
 // This very page of the list -- the destination the forms and the QR page return to.
-$here      = $listUrl(['page' => $pageNo > 1 ? $pageNo : null]);
+$listHere      = $listUrl(['page' => $pageNo > 1 ? $pageNo : null]);
 // The main room heads the list once: first page, no search, not the archive --
 // and, like any unlisted room, not for guests while it is unlisted.
 $mainRoom  = \Songwunsch\RoomRepository::defaultRoom();
@@ -77,7 +77,7 @@ $hasActions = $canPause || $canEdit;
                 </button>
             </form>
         <?php endif; ?>
-        <a class="link-button" href="<?= $e(url('room_new', ['back' => $here])) ?>"><?= icon('plus') ?><?= $e(t('Add room')) ?></a>
+        <a class="link-button" href="<?= $e(url('room_new', ['back' => $listHere])) ?>"><?= icon('plus') ?><?= $e(t('Add room')) ?></a>
     </div>
 </div>
 <?php endif; ?>
@@ -213,7 +213,7 @@ $hasActions = $canPause || $canEdit;
                         <?php endif; ?>
                         <?php if ($canEdit): ?>
                             <?php /* The room's address as a QR code -- the main room's as well. */ ?>
-                            <a class="link-button" href="<?= $e(url('room_qr', ['room' => $slug, 'back' => $here])) ?>">
+                            <a class="link-button" href="<?= $e(url('room_qr', ['room' => $slug, 'back' => $listHere])) ?>">
                                 <?= icon('qr') ?>
                                 <span class="button__label"><?= $e(t('QR code')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
@@ -222,20 +222,20 @@ $hasActions = $canPause || $canEdit;
                         <?php if ($canEdit && $isMain): ?>
                             <?php /* The main room cannot be managed or deleted; Edit opens its
                                      name and its listed switch. */ ?>
-                            <a class="link-button" href="<?= $e(url('room_main_edit', ['back' => $here])) ?>">
+                            <a class="link-button" href="<?= $e(url('room_main_edit', ['back' => $listHere])) ?>">
                                 <?= icon('pencil') ?>
                                 <span class="button__label"><?= $e(t('Edit')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                             </a>
                         <?php endif; ?>
                         <?php if ($canEdit && !$isMain): ?>
-                            <a class="link-button" href="<?= $e(url('room_songs', ['room' => $slug, 'back' => $here])) ?>">
+                            <a class="link-button" href="<?= $e(url('room_songs', ['room' => $slug, 'back' => $listHere])) ?>">
                                 <?= icon('note') ?>
                                 <span class="button__label"><?= $e(t('Manage')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                             </a>
                             <div class="row-actions__pair">
-                                <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url('room_edit', ['id' => (int) $row['id'], 'back' => $here])) ?>">
+                                <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url('room_edit', ['id' => (int) $row['id'], 'back' => $listHere])) ?>">
                                     <?= icon('pencil') ?>
                                     <span class="button__label"><?= $e(t('Edit')) ?></span>
                                     <span class="sr-only">: <?= $e((string) $row['name']) ?></span>

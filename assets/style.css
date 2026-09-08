@@ -1026,7 +1026,8 @@ code {
     font-size: .9rem;
 }
 .tabs__item:hover { color: var(--gold-bright); background: var(--gold-tint); }
-.tabs__item[aria-selected="true"] { color: var(--text); border-bottom-color: var(--gold); }
+.tabs__item[aria-selected="true"],
+.tabs__item[aria-current="page"] { color: var(--text); border-bottom-color: var(--gold); }
 .tabs__item .button__glyph { margin: 0; color: var(--ok); }
 .tabs__item .tag { font-size: .72rem; padding: .05em .5em; }
 .tabs__item.has-error { color: var(--danger); }
@@ -2118,6 +2119,20 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 .field__legend { margin: 0 0 .5rem; font-size: 1rem; font-weight: 700; color: var(--text); }
 .field--group ul.field__hint { margin: .5rem 0 0; padding-left: 1.1rem; }
 .field--group ul.field__hint li { margin: .15rem 0; }
+/* Logos page: the sentence above the list says what the design on show has
+   live, so no row has to name a design. The reset ("Same as dark") sits with
+   that sentence and not in the list, because it is about the slot and not
+   about one logo. */
+.logo-state {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .35rem .75rem;
+    margin: -.5rem 0 1rem;
+}
+.logo-state .field__hint { margin: 0; }
+.logo-state form { margin: 0; }
+
 /* Logos page: one card per logo -- the preview on the header's dark ground
    at the header's size, the facts beside it, the switches at the right. The
    live one is framed in gold. */
@@ -2558,7 +2573,8 @@ code.is-example { color: var(--text-muted); font-style: italic; }
 @media (forced-colors: active) {
     .wish-button, .delete-button, .link-button, .nav a, .account__item,
     .theme__item { border: 1px solid ButtonText; }
-    .tabs__item[aria-selected="true"] { border-bottom-color: Highlight; }
+    .tabs__item[aria-selected="true"],
+    .tabs__item[aria-current="page"] { border-bottom-color: Highlight; }
 }
 
 /* ---------- A list below a form (suggestions) ----------

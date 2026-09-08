@@ -19,7 +19,7 @@ use Songwunsch\Format;
 /** @var \Songwunsch\Security $security */
 
 $e       = static fn (?string $v): string => Format::e($v);
-$inRoom  = (int) $room['id'] !== \Songwunsch\RoomRepository::DEFAULT_ID;
+$isRoom  = (int) $room['id'] !== \Songwunsch\RoomRepository::DEFAULT_ID;
 // A page of the list with its sorting -- the pager's links, and where the
 // moves and deletions come back to. Bound here, before the move buttons'
 // loop below reuses $dir for its directions.

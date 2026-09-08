@@ -74,12 +74,12 @@ $current = url('pages', ['q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
         <tbody>
         <?php foreach ($rows as $row): ?>
             <?php
-            $title   = (string) $row['title'];
+            $rowTitle   = (string) $row['title'];
             $address = url('page', ['slug' => (string) $row['slug']]);
             $editUrl = url('page_edit', ['id' => (int) $row['id'], 'back' => $current]);
             ?>
             <tr>
-                <td class="cell-title"<?= (string) $row['lang'] !== $translator->code() ? ' lang="' . $e((string) $row['lang']) . '"' : '' ?>><?= $e($title) ?></td>
+                <td class="cell-title"<?= (string) $row['lang'] !== $translator->code() ? ' lang="' . $e((string) $row['lang']) . '"' : '' ?>><?= $e($rowTitle) ?></td>
                 <td class="cell-genre"><a class="address" href="<?= $e($address) ?>"><?= $e($address) ?></a></td>
                 <?php /* One chip per language of the menu, in the fallback order:
                          filled where the page has that language, dashed where
@@ -98,16 +98,16 @@ $current = url('pages', ['q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
                             <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e($editUrl) ?>">
                                 <?= icon('pencil') ?>
                                 <span class="button__label"><?= $e(t('Edit')) ?></span>
-                                <span class="sr-only">: <?= $e($title) ?></span>
+                                <span class="sr-only">: <?= $e($rowTitle) ?></span>
                             </a>
                             <form method="post" action="<?= $e(url('page_delete', ['id' => (int) $row['id']])) ?>"
-                                  data-confirm="<?= $e(t('Permanently delete page “{title}”?', ['title' => $title])) ?>">
+                                  data-confirm="<?= $e(t('Permanently delete page “{title}”?', ['title' => $rowTitle])) ?>">
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                 <input type="hidden" name="back" value="<?= $e($current) ?>">
                                 <button type="submit" class="delete-button icon-button" title="<?= $e(t('Delete')) ?>">
                                     <?= icon('trash') ?>
                                     <span class="button__label"><?= $e(t('Delete')) ?></span>
-                                    <span class="sr-only">: <?= $e($title) ?></span>
+                                    <span class="sr-only">: <?= $e($rowTitle) ?></span>
                                 </button>
                             </form>
                         </div>

@@ -15,27 +15,44 @@ use Songwunsch\Uploads;
  * operator has a second version, one for the light design. The light slot
  * may stay empty, and then both designs show the same.
  *
+ * The page shows **one design at a time** ($design, `?design=light` for the
+ * other). That is the whole reason it reads clearly: the design is named
+ * once, at the top, in a sentence -- and each row below carries a single
+ * "Switch live", the way it did while there was only one slot. Two buttons
+ * per row named after the designs said nothing about what they would do.
+ *
  * @var array<int,array{id:int,mime:string,width:?int,height:?int,size:int,created_at:string}> $logos  newest first, one page
  * @var int $total       all uploaded logos
  * @var int $pageNo
  * @var int $pages
  * @var int $activeId    id of the logo the dark design shows, 0 = word mark
  * @var int $lightId     id of the logo the light design shows, 0 = the same as the dark one
+ * @var string $design   the design being looked at, Theme::DARK or Theme::LIGHT
  * @var string $csrf
  */
 
 $e = static fn (?string $v): string => Format::e($v);
 
 $logoUrl = static fn (int $id): string => url('logo', ['id' => $id]);
-// Where a logo is live. While the light slot is empty the dark design's
-// logo stands in both, so it carries one tag and not two.
-$liveInDark  = static fn (int $id): bool => $id === $activeId;
-$liveInLight = static fn (int $id): bool => $lightId > 0 ? $id === $lightId : $id === $activeId;
-// The light slot only means something while a logo is live at all; with the
-// word mark up front there is nothing for a second version to differ from.
-$twoSlots = $activeId > 0;
 $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
-$pageUrl = static fn (int $page): string => url('logos', ['page' => $page > 1 ? $page : null]);
+
+// Deliberately none of the names the layout uses: this template is
+// required into the layout's scope (templates/layout.php), so a local of
+// $here or $live here would overwrite the address and the poll tokens the
+// header prints afterwards.
+$onLight = $design === Theme::LIGHT;
+// The slot this page is looking at: which logo fills it, and whether it can
+// be filled at all. The light slot only means something while a logo is
+// live -- with the word mark up front there is nothing for a second version
+// to differ from, and the light entry is cleared with it (AdminController).
+$slotId   = $onLight ? $lightId : $activeId;
+$canSwitch = !$onLight || $activeId > 0;
+// Every address on this page keeps the design, so switching, deleting and
+// paging all come back to the same context.
+$pageUrl = static fn (int $page) => url('logos', [
+    'page'   => $page > 1 ? $page : null,
+    'design' => $design === Theme::LIGHT ? Theme::LIGHT : null,
+]);
 // This page of the list: where switching and deleting lead back to.
 $current = $pageUrl($pageNo);
 ?>
@@ -53,6 +70,10 @@ $current = $pageUrl($pageNo);
 <div class="login login--wide">
     <form method="post" action="<?= $e(url('logo_upload')) ?>" enctype="multipart/form-data" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+        <?php /* The upload comes back to the design one uploaded from, and
+                 "switch it live" means live in that design. */ ?>
+        <input type="hidden" name="back" value="<?= $e($current) ?>">
+        <input type="hidden" name="scheme" value="<?= $e($design) ?>">
 
         <fieldset class="field field--group">
             <legend><?= $e(t('Upload a logo')) ?></legend>
@@ -81,9 +102,53 @@ $current = $pageUrl($pageNo);
     <div class="field field--group">
         <h2 class="field__legend"><?= $e(t('Uploaded logos')) ?></h2>
 
+        <?php /* Which design the list below is about. Two plain links, not
+                 tab panels: the whole list belongs to one design at a time,
+                 so switching is a navigation and works without JavaScript
+                 (app.js swaps it in, the address being the same path). */ ?>
+        <nav class="tabs" aria-label="<?= $e(t('Which design?')) ?>">
+            <ul>
+                <?php foreach ([Theme::DARK => t('Dark design'), Theme::LIGHT => t('Light design')] as $value => $label): ?>
+                    <li>
+                        <a class="tabs__item" href="<?= $e(url('logos', ['design' => $value === Theme::LIGHT ? Theme::LIGHT : null])) ?>"<?= $value === $design ? ' aria-current="page"' : '' ?>>
+                            <?= $e($label) ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </nav>
+
+        <?php /* What this design shows right now, said in words -- the rows
+                 below then need no more than "Switch live". The light design
+                 gets its sentence from its slot: empty means it shows the
+                 dark one's logo, and naming that logo saves a second tag in
+                 the list. */ ?>
+        <div class="logo-state">
+            <?php if (!$onLight): ?>
+                <p class="field__hint"><?= $e(t('The dark design – what a visitor sees unless they switch. Switch a logo live below, or the word mark, and then no logo shows at all.')) ?></p>
+            <?php elseif (!$canSwitch): ?>
+                <p class="field__hint"><?= $e(t('No logo is live: the word mark stands in both designs. Switch a logo live for the dark design first – then the light one can have its own.')) ?></p>
+            <?php elseif ($slotId === 0): ?>
+                <p class="field__hint"><?= $e(t('The light design shows the same logo as the dark one ({logo}). Switch one live below to give it its own.', [
+                    'logo' => t('Logo {id}', ['id' => $activeId]),
+                ])) ?></p>
+            <?php else: ?>
+                <p class="field__hint"><?= $e(t('The light design shows a logo of its own.')) ?></p>
+                <form method="post" action="<?= $e(url('logo_activate', ['id' => 0])) ?>">
+                    <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
+                    <input type="hidden" name="back" value="<?= $e($current) ?>">
+                    <input type="hidden" name="scheme" value="<?= $e(Theme::LIGHT) ?>">
+                    <button type="submit" class="link-button"><?= icon('cross') ?><?= $e(t('Same as dark')) ?></button>
+                </form>
+            <?php endif; ?>
+        </div>
+
         <ul class="logo-list" role="list">
-            <?php /* The word mark heads the list as the choice "no logo" -- on the first page. */ ?>
-            <?php if ($pageNo === 1): ?>
+            <?php /* The word mark heads the list as the choice "no logo" -- on the
+                     first page, and only in the dark design: it is not one choice
+                     per design but the absence of a logo altogether, and switching
+                     to it clears the light slot with it (AdminController). */ ?>
+            <?php if ($pageNo === 1 && !$onLight): ?>
             <li class="logo-card<?= $activeId === 0 ? ' logo-card--active' : '' ?>">
                 <div class="logo-card__preview"><span class="dome__brand">Song<span>wunsch</span></span></div>
                 <div class="logo-card__meta">
@@ -91,9 +156,6 @@ $current = $pageUrl($pageNo);
                     <span class="muted"><?= $e(t('The default without a logo, with the claim below.')) ?></span>
                 </div>
                 <div class="logo-card__actions">
-                    <?php /* The word mark is one choice, not one per design: without
-                             a logo there is nothing a second version could differ
-                             from, and switching to it clears the light slot. */ ?>
                     <?php if ($activeId === 0): ?>
                         <span class="tag tag--gold"><?= $e(t('live')) ?></span>
                     <?php else: ?>
@@ -110,12 +172,13 @@ $current = $pageUrl($pageNo);
 
             <?php foreach ($logos as $upload): ?>
                 <?php
-                $id      = (int) $upload['id'];
-                $inDark  = $liveInDark($id);
-                $inLight = $liveInLight($id);
-                $slotUrl = url('logo_activate', ['id' => $id]);
+                $id   = (int) $upload['id'];
+                // Live in the design on show. While the light slot is empty
+                // the dark logo stands there too, but the sentence above
+                // says so -- the list marks the slot, not the effect.
+                $isLive = $id === $slotId;
                 ?>
-                <li class="logo-card<?= $inDark || $inLight ? ' logo-card--active' : '' ?>">
+                <li class="logo-card<?= $isLive ? ' logo-card--active' : '' ?>">
                     <div class="logo-card__preview">
                         <img src="<?= $e($logoUrl($upload['id'])) ?>" alt="<?= $e(t('Logo {id}', ['id' => $upload['id']])) ?>">
                     </div>
@@ -129,44 +192,22 @@ $current = $pageUrl($pageNo);
                         </span>
                     </div>
                     <div class="logo-card__actions">
-                        <?php /* One tag where this logo is live -- "live" alone when
-                                 both designs show it, otherwise the design named --
-                                 and a button where it is not. */ ?>
-                        <?php if ($inDark && $inLight): ?>
+                        <?php /* One action, because the design is named above the
+                                 list and not on every button. A design that cannot
+                                 hold a logo yet (the light one while the word mark
+                                 is up) offers nothing -- the sentence above says
+                                 what to do first. */ ?>
+                        <?php if ($isLive): ?>
                             <span class="tag tag--gold"><?= $e(t('live')) ?></span>
-                        <?php else: ?>
-                            <?php if ($inDark): ?>
-                                <span class="tag tag--gold"><?= $e(t('live · dark')) ?></span>
-                            <?php else: ?>
-                                <form method="post" action="<?= $e($slotUrl) ?>">
-                                    <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                                    <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                    <input type="hidden" name="scheme" value="<?= $e(Theme::DARK) ?>">
-                                    <button type="submit" class="link-button" title="<?= $e(t('Switch live for the dark design')) ?>"><?= icon('check') ?><?= $e(t('Dark')) ?></button>
-                                </form>
-                            <?php endif; ?>
-                            <?php if ($inLight): ?>
-                                <span class="tag tag--gold"><?= $e(t('live · light')) ?></span>
-                            <?php elseif ($twoSlots): ?>
-                                <form method="post" action="<?= $e($slotUrl) ?>">
-                                    <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
-                                    <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                    <input type="hidden" name="scheme" value="<?= $e(Theme::LIGHT) ?>">
-                                    <button type="submit" class="link-button" title="<?= $e(t('Switch live for the light design')) ?>"><?= icon('check') ?><?= $e(t('Light')) ?></button>
-                                </form>
-                            <?php endif; ?>
-                        <?php endif; ?>
-                        <?php /* Back to one logo for both designs: the light slot's
-                                 neutral choice, which is no entry at all. */ ?>
-                        <?php if ($lightId === $id): ?>
-                            <form method="post" action="<?= $e(url('logo_activate', ['id' => 0])) ?>">
+                        <?php elseif ($canSwitch): ?>
+                            <form method="post" action="<?= $e(url('logo_activate', ['id' => $id])) ?>">
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                 <input type="hidden" name="back" value="<?= $e($current) ?>">
-                                <input type="hidden" name="scheme" value="<?= $e(Theme::LIGHT) ?>">
-                                <button type="submit" class="link-button" title="<?= $e(t('Show the dark design’s logo in the light design as well')) ?>"><?= icon('cross') ?><?= $e(t('Same as dark')) ?></button>
+                                <input type="hidden" name="scheme" value="<?= $e($design) ?>">
+                                <button type="submit" class="link-button"><?= icon('check') ?><?= $e(t('Switch live')) ?></button>
                             </form>
                         <?php endif; ?>
-                        <form method="post" action="<?= $e(url('logo_delete', ['id' => (int) $upload['id']])) ?>" data-confirm="<?= $e($inDark || $inLight ? t('Delete the live logo? The header falls back to what it showed before.') : t('Delete this logo?')) ?>">
+                        <form method="post" action="<?= $e(url('logo_delete', ['id' => $id])) ?>" data-confirm="<?= $e($id === $activeId || $id === $lightId ? t('Delete the live logo? The header falls back to what it showed before.') : t('Delete this logo?')) ?>">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                             <input type="hidden" name="back" value="<?= $e($current) ?>">
                             <?php /* Icon only, like the delete buttons in every list -- the label stays for screen readers and as tooltip. */ ?>

@@ -40,9 +40,14 @@ final class AdminController extends Controller
         return $this->redirect('users');
     }
 
-    /** Every uploaded logo, one live in each design. */
+    /**
+     * Every uploaded logo, and the one live in one design. The page shows a
+     * design at a time -- `?design=light` for the other -- so a row carries
+     * one action and not two of them (see docs/logo.md).
+     */
     public function logos(Request $request): View
     {
+        $design  = $request->query('design') === Theme::LIGHT ? Theme::LIGHT : Theme::DARK;
         $perPage = $this->limits->get('per_page');
         $result  = Pagination::of(
             fn (int $page): array => $this->uploads->page(Uploads::LOGO, $page, $perPage),
@@ -59,6 +64,7 @@ final class AdminController extends Controller
             // The light design's own logo, or 0 while it follows the one
             // above -- no entry at all is what "follows" looks like.
             'lightId'  => (int) $this->settings->get(Settings::LOGO_ID_LIGHT, '0'),
+            'design'   => $design,
         ]);
     }
 
@@ -72,19 +78,30 @@ final class AdminController extends Controller
         if ($check['errors'] !== []) {
             $this->flash('error', implode(' ', $check['errors']));
 
-            return $this->redirect('logos');
+            return $this->redirectTo($this->back($this->url('logos')));
         }
 
         $newId = $this->uploads->add(Uploads::LOGO, $check);
         if ($request->post('activate') === '1') {
-            $this->settings->set(Settings::LOGO_ID, (string) $newId);
+            // Live in the design the page was showing. The light slot only
+            // means something once a logo is live at all, so the very first
+            // upload goes to the dark design whichever page it came from --
+            // and the message says which design got it.
+            $light = $request->post('scheme') === Theme::LIGHT
+                && (int) $this->settings->get(Settings::LOGO_ID, '0') > 0;
+            $this->settings->set(
+                $light ? Settings::LOGO_ID_LIGHT : Settings::LOGO_ID,
+                (string) $newId,
+            );
             $this->settings->increment(Ui::REVISION_KEY); // the header changed for everyone
-            $this->flash('ok', t('The logo has been uploaded and is live in the header.'));
+            $this->flash('ok', $light
+                ? t('The logo has been uploaded and is live in the light design.')
+                : t('The logo has been uploaded and is live in the dark design.'));
         } else {
             $this->flash('ok', t('The logo has been uploaded – switch it live below when you want it shown.'));
         }
 
-        return $this->redirect('logos');
+        return $this->redirectTo($this->back($this->url('logos')));
     }
 
     /**

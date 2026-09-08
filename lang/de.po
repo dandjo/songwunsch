@@ -1221,9 +1221,6 @@ msgstr "Der Kopf zeigt wieder die Wortmarke."
 msgid "The logo has been deleted."
 msgstr "Das Logo wurde gelöscht."
 
-msgid "The logo has been uploaded and is live in the header."
-msgstr "Das Logo wurde hochgeladen und ist im Kopf scharf."
-
 msgid "The logo has been uploaded – switch it live below when you want it shown."
 msgstr "Das Logo wurde hochgeladen – unten scharf schalten, wenn es erscheinen soll."
 
@@ -1832,23 +1829,8 @@ msgstr "Ein Logo tritt an die Stelle des Wortzeichens „Songwunsch“ und des C
 msgid "Pale lettering drawn for the dark ground disappears on a white one. If you have a second version, switch it live for the light design; without one both designs show the same logo."
 msgstr "Helle Schrift, die für den dunklen Grund gezeichnet ist, verschwindet auf weißem Grund. Wenn Sie eine zweite Fassung haben, schalten Sie sie für das helle Design live; ohne zweite Fassung zeigen beide Designs dasselbe Logo."
 
-msgid "Switch live for the dark design"
-msgstr "Für das dunkle Design live schalten"
-
-msgid "Switch live for the light design"
-msgstr "Für das helle Design live schalten"
-
-msgid "Show the dark design’s logo in the light design as well"
-msgstr "Das Logo des dunklen Designs auch im hellen Design zeigen"
-
 msgid "Same as dark"
 msgstr "Wie dunkel"
-
-msgid "live · dark"
-msgstr "live · dunkel"
-
-msgid "live · light"
-msgstr "live · hell"
 
 msgid "The dark design shows this logo now."
 msgstr "Das dunkle Design zeigt jetzt dieses Logo."
@@ -1864,3 +1846,32 @@ msgstr "Das live geschaltete Logo löschen? Der Kopfbereich fällt auf das zurü
 
 msgid "The logo has been deleted – the header falls back to what it showed before."
 msgstr "Das Logo wurde gelöscht – der Kopfbereich fällt auf das zurück, was vorher zu sehen war."
+
+# ---- Logos: one design at a time -------------------------------------------
+
+msgid "Which design?"
+msgstr "Welches Design?"
+
+msgid "Dark design"
+msgstr "Dunkles Design"
+
+msgid "Light design"
+msgstr "Helles Design"
+
+msgid "The dark design – what a visitor sees unless they switch. Switch a logo live below, or the word mark, and then no logo shows at all."
+msgstr "Das dunkle Design – was ein Besucher sieht, solange er nicht umschaltet. Schalten Sie unten ein Logo live, oder das Wortzeichen, dann erscheint überhaupt kein Logo."
+
+msgid "The light design shows the same logo as the dark one ({logo}). Switch one live below to give it its own."
+msgstr "Das helle Design zeigt dasselbe Logo wie das dunkle ({logo}). Schalten Sie unten eines live, damit es ein eigenes bekommt."
+
+msgid "The light design shows a logo of its own."
+msgstr "Das helle Design zeigt ein eigenes Logo."
+
+msgid "No logo is live: the word mark stands in both designs. Switch a logo live for the dark design first – then the light one can have its own."
+msgstr "Kein Logo ist live: in beiden Designs steht das Wortzeichen. Schalten Sie zuerst im dunklen Design ein Logo live – dann kann das helle ein eigenes bekommen."
+
+msgid "The logo has been uploaded and is live in the dark design."
+msgstr "Das Logo wurde hochgeladen und ist im dunklen Design live."
+
+msgid "The logo has been uploaded and is live in the light design."
+msgstr "Das Logo wurde hochgeladen und ist im hellen Design live."

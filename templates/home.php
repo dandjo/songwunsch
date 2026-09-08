@@ -21,7 +21,7 @@ use Songwunsch\SongRepository;
 /** @var array<string,mixed> $room  current room */
 
 $e        = static fn (?string $v): string => Format::e($v);
-$inRoom   = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
+$isRoom   = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
 $current  = url('songs', ['q' => $q, 'sort' => $sort, 'dir' => $dir, 'page' => $pageNo > 1 ? $pageNo : null]);
 $sortable = $repo->sortableFields();
 $columns  = ['artist' => t('Artist'), 'title' => t('Title'), 'length' => t('Length'), 'genre' => t('Genre')];
@@ -53,7 +53,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
 <h1 class="sr-only"><?= $e(t('Repertoire')) ?></h1>
 <?php ob_start(); ?>
 <p>
-    <?= $e($inRoom ? t('The songs this room offers – its repertoire.') : t('Every song on offer – the whole repertoire.')) ?>
+    <?= $e($isRoom ? t('The songs this room offers – its repertoire.') : t('Every song on offer – the whole repertoire.')) ?>
     <?php /* The room's song count stands on the tab; here only what a search found. */ ?>
     <?php if ($q !== ''): ?>
         <?= $e(tn('{n} song', '{n} songs', $total, ['n' => Format::number($total)])) ?>
@@ -65,18 +65,18 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
 </p>
 <?php $help .= ob_get_clean(); ?>
 
-<?php if (($inRoom && $security->can('rooms')) || (!$inRoom && $security->can('songs'))): ?>
+<?php if (($isRoom && $security->can('rooms')) || (!$isRoom && $security->can('songs'))): ?>
 <div class="panel__head panel__head--quiet">
     <?php /* The main action at the right end: Manage in a room, Add song on
              the main list. The room's switches (start room, close/open)
              live on the room list and the room's edit form, not here. */ ?>
     <div class="panel__actions">
-        <?php if ($inRoom && $security->can('rooms')): ?>
+        <?php if ($isRoom && $security->can('rooms')): ?>
             <a class="link-button" href="<?= $e(url('room_songs', ['back' => $current])) ?>">
                 <?= icon('note') ?>
                 <?= $e(t('Manage')) ?>
             </a>
-        <?php elseif (!$inRoom && $security->can('songs')): ?>
+        <?php elseif (!$isRoom && $security->can('songs')): ?>
             <a class="link-button" href="<?= $e(url('song', ['id' => 'new', 'back' => $current])) ?>">
                 <?= icon('plus') ?>
                 <?= $e(t('Add song')) ?>
@@ -99,7 +99,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
 </form>
 
 <?php if ($rows === []): ?>
-    <?php if ($inRoom && $q === '' && $total === 0): ?>
+    <?php if ($isRoom && $q === '' && $total === 0): ?>
         <p class="empty">
             <?= $e(t('This room has no songs yet.')) ?>
             <?php if ($security->can('rooms')): ?>
@@ -177,7 +177,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                                             <span class="button__label"><?= $e(t('Edit')) ?></span>
                                             <span class="sr-only">: <?= $e($rowLabel) ?></span>
                                         </a>
-                                        <?php if ($inRoom): ?>
+                                        <?php if ($isRoom): ?>
                                             <?php /* In a room the song only leaves the room; the main list keeps it. */ ?>
                                             <form method="post" action="<?= $e(url('room_songs_remove')) ?>">
                                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">

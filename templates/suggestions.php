@@ -25,7 +25,7 @@ use Songwunsch\SuggestionRepository;
 $e       = static fn (?string $v): string => Format::e($v);
 $current = url('suggestions', ['q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
 $open    = (int) ($suggestionCount ?? count($rows));
-$inRoom  = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
+$isRoom  = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
 
 /** Field error as a hint below the input. */
 $fieldError = static function (string $field) use ($errors, $e): string {
@@ -51,7 +51,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
 <?php ob_start(); ?>
 <p>
     <?= $e(t('Missing a song? Name it here – the editors decide whether it joins the repertoire.')) ?>
-    <?php if ($inRoom): ?>
+    <?php if ($isRoom): ?>
         <?= $e(t('Suggested from this room, the song is offered here once it is in.')) ?>
     <?php endif; ?>
 </p>
@@ -121,7 +121,7 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                 <?php elseif ($canEdit): ?>
                     <?= $e(tn('{n} suggestion waiting.', '{n} suggestions waiting.', $open)) ?>
                     <?= $e(t('Adopt puts the song on the list and onto the wish list once you have added what is missing; Delete drops the suggestion.')) ?>
-                    <?php if ($inRoom): ?>
+                    <?php if ($isRoom): ?>
                         <?= $e(t('Every room keeps its own suggestions; the adopted song is offered in this room as well.')) ?>
                     <?php endif; ?>
                 <?php else: ?>

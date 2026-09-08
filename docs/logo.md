@@ -10,46 +10,47 @@ the room.
 
 Logos are managed under *Administration → Logos* (`/admin/logos`, admins
 only). The page lists every logo ever uploaded, newest first, with a preview
-at the header's size. The list is paged like the other lists. One logo is
-*live*, or none. With none, the word mark shows. The word mark heads the
-list on its first page as the choice “no logo”.
+at the header's size, and is paged like the other lists.
 
-A new upload goes live right away unless the box *Switch it live right away*
-is unticked. Every row offers *Delete* (a bin icon, like in every list);
+Above the list stand two links, *Dark design* and *Light design*: **the page
+shows one design at a time**, and everything below belongs to the one that is
+marked. A sentence under the links says what that design shows right now, so
+each row needs no more than *Switch live* and, where it is live, the tag
+*live*. Every row also offers *Delete* (a bin icon, like in every list);
 deleting a live logo makes the header fall back to what it showed before.
 
-The id of the live logo is kept in the `settings` table under `logo_id`. No
-entry, or `0`, means the word mark.
+A new upload goes live right away unless the box *Switch it live right away*
+is unticked – live in the design one uploaded from, and the message says
+which that was.
 
 ## One logo per design
 
 Pale lettering drawn for the dark ground disappears on a white one, so there
 are two slots: one logo for the dark design and, for operators who have a
-second version, one for the light design (see
-[Interface](interface.md) for the designs themselves).
+second version, one for the light design (see [Interface](interface.md) for
+the designs themselves).
 
-Each logo row therefore offers two buttons instead of one, *Dark* and
-*Light*, and carries a tag where it is live:
+**Dark design.** One logo is live, or none. With none, the word mark shows.
+The word mark heads the list on its first page as the choice “no logo” – and
+only here, because it is not one choice per design but the absence of a logo
+altogether. Switching to it therefore clears the light slot as well.
 
-| Tag | Meaning |
-| --- | --- |
-| *live* | both designs show this logo |
-| *live · dark* | the dark design shows it, the light one shows another |
-| *live · light* | the light design shows it, the dark one shows another |
+**Light design.** Its slot may stay empty, and then it shows the dark
+design's logo – which is what an existing site does without anyone touching
+anything. The sentence above the list names that logo. Switching one live
+here gives the light design its own, and *Same as dark*, next to that
+sentence, empties the slot again. While no logo is live at all, this design
+has nothing to offer and the sentence says to set a dark logo first.
 
-While the light slot is empty both designs show the same logo, which is what
-an existing site does without anyone touching anything. Once a logo is live
-for the light design, its row also offers *Same as dark*, which empties the
-slot again.
+The ids are kept in the `settings` table: `logo_id` for the dark design – no
+entry, or `0`, means the word mark – and `logo_id_light` for the light one.
+**No entry there means the light design shows `logo_id`**; `0` never stands
+in that row.
 
-The word mark is one choice, not one per design: switching to it clears the
-light slot as well, because with no logo at all there is nothing for a second
-version to differ from. So the light slot's buttons only appear while a logo
-is live.
-
-The light design's logo is kept under `logo_id_light`. **No entry means the
-light design shows `logo_id`** – that is what “same as dark” looks like in the
-table; `0` never stands there.
+Why one design at a time: two buttons per row named after the designs said
+nothing about what pressing them would do, and the row also had to carry a
+reset whose meaning changed with the state. Naming the design once, in a
+sentence above the list, gives every row a single verb back.
 
 ### How both reach the page
 

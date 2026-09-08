@@ -165,7 +165,14 @@ variables are `$__file` and `$__vars`. The front controller used to
 `extract()` its view array in its own scope, where a local with the same
 name as a view value quietly won over it -- a trap that had bitten the
 footer and the room-songs page more than once. There is no scope left to
-collide with.
+collide with from the outside.
+
+Inside, one direction is still open: `layout.php` renders the page template
+with a plain `require`, in its own scope, which is how a template hands its
+help text up through `$help`. A local variable in a page template therefore
+overwrites the shell value of the same name for everything the header and
+footer print after it -- a `$live` or a `$here` in a page template takes the
+page down. Name locals in a template so they cannot collide.
 
 ## Live updates
 
