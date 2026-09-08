@@ -61,10 +61,12 @@ final class AdminController extends Controller
             'pageNo'   => $result['page'],
             'pages'    => $result['pages'],
             'activeId' => (int) $this->settings->get(Settings::LOGO_ID, '0'),
-            // The light design's own logo, or 0 while it follows the one
-            // above -- no entry at all is what "follows" looks like.
-            'lightId'  => (int) $this->settings->get(Settings::LOGO_ID_LIGHT, '0'),
-            'design'   => $design,
+            // What the light design shows: an id, 0 for the word mark, and
+            // -- when there is no entry at all -- whatever the dark design
+            // shows. The two zeroes are not the same thing, hence the flag.
+            'lightId'      => (int) $this->settings->get(Settings::LOGO_ID_LIGHT, '0'),
+            'lightFollows' => $this->settings->get(Settings::LOGO_ID_LIGHT) === null,
+            'design'       => $design,
         ]);
     }
 
@@ -83,12 +85,9 @@ final class AdminController extends Controller
 
         $newId = $this->uploads->add(Uploads::LOGO, $check);
         if ($request->post('activate') === '1') {
-            // Live in the design the page was showing. The light slot only
-            // means something once a logo is live at all, so the very first
-            // upload goes to the dark design whichever page it came from --
-            // and the message says which design got it.
-            $light = $request->post('scheme') === Theme::LIGHT
-                && (int) $this->settings->get(Settings::LOGO_ID, '0') > 0;
+            // Live in the design the page was showing, and the message says
+            // which one that was.
+            $light = $request->post('scheme') === Theme::LIGHT;
             $this->settings->set(
                 $light ? Settings::LOGO_ID_LIGHT : Settings::LOGO_ID,
                 (string) $newId,
@@ -105,10 +104,11 @@ final class AdminController extends Controller
     }
 
     /**
-     * One logo goes live -- for the dark design or the light one, whichever
-     * the form names in `scheme`. Id 0 means the neutral choice of that
-     * slot: the word mark for the dark design, and for the light one "the
-     * same as the dark design", which is no entry at all.
+     * One logo -- or the word mark -- goes live for the design the form
+     * names in `scheme`. Id 0 is the word mark, in either design; the two
+     * designs are set independently, so putting a logo up in the dark one
+     * leaves a light one that was set to the word mark exactly there.
+     * Following the dark design again is its own action, below.
      */
     public function logoActivate(Request $request): Response
     {
@@ -120,26 +120,30 @@ final class AdminController extends Controller
             return $this->redirectTo($this->back($this->url('logos')));
         }
 
-        if (!$light) {
-            $this->settings->set(Settings::LOGO_ID, (string) $id);
-            if ($id === 0) {
-                // No logo at all: a logo kept for the light design alone
-                // would be a setting with nothing behind it.
-                $this->settings->delete(Settings::LOGO_ID_LIGHT);
-            }
-            $message = $id > 0
-                ? t('The dark design shows this logo now.')
-                : t('The header shows the word mark again.');
-        } elseif ($id > 0) {
-            $this->settings->set(Settings::LOGO_ID_LIGHT, (string) $id);
-            $message = t('The light design shows this logo now.');
-        } else {
-            $this->settings->delete(Settings::LOGO_ID_LIGHT);
-            $message = t('The light design shows the same logo as the dark one again.');
-        }
-
+        $this->settings->set(
+            $light ? Settings::LOGO_ID_LIGHT : Settings::LOGO_ID,
+            (string) $id,
+        );
         $this->settings->increment(Ui::REVISION_KEY); // the header changed for everyone
-        $this->flash('ok', $message);
+        $this->flash('ok', match (true) {
+            $id > 0 && $light  => t('The light design shows this logo now.'),
+            $id > 0            => t('The dark design shows this logo now.'),
+            $light             => t('The light design shows the word mark now.'),
+            default            => t('The dark design shows the word mark now.'),
+        });
+
+        return $this->redirectTo($this->back($this->url('logos')));
+    }
+
+    /**
+     * The light design follows the dark one again: its entry goes away, so
+     * whatever the dark design shows -- now and later -- is what it shows.
+     */
+    public function logoLightInherit(Request $request): Response
+    {
+        $this->settings->delete(Settings::LOGO_ID_LIGHT);
+        $this->settings->increment(Ui::REVISION_KEY); // the header changed for everyone
+        $this->flash('ok', t('The light design shows the same as the dark one again.'));
 
         return $this->redirectTo($this->back($this->url('logos')));
     }

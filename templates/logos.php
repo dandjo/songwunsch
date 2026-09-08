@@ -25,9 +25,10 @@ use Songwunsch\Uploads;
  * @var int $total       all uploaded logos
  * @var int $pageNo
  * @var int $pages
- * @var int $activeId    id of the logo the dark design shows, 0 = word mark
- * @var int $lightId     id of the logo the light design shows, 0 = the same as the dark one
- * @var string $design   the design being looked at, Theme::DARK or Theme::LIGHT
+ * @var int $activeId      id of the logo the dark design shows, 0 = word mark
+ * @var int $lightId       the same for the light design, 0 = word mark -- only when it has an entry of its own
+ * @var bool $lightFollows the light design has no entry: it shows whatever the dark one shows
+ * @var string $design     the design being looked at, Theme::DARK or Theme::LIGHT
  * @var string $csrf
  */
 
@@ -41,12 +42,11 @@ $kb      = static fn (int $bytes): int => max(1, (int) round($bytes / 1024));
 // $here or $live here would overwrite the address and the poll tokens the
 // header prints afterwards.
 $onLight = $design === Theme::LIGHT;
-// The slot this page is looking at: which logo fills it, and whether it can
-// be filled at all. The light slot only means something while a logo is
-// live -- with the word mark up front there is nothing for a second version
-// to differ from, and the light entry is cleared with it (AdminController).
-$slotId   = $onLight ? $lightId : $activeId;
-$canSwitch = !$onLight || $activeId > 0;
+// What this design shows: an id, or 0 for the word mark. A light design
+// that follows the dark one has nothing of its own -- no row is marked
+// then, and the sentence above the list says what it inherits.
+$slotId  = $onLight ? $lightId : $activeId;
+$inherits = $onLight && $lightFollows;
 // Every address on this page keeps the design, so switching, deleting and
 // paging all come back to the same context.
 $pageUrl = static fn (int $page) => url('logos', [
@@ -125,19 +125,24 @@ $current = $pageUrl($pageNo);
                  the list. */ ?>
         <div class="logo-state">
             <?php if (!$onLight): ?>
-                <p class="field__hint"><?= $e(t('The dark design – what a visitor sees unless they switch. Switch a logo live below, or the word mark, and then no logo shows at all.')) ?></p>
-            <?php elseif (!$canSwitch): ?>
-                <p class="field__hint"><?= $e(t('No logo is live: the word mark stands in both designs. Switch a logo live for the dark design first – then the light one can have its own.')) ?></p>
-            <?php elseif ($slotId === 0): ?>
-                <p class="field__hint"><?= $e(t('The light design shows the same logo as the dark one ({logo}). Switch one live below to give it its own.', [
-                    'logo' => t('Logo {id}', ['id' => $activeId]),
-                ])) ?></p>
+                <p class="field__hint"><?= $e(t('The dark design – what a visitor sees unless they switch. Choose a logo below, or the word mark, and then no logo shows at all.')) ?></p>
+            <?php elseif ($inherits): ?>
+                <?php /* Nothing of its own: it shows what the dark design shows,
+                         named here so no row has to carry a second marker. */ ?>
+                <p class="field__hint"><?= $e($activeId > 0
+                    ? t('The light design shows the same as the dark one – {logo} – and follows it when that changes. Choose below to give it something of its own.', [
+                        'logo' => t('Logo {id}', ['id' => $activeId]),
+                    ])
+                    : t('The light design shows the same as the dark one – the word mark – and follows it when that changes. Choose below to give it something of its own.')) ?></p>
             <?php else: ?>
-                <p class="field__hint"><?= $e(t('The light design shows a logo of its own.')) ?></p>
-                <form method="post" action="<?= $e(url('logo_activate', ['id' => 0])) ?>">
+                <p class="field__hint"><?= $e($slotId > 0
+                    ? t('The light design shows a logo of its own; a change to the dark design leaves it alone.')
+                    : t('The light design shows the word mark, whatever the dark design shows.')) ?></p>
+                <?php /* Back to following the dark design: its own address,
+                         because it removes the entry rather than setting it. */ ?>
+                <form method="post" action="<?= $e(url('logo_light_inherit')) ?>" class="logo-state__reset">
                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                     <input type="hidden" name="back" value="<?= $e($current) ?>">
-                    <input type="hidden" name="scheme" value="<?= $e(Theme::LIGHT) ?>">
                     <button type="submit" class="link-button"><?= icon('cross') ?><?= $e(t('Same as dark')) ?></button>
                 </form>
             <?php endif; ?>
@@ -145,24 +150,24 @@ $current = $pageUrl($pageNo);
 
         <ul class="logo-list" role="list">
             <?php /* The word mark heads the list as the choice "no logo" -- on the
-                     first page, and only in the dark design: it is not one choice
-                     per design but the absence of a logo altogether, and switching
-                     to it clears the light slot with it (AdminController). */ ?>
-            <?php if ($pageNo === 1 && !$onLight): ?>
-            <li class="logo-card<?= $activeId === 0 ? ' logo-card--active' : '' ?>">
+                     first page, and in either design: a logo drawn for the dark
+                     ground may be better left off the light one than shown pale
+                     on white. */ ?>
+            <?php if ($pageNo === 1): ?>
+            <li class="logo-card<?= !$inherits && $slotId === 0 ? ' logo-card--active' : '' ?>">
                 <div class="logo-card__preview"><span class="dome__brand">Song<span>wunsch</span></span></div>
                 <div class="logo-card__meta">
                     <strong><?= $e(t('Word mark')) ?></strong>
                     <span class="muted"><?= $e(t('The default without a logo, with the claim below.')) ?></span>
                 </div>
                 <div class="logo-card__actions">
-                    <?php if ($activeId === 0): ?>
+                    <?php if (!$inherits && $slotId === 0): ?>
                         <span class="tag tag--gold"><?= $e(t('live')) ?></span>
                     <?php else: ?>
                         <form method="post" action="<?= $e(url('logo_activate', ['id' => 0])) ?>">
                             <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                             <input type="hidden" name="back" value="<?= $e($current) ?>">
-                            <input type="hidden" name="scheme" value="<?= $e(Theme::DARK) ?>">
+                            <input type="hidden" name="scheme" value="<?= $e($design) ?>">
                             <button type="submit" class="link-button"><?= icon('check') ?><?= $e(t('Switch live')) ?></button>
                         </form>
                     <?php endif; ?>
@@ -176,7 +181,7 @@ $current = $pageUrl($pageNo);
                 // Live in the design on show. While the light slot is empty
                 // the dark logo stands there too, but the sentence above
                 // says so -- the list marks the slot, not the effect.
-                $isLive = $id === $slotId;
+                $isLive = !$inherits && $id === $slotId;
                 ?>
                 <li class="logo-card<?= $isLive ? ' logo-card--active' : '' ?>">
                     <div class="logo-card__preview">
@@ -193,13 +198,10 @@ $current = $pageUrl($pageNo);
                     </div>
                     <div class="logo-card__actions">
                         <?php /* One action, because the design is named above the
-                                 list and not on every button. A design that cannot
-                                 hold a logo yet (the light one while the word mark
-                                 is up) offers nothing -- the sentence above says
-                                 what to do first. */ ?>
+                                 list and not on every button. */ ?>
                         <?php if ($isLive): ?>
                             <span class="tag tag--gold"><?= $e(t('live')) ?></span>
-                        <?php elseif ($canSwitch): ?>
+                        <?php else: ?>
                             <form method="post" action="<?= $e(url('logo_activate', ['id' => $id])) ?>">
                                 <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                                 <input type="hidden" name="back" value="<?= $e($current) ?>">

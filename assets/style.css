@@ -378,13 +378,32 @@ code {
     font-size: .78rem;
     letter-spacing: .14em;
 }
+/* The brand zone: one head, or one per design when the two show different
+   things (templates/layout.php). Both variants are flex, so which head the
+   scheme shows is one property and not a pair of compound selectors -- the
+   word mark stacks its two lines in a column, a logo stands in a row with
+   the room's name beside it. */
+.dome__head {
+    display: flex;
+    min-width: 0;
+}
+.dome__head--brand { flex-direction: column; }
 /* The admin's logo instead of word mark and claim: as high as the two lines
    were (3rem), the width follows; the room's name, if any, stands beside it.
    On phones the logo shrinks a little with the header. */
-.dome__inner--logo {
-    display: flex;
+.dome__head--logo {
+    flex-direction: row;
     align-items: center;
     gap: .9rem;
+}
+/* Which design's head is on show. The scheme with no attribute of its own
+   is dark, the default, so the light head is the one that starts hidden. */
+.dome__head--light { display: none; }
+:root[data-theme="light"] .dome__head--dark { display: none; }
+:root[data-theme="light"] .dome__head--light { display: flex; }
+@media (prefers-color-scheme: light) {
+    :root[data-theme="system"] .dome__head--dark { display: none; }
+    :root[data-theme="system"] .dome__head--light { display: flex; }
 }
 .dome__brand--logo { flex: 0 1 auto; min-width: 0; line-height: 0; }
 .dome__brand--logo a { display: inline-block; max-width: 100%; }
@@ -396,19 +415,7 @@ code {
     object-fit: contain;
     object-position: left center;
 }
-/* Two logos, when the light design has one of its own: both are in the
-   page and the scheme picks one. The attribute on the root element decides
-   -- so the switch in the header changes the logo with it -- and the media
-   query answers for the visitor who follows their device. Without a second
-   logo neither class is used and only one image is in the page at all. */
-.dome__logo--light { display: none; }
-:root[data-theme="light"] .dome__logo--light { display: block; }
-:root[data-theme="light"] .dome__logo--dark { display: none; }
-@media (prefers-color-scheme: light) {
-    :root[data-theme="system"] .dome__logo--light { display: block; }
-    :root[data-theme="system"] .dome__logo--dark { display: none; }
-}
-.dome__inner--logo .dome__room { margin: 0; flex: 0 1 auto; }
+.dome__head--logo .dome__room { margin: 0; flex: 0 1 auto; }
 
 /* Name of the current room -- takes the claim's place inside a room. */
 .dome__room {
@@ -2135,6 +2142,9 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 }
 .logo-state .field__hint { margin: 0; }
 .logo-state form { margin: 0; }
+/* "Same as dark" belongs to the slot, not to the sentence: it sits at the
+   right edge, where the actions of the cards below it sit. */
+.logo-state__reset { margin-left: auto; }
 
 /* Logos page: one card per logo -- the preview on the header's dark ground
    at the header's size, the facts beside it, the switches at the right. The
@@ -2319,7 +2329,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 @media (max-width: 560px) {
     /* With a logo the header is short on room: on phones the room's name
        steps back -- the room switcher below still names the current room. */
-    .dome__inner--logo .dome__room { display: none; }
+    .dome__head--logo .dome__room { display: none; }
 
     /* The button stack keeps its place at the right edge of every card; the
        text cells shrink with an ellipsis. Only the wish list rearranges: a

@@ -1211,9 +1211,6 @@ msgstr "Activer"
 msgid "The default without a logo, with the claim below."
 msgstr "Le réglage par défaut sans logo, avec le slogan en dessous."
 
-msgid "The header shows the word mark again."
-msgstr "L’en-tête affiche de nouveau la marque."
-
 msgid "The logo has been deleted."
 msgstr "Le logo a été supprimé."
 
@@ -1834,9 +1831,6 @@ msgstr "Le thème sombre affiche désormais ce logo."
 msgid "The light design shows this logo now."
 msgstr "Le thème clair affiche désormais ce logo."
 
-msgid "The light design shows the same logo as the dark one again."
-msgstr "Le thème clair affiche de nouveau le même logo que le thème sombre."
-
 msgid "Delete the live logo? The header falls back to what it showed before."
 msgstr "Supprimer le logo actif ? L’en-tête revient à ce qu’il affichait auparavant."
 
@@ -1854,18 +1848,6 @@ msgstr "Thème sombre"
 msgid "Light design"
 msgstr "Thème clair"
 
-msgid "The dark design – what a visitor sees unless they switch. Switch a logo live below, or the word mark, and then no logo shows at all."
-msgstr "Le thème sombre – ce qu’un visiteur voit tant qu’il ne bascule pas. Activez un logo ci-dessous, ou le mot-symbole, et alors aucun logo n’apparaît."
-
-msgid "The light design shows the same logo as the dark one ({logo}). Switch one live below to give it its own."
-msgstr "Le thème clair affiche le même logo que le thème sombre ({logo}). Activez-en un ci-dessous pour lui en donner un propre."
-
-msgid "The light design shows a logo of its own."
-msgstr "Le thème clair affiche un logo qui lui est propre."
-
-msgid "No logo is live: the word mark stands in both designs. Switch a logo live for the dark design first – then the light one can have its own."
-msgstr "Aucun logo n’est actif : le mot-symbole figure dans les deux thèmes. Activez d’abord un logo pour le thème sombre – le thème clair pourra ensuite avoir le sien."
-
 msgid "The logo has been uploaded and is live in the dark design."
 msgstr "Le logo a été téléversé et est actif dans le thème sombre."
 
@@ -1874,3 +1856,29 @@ msgstr "Le logo a été téléversé et est actif dans le thème clair."
 
 msgid "Colours"
 msgstr "Couleurs"
+
+# ---- Logos: the word mark is a choice in either design ---------------------
+
+msgid "The dark design – what a visitor sees unless they switch. Choose a logo below, or the word mark, and then no logo shows at all."
+msgstr "Le thème sombre – ce qu’un visiteur voit tant qu’il ne bascule pas. Choisissez un logo ci-dessous, ou le mot-symbole, et alors aucun logo n’apparaît."
+
+msgid "The light design shows the same as the dark one – {logo} – and follows it when that changes. Choose below to give it something of its own."
+msgstr "Le thème clair affiche la même chose que le thème sombre – {logo} – et le suit lorsque cela change. Choisissez ci-dessous pour lui donner quelque chose qui lui soit propre."
+
+msgid "The light design shows the same as the dark one – the word mark – and follows it when that changes. Choose below to give it something of its own."
+msgstr "Le thème clair affiche la même chose que le thème sombre – le mot-symbole – et le suit lorsque cela change. Choisissez ci-dessous pour lui donner quelque chose qui lui soit propre."
+
+msgid "The light design shows a logo of its own; a change to the dark design leaves it alone."
+msgstr "Le thème clair affiche un logo qui lui est propre ; une modification du thème sombre ne l’affecte pas."
+
+msgid "The light design shows the word mark, whatever the dark design shows."
+msgstr "Le thème clair affiche le mot-symbole, quel que soit l’affichage du thème sombre."
+
+msgid "The light design shows the same as the dark one again."
+msgstr "Le thème clair affiche de nouveau la même chose que le thème sombre."
+
+msgid "The dark design shows the word mark now."
+msgstr "Le thème sombre affiche désormais le mot-symbole."
+
+msgid "The light design shows the word mark now."
+msgstr "Le thème clair affiche désormais le mot-symbole."

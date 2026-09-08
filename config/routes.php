@@ -170,6 +170,10 @@ return [
     // Id 0 activates no logo at all: the word mark comes back.
     Route::post('logo_activate', '/admin/logos/{id}/activate', [AdminController::class, 'logoActivate'])
         ->requirements(['id' => $idOrNone]),
+    // Back to "whatever the dark design shows": the entry goes away, and
+    // an address of its own says that better than an id could.
+    Route::post('logo_light_inherit', '/admin/logos/light/inherit', [AdminController::class, 'logoLightInherit'])
+        ->page('logos'),
     Route::post('logo_delete', '/admin/logos/{id}/delete', [AdminController::class, 'logoDelete'])
         ->requirements(['id' => $id]),
 

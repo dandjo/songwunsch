@@ -25,27 +25,37 @@ which that was.
 
 ## One logo per design
 
-Pale lettering drawn for the dark ground disappears on a white one, so there
-are two slots: one logo for the dark design and, for operators who have a
-second version, one for the light design (see [Interface](interface.md) for
-the designs themselves).
+Pale lettering drawn for the dark ground disappears on a white one, so each
+design has a choice of its own: a logo, or the word mark (see
+[Interface](interface.md) for the designs themselves). An operator with a
+second version of their logo puts it up for the light design; one without
+can leave the light design at the word mark rather than show a pale logo on
+white.
 
-**Dark design.** One logo is live, or none. With none, the word mark shows.
-The word mark heads the list on its first page as the choice “no logo” – and
-only here, because it is not one choice per design but the absence of a logo
-altogether. Switching to it therefore clears the light slot as well.
+**Dark design.** A logo is live, or the word mark. That is what a visitor
+sees unless they switch.
 
-**Light design.** Its slot may stay empty, and then it shows the dark
-design's logo – which is what an existing site does without anyone touching
-anything. The sentence above the list names that logo. Switching one live
-here gives the light design its own, and *Same as dark*, next to that
-sentence, empties the slot again. While no logo is live at all, this design
-has nothing to offer and the sentence says to set a dark logo first.
+**Light design.** Three states, and the difference between two of them is
+the point:
 
-The ids are kept in the `settings` table: `logo_id` for the dark design – no
-entry, or `0`, means the word mark – and `logo_id_light` for the light one.
-**No entry there means the light design shows `logo_id`**; `0` never stands
-in that row.
+| State | What it means |
+| --- | --- |
+| *follows the dark design* | it shows whatever the dark design shows, **now and later** – a logo that goes live for the dark design goes live here with it |
+| a logo of its own | that logo, and a change to the dark design leaves it alone |
+| the word mark | the word mark, whatever the dark design shows |
+
+A fresh site follows, which is why an existing one looks unchanged. Choosing
+anything in the light design – a logo *or* the word mark – takes it out of
+following, and **from then on the dark design's changes stay out of it**.
+*Same as dark*, at the right of the sentence above the list, puts it back to
+following.
+
+The two designs are otherwise independent: putting a logo up for the dark
+design never reaches into the light one's own choice.
+
+The `settings` table holds `logo_id` for the dark design – no entry, or `0`,
+means the word mark – and `logo_id_light` for the light one, where the three
+states are **no entry** (follows), `0` (the word mark) and an id.
 
 Why one design at a time: two buttons per row named after the designs said
 nothing about what pressing them would do, and the row also had to carry a
@@ -54,14 +64,16 @@ sentence above the list, gives every row a single verb back.
 
 ### How both reach the page
 
-When the two designs share a logo, one `<img>` is in the page, as before.
-When they differ, **both** are, and CSS shows the one the scheme calls for –
-by `data-theme` on the root element, plus the `prefers-color-scheme` media
-query for a visitor who follows their device. That is deliberate: the switch
-in the header changes the design in the browser without asking the server
-again, and a logo that had not been sent could not follow. Only the site that
-uses two logos pays for the second image, and it is cached for a year
-(below).
+While the two designs show the same thing, the header carries one brand
+block, as it always did. When they differ it carries **both** – each one a
+logo, or the word mark with the claim under it – and CSS shows the one the
+scheme calls for: by `data-theme` on the root element, plus the
+`prefers-color-scheme` media query for a visitor who follows their device.
+
+That is deliberate. The switch in the header changes the design in the
+browser without asking the server again, so anything that had not been sent
+could not follow. Only a site whose designs differ pays for the second
+image, and it is cached for a year (below).
 
 ## What happens to an uploaded image
 

@@ -39,7 +39,8 @@ use Songwunsch\Translator;
 /** @var string $theme  the colour scheme this page is drawn in: 'dark', 'light' or 'system' (Theme) */
 /** @var string $colorsCss colour overrides the admins set under Interface, see Colors; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
-/** @var array{id:int,mime:string,width:?int,height:?int}|null $logoLight  the light design's own logo, null while it shows $logo */
+/** @var array{id:int,mime:string,width:?int,height:?int}|null $logoLight  the same for the light design */
+/** @var bool $logoSplit  do the two designs show different things? then both are rendered */
 
 $e      = static fn (?string $v): string => Format::e($v);
 $inRoom = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
@@ -121,46 +122,59 @@ if (trim(strip_tags($help)) === '') {
 
 <div class="cabinet">
     <header class="dome">
-        <div class="dome__inner<?= $logo !== null ? ' dome__inner--logo' : '' ?>">
-            <?php if ($logo !== null): ?>
-                <?php /* The admin's logo takes the place of word mark and claim; CSS
-                         scales it to the header's height, width and height keep the
-                         layout still while it loads. In a room the room's name stands
-                         beside it.
+        <?php /* The brand zone, once per design when the two show different
+                 things. Each block is a head of its own -- a logo, or the word
+                 mark with the claim under it -- and CSS shows the one the
+                 scheme calls for: the attribute on the root element decides,
+                 so the switch in the header changes it at once with no second
+                 request, and what was not sent could not follow. While both
+                 designs show the same (the usual case) there is one block and
+                 nothing is fetched twice.
 
-                         When the light design has a logo of its own, both are here
-                         and CSS shows the one the scheme calls for -- the attribute
-                         on the root element decides, so the switch in the header
-                         changes the logo at once, with no second request. While the
-                         two designs share a logo (the usual case) only one image is
-                         in the page and nothing is fetched twice. */ ?>
-                <?php
-                $logoImg = static function (array $file, string $scheme) use ($e): string {
-                    $size = $file['width'] !== null && $file['height'] !== null
-                        ? ' width="' . (int) $file['width'] . '" height="' . (int) $file['height'] . '"'
-                        : '';
+                 A logo takes the place of word mark and claim; CSS scales it
+                 to the header's height, its width and height keep the layout
+                 still while it loads. In a room the room's name stands beside
+                 it, and takes the claim's place otherwise. */ ?>
+        <div class="dome__inner">
+            <?php
+            $brandRoom = static function () use ($e, $room, $security): string {
+                $tag = (int) ($room['active'] ?? 1) === 0 && $security->can('rooms')
+                    ? ' <span class="tag">' . $e(t('archived')) . '</span>'
+                    : '';
 
-                    return '<img class="dome__logo' . ($scheme === '' ? '' : ' dome__logo--' . $scheme) . '"'
-                        . ' src="' . $e(url('logo', ['id' => $file['id']])) . '" alt="Songwunsch"' . $size . '>';
-                };
-                ?>
-                <p class="dome__brand dome__brand--logo">
-                    <a href="<?= $e(url('songs')) ?>"><?php
-                        if ($logoLight === null) {
-                            echo $logoImg($logo, '');
-                        } else {
-                            echo $logoImg($logo, 'dark'), $logoImg($logoLight, 'light');
-                        }
-                    ?></a>
-                </p>
-            <?php else: ?>
-                <p class="dome__brand"><a href="<?= $e(url('songs')) ?>">Song<span>wunsch</span></a></p>
-            <?php endif; ?>
-            <?php if ($inRoom): ?>
-                <p class="dome__room"><span class="sr-only"><?= $e(t('Room')) ?>: </span><?= $e((string) $room['name']) ?><?php if ((int) ($room['active'] ?? 1) === 0 && $security->can('rooms')): ?> <span class="tag"><?= $e(t('archived')) ?></span><?php endif; ?></p>
-            <?php elseif ($logo === null): ?>
-                <p class="dome__claim"><?= $e(t('Pick your song – we will play it')) ?></p>
-            <?php endif; ?>
+                return '<p class="dome__room"><span class="sr-only">' . $e(t('Room')) . ': </span>'
+                    . $e((string) $room['name']) . $tag . '</p>';
+            };
+            $logoImg = static function (array $file) use ($e): string {
+                $size = $file['width'] !== null && $file['height'] !== null
+                    ? ' width="' . (int) $file['width'] . '" height="' . (int) $file['height'] . '"'
+                    : '';
+
+                return '<img class="dome__logo" src="' . $e(url('logo', ['id' => $file['id']]))
+                    . '" alt="Songwunsch"' . $size . '>';
+            };
+            // One head, or one per design. The scheme class is what CSS
+            // switches on; without it the single head always shows.
+            $heads = $logoSplit
+                ? [['dark', $logo], ['light', $logoLight]]
+                : [['', $logo]];
+            ?>
+            <?php foreach ($heads as [$scheme, $file]): ?>
+                <div class="dome__head dome__head--<?= $file !== null ? 'logo' : 'brand' ?><?= $scheme === '' ? '' : ' dome__head--' . $e($scheme) ?>">
+                    <?php if ($file !== null): ?>
+                        <p class="dome__brand dome__brand--logo">
+                            <a href="<?= $e(url('songs')) ?>"><?= $logoImg($file) ?></a>
+                        </p>
+                    <?php else: ?>
+                        <p class="dome__brand"><a href="<?= $e(url('songs')) ?>">Song<span>wunsch</span></a></p>
+                    <?php endif; ?>
+                    <?php if ($inRoom): ?>
+                        <?= $brandRoom() ?>
+                    <?php elseif ($file === null): ?>
+                        <p class="dome__claim"><?= $e(t('Pick your song – we will play it')) ?></p>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
         </div>
 
         <nav class="nav" aria-label="<?= $e(t('Main navigation')) ?>">

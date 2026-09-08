@@ -124,8 +124,9 @@ final class ShellContext
             'footerLang' => '',    // the language that line is written in, '' when it is the interface language
             'footerPages' => [],   // the admins' pages the footer links, in order
             'colorsCss'  => '',    // colour overrides the admins set under Colours, '' = stylesheet defaults
-            'logo'       => null,  // the live header logo (Uploads)
-            'logoLight'  => null,  // the light design's own logo, null while it shows the one above
+            'logo'       => null,  // the header logo of the dark design (Uploads), null = the word mark
+            'logoLight'  => null,  // the same for the light design
+            'logoSplit'  => false, // do the two designs show different things?
         ];
 
         // The language switcher: the current address with ?lang=<code>.
@@ -240,17 +241,21 @@ final class ShellContext
             && $this->guestName->shouldAsk()
             && in_array($page, ['songs', 'wishes', 'suggestions', 'rooms'], true);
 
-        // The live logo takes the word mark's place in the header; a deleted
-        // one falls back to the word mark by itself. The light design may
-        // have a logo of its own -- pale lettering drawn for the dark ground
-        // vanishes on a white one -- and while it has none it shows the same.
-        // Both reach the layout when they differ, because the switch in the
-        // header changes the scheme in the browser without asking the server
-        // again (app.js): a logo that was not sent could not follow.
-        $logoId             = (int) $this->settings->get(Settings::LOGO_ID, '0');
-        $lightId            = (int) $this->settings->get(Settings::LOGO_ID_LIGHT, '0');
-        $shell['logo']      = $logoId > 0 ? $this->uploads->info($logoId) : null;
-        $shell['logoLight'] = $lightId > 0 && $lightId !== $logoId ? $this->uploads->info($lightId) : null;
+        // What the header shows, per design: a logo, or null for the word
+        // mark -- which is also where a deleted logo lands by itself. The
+        // light design may have a logo of its own (pale lettering drawn for
+        // the dark ground vanishes on a white one), or the word mark, or no
+        // entry at all, and then it shows whatever the dark design shows.
+        // Both designs reach the layout whenever they differ, because the
+        // switch in the header changes the scheme in the browser without
+        // asking the server again (app.js): what was not sent cannot follow.
+        $darkId  = (int) $this->settings->get(Settings::LOGO_ID, '0');
+        $lightAt = $this->settings->get(Settings::LOGO_ID_LIGHT);
+        $lightId = $lightAt === null ? $darkId : (int) $lightAt;
+
+        $shell['logo']      = $darkId > 0 ? $this->uploads->info($darkId) : null;
+        $shell['logoLight'] = $lightId > 0 ? $this->uploads->info($lightId) : null;
+        $shell['logoSplit'] = $lightId !== $darkId;
         // The colours set under Interface, as blocks over the stylesheet --
         // one per scheme, so the switch in the header keeps them, see
         // Colors::stylesheet().
