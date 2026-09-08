@@ -71,8 +71,23 @@ same custom properties, see the end of `assets/style.css`.
 
 The interface is dark. Every visitor may read it light instead: the sun in the
 header switches over, the crescent switches back. The choice is that visitor's
-own – it is kept in a cookie (`songwunsch_theme`, one year) and applies to
-every room and every page they open, on that device and in that browser.
+own and applies to every room and every page they open, on that device and in
+that browser.
+
+The cookie:
+
+| Property | Value |
+| --- | --- |
+| Name | `songwunsch_theme` |
+| Lifetime | one year |
+| Path | the same as the session cookie – the application's base path (see [Base path](base-path.md)) |
+| Flags | `HttpOnly`, `SameSite=Lax`, `Secure` when the site is served over HTTPS |
+| Content | the word `light` or the word `dark`, nothing else |
+
+It is written when the switch is used and never before. It holds no personal
+data, identifies nobody and is not read by anything but this application –
+the browser's own `prefers-color-scheme` is never looked at, so the cookie
+says nothing about the device either.
 
 Nobody is switched over without asking. `prefers-color-scheme` is deliberately
 not consulted: whoever says nothing keeps the dark interface the site has

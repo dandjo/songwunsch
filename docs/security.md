@@ -56,8 +56,11 @@
   | `songwunsch_name` | The name a guest gave for the wish list (at most 40 characters), see [The guest's name](guest-name.md) |
   | `songwunsch_room` | The machine name of the room chosen last, or `-` for the main room |
   | `songwunsch_rooms` | Up to five machine names of unlisted rooms a guest entered through their address |
+  | `songwunsch_theme` | `light` or `dark`, the colour scheme the visitor chose, see [Interface](interface.md) |
 
-  None of them holds anything but these values.
+  None of them holds anything but these values. None of them identifies a
+  visitor, and none is set before the visitor does something that needs it:
+  the scheme is written when the switch in the header is used, not on arrival.
 
 ## Forms and actions
 
