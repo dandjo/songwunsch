@@ -31,7 +31,7 @@ The table below names the **dark** defaults; the light ones stand under
 | Text | Text; the muted text is a step towards the background | `#f6f8f8` |
 
 The dark design: a near-black blue-grey ground with a pale blue for
-actions, a lighter blue-grey for tags and counters, coral for danger, an olive green for
+actions, a lighter blue-grey for tags and counters, coral for danger, a leaf green for
 success, and a cloud white for the text.
 
 Each area has a colour picker and a text field for the hex value, in each of
@@ -141,13 +141,13 @@ values:
 | Accent | `#2c3e50` |
 | Secondary | `#5b80a4` |
 | Danger | `#973227` |
-| Success | `#88b04b` |
+| Success | `#7db22e` |
 | Background | `#fbfcfe` |
 | Text | `#2c3e50` |
 
 The light design: a near-white ground with a white card lifted off it,
 the slate of the text doubling as the action colour, a steel blue for tags
-and counters, a deep red for danger and an olive green for success. The
+and counters, a deep red for danger and a leaf green for success. The
 softness lives in the tints – the veils behind notices, chips, row highlights
 and hover states – and in the pale frames.
 
