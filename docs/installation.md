@@ -71,9 +71,12 @@ the base path lands there; unknown addresses are answered with 404. Only
 PHP files, `config.php`, `sql/`, `lang/`, `tools/`, `templates/`, `src/` and
 the Markdown files (README, `docs/`) are blocked from outside (403).
 
-**One writable folder.** `assets/` should be writable for the user the web
-server runs PHP as. The application writes one file there, `assets/live.txt`,
-and rewrites it whenever anything changes; open pages ask the web server for
+**One writable folder.** `assets/state/` should be writable for the user the
+web server runs PHP as – that folder alone, and it holds exactly one file:
+`assets/state/live.txt`, which the application rewrites whenever anything
+changes. Its own `.htaccess` there refuses to serve anything but that one
+name, so the place the application writes into is as small a target as it can
+be made; open pages ask the web server for
 that file instead of asking PHP, which is what keeps the live updates cheap
 (see *Live updates* under [Usage](usage.md)). On ordinary hosting, where PHP
 runs as the account that owns the files, this is already the case and there
@@ -118,7 +121,7 @@ socket; for a sub-path put `/songliste` in front of every address:
 ```nginx
 root /var/www/html;
 
-location = /assets/live.txt {
+location = /assets/state/live.txt {
     # The live update's signal, rewritten on every change: never from a
     # cache without asking, see "Live updates" under Usage.
     add_header Cache-Control "no-cache";
@@ -187,8 +190,8 @@ tools/deploy.sh --no-bump  # without raising the version
 
 The sync runs with `--delete`: files that no longer exist locally disappear
 on the server as well. `config.php` is exempt – it is neither transferred
-nor deleted – and so is `assets/live.txt`, which the application writes on
-the server itself (see *Live updates* under [Usage](usage.md)). On a fresh host create it once from `config.example.php`, which
+nor deleted – and so is `assets/state/live.txt`, which the application writes
+on the server itself (see *Live updates* under [Usage](usage.md)). On a fresh host create it once from `config.example.php`, which
 is deployed; the message at the end of the script reminds you. Permissions
 are set to `755` for folders and `644` for files; some hosters reject
 group-writable files. Owner and group are not transferred. The files sit

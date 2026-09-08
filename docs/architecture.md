@@ -174,7 +174,7 @@ Unchanged in substance, and described in full under
 tokens and asks whether they moved on -- the head token for the header, the
 content token for a list, and only a list has one. Both are built in
 `LiveTokens`, which is also what the poll listener answers from. Before
-asking PHP at all, `app.js` fetches `assets/live.txt`, a static file the
+asking PHP at all, `app.js` fetches `assets/state/live.txt`, a static file the
 web server answers with a 304 when nothing changed.
 
 What to keep in mind when adding a feature:
@@ -186,7 +186,7 @@ What to keep in mind when adding a feature:
 * Put a value in the **head** token only if the header shows it, and in a
   **content** token only if that list shows it. Putting shell values into a
   content token throws away half-typed input on every save.
-* `assets/live.txt` is world-readable: it must stay an opaque value that
+* `assets/state/live.txt` is world-readable: it must stay an opaque value that
   says *something changed*, never what, where or when.
 
 ## Verification

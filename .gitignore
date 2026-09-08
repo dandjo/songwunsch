@@ -7,9 +7,11 @@
 .idea/
 
 # The live-update signal, written by the application itself (LiveSignal);
-# the temp file only shows up when a write was interrupted
-/assets/live.txt
-/assets/live.txt.*.tmp
+# the temp file only shows up when a write was interrupted. The folder itself
+# is under version control -- it carries the .htaccess that keeps everything
+# but this one name from being served.
+/assets/state/live.txt
+/assets/state/live.txt.*.tmp
 
 # Docker
 /.env

@@ -47,7 +47,7 @@ src/LiveTokens.php     The two tokens an open page polls with, and how often it 
 src/NumberSettings.php Whole-number settings under one prefix: defaults, ranges, validate, save (base of Limits and Ui)
 src/Limits.php         The limits on wishing and suggesting and the page size the admins set (Administration -> Limits)
 src/Ui.php             Message duration and live-update intervals the admins set (Administration -> Interface)
-src/LiveSignal.php     The live update's doorbell: assets/live.txt, rewritten on every change, polled instead of PHP
+src/LiveSignal.php     The live update's doorbell: assets/state/live.txt, rewritten on every change, polled instead of PHP
 src/Colors.php         The colours the admins set (Administration -> Interface): shades, the :root block
 src/GuestName.php      The guest's name for the wish list: cookie, tidying, first-visit question
 src/QrCode.php         QR codes of the room addresses, made here: encoding, Reed-Solomon, masks, SVG and PNG
@@ -69,6 +69,7 @@ src/PoFile.php         .po parser including the Plural-Forms interpreter
 
 templates/             layout, home, wishes, suggestions, song, users, user, rooms, room, room_songs, room_qr, login, settings, logos, ui, limits, pages, page_edit, page, footer, languages, name, _name_form, _room_switches, error, _sortbar, _pager
 assets/                style.css (dark interface), app.js, vendor/ckeditor5 (the page editor, see Pages and footer)
+assets/state/          The only folder the application writes into: the live signal, and its .htaccess serves nothing else
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)
 tools/hash.php         Create a password hash (CLI)
@@ -88,5 +89,5 @@ templates. Every template is rendered inside `layout.php`, which draws the
 header, the menus, the messages and the footer.
 
 Files that are not in the repository: `config.php` and `.env` (credentials,
-see `.gitignore`) and `assets/live.txt`, which the application writes itself
+see `.gitignore`) and `assets/state/live.txt`, which the application writes itself
 at runtime (`src/LiveSignal.php`).

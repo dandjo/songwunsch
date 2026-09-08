@@ -24,6 +24,11 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+      args:
+        # The group of the account that owns the bind-mounted files, so PHP
+        # in the container may write the live-update signal without anything
+        # being made world-writable. `id -g` on the host.
+        HOST_GID: ${HOST_GID:-1000}
     container_name: ${PROJECT_NAME}_web
     restart: unless-stopped
     depends_on:

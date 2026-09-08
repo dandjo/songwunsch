@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Songwunsch;
 
 /**
- * The doorbell for the live update: one tiny file, `assets/live.txt`, whose
+ * The doorbell for the live update: one tiny file, `assets/state/live.txt`, whose
  * content changes whenever anything in the `settings` table changes -- and
  * every change an open page cares about raises a counter there (the room's
  * open/closed switch, the catalogue, the wish lists, the suggestions; see
- * index.php). Open pages ask for this file instead of asking PHP.
+ * LiveTokens). Open pages ask for this file instead of asking PHP.
  *
  * Why: the application runs on shared hosting, where the account may use only
  * a handful of PHP processes at a time. A poll of `?poll=1` costs one of them
@@ -33,8 +33,21 @@ namespace Songwunsch;
  */
 final class LiveSignal
 {
-    /** Below the application's root, in the one folder the web server hands out itself (.htaccess). */
-    private const FILE = '/assets/live.txt';
+    /**
+     * Below the application's root, in a folder of its own inside the one
+     * the web server hands out itself (.htaccess).
+     *
+     * Its own folder because this is the single thing the application writes
+     * at runtime, and the place it writes to should be as narrow a target as
+     * possible: assets/state/ holds this file and nothing else, and its
+     * .htaccess refuses to serve anything but this name. On the server no
+     * permission has to be granted for it at all -- PHP runs as the account
+     * that owns the files; in the Docker stack the container's PHP is in the
+     * owning group (docker/Dockerfile), which is why nothing there needs to
+     * be world-writable either.
+     */
+    private const DIR  = '/assets/state';
+    private const FILE = self::DIR . '/live.txt';
 
     /** Exactly what touch() writes: 8 random bytes as hex. Anything else is ignored. */
     private const PATTERN = '/^[0-9a-f]{16}$/';
@@ -69,6 +82,12 @@ final class LiveSignal
     public static function touch(): void
     {
         $path = self::path();
+        // The folder travels with the deployment, but a host that lost it --
+        // an over-eager cleanup, a hand-made copy -- gets it back here
+        // rather than losing the doorbell for good.
+        if (!is_dir(dirname($path))) {
+            @mkdir(dirname($path), 0755, true);
+        }
         // The temp name carries random bytes, not just the process id: two
         // requests may share a process (a threaded server), and a leftover
         // from a crash must never block the next writer.

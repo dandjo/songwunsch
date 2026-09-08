@@ -68,18 +68,27 @@ uses its own self-signed certificate, and the browser shows a warning.
 `songwunsch`. The `web` service waits until the database answers its health
 check before it starts.
 
-**The writable `assets/`.** Apache in the container runs as `www-data`, while
-the mounted project folder belongs to the user on the host. So that the live
-update can write its signal file there (`assets/live.txt`, see *Live updates*
-under [Usage](usage.md)), give the folder write permission once:
+**The one writable folder.** The application writes a single file at
+runtime: the live update's signal, `assets/state/live.txt` (see *Live
+updates* under [Usage](usage.md)). On the server that needs no permission at
+all, because PHP runs as the account that owns the files. In the container
+Apache runs as `www-data`, while the mounted project folder belongs to the
+user on the host – so the image puts `www-data` into that user's group
+(`docker/Dockerfile`), and the group may write the folder already. Nothing is
+opened up for anyone else, and `assets/` itself stays read-only for the web
+server.
+
+The group comes from `HOST_GID` in the `.env`, and `1000` is right for a
+first user account on Linux. If `id -g` on your host says something else, put
+that number there and rebuild:
 
 ```bash
-chmod o+w assets
+docker compose build web && docker compose up -d web
 ```
 
-Without it nothing breaks – every poll then goes to PHP, which is what
-happened before the signal file existed – but the local stack no longer
-behaves like the server, where PHP runs as the account that owns the files.
+Without a writable folder nothing breaks – every poll then goes to PHP, which
+is what happened before the signal file existed – but the local stack no
+longer behaves like the server.
 
 **The `web` image** (`docker/Dockerfile`) adds the PHP extensions
 `pdo_mysql`, `opcache` and `gd` (with JPEG and WebP support, used to scale

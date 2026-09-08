@@ -1,0 +1,21 @@
+# Songwunsch -- the one folder the application writes into at runtime, and it
+# holds exactly one file: the live-update signal (live.txt, see
+# src/LiveSignal.php). Everything else is refused, whatever ends up here and
+# however it got here. The folder is separate from assets/ for that reason
+# alone: what is written into must be as small and as dumb a target as it can
+# be made.
+<FilesMatch ".*">
+    Require all denied
+</FilesMatch>
+<Files "live.txt">
+    Require all granted
+</Files>
+
+# Asked for every few seconds and never to be answered from a cache without
+# checking: "no-cache" still allows the 304 that makes it cheap, it only
+# forbids handing out a stored copy unchecked.
+<IfModule mod_headers.c>
+    <Files "live.txt">
+        Header set Cache-Control "no-cache"
+    </Files>
+</IfModule>

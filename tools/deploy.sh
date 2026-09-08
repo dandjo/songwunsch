@@ -79,8 +79,8 @@ rsync -rlptzv --delete $DRY \
     --exclude='/.idea/' \
     --exclude='/.claude/' \
     --exclude='/tools/deploy.sh' \
-    --exclude='/assets/live.txt' \
-    --exclude='/assets/live.txt.*.tmp' \
+    --exclude='/assets/state/live.txt' \
+    --exclude='/assets/state/live.txt.*.tmp' \
     --exclude='*.log' \
     --exclude='.DS_Store' \
     "$SRC/" "$HOST:$DIR/"

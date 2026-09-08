@@ -111,7 +111,7 @@ apart from any other change.
 ### What a page actually asks for
 
 An open page does not ask PHP whether something happened. It asks the web
-server for one small file, `assets/live.txt`, whose content the application
+server for one small file, `assets/state/live.txt`, whose content the application
 rewrites whenever anything in the `settings` table changes – and every change
 above raises a counter there. The web server hands that file out by itself:
 no PHP process, no database query, and because it carries an ETag, a page
