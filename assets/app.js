@@ -49,6 +49,18 @@
             }
         });
     });
+    // How the last interaction arrived. A soft navigation puts the focus back
+    // on the control that was used, which is what a keyboard needs: without it
+    // the next Tab would start over at the top of the page. A pointer needs
+    // nothing of the sort, and it is where the focus becomes visible: a
+    // browser that shows a focus ring for a control focused by script leaves
+    // the clicked button ringed until something else is clicked or the page is
+    // reloaded. A real page load after a click leaves the focus on the body,
+    // and that is what a click gets here too.
+    var lastInput = 'keyboard';
+    document.addEventListener('pointerdown', function () { lastInput = 'pointer'; }, true);
+    document.addEventListener('keydown', function () { lastInput = 'keyboard'; }, true);
+
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             popouts().forEach(function (details) {
@@ -908,7 +920,9 @@
             return { selector: selector, index: Array.prototype.indexOf.call(document.querySelectorAll(selector), element) };
         };
         var restore = function (mark) {
-            if (!mark) {
+            // A click or a tap keeps the focus where a page load would leave
+            // it. Only the keyboard gets it back (see lastInput above).
+            if (!mark || lastInput !== 'keyboard') {
                 return;
             }
             var element = null;
