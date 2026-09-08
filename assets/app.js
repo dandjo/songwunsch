@@ -525,11 +525,15 @@
         arm();
     }
 
-    // ---- Tabs over the languages of a page ---------------------------------
-    // The anchors become tabs (role=tab, arrow keys move between them), the
-    // fieldsets tabpanels; only the selected panel is shown. The tab to start
-    // on comes from the address (#lang-<code>), otherwise from the server
-    // (data-tabs-active: the language with an error, or the one the page has).
+    // ---- Tabs over several versions of the same fields ---------------------
+    // Used by the languages of a page and its footer line, and by the two
+    // colour sets under Interface: one form, one panel per version. The
+    // anchors become tabs (role=tab, arrow keys move between them), the
+    // fieldsets tabpanels; only the selected panel is shown. Without this the
+    // anchors are plain links to the panels, which all stand on the page.
+    // The tab to start on comes from the address (the panel's own id in the
+    // hash), otherwise from the server (data-tabs-active: the version whose
+    // fields need a look).
     function tabbed(box) {
         var tabs = Array.prototype.slice.call(box.querySelectorAll('[data-tab]'));
         var panels = Array.prototype.slice.call(box.querySelectorAll('[data-panel]'));
@@ -598,8 +602,10 @@
             }, true);
         });
 
-        var fromHash = location.hash.indexOf('#lang-') === 0 ? location.hash.slice(6) : '';
-        var start = panelOf(fromHash) ? fromHash : box.getAttribute('data-tabs-active');
+        // The panel the address names, whatever its id is called -- a click
+        // writes that id into the hash below, so a reload comes back to it.
+        var named = panels.find(function (panel) { return '#' + panel.id === location.hash; });
+        var start = named ? named.getAttribute('data-panel') : box.getAttribute('data-tabs-active');
         select(panelOf(start) ? start : tabs[0].getAttribute('data-tab'), false);
     }
 

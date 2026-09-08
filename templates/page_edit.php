@@ -93,7 +93,7 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
                  state: a tick where the page is saved in that language, a
                  dashed chip where it is not yet, an alert where its fields
                  need a look. */ ?>
-        <div class="langtabs" data-tabs data-tabs-active="<?= $e($activeLang) ?>">
+        <div class="tabbed" data-tabs data-tabs-active="<?= $e($activeLang) ?>">
             <nav class="tabs" aria-label="<?= $e(t('Languages')) ?>">
                 <ul role="list">
                     <?php foreach ($languages as $code => $name): ?>
@@ -114,13 +114,13 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
                 </ul>
             </nav>
             <?php if (isset($errors['versions'])): ?>
-                <p class="field__error langtabs__error" role="alert"><?= $e($errors['versions']) ?></p>
+                <p class="field__error tabbed__error" role="alert"><?= $e($errors['versions']) ?></p>
             <?php endif; ?>
 
             <?php foreach ($languages as $code => $name): ?>
                 <?php $htmlCode = preg_replace('/[^a-z0-9]/', '-', $code) ?? $code; ?>
-                <fieldset class="langpanel" id="lang-<?= $e($code) ?>" data-panel="<?= $e($code) ?>">
-                    <legend class="langpanel__legend"><span lang="<?= $e($code) ?>"><?= $e($name) ?></span></legend>
+                <fieldset class="tabpanel" id="lang-<?= $e($code) ?>" data-panel="<?= $e($code) ?>">
+                    <legend class="tabpanel__legend"><span lang="<?= $e($code) ?>"><?= $e($name) ?></span></legend>
 
                     <div class="field">
                         <label for="title-<?= $e($htmlCode) ?>"><?= $e(t('Title')) ?></label>
@@ -148,7 +148,7 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
                              is skipped for it. Only where the page has the
                              language; a page keeps at least one. */ ?>
                     <?php if (!$isNew && in_array($code, $saved, true) && count($saved) > 1): ?>
-                        <p class="langpanel__remove">
+                        <p class="tabpanel__remove">
                             <button type="submit" class="delete-button" name="remove_lang" value="<?= $e($code) ?>" formnovalidate
                                     data-confirm="<?= $e(t('Remove {language} from this page? Readers in {language} then get another language of the page. Changes not yet saved are lost.', ['language' => $name])) ?>">
                                 <?= icon('trash') ?><?= $e(t('Remove {language}', ['language' => $name])) ?>

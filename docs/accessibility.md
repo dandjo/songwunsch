@@ -21,7 +21,8 @@
   links, language order) has four buttons per row – to the top, one up, one
   down, to the bottom – as an alternative to drag & drop. The pop-out menus
   (`<details>`) close with Escape and give the focus back to their toggle.
-  The language tabs of the page form move with the arrow keys. `/` jumps into
+  Tabs — the languages of a page or footer line, the two colour sets under
+  *Interface* — move with the arrow keys. `/` jumps into
   the search field.
 * **Without JavaScript.** The menus, the room switcher, the language menu, the
   reorder buttons and the name dialog work as plain HTML. JavaScript only adds

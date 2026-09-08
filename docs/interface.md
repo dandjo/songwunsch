@@ -121,9 +121,17 @@ stored, so neither the cookie nor the site knows anything about the device.
 
 ### Two sets of six
 
-The colour table above is the **dark** set (`colors.<area>`). Below it stands
-the same table again for the **light** set (`colors.light.<area>`), with its
-own built-in values:
+The six areas come twice, one set per design, behind two tabs *Dark* and
+*Light* — the same tabs the page editor uses for its languages, and for the
+same reason: it is one form, so switching a tab keeps everything that is
+typed in and one *Save* stores both sets. Without JavaScript both sets stand
+on the page, each under its own heading. After a failed save the tabs open
+on the set that needs a look, and the other tab is marked if it needs one
+too.
+
+The colour table above is the **dark** set (`colors.<area>`). The **light**
+set (`colors.light.<area>`) holds the same six areas with its own built-in
+values:
 
 | Area | Light default |
 | --- | --- |

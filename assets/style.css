@@ -1004,12 +1004,12 @@ code {
 
 /* ---------- Tabs: the languages of a page's form ----------
    A row of links over one panel per language. Without JavaScript every panel
-   is on the page, headed by its language; app.js (is-tabbed) makes real tabs
+   is on the page, headed by its own name; app.js (is-tabbed) makes real tabs
    of the links and shows one panel at a time, the current tab underlined in
    gold. Each tab marks its state: a tick where the page is saved in that
    language, a dashed chip where it is not yet, an alert where its fields
    need a look. */
-.langtabs { margin: 1.5rem 0 0; }
+.tabbed { margin: 1.5rem 0 0; }
 .tabs { margin: 0 0 1.25rem; border-bottom: 1px solid var(--line); }
 .tabs ul { display: flex; flex-wrap: wrap; gap: .25rem; margin: 0; padding: 0; list-style: none; }
 .tabs__item {
@@ -1043,16 +1043,19 @@ code {
     font-size: .75rem;
     font-weight: 700;
 }
-.langtabs__error { margin: -.75rem 0 1rem; }
+.tabbed__error { margin: -.75rem 0 1rem; }
 /* The panels: plain fieldsets. Without tabs each is headed by its language
    and set apart from the next by a hairline; with tabs the heading is for
    screen readers only, the tab names the panel. */
-.langpanel { margin: 0; padding: 0; border: 0; min-width: 0; }
-.langpanel + .langpanel { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
-.langpanel__legend { margin: 0 0 1rem; padding: 0; font-size: 1.05rem; font-weight: 700; color: var(--text); }
-.is-tabbed .langpanel + .langpanel { margin-top: 0; padding-top: 0; border-top: 0; }
-.is-tabbed .langpanel__legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.langpanel__remove { margin: 0 0 1rem; display: flex; justify-content: flex-end; }
+.tabpanel { margin: 0; padding: 0; border: 0; min-width: 0; }
+.tabpanel + .tabpanel { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.tabpanel__legend { margin: 0 0 1rem; padding: 0; font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.is-tabbed .tabpanel + .tabpanel { margin-top: 0; padding-top: 0; border-top: 0; }
+.is-tabbed .tabpanel__legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tabpanel__remove { margin: 0 0 1rem; display: flex; justify-content: flex-end; }
+/* Inside a framed group (the colours under Interface) the tab bar starts
+   at the top of the box, so it needs no distance of its own. */
+.tabbed--flush { margin-top: 0; }
 
 /* ---------- Search ---------- */
 

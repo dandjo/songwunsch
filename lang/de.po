@@ -1875,3 +1875,6 @@ msgstr "Das Logo wurde hochgeladen und ist im dunklen Design live."
 
 msgid "The logo has been uploaded and is live in the light design."
 msgstr "Das Logo wurde hochgeladen und ist im hellen Design live."
+
+msgid "Colours"
+msgstr "Farben"

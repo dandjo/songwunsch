@@ -197,7 +197,7 @@ $across = static function (string $route, int $id, string $glyph, string $verb, 
             <legend><?= $e(t('Your own line')) ?></legend>
             <p class="field__hint" id="hint-footer-text"><?= $e(t('Shown below the page links on every screen – credits, a link to your site. Bold, italic and links; one tab per language, readers get their own or the first of the fallback order. Leave every tab empty for no line.')) ?></p>
 
-            <div class="langtabs" data-tabs data-tabs-active="<?= $e($activeLang) ?>">
+            <div class="tabbed" data-tabs data-tabs-active="<?= $e($activeLang) ?>">
                 <nav class="tabs" aria-label="<?= $e(t('Languages')) ?>">
                     <ul role="list">
                         <?php foreach ($languages as $code => $name): ?>
@@ -217,8 +217,8 @@ $across = static function (string $route, int $id, string $glyph, string $verb, 
 
                 <?php foreach ($languages as $code => $name): ?>
                     <?php $htmlCode = preg_replace('/[^a-z0-9]/', '-', $code) ?? $code; ?>
-                    <fieldset class="langpanel" id="lang-<?= $e($code) ?>" data-panel="<?= $e($code) ?>">
-                        <legend class="langpanel__legend"><span lang="<?= $e($code) ?>"><?= $e($name) ?></span></legend>
+                    <fieldset class="tabpanel" id="lang-<?= $e($code) ?>" data-panel="<?= $e($code) ?>">
+                        <legend class="tabpanel__legend"><span lang="<?= $e($code) ?>"><?= $e($name) ?></span></legend>
                         <div class="field field--editor field--editor--compact">
                             <label for="footer-text-<?= $e($htmlCode) ?>" class="sr-only"><?= $e(t('Your own line')) ?> (<span lang="<?= $e($code) ?>"><?= $e($name) ?></span>)</label>
                             <textarea id="footer-text-<?= $e($htmlCode) ?>" name="text[<?= $e($code) ?>]" rows="3" data-editor data-editor-compact

@@ -1871,3 +1871,6 @@ msgstr "Le logo a été téléversé et est actif dans le thème sombre."
 
 msgid "The logo has been uploaded and is live in the light design."
 msgstr "Le logo a été téléversé et est actif dans le thème clair."
+
+msgid "Colours"
+msgstr "Couleurs"

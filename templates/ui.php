@@ -57,6 +57,19 @@ $fieldError = static function (string $field) use ($errors, $e): string {
 };
 
 $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($errors[$field]) ? ' err-' . $field : '');
+
+// Which colour set has a field to look at, and therefore which tab is
+// marked and which panel the tabs open on. Dark unless only light failed.
+$schemeErrors = [];
+foreach ([true => Theme::DARK, false => Theme::LIGHT] as $dark => $scheme) {
+    $schemeErrors[$scheme] = false;
+    foreach (Colors::AREAS as $area) {
+        if (isset($errors[Colors::field($area, (bool) $dark)])) {
+            $schemeErrors[$scheme] = true;
+        }
+    }
+}
+$colorTab = !$schemeErrors[Theme::DARK] && $schemeErrors[Theme::LIGHT] ? Theme::LIGHT : Theme::DARK;
 ?>
 
 <div class="panel__head">
@@ -74,52 +87,76 @@ $describedBy = static fn (string $field): string => 'hint-' . $field . (isset($e
     <form method="post" action="<?= $e(url('ui_save')) ?>" class="login__form">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
-        <?php /* One group per scheme, six fields each. Two plain groups and
-                 not tabs: they work without JavaScript, print, and a screen
-                 reader walks them in order -- and the operator sees both
-                 sets at once, which is what one wants when matching them. */ ?>
-        <?php foreach ([[true, t('Colours – dark')], [false, t('Colours – light')]] as [$isDark, $legend]): ?>
-        <fieldset class="field field--group">
-            <legend><?= $e($legend) ?></legend>
-            <p class="field__hint">
-                <?= $isDark
-                    ? $e(t('The dark interface: gold for actions, violet for tags and counters, red for danger, green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it.'))
-                    : $e(t('The light interface, for visitors who choose it. The same six areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above.')) ?>
-                <?= $e(t('Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change – in the scheme the colour belongs to.')) ?>
-            </p>
-            <div class="field-pair">
-                <?php foreach (Colors::AREAS as $area): ?>
-                    <?php [$label, $where] = $areas[$area]; ?>
-                    <?php $field   = Colors::field($area, $isDark); ?>
-                    <?php $default = Colors::defaults($isDark)[$area]; ?>
-                    <?php $value   = (string) ($values[$field] ?? ''); ?>
-                    <div class="field">
-                        <label for="colors-<?= $e($field) ?>"><?= $e($label) ?></label>
-                        <?php /* The picker and the "Default" button are rendered hidden and
-                                 appear with JavaScript (app.js); without it the hex field
-                                 stands alone and does the job. */ ?>
-                        <div class="colour" data-colour>
-                            <input type="color" value="<?= $e(Colors::parse($value) !== null ? $value : $default) ?>" hidden
-                                   data-default="<?= $e($default) ?>"
-                                   aria-label="<?= $e(t('Pick the colour: {area}', ['area' => $label])) ?>">
-                            <input type="text" id="colors-<?= $e($field) ?>" name="<?= $e($field) ?>" value="<?= $e($value) ?>"
-                                   placeholder="<?= $e($default) ?>" maxlength="7" autocomplete="off" spellcheck="false"
-                                   pattern="#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})"
-                                   aria-describedby="<?= $e($describedBy($field)) ?>"<?= isset($errors[$field]) ? ' aria-invalid="true"' : '' ?>>
-                            <button type="button" class="colour__reset" hidden data-colour-reset>
-                                <?= $e(t('Default')) ?><span class="sr-only">: <?= $e($label) ?></span>
-                            </button>
+        <?php /* One panel per scheme, six fields each, behind a row of tabs --
+                 the same component the page editor uses for its languages and
+                 the footer for its lines (app.js), because it is the same
+                 shape: one form, one panel per version of the same fields.
+                 Not the Logos page's kind of tabs: those navigate, and here a
+                 navigation would throw away what is half typed in.
+
+                 Without JavaScript both panels stand on the page, each headed
+                 by its scheme -- which is what this looked like before the
+                 tabs, so nothing is lost. The tabs start on the scheme whose
+                 fields need a look after a failed save. */ ?>
+        <div class="field field--group">
+        <h2 class="field__legend"><?= $e(t('Colours')) ?></h2>
+        <div class="tabbed tabbed--flush" data-tabs data-tabs-active="<?= $e($colorTab) ?>">
+            <nav class="tabs" aria-label="<?= $e(t('Colours')) ?>">
+                <ul role="list">
+                    <?php foreach ([Theme::DARK => t('Dark'), Theme::LIGHT => t('Light')] as $scheme => $label): ?>
+                        <?php $flawed = $schemeErrors[$scheme]; ?>
+                        <li>
+                            <a href="#colorset-<?= $e($scheme) ?>" class="tabs__item<?= $flawed ? ' has-error' : '' ?>" data-tab="<?= $e($scheme) ?>">
+                                <?= $e($label) ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </nav>
+            <?php foreach ([[true, Theme::DARK, t('Colours – dark')], [false, Theme::LIGHT, t('Colours – light')]] as [$isDark, $scheme, $legend]): ?>
+            <fieldset class="tabpanel" id="colorset-<?= $e($scheme) ?>" data-panel="<?= $e($scheme) ?>">
+                <legend class="tabpanel__legend"><?= $e($legend) ?></legend>
+                <p class="field__hint">
+                    <?= $isDark
+                        ? $e(t('The dark interface: gold for actions, violet for tags and counters, red for danger, green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it.'))
+                        : $e(t('The light interface, for visitors who choose it. The same six areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above.')) ?>
+                    <?= $e(t('Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change – in the scheme the colour belongs to.')) ?>
+                </p>
+                <div class="field-pair">
+                    <?php foreach (Colors::AREAS as $area): ?>
+                        <?php [$label, $where] = $areas[$area]; ?>
+                        <?php $field   = Colors::field($area, $isDark); ?>
+                        <?php $default = Colors::defaults($isDark)[$area]; ?>
+                        <?php $value   = (string) ($values[$field] ?? ''); ?>
+                        <div class="field">
+                            <label for="colors-<?= $e($field) ?>"><?= $e($label) ?></label>
+                            <?php /* The picker and the "Default" button are rendered hidden and
+                                     appear with JavaScript (app.js); without it the hex field
+                                     stands alone and does the job. */ ?>
+                            <div class="colour" data-colour>
+                                <input type="color" value="<?= $e(Colors::parse($value) !== null ? $value : $default) ?>" hidden
+                                       data-default="<?= $e($default) ?>"
+                                       aria-label="<?= $e(t('Pick the colour: {area}', ['area' => $label])) ?>">
+                                <input type="text" id="colors-<?= $e($field) ?>" name="<?= $e($field) ?>" value="<?= $e($value) ?>"
+                                       placeholder="<?= $e($default) ?>" maxlength="7" autocomplete="off" spellcheck="false"
+                                       pattern="#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})"
+                                       aria-describedby="<?= $e($describedBy($field)) ?>"<?= isset($errors[$field]) ? ' aria-invalid="true"' : '' ?>>
+                                <button type="button" class="colour__reset" hidden data-colour-reset>
+                                    <?= $e(t('Default')) ?><span class="sr-only">: <?= $e($label) ?></span>
+                                </button>
+                            </div>
+                            <p class="field__hint" id="hint-<?= $e($field) ?>">
+                                <?= $e($where) ?>
+                                <?= $e(t('Built-in: {colour}', ['colour' => $default])) ?>
+                            </p>
+                            <?= $fieldError($field) ?>
                         </div>
-                        <p class="field__hint" id="hint-<?= $e($field) ?>">
-                            <?= $e($where) ?>
-                            <?= $e(t('Built-in: {colour}', ['colour' => $default])) ?>
-                        </p>
-                        <?= $fieldError($field) ?>
-                    </div>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
             </div>
         </fieldset>
         <?php endforeach; ?>
+        </div>
+        </div>
 
         <?php /* Which scheme someone gets who never used the switch. "Follow
                  my device" hands the decision to the browser's own setting
