@@ -3,24 +3,20 @@
 declare(strict_types=1);
 
 /**
- * Create the tables up front and set up the first admin -- the same
- * routines the application runs itself, just without a web server -- and
- * add the indexes the table definitions declare but the live tables lack
- * (an index added in a later version; the application itself never alters
- * an existing table):
+ * Create the tables up front and set up the first admin -- the same routines
+ * the application runs itself, just without a web server:
  *
  *   php tools/install.php
  *   docker compose exec web php tools/install.php
  *
  * Reads config.php (or the environment variables) like the application does.
- * Exit code 0 when every table exists or has been created and every index
- * is in place. Safe to run again at any time.
+ * Exit code 0 when every table exists or has been created. Safe to run again
+ * at any time. Required where the database account may not create tables
+ * (config.php `schema_ddl`), useful everywhere else.
  */
 
-use Songwunsch\Colors;
 use Songwunsch\Database;
 use Songwunsch\Schema;
-use Songwunsch\Settings;
 use Songwunsch\UserRepository;
 
 if (PHP_SAPI !== 'cli') {
@@ -43,15 +39,6 @@ try {
     $db      = new Database($config['db']);
     $schema  = new Schema($db);
     $created = $schema->ensure();
-    // The unique keys on the wishes and the suggestions cannot go onto a
-    // table that still holds rows they would refuse, so the duplicates an
-    // older installation may carry are folded first -- the way the
-    // application has always meant them (Schema::foldDuplicates).
-    $folded  = $schema->foldDuplicates();
-    // `accent` used to mean what `primary` means now; move it before the
-    // name is read with its new meaning (Colors::migrateAccentToPrimary).
-    $movedColors = Colors::migrateAccentToPrimary(new Settings($db));
-    $indexed = $schema->addIndexes();
     $seeded  = (new UserRepository($db))->ensureAdmin($config['auth']);
 } catch (Throwable $e) {
     fwrite(STDERR, 'Error: ' . $e->getMessage() . "\n");
@@ -61,15 +48,6 @@ try {
 echo $created === []
     ? "All tables present.\n"
     : 'Created: ' . implode(', ', $created) . "\n";
-echo $movedColors === []
-    ? "Colour settings are current.\n"
-    : 'Moved to the new name: ' . implode(', ', $movedColors) . "\n";
-foreach ($folded as $table => $rows) {
-    printf("Folded %d duplicate row(s) in %s.\n", $rows, $table);
-}
-echo $indexed === []
-    ? "All indexes present.\n"
-    : 'Indexes added: ' . implode(', ', $indexed) . "\n";
 echo $seeded
     ? 'First admin "' . $config['auth']['user'] . "\" created from config.php.\n"
     : "Users present, no first admin needed.\n";

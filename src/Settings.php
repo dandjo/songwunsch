@@ -34,12 +34,9 @@ final class Settings
      * The operator's own footer line (credits, a link), one entry per
      * language below this prefix ('footer_html.de'), HTML reduced by
      * Html::clean(); a language without an entry falls back like a page
-     * (PageRepository). FOOTER_HTML is the key of the one line before the
-     * languages -- read as long as no language has a line, dropped on the
-     * next save.
+     * (PageRepository).
      */
     public const FOOTER_HTML_PREFIX = 'footer_html.';
-    public const FOOTER_HTML        = 'footer_html';
 
     /** What a user can switch the delete confirmation off for -- each an area of Security::can(). */
     public const CONFIRM_DELETE = ['songs', 'suggestions', 'wishes', 'rooms'];

@@ -41,20 +41,4 @@ final class Ui extends NumberSettings
         'poll_room_sec'        => [10, 0, 300], // ... of the room's state (closed or open) and the catalogue (rooms and songs): the song list and the list of rooms, the header everywhere else
     ];
 
-    /** The message duration lived under the limits until it moved here. */
-    protected function legacy(): array
-    {
-        $old = $this->settings->get(Limits::PREFIX . 'toast_sec');
-
-        return $old === null ? [] : ['toast_sec' => $old];
-    }
-
-    /**
-     * @param array<string,int> $values  from validate()
-     */
-    public function save(array $values): void
-    {
-        parent::save($values);
-        $this->settings->delete(Limits::PREFIX . 'toast_sec');
-    }
 }

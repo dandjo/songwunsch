@@ -264,35 +264,6 @@ final class Colors
         $settings->set(self::OWN_KEY, (string) json_encode($palette));
     }
 
-    /**
-     * Move what an installation stored as `accent` to `primary`.
-     *
-     * Until the interface grew its third voice, `accent` was what `primary`
-     * is now -- the colour of the buttons and links -- and `accent` is now
-     * the tags and the counters. An installation that kept a colour under
-     * the old name would therefore have it land in the wrong place, quietly.
-     * This moves it once and takes the old row away; run from
-     * tools/install.php and safe to run again, because there is nothing left
-     * to move the second time.
-     *
-     * @return array<int,string> the keys that were moved
-     */
-    public static function migrateAccentToPrimary(Settings $settings): array
-    {
-        $moved = [];
-        foreach ([self::PREFIX, self::PREFIX_LIGHT] as $prefix) {
-            $stored = $settings->withPrefix($prefix);
-            if (!isset($stored['accent']) || isset($stored['primary'])) {
-                continue;
-            }
-            $settings->set($prefix . 'primary', (string) $stored['accent']);
-            $settings->delete($prefix . 'accent');
-            $moved[] = $prefix . 'accent';
-        }
-
-        return $moved;
-    }
-
     /** The built-in colours of one scheme -- the Interface page's pickers and hints. */
     public static function defaults(bool $dark): array
     {

@@ -157,9 +157,7 @@ final class PageRepository
 
     /**
      * The operator's own footer line in every language it is written in:
-     * code => cleaned HTML, for the form. The one line of earlier versions
-     * (Settings::FOOTER_HTML, no language) counts as the first language of
-     * the fallback order until the form saves once.
+     * code => cleaned HTML, for the form.
      *
      * @return array<string,string>
      */
@@ -170,13 +168,6 @@ final class PageRepository
         foreach ($this->settings->withPrefix(Settings::FOOTER_HTML_PREFIX) as $code => $html) {
             if (isset($available[$code]) && $html !== '') {
                 $lines[$code] = $html;
-            }
-        }
-        if ($lines === []) {
-            $legacy = (string) $this->settings->get(Settings::FOOTER_HTML, '');
-            $first  = $this->languageOrder()[0] ?? null;
-            if ($legacy !== '' && $first !== null) {
-                $lines[$first] = $legacy;
             }
         }
 
@@ -204,8 +195,7 @@ final class PageRepository
     /**
      * Store the footer line in every language of the menu: code => HTML
      * from the editor, reduced to the allowed tags here; an empty one drops
-     * that language. The line of earlier versions goes with the first save.
-     * Returns the number of languages that have a line now.
+     * that language. Returns the number of languages that have a line now.
      *
      * @param array<string,string> $htmlByCode
      */
@@ -221,7 +211,6 @@ final class PageRepository
                 $kept++;
             }
         }
-        $this->settings->delete(Settings::FOOTER_HTML);
 
         return $kept;
     }

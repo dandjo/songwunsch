@@ -74,7 +74,7 @@ assets/state/          The only folder the application writes into: the live sig
 lang/                  songwunsch.pot (template), de.po (German), fr.po (French), further <code>.po
 sql/                   schema.sql (all tables), demo.sql (test data)
 tools/hash.php         Create a password hash (CLI)
-tools/install.php      Create the tables beforehand, add missing indexes, set up the first admin (CLI)
+tools/install.php      Create the tables beforehand and set up the first admin (CLI)
 tools/demo.php         Import the demo repertoire from sql/demo.sql (CLI)
 tools/import-csv.php   Import songs from a CSV file, optionally replacing the list (CLI)
 tools/check-routes.php Generate every address and match it back: the route table checked against itself (CLI)

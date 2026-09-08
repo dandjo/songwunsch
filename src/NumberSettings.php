@@ -40,7 +40,7 @@ abstract class NumberSettings
     public function all(): array
     {
         if ($this->values === null) {
-            $stored       = $this->settings->withPrefix(static::PREFIX) + $this->legacy();
+            $stored       = $this->settings->withPrefix(static::PREFIX);
             $this->values = [];
             foreach (static::FIELDS as $name => [$default, $min, $max]) {
                 $raw                 = $stored[$name] ?? null;
@@ -56,18 +56,6 @@ abstract class NumberSettings
     public function get(string $name): int
     {
         return $this->all()[$name] ?? 0;
-    }
-
-    /**
-     * Values from the keys a field lived under before it moved here, name =>
-     * raw value; read only while the field has no entry under the prefix.
-     * Nothing by default.
-     *
-     * @return array<string,string>
-     */
-    protected function legacy(): array
-    {
-        return [];
     }
 
     /**

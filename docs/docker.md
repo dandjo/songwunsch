@@ -157,7 +157,7 @@ table is empty; afterwards the accounts in the table count, see
 ```bash
 docker compose up -d                                   # start (with --profile standalone for Option B)
 docker compose logs -f web                             # PHP and Apache log
-docker compose exec web php tools/install.php          # create missing tables and indexes now
+docker compose exec web php tools/install.php          # create the tables now
 docker compose exec web php tools/demo.php --force     # import the demo repertoire again
 docker compose down                                    # stop, keep the data
 docker compose down -v                                 # stop and delete the database volume

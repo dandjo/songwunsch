@@ -56,16 +56,10 @@ umlauts survive the import through the `mysql` client.
 
 ## Existing tables
 
-The application never alters an existing table. There is no automatic
-migration.
+The application never alters an existing table, and it never migrates one.
+A table it finds is a table it uses.
 
 **Columns.** If one of the expected columns is missing from an existing
 table, the application stops with a clear message that names the table and
 the columns, instead of failing with an SQL error in the middle of
 operation. Rename the table or recreate it from `sql/schema.sql`.
-
-**Indexes.** An index that a later version adds to a table definition is
-missing on an installation from before. `ensure()` does not look at indexes
-– a missing one costs speed, not correctness. `php tools/install.php`
-compares the indexes in the definitions with the live tables and creates
-what is missing (`Indexes added: …`). Run it once after an update.

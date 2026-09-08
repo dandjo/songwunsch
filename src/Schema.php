@@ -85,12 +85,12 @@ final class Schema
                 `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id, 0 = default room',
                 `wished`     INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'how often the song was wished while this entry has been open',
                 PRIMARY KEY (`id`),
-                -- One entry per song and room, enforced here and not only by
-                -- the code that checks first and writes second: two wishes
-                -- arriving together used to be able to make two rows of the
-                -- same song. A wish whose song was deleted keeps artist and
-                -- title with song_id NULL, and MySQL allows any number of
-                -- NULLs in a unique index, so those rows are unaffected.
+                -- One entry per song and room, held here and not only by the
+                -- code that checks first and writes second: two wishes
+                -- arriving together would otherwise make two rows of the same
+                -- song. A wish whose song was deleted keeps artist and title
+                -- with song_id NULL, and MySQL allows any number of NULLs in
+                -- a unique index, so those rows are unaffected.
                 UNIQUE KEY `uniq_room_song` (`room_id`, `song_id`),
                 KEY `idx_created_at` (`created_at`),
                 KEY `idx_position` (`position`),
@@ -222,8 +222,6 @@ final class Schema
 
     /**
      * Create missing tables, check existing tables for their columns.
-     * Indexes are not checked here, see missingIndexes().
-     *
      * A single query against the INFORMATION_SCHEMA answers every question:
      * which tables exist and which columns they have. The answer is kept for
      * the rest of the request, so the four places that call this before they
@@ -282,126 +280,5 @@ final class Schema
         }
 
         return $this->ensured = $created;
-    }
-
-    /**
-     * Indexes the table definitions declare that the live tables lack --
-     * added to a table in a later version (idx_room_id on the suggestions),
-     * or dropped by hand. ensure() does not look at indexes: a missing one
-     * costs speed, not correctness, and the check is one more query on
-     * every request. tools/install.php runs it.
-     *
-     * @return array<string,array<string,string>> table => index name => "ALTER TABLE ..." that creates it
-     */
-    public function missingIndexes(): array
-    {
-        $tables = array_keys(self::DDL);
-        $rows   = $this->db->all(
-            'SELECT DISTINCT TABLE_NAME, INDEX_NAME
-             FROM information_schema.STATISTICS
-             WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN (' . implode(', ', array_fill(0, count($tables), '?')) . ')',
-            [$this->db->schemaName(), ...$tables],
-        );
-
-        /** @var array<string,array<int,string>> $present table => index names (lower case) */
-        $present = [];
-        foreach ($rows as $row) {
-            $present[(string) $row['TABLE_NAME']][] = strtolower((string) $row['INDEX_NAME']);
-        }
-
-        $missing = [];
-        foreach (self::DDL as $table => $ddl) {
-            if (!isset($present[$table])) {
-                continue; // no table, no index -- ensure() creates both
-            }
-            // The KEY lines of the CREATE TABLE: `KEY `name` (cols)`, with or without UNIQUE.
-            preg_match_all('/^\s*(UNIQUE KEY|KEY)\s+`(\w+)`\s+(\([^)]*\))/m', $ddl, $keys, PREG_SET_ORDER);
-            foreach ($keys as [, $kind, $name, $columns]) {
-                if (!in_array(strtolower($name), $present[$table], true)) {
-                    $missing[$table][$name] = "ALTER TABLE `{$table}` ADD {$kind} `{$name}` {$columns}";
-                }
-            }
-        }
-
-        return $missing;
-    }
-
-    /**
-     * Fold the rows that the unique keys of song_wishes and song_suggestions
-     * would refuse, so those keys can be added to an installation that
-     * predates them.
-     *
-     * A song on a wish list twice is what the application has always called
-     * one wish, wished twice: the counts are added onto the oldest of the
-     * entries and the others go. The oldest and not the one with the lowest
-     * position, because a single UPDATE ... JOIN can name it (MIN(id)) and
-     * this runs once, on an installation that has duplicates at all. Two suggestions of
-     * the same song in one room are one suggestion; the oldest stays.
-     *
-     * Only ever called from tools/install.php, never during a request, and
-     * safe to run again: with the keys in place there is nothing to fold.
-     *
-     * @return array<string,int> table => rows removed
-     */
-    public function foldDuplicates(): array
-    {
-        $wishes      = self::WISHES;
-        $suggestions = self::SUGGESTIONS;
-
-        // The count of every duplicate lands on the row that is kept.
-        $this->db->exec(
-            "UPDATE {$wishes} AS keeper
-             JOIN (
-                 SELECT room_id, song_id, MIN(id) AS keep_id, SUM(wished) AS total
-                 FROM {$wishes}
-                 WHERE song_id IS NOT NULL
-                 GROUP BY room_id, song_id
-                 HAVING COUNT(*) > 1
-             ) AS dup ON dup.keep_id = keeper.id
-             SET keeper.wished = dup.total",
-        );
-        $removed = [
-            $wishes => $this->db->exec(
-                "DELETE victim FROM {$wishes} AS victim
-                 JOIN (
-                     SELECT room_id, song_id, MIN(id) AS keep_id
-                     FROM {$wishes}
-                     WHERE song_id IS NOT NULL
-                     GROUP BY room_id, song_id
-                     HAVING COUNT(*) > 1
-                 ) AS dup ON dup.room_id = victim.room_id AND dup.song_id = victim.song_id
-                 WHERE victim.id <> dup.keep_id",
-            ),
-            $suggestions => $this->db->exec(
-                "DELETE victim FROM {$suggestions} AS victim
-                 JOIN (
-                     SELECT room_id, artist, title, MIN(id) AS keep_id
-                     FROM {$suggestions}
-                     GROUP BY room_id, artist, title
-                     HAVING COUNT(*) > 1
-                 ) AS dup ON dup.room_id = victim.room_id AND dup.artist = victim.artist AND dup.title = victim.title
-                 WHERE victim.id <> dup.keep_id",
-            ),
-        ];
-
-        return array_filter($removed);
-    }
-
-    /**
-     * Create the indexes missingIndexes() lists.
-     *
-     * @return array<int,string> "table.index" of every index created
-     */
-    public function addIndexes(): array
-    {
-        $added = [];
-        foreach ($this->missingIndexes() as $table => $indexes) {
-            foreach ($indexes as $name => $statement) {
-                $this->db->pdo()->exec($statement);
-                $added[] = $table . '.' . $name;
-            }
-        }
-
-        return $added;
     }
 }

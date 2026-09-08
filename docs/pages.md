@@ -178,7 +178,4 @@ no line of its own. Leave every tab empty for no line at all.
 
 Saving reduces the HTML to what the pages may contain (see *What the editor
 keeps*). The values live in the `settings` table as `footer_html.<code>`, one
-entry per language. An empty language has no entry. Sites from before the
-languages kept one line under `footer_html`; it counts as the line of the
-first language of the fallback order until the form is saved once, then it is
-dropped.
+entry per language. An empty language has no entry.

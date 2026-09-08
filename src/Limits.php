@@ -53,14 +53,4 @@ final class Limits extends NumberSettings
         return array_intersect_key($this->all(), array_flip(self::GUARD));
     }
 
-    /**
-     * @param array<string,int> $values  from validate()
-     */
-    public function save(array $values): void
-    {
-        parent::save($values);
-        // A song may always be wished again now (the wish counts how often);
-        // the switch that used to decide that is gone.
-        $this->settings->delete(self::PREFIX . 'allow_duplicates');
-    }
 }
