@@ -140,7 +140,7 @@ $current = $pageUrl($pageNo);
                     : t('The light design shows the word mark, whatever the dark design shows.')) ?></p>
                 <?php /* Back to following the dark design: its own address,
                          because it removes the entry rather than setting it. */ ?>
-                <form method="post" action="<?= $e(url('logo_light_inherit')) ?>" class="logo-state__reset">
+                <form method="post" action="<?= $e(url('logo_light_inherit')) ?>">
                     <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
                     <input type="hidden" name="back" value="<?= $e($current) ?>">
                     <button type="submit" class="link-button"><?= icon('cross') ?><?= $e(t('Same as dark')) ?></button>

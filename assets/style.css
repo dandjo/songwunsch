@@ -2143,18 +2143,21 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
    live, so no row has to name a design. The reset ("Same as dark") sits with
    that sentence and not in the list, because it is about the slot and not
    about one logo. */
+/* The sentence takes the row and "Same as dark" stands at its right edge --
+   the same shape as a card below it (.logo-card with .logo-card__actions),
+   down to centring the two against each other: a <button> whose first child
+   is an icon has no baseline of its own to align on, so baseline would drop
+   it below the line. The auto margin belongs in this rule and not in one of
+   its own, where ".logo-state form" would outweigh it on specificity. */
 .logo-state {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
+    align-items: center;
     gap: .35rem .75rem;
     margin: -.5rem 0 1rem;
 }
-.logo-state .field__hint { margin: 0; }
-.logo-state form { margin: 0; }
-/* "Same as dark" belongs to the slot, not to the sentence: it sits at the
-   right edge, where the actions of the cards below it sit. */
-.logo-state__reset { margin-left: auto; }
+.logo-state .field__hint { flex: 1 1 20rem; margin: 0; }
+.logo-state form { margin: 0 0 0 auto; }
 
 /* Logos page: one card per logo -- the preview on the header's dark ground
    at the header's size, the facts beside it, the switches at the right. The
