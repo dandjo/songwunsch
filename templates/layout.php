@@ -39,6 +39,7 @@ use Songwunsch\Translator;
 /** @var string $theme  the colour scheme this page is drawn in: 'dark', 'light' or 'system' (Theme) */
 /** @var string $colorsCss colour overrides the admins set under Interface, see Colors; '' = none */
 /** @var array{id:int,mime:string,width:?int,height:?int}|null $logo  the live header logo, see Uploads */
+/** @var array{id:int,mime:string,width:?int,height:?int}|null $logoLight  the light design's own logo, null while it shows $logo */
 
 $e      = static fn (?string $v): string => Format::e($v);
 $inRoom = (int) $room['id'] !== RoomRepository::DEFAULT_ID;
@@ -125,10 +126,32 @@ if (trim(strip_tags($help)) === '') {
                 <?php /* The admin's logo takes the place of word mark and claim; CSS
                          scales it to the header's height, width and height keep the
                          layout still while it loads. In a room the room's name stands
-                         beside it. */ ?>
+                         beside it.
+
+                         When the light design has a logo of its own, both are here
+                         and CSS shows the one the scheme calls for -- the attribute
+                         on the root element decides, so the switch in the header
+                         changes the logo at once, with no second request. While the
+                         two designs share a logo (the usual case) only one image is
+                         in the page and nothing is fetched twice. */ ?>
+                <?php
+                $logoImg = static function (array $file, string $scheme) use ($e): string {
+                    $size = $file['width'] !== null && $file['height'] !== null
+                        ? ' width="' . (int) $file['width'] . '" height="' . (int) $file['height'] . '"'
+                        : '';
+
+                    return '<img class="dome__logo' . ($scheme === '' ? '' : ' dome__logo--' . $scheme) . '"'
+                        . ' src="' . $e(url('logo', ['id' => $file['id']])) . '" alt="Songwunsch"' . $size . '>';
+                };
+                ?>
                 <p class="dome__brand dome__brand--logo">
-                    <a href="<?= $e(url('songs')) ?>"><img class="dome__logo" src="<?= $e(url('logo', ['id' => $logo['id']])) ?>" alt="Songwunsch"<?php
-                        if ($logo['width'] !== null && $logo['height'] !== null): ?> width="<?= (int) $logo['width'] ?>" height="<?= (int) $logo['height'] ?>"<?php endif; ?>></a>
+                    <a href="<?= $e(url('songs')) ?>"><?php
+                        if ($logoLight === null) {
+                            echo $logoImg($logo, '');
+                        } else {
+                            echo $logoImg($logo, 'dark'), $logoImg($logoLight, 'light');
+                        }
+                    ?></a>
                 </p>
             <?php else: ?>
                 <p class="dome__brand"><a href="<?= $e(url('songs')) ?>">Song<span>wunsch</span></a></p>

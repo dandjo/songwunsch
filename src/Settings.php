@@ -20,6 +20,14 @@ final class Settings
     public const LOGO_ID = 'logo_id';
 
     /**
+     * Id of the logo the light design shows instead (uploads.id); '0' = the
+     * word mark there, no entry at all = the one above, in both designs. A
+     * logo drawn in pale lettering for the dark ground disappears on the
+     * light one, so an operator who has a second version says so here.
+     */
+    public const LOGO_ID_LIGHT = 'logo_id_light';
+
+    /**
      * The operator's own footer line (credits, a link), one entry per
      * language below this prefix ('footer_html.de'), HTML reduced by
      * Html::clean(); a language without an entry falls back like a page

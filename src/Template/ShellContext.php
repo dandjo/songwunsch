@@ -125,6 +125,7 @@ final class ShellContext
             'footerPages' => [],   // the admins' pages the footer links, in order
             'colorsCss'  => '',    // colour overrides the admins set under Colours, '' = stylesheet defaults
             'logo'       => null,  // the live header logo (Uploads)
+            'logoLight'  => null,  // the light design's own logo, null while it shows the one above
         ];
 
         // The language switcher: the current address with ?lang=<code>.
@@ -240,13 +241,20 @@ final class ShellContext
             && in_array($page, ['songs', 'wishes', 'suggestions', 'rooms'], true);
 
         // The live logo takes the word mark's place in the header; a deleted
-        // one falls back to the word mark by itself.
-        $logoId        = (int) $this->settings->get(Settings::LOGO_ID, '0');
-        $shell['logo'] = $logoId > 0 ? $this->uploads->info($logoId) : null;
-        // The colours set under Interface, as a block over the stylesheet --
-        // for the scheme this page is drawn in; a visitor following their
-        // device gets both, see Colors::stylesheet().
-        $shell['colorsCss'] = Colors::stylesheet($this->settings, $shell['theme']);
+        // one falls back to the word mark by itself. The light design may
+        // have a logo of its own -- pale lettering drawn for the dark ground
+        // vanishes on a white one -- and while it has none it shows the same.
+        // Both reach the layout when they differ, because the switch in the
+        // header changes the scheme in the browser without asking the server
+        // again (app.js): a logo that was not sent could not follow.
+        $logoId             = (int) $this->settings->get(Settings::LOGO_ID, '0');
+        $lightId            = (int) $this->settings->get(Settings::LOGO_ID_LIGHT, '0');
+        $shell['logo']      = $logoId > 0 ? $this->uploads->info($logoId) : null;
+        $shell['logoLight'] = $lightId > 0 && $lightId !== $logoId ? $this->uploads->info($lightId) : null;
+        // The colours set under Interface, as blocks over the stylesheet --
+        // one per scheme, so the switch in the header keeps them, see
+        // Colors::stylesheet().
+        $shell['colorsCss'] = Colors::stylesheet($this->settings);
 
         // The counters on the Repertoire, Wish list and Suggestions tabs --
         // for everyone, guests included; the pages behind them are public as

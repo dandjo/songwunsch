@@ -396,6 +396,18 @@ code {
     object-fit: contain;
     object-position: left center;
 }
+/* Two logos, when the light design has one of its own: both are in the
+   page and the scheme picks one. The attribute on the root element decides
+   -- so the switch in the header changes the logo with it -- and the media
+   query answers for the visitor who follows their device. Without a second
+   logo neither class is used and only one image is in the page at all. */
+.dome__logo--light { display: none; }
+:root[data-theme="light"] .dome__logo--light { display: block; }
+:root[data-theme="light"] .dome__logo--dark { display: none; }
+@media (prefers-color-scheme: light) {
+    :root[data-theme="system"] .dome__logo--light { display: block; }
+    :root[data-theme="system"] .dome__logo--dark { display: none; }
+}
 .dome__inner--logo .dome__room { margin: 0; flex: 0 1 auto; }
 
 /* Name of the current room -- takes the claim's place inside a room. */

@@ -59,29 +59,27 @@ final class Colors
     ];
 
     /**
-     * Everything the layout puts into its <style> for the scheme this
-     * request is answered in, '' when nothing is configured.
+     * Everything the layout puts into its <style>, '' when nothing is
+     * configured at all.
      *
-     * Three cases, because there are three answers to "which scheme":
-     * an explicit dark one overrides the stylesheet's :root, an explicit
-     * light one its light block -- and a visitor who follows their device
-     * may see either, so both blocks go out, the light one behind the same
-     * media query the stylesheet uses.
+     * Every scheme's block goes out, not just the one this page is drawn in.
+     * Each carries the selector of its own scheme, so only one of them ever
+     * applies -- and the switch in the header changes the scheme in the
+     * browser, without asking the server again (app.js). Sending only the
+     * current scheme's block would leave the admins' colours behind for a
+     * render after every switch.
      */
-    public static function stylesheet(Settings $settings, string $scheme): string
+    public static function stylesheet(Settings $settings): string
     {
-        if ($scheme === Theme::LIGHT) {
-            return self::css(self::load($settings, false), false);
-        }
+        $dark  = self::css(self::load($settings, true), true);
+        $light = self::css(self::load($settings, false), false);
+        // The light values once more for the visitor who follows their
+        // device, behind the media query the stylesheet uses for them.
+        $system = self::css(self::load($settings, false), false, Theme::SYSTEM);
 
-        $dark = self::css(self::load($settings, true), true);
-        if ($scheme !== Theme::SYSTEM) {
-            return $dark;
-        }
-
-        $light = self::css(self::load($settings, false), false, Theme::SYSTEM);
-
-        return $dark . ($light === '' ? '' : '@media (prefers-color-scheme: light){' . $light . '}');
+        return $dark
+            . $light
+            . ($system === '' ? '' : '@media (prefers-color-scheme: light){' . $system . '}');
     }
 
     /**

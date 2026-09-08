@@ -168,8 +168,9 @@ scheme's own tokens would win on specificity, however late the block comes.
 A visitor on *Follow my device* gets both blocks, the light one behind the
 same media query.
 
-A logo made for the dark ground may look flat on the pale one; there is one
-logo per site, not one per scheme, see [Logo](logo.md).
+A logo made for the dark ground disappears on the pale one, so the light
+design may have a logo of its own – one slot per design under
+*Administration → Logos*, see [Logo](logo.md).
 
 ## Messages
 

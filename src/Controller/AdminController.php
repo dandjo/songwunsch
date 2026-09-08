@@ -40,7 +40,7 @@ final class AdminController extends Controller
         return $this->redirect('users');
     }
 
-    /** Every uploaded logo, one of them live. */
+    /** Every uploaded logo, one live in each design. */
     public function logos(Request $request): View
     {
         $perPage = $this->limits->get('per_page');
@@ -56,6 +56,9 @@ final class AdminController extends Controller
             'pageNo'   => $result['page'],
             'pages'    => $result['pages'],
             'activeId' => (int) $this->settings->get(Settings::LOGO_ID, '0'),
+            // The light design's own logo, or 0 while it follows the one
+            // above -- no entry at all is what "follows" looks like.
+            'lightId'  => (int) $this->settings->get(Settings::LOGO_ID_LIGHT, '0'),
         ]);
     }
 
@@ -84,21 +87,42 @@ final class AdminController extends Controller
         return $this->redirect('logos');
     }
 
-    /** Exactly one logo is live -- or none: id 0 brings the word mark back. */
+    /**
+     * One logo goes live -- for the dark design or the light one, whichever
+     * the form names in `scheme`. Id 0 means the neutral choice of that
+     * slot: the word mark for the dark design, and for the light one "the
+     * same as the dark design", which is no entry at all.
+     */
     public function logoActivate(Request $request): Response
     {
-        $id = $request->routeInt('id');
+        $id    = $request->routeInt('id');
+        $light = $request->post('scheme') === Theme::LIGHT;
         if ($id > 0 && $this->uploads->info($id) === null) {
             $this->flash('error', t('This logo was not found.'));
 
             return $this->redirectTo($this->back($this->url('logos')));
         }
 
-        $this->settings->set(Settings::LOGO_ID, (string) $id);
+        if (!$light) {
+            $this->settings->set(Settings::LOGO_ID, (string) $id);
+            if ($id === 0) {
+                // No logo at all: a logo kept for the light design alone
+                // would be a setting with nothing behind it.
+                $this->settings->delete(Settings::LOGO_ID_LIGHT);
+            }
+            $message = $id > 0
+                ? t('The dark design shows this logo now.')
+                : t('The header shows the word mark again.');
+        } elseif ($id > 0) {
+            $this->settings->set(Settings::LOGO_ID_LIGHT, (string) $id);
+            $message = t('The light design shows this logo now.');
+        } else {
+            $this->settings->delete(Settings::LOGO_ID_LIGHT);
+            $message = t('The light design shows the same logo as the dark one again.');
+        }
+
         $this->settings->increment(Ui::REVISION_KEY); // the header changed for everyone
-        $this->flash('ok', $id > 0
-            ? t('The header shows this logo now.')
-            : t('The header shows the word mark again.'));
+        $this->flash('ok', $message);
 
         return $this->redirectTo($this->back($this->url('logos')));
     }
@@ -112,10 +136,20 @@ final class AdminController extends Controller
             return $this->redirectTo($this->back($this->url('logos')));
         }
 
+        // Whichever design was showing it falls back by itself: the dark
+        // one to the word mark, the light one to the dark one's logo.
+        $wasLive = false;
         if ((int) $this->settings->get(Settings::LOGO_ID, '0') === $id) {
             $this->settings->delete(Settings::LOGO_ID); // no logo: no entry, the reads default to 0
+            $wasLive = true;
+        }
+        if ((int) $this->settings->get(Settings::LOGO_ID_LIGHT, '0') === $id) {
+            $this->settings->delete(Settings::LOGO_ID_LIGHT);
+            $wasLive = true;
+        }
+        if ($wasLive) {
             $this->settings->increment(Ui::REVISION_KEY); // the header changed for everyone
-            $this->flash('ok', t('The logo has been deleted – the header shows the word mark again.'));
+            $this->flash('ok', t('The logo has been deleted – the header falls back to what it showed before.'));
         } else {
             $this->flash('ok', t('The logo has been deleted.'));
         }

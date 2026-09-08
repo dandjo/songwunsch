@@ -54,7 +54,7 @@ src/Theme.php          Which scheme a page is drawn in: the visitor's cookie, th
 src/QrCode.php         QR codes of the room addresses, made here: encoding, Reed-Solomon, masks, SVG and PNG
 src/RoomMemory.php     The room chosen last and the unlisted rooms a guest entered: two cookies
 src/Settings.php       Key/value store in the settings table, per-user settings
-src/Uploads.php        The header logos: check, store, deliver (uploads table)
+src/Uploads.php        The header logos: check, store, deliver (uploads table); one live per design, see Logo
 src/PageRepository.php Pages in several languages: validate, store, list; fallback order of the languages; footer links and footer line
 src/Html.php           Reduce a page's HTML to the allowed elements and attributes
 src/Security.php       Session, login against users, roles, guest view, CSRF, per-session cooldown

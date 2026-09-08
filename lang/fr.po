@@ -1175,12 +1175,6 @@ msgstr "Afficher le mot de passe"
 msgid "Hide password"
 msgstr "Masquer le mot de passe"
 
-msgid "A logo takes the place of the word mark “Songwunsch” and the claim at the top of every page; the room’s name keeps its spot. Exactly one logo is live at a time – or none, then the word mark shows."
-msgstr "Un logo remplace la marque « Songwunsch » et le slogan en haut de chaque page ; le nom de la salle garde sa place. Un seul logo est actif à la fois – ou aucun, et la marque s’affiche."
-
-msgid "Delete the live logo? The header shows the word mark again."
-msgstr "Supprimer le logo actif ? L’en-tête affichera de nouveau la marque."
-
 msgid "Delete this logo?"
 msgstr "Supprimer ce logo ?"
 
@@ -1220,14 +1214,8 @@ msgstr "Le réglage par défaut sans logo, avec le slogan en dessous."
 msgid "The header shows the word mark again."
 msgstr "L’en-tête affiche de nouveau la marque."
 
-msgid "The header shows this logo now."
-msgstr "L’en-tête affiche maintenant ce logo."
-
 msgid "The logo has been deleted."
 msgstr "Le logo a été supprimé."
-
-msgid "The logo has been deleted – the header shows the word mark again."
-msgstr "Le logo a été supprimé – l’en-tête affiche de nouveau la marque."
 
 msgid "The logo has been uploaded and is live in the header."
 msgstr "Le logo a été téléversé et est actif dans l’en-tête."
@@ -1831,3 +1819,44 @@ msgstr "Sombre"
 
 msgid "Design: {scheme}"
 msgstr "Design : {scheme}"
+
+# ---- One logo per design (Administration -> Logos) --------------------------
+
+msgid "A logo takes the place of the word mark “Songwunsch” and the claim at the top of every page; the room’s name keeps its spot. One logo is live – or none, then the word mark shows."
+msgstr "Un logo remplace le mot-symbole « Songwunsch » et l’accroche en haut de chaque page ; le nom de la salle garde sa place. Un logo est actif – ou aucun, et le mot-symbole apparaît."
+
+msgid "Pale lettering drawn for the dark ground disappears on a white one. If you have a second version, switch it live for the light design; without one both designs show the same logo."
+msgstr "Un lettrage clair dessiné pour le fond sombre disparaît sur un fond blanc. Si vous disposez d’une seconde version, activez-la pour le thème clair ; sans elle, les deux thèmes affichent le même logo."
+
+msgid "Switch live for the dark design"
+msgstr "Activer pour le thème sombre"
+
+msgid "Switch live for the light design"
+msgstr "Activer pour le thème clair"
+
+msgid "Show the dark design’s logo in the light design as well"
+msgstr "Afficher aussi le logo du thème sombre dans le thème clair"
+
+msgid "Same as dark"
+msgstr "Comme sombre"
+
+msgid "live · dark"
+msgstr "actif · sombre"
+
+msgid "live · light"
+msgstr "actif · clair"
+
+msgid "The dark design shows this logo now."
+msgstr "Le thème sombre affiche désormais ce logo."
+
+msgid "The light design shows this logo now."
+msgstr "Le thème clair affiche désormais ce logo."
+
+msgid "The light design shows the same logo as the dark one again."
+msgstr "Le thème clair affiche de nouveau le même logo que le thème sombre."
+
+msgid "Delete the live logo? The header falls back to what it showed before."
+msgstr "Supprimer le logo actif ? L’en-tête revient à ce qu’il affichait auparavant."
+
+msgid "The logo has been deleted – the header falls back to what it showed before."
+msgstr "Le logo a été supprimé – l’en-tête revient à ce qu’il affichait auparavant."

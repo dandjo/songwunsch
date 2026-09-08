@@ -1179,12 +1179,6 @@ msgstr "Passwort anzeigen"
 msgid "Hide password"
 msgstr "Passwort verbergen"
 
-msgid "A logo takes the place of the word mark “Songwunsch” and the claim at the top of every page; the room’s name keeps its spot. Exactly one logo is live at a time – or none, then the word mark shows."
-msgstr "Ein Logo ersetzt die Wortmarke „Songwunsch“ und den Claim oben auf jeder Seite; der Raumname behält seinen Platz. Genau ein Logo ist jeweils scharf – oder keines, dann erscheint die Wortmarke."
-
-msgid "Delete the live logo? The header shows the word mark again."
-msgstr "Das scharfe Logo löschen? Der Kopf zeigt dann wieder die Wortmarke."
-
 msgid "Delete this logo?"
 msgstr "Dieses Logo löschen?"
 
@@ -1224,14 +1218,8 @@ msgstr "Der Standard ohne Logo, mit dem Claim darunter."
 msgid "The header shows the word mark again."
 msgstr "Der Kopf zeigt wieder die Wortmarke."
 
-msgid "The header shows this logo now."
-msgstr "Der Kopf zeigt jetzt dieses Logo."
-
 msgid "The logo has been deleted."
 msgstr "Das Logo wurde gelöscht."
-
-msgid "The logo has been deleted – the header shows the word mark again."
-msgstr "Das Logo wurde gelöscht – der Kopf zeigt wieder die Wortmarke."
 
 msgid "The logo has been uploaded and is live in the header."
 msgstr "Das Logo wurde hochgeladen und ist im Kopf scharf."
@@ -1835,3 +1823,44 @@ msgstr "Dunkel"
 
 msgid "Design: {scheme}"
 msgstr "Design: {scheme}"
+
+# ---- One logo per design (Administration -> Logos) --------------------------
+
+msgid "A logo takes the place of the word mark “Songwunsch” and the claim at the top of every page; the room’s name keeps its spot. One logo is live – or none, then the word mark shows."
+msgstr "Ein Logo tritt an die Stelle des Wortzeichens „Songwunsch“ und des Claims am Kopf jeder Seite; der Raumname behält seinen Platz. Ein Logo ist live – oder keines, dann erscheint das Wortzeichen."
+
+msgid "Pale lettering drawn for the dark ground disappears on a white one. If you have a second version, switch it live for the light design; without one both designs show the same logo."
+msgstr "Helle Schrift, die für den dunklen Grund gezeichnet ist, verschwindet auf weißem Grund. Wenn Sie eine zweite Fassung haben, schalten Sie sie für das helle Design live; ohne zweite Fassung zeigen beide Designs dasselbe Logo."
+
+msgid "Switch live for the dark design"
+msgstr "Für das dunkle Design live schalten"
+
+msgid "Switch live for the light design"
+msgstr "Für das helle Design live schalten"
+
+msgid "Show the dark design’s logo in the light design as well"
+msgstr "Das Logo des dunklen Designs auch im hellen Design zeigen"
+
+msgid "Same as dark"
+msgstr "Wie dunkel"
+
+msgid "live · dark"
+msgstr "live · dunkel"
+
+msgid "live · light"
+msgstr "live · hell"
+
+msgid "The dark design shows this logo now."
+msgstr "Das dunkle Design zeigt jetzt dieses Logo."
+
+msgid "The light design shows this logo now."
+msgstr "Das helle Design zeigt jetzt dieses Logo."
+
+msgid "The light design shows the same logo as the dark one again."
+msgstr "Das helle Design zeigt wieder dasselbe Logo wie das dunkle."
+
+msgid "Delete the live logo? The header falls back to what it showed before."
+msgstr "Das live geschaltete Logo löschen? Der Kopfbereich fällt auf das zurück, was vorher zu sehen war."
+
+msgid "The logo has been deleted – the header falls back to what it showed before."
+msgstr "Das Logo wurde gelöscht – der Kopfbereich fällt auf das zurück, was vorher zu sehen war."

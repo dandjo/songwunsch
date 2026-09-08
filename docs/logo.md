@@ -10,16 +10,57 @@ the room.
 
 Logos are managed under *Administration → Logos* (`/admin/logos`, admins
 only). The page lists every logo ever uploaded, newest first, with a preview
-at the header's size. The list is paged like the other lists. Exactly one
-logo is *live* at a time, or none. With none, the word mark shows. The word
-mark heads the list on its first page as the choice “no logo”.
+at the header's size. The list is paged like the other lists. One logo is
+*live*, or none. With none, the word mark shows. The word mark heads the
+list on its first page as the choice “no logo”.
 
-Each row offers *Switch live* and *Delete* (a bin icon, like in every list).
 A new upload goes live right away unless the box *Switch it live right away*
-is unticked. Deleting the live logo brings the word mark back.
+is unticked. Every row offers *Delete* (a bin icon, like in every list);
+deleting a live logo makes the header fall back to what it showed before.
 
 The id of the live logo is kept in the `settings` table under `logo_id`. No
 entry, or `0`, means the word mark.
+
+## One logo per design
+
+Pale lettering drawn for the dark ground disappears on a white one, so there
+are two slots: one logo for the dark design and, for operators who have a
+second version, one for the light design (see
+[Interface](interface.md) for the designs themselves).
+
+Each logo row therefore offers two buttons instead of one, *Dark* and
+*Light*, and carries a tag where it is live:
+
+| Tag | Meaning |
+| --- | --- |
+| *live* | both designs show this logo |
+| *live · dark* | the dark design shows it, the light one shows another |
+| *live · light* | the light design shows it, the dark one shows another |
+
+While the light slot is empty both designs show the same logo, which is what
+an existing site does without anyone touching anything. Once a logo is live
+for the light design, its row also offers *Same as dark*, which empties the
+slot again.
+
+The word mark is one choice, not one per design: switching to it clears the
+light slot as well, because with no logo at all there is nothing for a second
+version to differ from. So the light slot's buttons only appear while a logo
+is live.
+
+The light design's logo is kept under `logo_id_light`. **No entry means the
+light design shows `logo_id`** – that is what “same as dark” looks like in the
+table; `0` never stands there.
+
+### How both reach the page
+
+When the two designs share a logo, one `<img>` is in the page, as before.
+When they differ, **both** are, and CSS shows the one the scheme calls for –
+by `data-theme` on the root element, plus the `prefers-color-scheme` media
+query for a visitor who follows their device. That is deliberate: the switch
+in the header changes the design in the browser without asking the server
+again, and a logo that had not been sent could not follow. Only the site that
+uses two logos pays for the second image, and it is cached for a year
+(below).
 
 ## What happens to an uploaded image
 
@@ -52,13 +93,12 @@ The size limit is the server's `upload_max_filesize`. In the Docker stack it
 is 20 MB (`docker/php.ini`, `post_max_size` 21 MB). A file over the limit
 gets an error message that names the limit.
 
-## Light and dark
+## Drawing for both designs
 
-There is one logo per site, not one per scheme. A logo drawn for the dark
-ground – pale lettering, a transparent background – still reads on the light
-one, but flatly; a logo with its own light-coloured plate reads on both. If
-the site's visitors mostly read it light, draw for that. See
-[Interface](interface.md) for the two schemes.
+With one logo for both designs, draw one that reads on either ground: a
+logo with its own light-coloured plate does, pale lettering on a
+transparent background does not. With two, draw each for its own ground –
+that is what the second slot is for.
 
 ## Where the files live
 
