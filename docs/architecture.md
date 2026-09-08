@@ -126,6 +126,14 @@ reflection that would work it out, it needs no cache directory on a host
 that may not have a writable one, and it puts every dependency of every
 class on one screen.
 
+`Settings` reads its table in one query on first access and answers from
+memory afterwards; a write empties that again, so a value that was just
+saved is never served stale. It is a small table by construction -- a live
+installation has some 40 rows -- and the values are read from all over while
+a page is assembled, which used to cost eleven queries against it. Measured
+against the general log, one page is now nine to twelve queries and a
+live-update poll is two.
+
 Everything is lazy. The database connection is opened on first use, the
 tables are checked once per request by whoever needs them, and a service
 nobody asks for is never made. The room-scoped services -- the wish list,

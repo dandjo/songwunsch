@@ -47,9 +47,10 @@ final class LiveTokens
     }
 
     /**
-     * One query for every row the tokens are made of, instead of one apiece.
-     * Called on the poll path as well, which is why nothing else happens
-     * here: a poll is not a page.
+     * Every value the tokens are made of, read once. The rows themselves
+     * cost one query between them: Settings holds the table for the request
+     * (see its $cache). Called on the poll path as well, which is why
+     * nothing else happens here -- a poll is not a page.
      */
     private function build(): void
     {
@@ -57,12 +58,6 @@ final class LiveTokens
             return;
         }
         $this->ready = true;
-
-        $this->settings->prefetch(array_merge($this->guard->liveKeys(), [
-            RoomRepository::REVISION_KEY,
-            SuggestionRepository::REVISION_KEY,
-            Ui::REVISION_KEY,
-        ]));
 
         // Both tokens start with the room's state, so that app.js can tell a
         // closing from any other change and announce it.

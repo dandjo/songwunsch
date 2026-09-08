@@ -73,6 +73,9 @@ final class RoomController extends Controller
             }
         }
 
+        $mainSongs  = $this->songs->count();
+        $mainWishes = $this->roomServices->wishes(RoomRepository::DEFAULT_ID)->count();
+
         return $this->view('rooms', t('Rooms'), [
             'rows'        => $result['rows'],
             'total'       => $result['total'],
@@ -88,9 +91,12 @@ final class RoomController extends Controller
             'pausedAll'   => $isAdmin && $this->guard->isPausedEverywhere(),
             'canPause'    => $canPause,
             'pausedRooms' => $pausedRooms,
-            'mainSongs'   => $this->songs->count(),
-            'mainWishes'  => $this->roomServices->wishes(RoomRepository::DEFAULT_ID)->count(),
-        ]);
+            'mainSongs'   => $mainSongs,
+            'mainWishes'  => $mainWishes,
+            // The main room's row in the list shows the same two numbers the
+            // header does -- as long as the visitor is in the main room. Then
+            // the badges take them from here instead of counting again.
+        ] + ($this->room->isMain() ? ['songCount' => $mainSongs, 'wishCount' => $mainWishes] : []));
     }
 
     /**

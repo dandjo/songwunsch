@@ -99,18 +99,6 @@ final class WishGuard
         return (int) $this->settings->get(self::ALL_REVISION_KEY, '0');
     }
 
-    /**
-     * The settings entries the live update reads for this room, so they can
-     * be fetched in one query (Settings::prefetch(), see index.php). The keys
-     * are built here because this class owns them.
-     *
-     * @return array<int,string>
-     */
-    public function liveKeys(): array
-    {
-        return [self::pausedKeyFor($this->roomId), self::revisionKeyFor($this->roomId), self::ALL_REVISION_KEY];
-    }
-
     /** The wish list changed: raise the revision. */
     public function touch(): void
     {

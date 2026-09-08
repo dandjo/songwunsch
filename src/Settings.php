@@ -34,20 +34,29 @@ final class Settings
     public const CONFIRM_DELETE = ['songs', 'suggestions', 'wishes', 'rooms'];
 
     /**
-     * What was read already, for the rest of the request: name => value, or
-     * null for a name the table does not have. The same entries are asked for
-     * several times while a page is built -- the room's open/closed switch
-     * once for the header notice and once for the live token, the main room's
-     * name, the colours -- and the live-update poll is almost nothing but
-     * such reads. Every write empties the cache again, so a value that was
-     * just saved is never served from it.
+     * The whole table, for the rest of the request: name => value.
      *
-     * @var array<string,?string>
+     * Read in one query on the first access rather than key by key. This is
+     * a small table by construction -- one row per switch, per counter and
+     * per value the admins set, two per room, a handful per user; a live
+     * installation has some 40 rows and about a kilobyte in them. Building
+     * one page used to cost eleven queries against it (five prefix scans,
+     * five single keys and one batch), because the values are read from all
+     * over: the main room's name and the start room while the room is being
+     * worked out, the limits, the interface values, the revision counters,
+     * the footer, the language order, the logo, the colours. One query for
+     * all of it beats eleven for parts of it, and no caller has to know
+     * which values it will need.
+     *
+     * Every write empties this again, so a value that was just saved is
+     * never served from it.
+     *
+     * @var array<string,string>
      */
     private array $cache = [];
 
-    /** @var array<string,array<string,string>> the same for withPrefix() */
-    private array $groups = [];
+    /** Is $cache the whole table? Reset by every write, see changed(). */
+    private bool $loaded = false;
 
     public function __construct(private readonly Database $db)
     {
@@ -75,74 +84,54 @@ final class Settings
             return;
         }
         $this->cache  = [];
-        $this->groups = [];
+        $this->loaded = false;
         LiveSignal::touch();
     }
 
     public function get(string $name, ?string $default = null): ?string
     {
-        if (!array_key_exists($name, $this->cache)) {
-            $row = $this->db->one('SELECT value FROM ' . self::TABLE . ' WHERE name = ?', [$name]);
-            $this->cache[$name] = $row === null ? null : (string) $row['value'];
-        }
+        $this->load();
 
         return $this->cache[$name] ?? $default;
     }
 
     /**
-     * Read several entries in one query and keep them for the rest of the
-     * request. The live-update poll is nothing but four such reads (the
-     * room's open/closed switch and three revision counters), and four
-     * round trips for four small rows of one table are three too many.
-     * Names that the table does not have are remembered as missing, so the
-     * get() that follows does not go looking for them either.
-     *
-     * @param array<int,string> $names
+     * Read the table, once per request. Everything below this line answers
+     * from memory afterwards -- see $cache for why that is the cheaper way
+     * round.
      */
-    public function prefetch(array $names): void
+    private function load(): void
     {
-        $wanted = array_values(array_unique(array_filter($names, fn (string $n): bool => !array_key_exists($n, $this->cache))));
-        if ($wanted === []) {
+        if ($this->loaded) {
             return;
         }
+        $this->loaded = true;
 
-        $rows = $this->db->all(
-            'SELECT name, value FROM ' . self::TABLE . ' WHERE name IN (' . implode(', ', array_fill(0, count($wanted), '?')) . ')',
-            $wanted,
-        );
-
-        foreach ($wanted as $name) {
-            $this->cache[$name] = null;
-        }
-        foreach ($rows as $row) {
+        foreach ($this->db->all('SELECT name, value FROM ' . self::TABLE) as $row) {
             $this->cache[(string) $row['name']] = (string) $row['value'];
         }
     }
 
     /**
      * Every entry whose name starts with the prefix, the prefix stripped:
-     * 'colors.accent' => '#e6b450' becomes 'accent' => '#e6b450'. One query
-     * for a whole group of values (the colours, the limits).
+     * 'colors.accent' => '#e6b450' becomes 'accent' => '#e6b450' -- a whole
+     * group of values at once (the colours, the limits, the interface). Out
+     * of the table this already holds, so it costs no query of its own.
      *
      * @return array<string,string>
      */
     public function withPrefix(string $prefix): array
     {
-        if (isset($this->groups[$prefix])) {
-            return $this->groups[$prefix];
-        }
-
-        $rows = $this->db->all(
-            'SELECT name, value FROM ' . self::TABLE . ' WHERE name LIKE ?',
-            [str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $prefix) . '%'],
-        );
+        $this->load();
 
         $out = [];
-        foreach ($rows as $row) {
-            $out[substr((string) $row['name'], strlen($prefix))] = (string) $row['value'];
+        foreach ($this->cache as $name => $value) {
+            if (str_starts_with($name, $prefix)) {
+                $out[substr($name, strlen($prefix))] = $value;
+            }
         }
 
-        return $this->groups[$prefix] = $out;
+        return $out;
     }
 
     public function set(string $name, string $value): void
@@ -190,9 +179,13 @@ final class Settings
             'INSERT IGNORE INTO ' . self::TABLE . ' (name, value, updated_at) VALUES (?, ?, ?)',
             [$name, $value, date('Y-m-d H:i:s')],
         );
-        unset($this->cache[$name]);
 
-        return (string) $this->get($name, $value);
+        // Past the cache on purpose: another request may have created the
+        // row a moment ago, and the value that won is the one to return.
+        $row   = $this->db->one('SELECT value FROM ' . self::TABLE . ' WHERE name = ?', [$name]);
+        $found = $row === null ? $value : (string) $row['value'];
+
+        return $this->cache[$name] = $found;
     }
 
     /**

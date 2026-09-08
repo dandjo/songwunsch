@@ -72,7 +72,11 @@ final class SongController extends Controller
             'pages'   => $result['pages'],
             // No wish buttons while the room is closed, and so no form token.
             'formToken' => $this->guard->isPaused() ? '' : $this->guard->formToken(),
-        ]);
+            // Without a search the total is the room's song count, which is
+            // what the badge on the tab shows: the shell need not count
+            // again. With a search the two differ and the badge keeps its
+            // own number.
+        ] + ($q === '' ? ['songCount' => $result['total']] : []));
     }
 
     /**
