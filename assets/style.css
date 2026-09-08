@@ -59,7 +59,7 @@
     --danger-tint:        rgba(255, 111, 97, .08);
     --danger-tint-strong: rgba(255, 111, 97, .25);
     --danger-glow:        rgba(255, 111, 97, .15);
-    --ok:           #ecf0f1;
+    --ok:           #6e8f3d;
 
     /* Neutral overlays: hover and pressed states on dark surfaces, the
        backdrop behind the name dialog. */
