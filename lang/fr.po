@@ -1468,9 +1468,6 @@ msgstr "Arrière-plan"
 msgid "Text"
 msgstr "Texte"
 
-msgid "Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the gold tags and notices."
-msgstr "Boutons, liens, onglet actif et contours de focus, « wunsch » dans le logotype, le nom de la salle dans l’en-tête, les étiquettes et avis dorés."
-
 msgid "The genre and role tags, the counters on the tabs and the edge of the info notices."
 msgstr "Les étiquettes de genre et de rôle, les compteurs des onglets et la bordure des avis d’information."
 
@@ -1781,17 +1778,11 @@ msgstr "Couleurs – sombre"
 msgid "Colours – light"
 msgstr "Couleurs – clair"
 
-msgid "The dark interface: gold for actions, violet for tags and counters, red for danger, green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it."
-msgstr "L’interface sombre : or pour les actions, violet pour les étiquettes et les compteurs, rouge pour le danger, vert pour la réussite. Chaque zone a une couleur de base ; toutes les nuances et voiles nécessaires – survol, cadres, avis – en sont dérivés."
-
 msgid "The light interface, for visitors who choose it. The same six areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above."
 msgstr "L’interface claire, pour les visiteurs qui la choisissent. Les mêmes six zones, mais choisies sur le fond pâle – une couleur qui brille sur le noir est rarement lisible sur le blanc. Ce sont donc des valeurs propres et non une traduction de celles ci-dessus."
 
 msgid "Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change – in the scheme the colour belongs to."
 msgstr "Un champ vide conserve la couleur intégrée. Veillez à un contraste lisible avec l’arrière-plan et vérifiez après chaque modification avec les outils d’accessibilité du navigateur – dans le thème auquel la couleur appartient."
-
-msgid "The page ground; shell, panels, fields and lines are steps away from it, and so is the text on gold buttons and counters."
-msgstr "Le fond de la page ; l’enveloppe, les panneaux, les champs et les lignes en sont des degrés écartés, de même que le texte sur les boutons et compteurs dorés."
 
 msgid "Default design"
 msgstr "Design par défaut"
@@ -1882,3 +1873,14 @@ msgstr "Le thème sombre affiche désormais le mot-symbole."
 
 msgid "The light design shows the word mark now."
 msgstr "Le thème clair affiche désormais le mot-symbole."
+
+# ---- Interface: hints without hue names ---------------------------------------
+
+msgid "Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the accent tags and notices."
+msgstr "Boutons, liens, l’onglet actif et les anneaux de focus, « wunsch » dans le mot-symbole, le nom de la salle dans l’en-tête, les étiquettes et avis en couleur d’accent."
+
+msgid "The page ground; shell, panels, fields and lines are steps away from it, and so is the text on accent buttons and counters."
+msgstr "Le fond de la page ; l’enveloppe, les panneaux, les champs et les lignes en sont des degrés écartés, de même que le texte sur les boutons et compteurs d’accent."
+
+msgid "The dark interface. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it."
+msgstr "L’interface sombre. Chaque zone a une couleur de base ; toutes les nuances et voiles nécessaires – survol, cadres, avis – en sont dérivés."

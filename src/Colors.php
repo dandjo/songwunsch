@@ -40,22 +40,22 @@ final class Colors
 
     /** The stylesheet's dark colours (assets/style.css, :root). */
     public const DEFAULTS = [
-        'accent'     => '#e6b450',
-        'secondary'  => '#8d7ce0',
-        'danger'     => '#ff6f85',
-        'success'    => '#4ed08c',
-        'background' => '#0d0e13',
-        'text'       => '#e9ebf1',
+        'accent'    => '#f2a098',
+        'secondary' => '#aab7b8',
+        'danger'    => '#f2a098',
+        'success'   => '#ecf0f1',
+        'background' => '#2c3e50',
+        'text'      => '#ecf0f1',
     ];
 
     /** The stylesheet's light colours (assets/style.css, :root[data-theme="light"]). */
     public const DEFAULTS_LIGHT = [
-        'accent'     => '#b45309',
-        'secondary'  => '#6d28d9',
-        'danger'     => '#be123c',
-        'success'    => '#047857',
-        'background' => '#f8fafc',
-        'text'       => '#0f172a',
+        'accent'    => '#b23b2e',
+        'secondary' => '#34495e',
+        'danger'    => '#973227',
+        'success'   => '#2c3e50',
+        'background' => '#ecf0f1',
+        'text'      => '#2c3e50',
     ];
 
     /**
@@ -260,7 +260,7 @@ final class Colors
                 // darker than the base on either scheme.
                 '--danger-deep'   => self::hex(self::mix($c, $black, .35)),
                 '--danger-line'   => self::hex(self::mix($c, $ground, .60)),
-                '--danger-tint'        => self::rgba($c, $dark ? .12 : .08),
+                '--danger-tint'        => self::rgba($c, .08),
                 '--danger-tint-strong' => self::rgba($c, $dark ? .25 : .16),
                 '--danger-glow'        => self::rgba($c, $dark ? .15 : .12),
             ];

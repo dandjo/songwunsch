@@ -28,11 +28,11 @@ $e = static fn (?string $v): string => Format::e($v);
 
 // Label and where the colour shows up, per area -- the same wording as docs/interface.md.
 $areas = [
-    'accent'     => [t('Accent'),     t('Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the gold tags and notices.')],
+    'accent'     => [t('Accent'),     t('Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the accent tags and notices.')],
     'secondary'  => [t('Secondary'),  t('The genre and role tags, the counters on the tabs and the edge of the info notices.')],
     'danger'     => [t('Danger'),     t('Closed rooms, delete buttons, warnings and errors.')],
     'success'    => [t('Success'),    t('The edge of the confirmation notices and the confirm buttons in the dialogs of the page editor.')],
-    'background' => [t('Background'), t('The page ground; shell, panels, fields and lines are steps away from it, and so is the text on gold buttons and counters.')],
+    'background' => [t('Background'), t('The page ground; shell, panels, fields and lines are steps away from it, and so is the text on accent buttons and counters.')],
     'text'       => [t('Text'),       t('The text; the muted text is a step towards the background.')],
 ];
 
@@ -118,7 +118,7 @@ $colorTab = !$schemeErrors[Theme::DARK] && $schemeErrors[Theme::LIGHT] ? Theme::
                 <legend class="tabpanel__legend"><?= $e($legend) ?></legend>
                 <p class="field__hint">
                     <?= $isDark
-                        ? $e(t('The dark interface: gold for actions, violet for tags and counters, red for danger, green for success. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it.'))
+                        ? $e(t('The dark interface. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it.'))
                         : $e(t('The light interface, for visitors who choose it. The same six areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above.')) ?>
                     <?= $e(t('Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change – in the scheme the colour belongs to.')) ?>
                 </p>

@@ -4,9 +4,10 @@
  * Surfaces are neutral grey and flat, stepped away from the page ground
  * (ground -> shell -> panel): on the dark scheme every step is lighter, on
  * the light one the content surface is white while the chrome around it is
- * a shade greyer. Edges are hairlines, shadows are flat. Only
- * the accents carry colour: gold for actions, violet as the secondary accent
- * (genre chips, counters, notices). No gradients faking depth, no embossed
+ * a shade greyer. Edges are hairlines, shadows are flat. The palette is
+ * "Modern Urban Chic": two slates, cloud, concrete and one red, which is the
+ * action colour; the token names (--gold, --violet) are older than the
+ * palette and name roles, not hues. No gradients faking depth, no embossed
  * buttons, no rounding as decoration -- hierarchy comes from brightness,
  * borders and font weight. Deliberately no external fonts or CDNs (GDPR,
  * offline operation).
@@ -22,50 +23,57 @@
  */
 
 :root {
-    /* Surfaces, stepped from dark to light */
-    --ink:          #0d0e13;   /* page ground             */
-    --shell:        #14161c;   /* shell around the content */
-    --panel:        #1a1c24;   /* content surface         */
-    --surface:      #101218;   /* recessed: table, input fields */
-    --base:         #14151b;   /* text on gold surfaces   */
-    --sunken:       rgba(0, 0, 0, .45); /* behind code and preformatted text */
+    /* Surfaces: the palette's two slates, stepped from midnight (the ground)
+       to wet asphalt (the content surface); the shell and the fields sit
+       between. */
+    --ink:          #2c3e50;   /* page ground             */
+    --shell:        #324455;   /* shell around the content */
+    --panel:        #34495e;   /* content surface         */
+    --surface:      #2f4153;   /* recessed: table, input fields */
+    --base:         #2c3e50;   /* text on accent surfaces */
+    --sunken:       rgba(0, 0, 0, .35); /* behind code and preformatted text */
 
-    --line:         #2b2e39;
+    --line:         #475767;
 
-    /* Accents: gold for actions, violet secondary, red for danger, green
-       for success. Every shade and tint below derives from its base colour;
-       the Colours page may replace a base colour per area of use, then
+    /* Accents. The palette has one colour that is not a grey, alizarin, and
+       it is the action colour -- lightened to a salmon, because the pure red
+       stands at 2.9:1 on the slate and text needs 4.5. Danger is the same
+       family and, on this ground, the same value: there is no second red to
+       be had that reads. The secondary is concrete, lifted a step; success
+       has no colour of its own in the palette and takes the cloud, the
+       text's own. Every shade and tint below derives from its base colour;
+       the Interface page may replace a base colour per area of use, then
        src/Colors.php recomputes the derived ones and overrides this block. */
-    --gold:         #e6b450;
-    --gold-bright:  #f4cd7d;
-    --gold-deep:    #7d5c14;
-    --gold-wash:        rgba(230, 180, 80, .06);  /* faint row highlight */
-    --gold-tint:        rgba(230, 180, 80, .12);  /* hover of gold-framed buttons */
-    --gold-tint-mid:    rgba(230, 180, 80, .14);  /* notices */
-    --gold-tint-strong: rgba(230, 180, 80, .22);  /* chips inside notices */
-    --violet:       #8d7ce0;
-    --violet-bright: #b3a6ea;
-    --violet-soft:  rgba(141, 124, 224, .13);
-    --violet-line:  rgba(141, 124, 224, .32);
+    --gold:         #f2a098;
+    --gold-bright:  #f6bcb7;
+    --gold-deep:    #937175;
+    --gold-wash:        rgba(242, 160, 152, .06);  /* faint row highlight */
+    --gold-tint:        rgba(242, 160, 152, .12);  /* hover of accent-framed buttons */
+    --gold-tint-mid:    rgba(242, 160, 152, .14);  /* notices */
+    --gold-tint-strong: rgba(242, 160, 152, .22);  /* chips inside notices */
+    --violet:       #aab7b8;
+    --violet-bright: #c4cdcd;
+    --violet-soft:  rgba(170, 183, 184, .13);
+    --violet-line:  rgba(170, 183, 184, .32);
 
-    --text:         #e9ebf1;
-    --text-muted:   #969cab;
+    --text:         #ecf0f1;
+    --text-muted:   #aab7b8;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
-    --danger:       #ff6f85;
-    --danger-bright: #ffa3b3;
-    --danger-deep:  #a8283f;
-    --danger-line:  #5f2735;
-    --danger-tint:        rgba(255, 111, 133, .12);
-    --danger-tint-strong: rgba(255, 111, 133, .25);
-    --danger-glow:        rgba(255, 111, 133, .15);
-    --ok:           #4ed08c;
+    --danger:       #f2a098;
+    --danger-bright: #f6bcb7;
+    --danger-deep:  #9d6863;
+    --danger-line:  #7b656d;
+    --danger-tint:        rgba(242, 160, 152, .08);
+    --danger-tint-strong: rgba(242, 160, 152, .25);
+    --danger-glow:        rgba(242, 160, 152, .15);
+    --ok:           #ecf0f1;
 
     /* Neutral overlays: hover and pressed states on dark surfaces, the
        backdrop behind the name dialog. */
     --hover-soft:   rgba(255, 255, 255, .04);
     --hover:        rgba(255, 255, 255, .06);
     --hover-strong: rgba(255, 255, 255, .1);
-    --backdrop:     rgba(6, 7, 10, .72);
+    --backdrop:     rgba(20, 29, 38, .72);
 
     /* Rounding is functional, not decorative: buttons and fields 8px,
        surfaces 12px, the shell 16px. The pill shape is reserved for chips. */
@@ -106,61 +114,59 @@
    selector, so they win here as they do on the dark scheme -- see
    src/Colors.php. */
 :root[data-theme="light"] {
-    /* Surfaces: a cool, neutral slate -- the register of today's light
-       interfaces. A near-white ground, the chrome one step greyer, the card
-       pure white so it lifts off the page. No tint of the accent in the
-       greys: a coloured grey reads dated fast. */
-    --ink:          #f8fafc;   /* page ground             */
-    --shell:        #f1f5f9;   /* shell around the content */
-    --panel:        #fff;      /* content surface         */
-    --surface:      #f4f6f9;   /* recessed: table, input fields */
-    --base:         #fffbeb;   /* text on gold surfaces   */
-    --sunken:       rgba(15, 23, 42, .05); /* behind code and preformatted text */
+    /* Surfaces: the palette's cloud as the ground, a white card lifted off
+       it, the shell and the fields a step towards concrete. */
+    --ink:          #ecf0f1;   /* page ground             */
+    --shell:        #dce2e4;   /* shell around the content */
+    --panel:        #ffffff;      /* content surface         */
+    --surface:      #e5eaeb;   /* recessed: table, input fields */
+    --base:         #ffffff;      /* text on accent surfaces */
+    --sunken:       rgba(44, 62, 80, .06); /* behind code and preformatted text */
 
-    --line:         #e2e8f0;
+    --line:         #c9cccd;
 
-    /* The accents: the brand stays warm -- a saturated amber, not the brown
-       an ochre turns into once it is dark enough to read -- beside a clean
-       violet, rose and emerald. Deep as ink, because text has to reach
-       4.5:1 on white; the softness lives in the tints and the frames, which
-       are the pale of each family. "Bright" is the hover state and darker. */
-    --gold:         #b45309;
-    --gold-bright:  #92400e;
-    --gold-deep:    #f6d18b;                     /* pale amber frame */
-    --gold-wash:        rgba(180, 83, 9, .05);   /* faint row highlight */
-    --gold-tint:        rgba(180, 83, 9, .09);   /* hover of gold-framed buttons */
-    --gold-tint-mid:    rgba(180, 83, 9, .12);   /* notices */
-    --gold-tint-strong: rgba(180, 83, 9, .18);   /* chips inside notices */
-    --violet:       #6d28d9;
-    --violet-bright: #5b21b6;
-    --violet-soft:  rgba(109, 40, 217, .09);
-    --violet-line:  rgba(109, 40, 217, .24);
+    /* Accents. Alizarin darkened a step so it reads on the cloud (the pure
+       red stands at 3.3:1); danger is the same family one step deeper still,
+       so the two can be told apart here where the ground allows it. The
+       secondary is wet asphalt, success -- no green in the palette -- the
+       midnight, the text's own. The frames are the pale of each family. */
+    --gold:         #b23b2e;
+    --gold-bright:  #7d2920;
+    --gold-deep:    #d29f99;
+    --gold-wash:        rgba(178, 59, 46, .05);  /* faint row highlight */
+    --gold-tint:        rgba(178, 59, 46, .09);  /* hover of accent-framed buttons */
+    --gold-tint-mid:    rgba(178, 59, 46, .12);  /* notices */
+    --gold-tint-strong: rgba(178, 59, 46, .18);  /* chips inside notices */
+    --violet:       #34495e;
+    --violet-bright: #243342;
+    --violet-soft:  rgba(52, 73, 94, .09);
+    --violet-line:  rgba(52, 73, 94, .24);
 
-    --text:         #0f172a;                     /* slate, near black */
-    --text-muted:   #475569;
+    --text:         #2c3e50;
+    --text-muted:   #5c6667;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
-    --danger:       #be123c;
-    --danger-bright: #9f1239;
-    --danger-deep:  #881337;
-    --danger-line:  #fbcfe0;                     /* pale rose frame */
-    --danger-tint:        rgba(190, 18, 60, .08);
-    --danger-tint-strong: rgba(190, 18, 60, .16);
-    --danger-glow:        rgba(190, 18, 60, .12);
-    --ok:           #047857;
+    --danger:       #973227;
+    --danger-bright: #6a231b;
+    --danger-deep:  #622119;
+    --danger-line:  #caa4a0;
+    --danger-tint:        rgba(151, 50, 39, .08);
+    --danger-tint-strong: rgba(151, 50, 39, .16);
+    --danger-glow:        rgba(151, 50, 39, .12);
+    --ok:           #2c3e50;
 
-    /* Neutral overlays: veils of the slate ink instead of light. */
-    --hover-soft:   rgba(15, 23, 42, .035);
-    --hover:        rgba(15, 23, 42, .06);
-    --hover-strong: rgba(15, 23, 42, .1);
-    --backdrop:     rgba(15, 23, 42, .45);
+    /* Neutral overlays: veils of the midnight ink instead of light. */
+    --hover-soft:   rgba(44, 62, 80, .035);
+    --hover:        rgba(44, 62, 80, .06);
+    --hover-strong: rgba(44, 62, 80, .1);
+    --backdrop:     rgba(44, 62, 80, .45);
 
     /* Shadows carry much less on a pale ground; the same geometry, far less
        weight, or they read as dirt. */
-    --shadow-deep:  0 12px 32px rgba(15, 23, 42, .1);
-    --shadow-soft:  0 1px 2px rgba(15, 23, 42, .06);
-    --shadow-lift:  0 6px 18px rgba(15, 23, 42, .09);
-    --shade:        rgba(15, 23, 42, .14);
-    --shade-soft:   rgba(15, 23, 42, .08);
+    --shadow-deep:  0 12px 32px rgba(44, 62, 80, .12);
+    --shadow-soft:  0 1px 2px rgba(44, 62, 80, .06);
+    --shadow-lift:  0 6px 18px rgba(44, 62, 80, .1);
+    --shade:        rgba(44, 62, 80, .16);
+    --shade-soft:   rgba(44, 62, 80, .09);
 }
 
 /* The same list once more, for the visitor who follows their device. CSS
@@ -171,61 +177,59 @@
    hand. */
 @media (prefers-color-scheme: light) {
 :root[data-theme="system"] {
-    /* Surfaces: a cool, neutral slate -- the register of today's light
-       interfaces. A near-white ground, the chrome one step greyer, the card
-       pure white so it lifts off the page. No tint of the accent in the
-       greys: a coloured grey reads dated fast. */
-    --ink:          #f8fafc;   /* page ground             */
-    --shell:        #f1f5f9;   /* shell around the content */
-    --panel:        #fff;      /* content surface         */
-    --surface:      #f4f6f9;   /* recessed: table, input fields */
-    --base:         #fffbeb;   /* text on gold surfaces   */
-    --sunken:       rgba(15, 23, 42, .05); /* behind code and preformatted text */
+    /* Surfaces: the palette's cloud as the ground, a white card lifted off
+       it, the shell and the fields a step towards concrete. */
+    --ink:          #ecf0f1;   /* page ground             */
+    --shell:        #dce2e4;   /* shell around the content */
+    --panel:        #ffffff;      /* content surface         */
+    --surface:      #e5eaeb;   /* recessed: table, input fields */
+    --base:         #ffffff;      /* text on accent surfaces */
+    --sunken:       rgba(44, 62, 80, .06); /* behind code and preformatted text */
 
-    --line:         #e2e8f0;
+    --line:         #c9cccd;
 
-    /* The accents: the brand stays warm -- a saturated amber, not the brown
-       an ochre turns into once it is dark enough to read -- beside a clean
-       violet, rose and emerald. Deep as ink, because text has to reach
-       4.5:1 on white; the softness lives in the tints and the frames, which
-       are the pale of each family. "Bright" is the hover state and darker. */
-    --gold:         #b45309;
-    --gold-bright:  #92400e;
-    --gold-deep:    #f6d18b;                     /* pale amber frame */
-    --gold-wash:        rgba(180, 83, 9, .05);   /* faint row highlight */
-    --gold-tint:        rgba(180, 83, 9, .09);   /* hover of gold-framed buttons */
-    --gold-tint-mid:    rgba(180, 83, 9, .12);   /* notices */
-    --gold-tint-strong: rgba(180, 83, 9, .18);   /* chips inside notices */
-    --violet:       #6d28d9;
-    --violet-bright: #5b21b6;
-    --violet-soft:  rgba(109, 40, 217, .09);
-    --violet-line:  rgba(109, 40, 217, .24);
+    /* Accents. Alizarin darkened a step so it reads on the cloud (the pure
+       red stands at 3.3:1); danger is the same family one step deeper still,
+       so the two can be told apart here where the ground allows it. The
+       secondary is wet asphalt, success -- no green in the palette -- the
+       midnight, the text's own. The frames are the pale of each family. */
+    --gold:         #b23b2e;
+    --gold-bright:  #7d2920;
+    --gold-deep:    #d29f99;
+    --gold-wash:        rgba(178, 59, 46, .05);  /* faint row highlight */
+    --gold-tint:        rgba(178, 59, 46, .09);  /* hover of accent-framed buttons */
+    --gold-tint-mid:    rgba(178, 59, 46, .12);  /* notices */
+    --gold-tint-strong: rgba(178, 59, 46, .18);  /* chips inside notices */
+    --violet:       #34495e;
+    --violet-bright: #243342;
+    --violet-soft:  rgba(52, 73, 94, .09);
+    --violet-line:  rgba(52, 73, 94, .24);
 
-    --text:         #0f172a;                     /* slate, near black */
-    --text-muted:   #475569;
+    --text:         #2c3e50;
+    --text-muted:   #5c6667;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
-    --danger:       #be123c;
-    --danger-bright: #9f1239;
-    --danger-deep:  #881337;
-    --danger-line:  #fbcfe0;                     /* pale rose frame */
-    --danger-tint:        rgba(190, 18, 60, .08);
-    --danger-tint-strong: rgba(190, 18, 60, .16);
-    --danger-glow:        rgba(190, 18, 60, .12);
-    --ok:           #047857;
+    --danger:       #973227;
+    --danger-bright: #6a231b;
+    --danger-deep:  #622119;
+    --danger-line:  #caa4a0;
+    --danger-tint:        rgba(151, 50, 39, .08);
+    --danger-tint-strong: rgba(151, 50, 39, .16);
+    --danger-glow:        rgba(151, 50, 39, .12);
+    --ok:           #2c3e50;
 
-    /* Neutral overlays: veils of the slate ink instead of light. */
-    --hover-soft:   rgba(15, 23, 42, .035);
-    --hover:        rgba(15, 23, 42, .06);
-    --hover-strong: rgba(15, 23, 42, .1);
-    --backdrop:     rgba(15, 23, 42, .45);
+    /* Neutral overlays: veils of the midnight ink instead of light. */
+    --hover-soft:   rgba(44, 62, 80, .035);
+    --hover:        rgba(44, 62, 80, .06);
+    --hover-strong: rgba(44, 62, 80, .1);
+    --backdrop:     rgba(44, 62, 80, .45);
 
     /* Shadows carry much less on a pale ground; the same geometry, far less
        weight, or they read as dirt. */
-    --shadow-deep:  0 12px 32px rgba(15, 23, 42, .1);
-    --shadow-soft:  0 1px 2px rgba(15, 23, 42, .06);
-    --shadow-lift:  0 6px 18px rgba(15, 23, 42, .09);
-    --shade:        rgba(15, 23, 42, .14);
-    --shade-soft:   rgba(15, 23, 42, .08);
+    --shadow-deep:  0 12px 32px rgba(44, 62, 80, .12);
+    --shadow-soft:  0 1px 2px rgba(44, 62, 80, .06);
+    --shadow-lift:  0 6px 18px rgba(44, 62, 80, .1);
+    --shade:        rgba(44, 62, 80, .16);
+    --shade-soft:   rgba(44, 62, 80, .09);
 }
 }
 

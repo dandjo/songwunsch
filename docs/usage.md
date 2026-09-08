@@ -266,7 +266,7 @@ stays a tight, centred block.
 * **Wish list** – position on the left, title, below it artist · length ·
   genre; on the right, right-aligned in one column, the time received
   (clock glyph and stamp) above who wished (person glyph and name, if
-  given); a violet disc with how often the song was wished (*3×*, from the
+  given); a disc in the secondary colour with how often the song was wished (*3×*, from the
   second wish on, for everyone), and for moderators next to it the four
   move buttons (to the top, ▲, ▼, to the bottom) above *Delete* (bin, as
   wide as the button row). On phones the four become a 2×2 block, "to the

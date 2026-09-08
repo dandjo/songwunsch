@@ -13,8 +13,9 @@ for the default design (`src/Theme.php`), `ui.<name>` for the numbers
 
 ## Colours
 
-Gold marks actions, violet marks tags and counters, red marks danger, green
-marks success. Each of these areas has one base colour, and it has it twice:
+The built-in colours are the “Modern Urban Chic” palette – two slates, a
+cloud, concrete and one red – mapped onto six areas of use, and each area has
+its colour twice:
 once for the dark design and once for the light one. Admins can replace
 either. Every shade and tint the interface needs – hover states, frames,
 notices – is derived from the base colour of the scheme in question.
@@ -24,12 +25,18 @@ The table below names the **dark** defaults; the light ones stand under
 
 | Area | Used for | Default (dark) |
 | --- | --- | --- |
-| Accent | Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, gold tags and notices | `#e6b450` |
-| Secondary | Genre and role tags, the counters on the tabs, the frame of info notices | `#8d7ce0` |
-| Danger | Closed rooms, delete buttons, warnings, errors | `#ff6f85` |
-| Success | The frame of confirmation notices, the tick on a saved language tab, the confirm buttons in the page editor's dialogs | `#4ed08c` |
-| Background | Page ground; shell, panels, fields and lines are steps away from it, as is the text on gold buttons and counters | `#0d0e13` |
-| Text | Text; the muted text is a step towards the background | `#e9ebf1` |
+| Accent | Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, accent tags and notices | `#f2a098` |
+| Secondary | Genre and role tags, the counters on the tabs, the frame of info notices | `#aab7b8` |
+| Danger | Closed rooms, delete buttons, warnings, errors | `#f2a098` |
+| Success | The frame of confirmation notices, the tick on a saved language tab, the confirm buttons in the page editor's dialogs | `#ecf0f1` |
+| Background | Page ground; shell, panels, fields and lines are steps away from it, as is the text on accent buttons and counters | `#2c3e50` |
+| Text | Text; the muted text is a step towards the background | `#ecf0f1` |
+
+The palette's red, `#e74c3c`, is the action colour – but it stands at 2.9:1
+on the slate and text needs 4.5:1, so the dark design carries it lightened
+to a salmon. Danger is the same family and, on this ground, the same value:
+there is no second red in the palette that would read. Success has no colour
+of its own in the palette and takes the cloud, the text's own.
 
 Each area has a colour picker and a text field for the hex value, in each of
 the two groups. Both follow each other. A *Default* button brings the built-in colour back. The
@@ -135,25 +142,24 @@ values:
 
 | Area | Light default |
 | --- | --- |
-| Accent | `#b45309` |
-| Secondary | `#6d28d9` |
-| Danger | `#be123c` |
-| Success | `#047857` |
-| Background | `#f8fafc` |
-| Text | `#0f172a` |
+| Accent | `#b23b2e` |
+| Secondary | `#34495e` |
+| Danger | `#973227` |
+| Success | `#2c3e50` |
+| Background | `#ecf0f1` |
+| Text | `#2c3e50` |
 
-The light design sits in the register of today's light interfaces: a cool,
-neutral slate for the surfaces – near-white ground, the chrome one step
-greyer, pure white cards – with no tint of the accent in the greys, which
-reads dated fast. The brand stays warm through a saturated amber rather than
-the brown an ochre turns into once it is dark enough to read, beside a clean
-violet, rose and emerald. The base colours are deep because text has to
-reach 4.5:1 on white; the softness lives in the tints – the veils behind
-notices, chips, row highlights and hover states – and in the pale frames.
+The light design is the same palette turned over: the cloud as the ground,
+a white card lifted off it, midnight for the text and wet asphalt for the
+tags. The red is darkened a step so it reads on the cloud (the pure alizarin
+stands at 3.3:1), and here danger can be one step deeper still, so the two
+are told apart. Success takes the midnight, the text's own. The softness
+lives in the tints – the veils behind notices, chips, row highlights and
+hover states – and in the pale frames.
 
-They are separate on purpose. A colour picked against black is rarely
-readable on white – gold at `#e6b450` has a contrast of 10:1 on the dark
-ground and 1.9:1 on the light one – so the light set is chosen for its own
+They are separate on purpose. A colour picked against a dark ground is
+rarely readable on a light one – the salmon the dark design uses for actions
+would stand at 2:1 on the cloud – so the light set is chosen for its own
 ground, not derived from the dark one. The frames around transparent buttons
 are the exception the other way: on the light design they are the pastel of
 their colour family, soft rather than 3:1, because the button they frame
