@@ -65,9 +65,21 @@ return [
     // otherwise senders could make up their address and bypass that limit.
     'trust_proxy' => $env('TRUST_PROXY', '0') === '1',
 
+    // --- Schema -----------------------------------------------------------
+    // May a request create a table that is missing? True is convenient on a
+    // shared host, where one upload is the whole installation, and it means
+    // the database account PHP uses holds CREATE rights while the site runs.
+    // Set to false in production once tools/install.php has been run (or
+    // sql/schema.sql loaded) and give the account SELECT/INSERT/UPDATE/DELETE
+    // only: a missing table is then reported instead of created.
+    'schema_ddl' => $env('SCHEMA_DDL', '1') === '1',
+
     // --- Errors -----------------------------------------------------------
-    // Show technical error messages (table/column names) in the browser.
-    // Helpful during setup, set to false in production -- logged-in users
-    // still see the details.
-    'show_errors' => $env('SHOW_ERRORS', '1') === '1',
+    // Show technical error messages (table and column names, file paths, a
+    // driver's own words) to *everyone*, signed in or not. Off, because a
+    // fresh installation is reachable before anyone thinks about this file,
+    // and those messages describe the machine. Signed-in users see the
+    // detail either way, and it always goes to the error log -- switch this
+    // on only to debug an installation nobody else can reach.
+    'show_errors' => $env('SHOW_ERRORS', '0') === '1',
 ];

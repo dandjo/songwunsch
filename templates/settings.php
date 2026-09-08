@@ -149,7 +149,7 @@ $roleNotes  = [
         </fieldset>
 
         <div class="panel__actions">
-            <button type="submit" class="wish-button"><?= icon('check') ?><?= $e(t('Save')) ?></button>
+            <button type="submit" class="wish-button wish-button--accent"><?= icon('check') ?><?= $e(t('Save')) ?></button>
         </div>
     </form>
 </div>

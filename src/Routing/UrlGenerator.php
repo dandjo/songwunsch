@@ -6,7 +6,6 @@ namespace Songwunsch\Routing;
 
 use InvalidArgumentException;
 use Songwunsch\RoomContext;
-use Songwunsch\Security;
 
 /**
  * The address of a route, by name -- the counterpart of RouteMatcher, out of
@@ -24,6 +23,7 @@ final class UrlGenerator
         private readonly RouteCollection $routes,
         private readonly RoomContext $rooms,
         private readonly string $basePath,
+        private readonly bool $https = false,
     ) {
     }
 
@@ -92,13 +92,14 @@ final class UrlGenerator
     /**
      * An address of this installation with scheme and host, as a QR code or
      * a printout needs it: the request's host, https when the request came
-     * in over https (also behind a proxy, see Security::isHttps()).
+     * in over https (also behind a proxy where one is trusted, see
+     * Security::isHttps()).
      */
     public function absolute(string $target): string
     {
         $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
 
-        return (Security::isHttps() ? 'https' : 'http') . '://' . $host . $target;
+        return ($this->https ? 'https' : 'http') . '://' . $host . $target;
     }
 
     /**

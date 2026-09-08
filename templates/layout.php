@@ -387,13 +387,6 @@ if (trim(strip_tags($help)) === '') {
                  root element; that way app.js switches the whole menu by
                  setting that single attribute and needs no translated text of
                  its own. Works without JavaScript. */ ?>
-        <?php
-        $themeLabels = [
-            Theme::SYSTEM => t('Follow my device'),
-            Theme::LIGHT  => t('Light'),
-            Theme::DARK   => t('Dark'),
-        ];
-        ?>
         <details class="theme">
             <summary class="theme__toggle">
                 <?php /* A half-filled circle for "ask the device", a sun for light,
@@ -409,12 +402,13 @@ if (trim(strip_tags($help)) === '') {
                 <svg class="theme__icon theme__icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
                     <path d="M20 14.4A8.4 8.4 0 0 1 9.6 4a8.4 8.4 0 1 0 10.4 10.4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
                 </svg>
-                <span class="sr-only theme__name--auto"><?= $e(t('Design: {scheme}', ['scheme' => $themeLabels[Theme::SYSTEM]])) ?></span>
-                <span class="sr-only theme__name--light"><?= $e(t('Design: {scheme}', ['scheme' => $themeLabels[Theme::LIGHT]])) ?></span>
-                <span class="sr-only theme__name--dark"><?= $e(t('Design: {scheme}', ['scheme' => $themeLabels[Theme::DARK]])) ?></span>
+                <?php $themeNames = Theme::labels(); ?>
+                <span class="sr-only theme__name--auto"><?= $e(t('Design: {scheme}', ['scheme' => $themeNames[Theme::SYSTEM]])) ?></span>
+                <span class="sr-only theme__name--light"><?= $e(t('Design: {scheme}', ['scheme' => $themeNames[Theme::LIGHT]])) ?></span>
+                <span class="sr-only theme__name--dark"><?= $e(t('Design: {scheme}', ['scheme' => $themeNames[Theme::DARK]])) ?></span>
             </summary>
             <ul class="theme__menu" role="list">
-                <?php foreach ($themeLabels as $value => $label): ?>
+                <?php foreach (Theme::labels() as $value => $label): ?>
                     <?php $active = $value === $theme; ?>
                     <li>
                         <form method="post" action="<?= $e(url('theme')) ?>" data-theme-switch>

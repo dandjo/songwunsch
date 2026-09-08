@@ -111,7 +111,10 @@ final class WishController extends Controller
         // A song that is already open is not added a second time: the
         // existing entry counts the wish. Such a wish adds no row, so the
         // cap on open wishes does not apply to it (open count 0); the
-        // per-sender and per-minute limits still do.
+        // per-sender and per-minute limits still do. This decides the
+        // message the visitor gets; whether a row is really added is
+        // decided by the write itself (WishRepository::wish), which is the
+        // only place that can tell without a request slipping in between.
         $again = $this->wishes->isPending((int) $song['id']);
         $limit = $this->guard->limitReached($again ? 0 : $this->wishes->count());
         if ($limit !== null) {
@@ -120,24 +123,31 @@ final class WishController extends Controller
             return $this->redirectTo($this->back());
         }
 
-        // wishAgain() answers null if the entry went in the meantime; then
-        // the song is simply added like any other.
-        $counted = $again ? $this->wishes->wishAgain((int) $song['id']) : null;
-        if ($counted === null) {
-            $this->wishes->add($song, $this->guestName->current());
+        // The cap goes along: it is the one limit the write can still refuse,
+        // and it does so by taking a row back out that made the list too long.
+        $wish = $this->wishes->wish(
+            $song,
+            $this->guestName->current(),
+            $again ? 0 : $this->limits->get('max_open'),
+        );
+        if ($wish['full']) {
+            $this->flash('error', t('The wish list is full – please try again later.'));
+
+            return $this->redirectTo($this->back());
         }
+
         $this->guard->touch();
         $this->guard->record();
         $this->support->security->markWish();
 
-        $this->flash('ok', $counted !== null
-            ? t('“{title}” is on the list already – wished {n} times now.', [
-                'title' => (string) $song['title'],
-                'n'     => (int) $counted['wished'],
-            ])
-            : t('“{title}” by {artist} is in.', [
+        $this->flash('ok', $wish['added']
+            ? t('“{title}” by {artist} is in.', [
                 'title'  => (string) $song['title'],
                 'artist' => (string) $song['artist'],
+            ])
+            : t('“{title}” is on the list already – wished {n} times now.', [
+                'title' => (string) $song['title'],
+                'n'     => $wish['wished'],
             ]));
 
         return $this->redirectTo($this->back());

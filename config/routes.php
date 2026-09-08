@@ -182,6 +182,14 @@ return [
     // own address.
     Route::get('ui', '/admin/ui', [AdminController::class, 'ui']),
     Route::post('ui_save', '/admin/ui', [AdminController::class, 'saveUi'])->page('ui'),
+    // The same form, a second mutation: the twelve colours in it are kept as
+    // the admins' own palette instead of being applied (formaction).
+    Route::post('ui_palette_save', '/admin/ui/palette', [AdminController::class, 'saveUiPalette'])->page('ui'),
+    // The colour block the fields would produce, for the live preview on that
+    // page. Saves nothing; a POST because it carries the twelve values and
+    // must not end up in a cache or a bookmark.
+    Route::post('ui_palette_delete', '/admin/ui/palette/delete', [AdminController::class, 'deleteUiPalette'])->page('ui'),
+    Route::post('ui_preview', '/admin/ui/preview', [AdminController::class, 'previewUi'])->page('ui'),
     Route::get('limits', '/admin/limits', [AdminController::class, 'limits']),
     Route::post('limits_save', '/admin/limits', [AdminController::class, 'saveLimits'])->page('limits'),
 

@@ -7,7 +7,6 @@ namespace Songwunsch\EventListener;
 use Songwunsch\Http\Request;
 use Songwunsch\Http\Response;
 use Songwunsch\Routing\UrlGenerator;
-use Songwunsch\Security;
 use Songwunsch\Translator;
 
 /**
@@ -25,6 +24,7 @@ final class LanguageListener implements RequestListener
         private readonly Translator $translator,
         private readonly UrlGenerator $urls,
         private readonly string $cookiePath,
+        private readonly bool $secure = false,
     ) {
     }
 
@@ -34,7 +34,7 @@ final class LanguageListener implements RequestListener
             return null;
         }
 
-        $this->translator->remember($this->translator->code(), $this->cookiePath, Security::isHttps());
+        $this->translator->remember($this->translator->code(), $this->cookiePath, $this->secure);
 
         // The same address without the parameter -- with everything the path
         // carried (an id, a machine name, a room) still in place.

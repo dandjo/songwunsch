@@ -278,6 +278,117 @@
             follow();
         });
 
+        // Live preview of the colours: while a colour is being changed -- by a
+        // preset or typed by hand -- the fourteen fields are sent to the address
+        // on the form and the block that comes back is laid over the saved
+        // one, so the whole page shows the change before anything is saved.
+        // The ratios that turn seven colours into thirty stay in PHP; asking
+        // the server costs one small request per change (debounced, admins
+        // only) and there is no second copy of the derivation here.
+        root.querySelectorAll('[data-colour-preview]').forEach(function (form) {
+            if (form.hasAttribute('data-preview-bound')) { return; }
+            form.setAttribute('data-preview-bound', '1');
+            var address = form.getAttribute('data-colour-preview');
+            var timer = null;
+            var pending = 0;
+            var draw = function () {
+                var seq = ++pending;
+                fetch(address, {
+                    method: 'POST',
+                    body: new URLSearchParams(new FormData(form)),
+                    headers: { 'X-Requested-With': 'fetch' },
+                    credentials: 'same-origin',
+                }).then(function (response) {
+                    return response.ok ? response.text() : Promise.reject();
+                }).then(function (css) {
+                    // An answer that arrived late must not overwrite a newer one.
+                    if (seq !== pending) { return; }
+                    var style = document.getElementById('colors-preview');
+                    if (!style) {
+                        style = document.createElement('style');
+                        style.id = 'colors-preview';
+                        // After the saved block, so it wins on document order
+                        // -- the two carry the same selectors.
+                        document.head.appendChild(style);
+                    }
+                    if (style.textContent !== css) { style.textContent = css; }
+                }).catch(function () {
+                    // No preview then; the page keeps the saved colours.
+                });
+            };
+            var drop = function () {
+                var style = document.getElementById('colors-preview');
+                if (style) { style.remove(); }
+            };
+            form.addEventListener('input', function (event) {
+                if (!event.target.closest('[data-colour]')) { return; }
+                window.clearTimeout(timer);
+                timer = window.setTimeout(draw, 250);
+            });
+            // "Reset": the saved colours back into the fields and the preview
+            // away. defaultValue is the value the server rendered, which is
+            // what is stored -- no need to ask for it again. The fields are
+            // told about it so the pickers and the preset marks follow, and
+            // the preview that would redraw right after is called off: the
+            // page is already showing what is saved.
+            form.querySelectorAll('[data-colour-revert]').forEach(function (button) {
+                button.hidden = false;
+                button.addEventListener('click', function () {
+                    form.querySelectorAll('[data-colour] input[type="text"]').forEach(function (field) {
+                        if (field.value !== field.defaultValue) {
+                            field.value = field.defaultValue;
+                        }
+                        field.dispatchEvent(new Event('input', { bubbles: true }));
+                    });
+                    window.clearTimeout(timer);
+                    pending++;   // an answer still on its way is no longer wanted
+                    drop();
+                });
+            });
+        });
+
+        // Presets on the Interface page: one click writes a preset's fourteen
+        // colours into the fields -- both panels, whichever tab is open --
+        // through the same 'input' event typing would cause, so the pickers
+        // above follow. The preset whose fourteen values are all in the fields
+        // is marked pressed, and only while nobody edits them. Shown only
+        // here: without JavaScript a button could fill nothing.
+        root.querySelectorAll('[data-presets]').forEach(function (box) {
+            var form = box.closest('form');
+            if (!form || box.hasAttribute('data-bound')) { return; }
+            box.setAttribute('data-bound', '1');
+            var buttons = Array.prototype.slice.call(box.querySelectorAll('[data-preset]'));
+            var valuesOf = function (button) { return JSON.parse(button.getAttribute('data-preset')); };
+            var typed = function (field) { return '#' + field.value.trim().replace(/^#/, '').toLowerCase(); };
+            var mark = function () {
+                buttons.forEach(function (button) {
+                    var set = valuesOf(button);
+                    var same = Object.keys(set).every(function (name) {
+                        var field = form.elements[name];
+                        return !!field && typed(field) === set[name];
+                    });
+                    button.setAttribute('aria-pressed', same ? 'true' : 'false');
+                });
+            };
+            buttons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var set = valuesOf(button);
+                    Object.keys(set).forEach(function (name) {
+                        var field = form.elements[name];
+                        if (!field) { return; }
+                        field.value = set[name];
+                        // Bubbling, so the live preview on the form hears it
+                        // too and not only the picker beside the field.
+                        field.dispatchEvent(new Event('input', { bubbles: true }));
+                    });
+                    mark();
+                });
+            });
+            form.addEventListener('input', mark);
+            box.hidden = false;
+            mark();
+        });
+
         // Password fields: the eye shows the typed password and hides it
         // again. The button is rendered hidden and only appears here, so
         // without JavaScript nothing dangles beside the field.
@@ -860,6 +971,12 @@
         // the head, outside the swapped area. Taken over from the fetched
         // document -- added, replaced or removed -- so a save shows at once.
         var adoptColors = function (fresh) {
+            // A preview of colours that were not saved belongs to the page
+            // that was left, or has just been replaced by the real thing.
+            var preview = document.getElementById('colors-preview');
+            if (preview) {
+                preview.remove();
+            }
             var current = document.getElementById('colors');
             var wanted = fresh.getElementById('colors');
             if (wanted && current) {
@@ -1018,7 +1135,15 @@
                 data.append(submitter.name, submitter.value);
             }
             var body = form.enctype === 'multipart/form-data' ? data : new URLSearchParams(data);
-            request(form.action, { method: 'POST', body: body }).then(function (result) {
+            // A button may carry an address of its own (formaction): one form,
+            // two mutations, each with its own POST route -- "Save" and "Save
+            // as my palette" under Interface. Without this the browser would
+            // honour it and the soft path would not, which is the kind of
+            // difference that only shows up in production.
+            var action = submitter && submitter.hasAttribute('formaction')
+                ? submitter.formAction
+                : form.action;
+            request(action, { method: 'POST', body: body }).then(function (result) {
                 var url = new URL(result.url, window.location.href);
                 if (url.origin !== window.location.origin || !render(result.html, submitter)) {
                     window.location.assign(result.url);

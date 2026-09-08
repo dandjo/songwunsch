@@ -27,9 +27,10 @@ compatible) database. No Composer, no build step: the files run as they are.
 
    Two more values matter later: `trust_proxy` (set to `true` only behind a
    reverse proxy that is the only way in, see
-   [Protecting the wishing](wish-protection.md)) and `show_errors` (`true`
-   shows technical error messages to everyone, `false` to signed-in users
-   only – set `false` in production).
+   [Protecting the wishing](wish-protection.md)) and `show_errors`, which is
+   `false` and should stay that way – technical error messages then reach
+   signed-in users only, and the error log; `true` shows them to every
+   visitor.
 
 3. Define the first admin:
 

@@ -35,7 +35,7 @@ $editUrl = url('page_edit', ['id' => (int) $content['id'], 'back' => url('page',
     </div>
     <?php if ($canEdit): ?>
         <div class="panel__actions">
-            <a class="link-button" href="<?= $e($editUrl) ?>"><?= icon('pencil') ?><?= $e(t('Edit')) ?></a>
+            <a class="link-button link-button--accent" href="<?= $e($editUrl) ?>"><?= icon('pencil') ?><?= $e(t('Edit')) ?></a>
         </div>
     <?php endif; ?>
 </div>

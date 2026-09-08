@@ -12,8 +12,10 @@ use Songwunsch\Ui;
  * gets by default, how long a pop-up message stays, and how often the pages
  * ask for changes (one interval per case, 0 = no live update).
  *
- * The colours come as two sets of six, one per scheme: a base colour per
- * area of use, picked with the browser's colour picker or typed as #rrggbb
+ * The colours come as two sets of seven, one per scheme: a base colour per
+ * area of use -- the three voices first (what is acted on, what it sits in,
+ * what stands out), then danger, success, the ground and the text -- picked
+ * with the browser's colour picker or typed as #rrggbb
  * (both follow each other, app.js), and an empty field keeps the
  * stylesheet's built-in colour for that scheme. Which set a visitor sees is
  * their own choice, made with the switch in the header; the default below
@@ -21,6 +23,7 @@ use Songwunsch\Ui;
  *
  * @var array<string,string> $values  area => '#rrggbb' ('' = built-in colour) and field => number as text; what was typed after a failed save
  * @var array<string,string> $errors  area or field => message, after a failed save
+ * @var array{name:string,dark:array<string,string>,light:array<string,string>}|null $ownPalette  what "Save as my palette" kept, or null
  * @var string $csrf
  */
 
@@ -28,11 +31,12 @@ $e = static fn (?string $v): string => Format::e($v);
 
 // Label and where the colour shows up, per area -- the same wording as docs/interface.md.
 $areas = [
-    'accent'     => [t('Accent'),     t('Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the accent tags and notices.')],
-    'secondary'  => [t('Secondary'),  t('The genre and role tags, the counters on the tabs and the edge of the info notices.')],
+    'primary'    => [t('Primary'),    t('The menu and what a visitor acts on: buttons, links, every tab and the room switcher, focus rings, the primary tags and notices.')],
+    'secondary'  => [t('Secondary'),  t('The counter discs on the tabs, and nothing else – a supporting colour on the menu.')],
+    'accent'     => [t('Accent'),     t('What stands out from both: “wunsch” in the word mark, the genre and role tags, what an editor does (“Edit”, “Add …”, “Save”), the sort chip that is switched on, the dot on the account menu and a song that is already on the wish list.')],
     'danger'     => [t('Danger'),     t('Closed rooms, delete buttons, warnings and errors.')],
     'success'    => [t('Success'),    t('The edge of the confirmation notices and the confirm buttons in the dialogs of the page editor.')],
-    'background' => [t('Background'), t('The page ground; shell, panels, fields and lines are steps away from it, and so is the text on accent buttons and counters.')],
+    'background' => [t('Background'), t('The page ground; shell, panels, fields and lines are steps away from it, and so is the text on filled buttons and counters.')],
     'text'       => [t('Text'),       t('The text; the muted text is a step towards the background.')],
 ];
 
@@ -84,10 +88,17 @@ $colorTab = !$schemeErrors[Theme::DARK] && $schemeErrors[Theme::LIGHT] ? Theme::
 </div>
 
 <div class="login login--wide">
-    <form method="post" action="<?= $e(url('ui_save')) ?>" class="login__form">
+    <?php /* data-colour-preview: while a colour is being changed -- by a
+             preset or by hand -- app.js asks this address for the block the
+             fourteen fields would produce and lays it over the saved one, so the
+             whole page shows the change before anything is saved (see
+             AdminController::previewUi). The derivation stays in PHP; there is
+             no second copy of the ratios in JavaScript. */ ?>
+    <form method="post" action="<?= $e(url('ui_save')) ?>" class="login__form"
+          data-colour-preview="<?= $e(url('ui_preview')) ?>">
         <input type="hidden" name="csrf" value="<?= $e($csrf) ?>">
 
-        <?php /* One panel per scheme, six fields each, behind a row of tabs --
+        <?php /* One panel per scheme, seven fields each, behind a row of tabs --
                  the same component the page editor uses for its languages and
                  the footer for its lines (app.js), because it is the same
                  shape: one form, one panel per version of the same fields.
@@ -100,6 +111,78 @@ $colorTab = !$schemeErrors[Theme::DARK] && $schemeErrors[Theme::LIGHT] ? Theme::
                  fields need a look after a failed save. */ ?>
         <div class="field field--group">
         <h2 class="field__legend"><?= $e(t('Colours')) ?></h2>
+
+        <?php /* Ready-made pairs of sets (Colors::PRESETS). A click writes a
+                 preset's fourteen colours into the fields -- both panels,
+                 whichever tab is open -- and nothing is saved until "Save";
+                 every field stays editable, so a preset is a starting point
+                 as much as a choice. Each button shows the pair as two
+                 miniature screens: the ground, discs for accent, secondary
+                 and danger, a bar in the text colour. Rendered hidden and
+                 shown by JavaScript, like the pickers: without it a button
+                 could fill nothing. The one whose values are all in the
+                 fields is marked pressed (app.js). */ ?>
+        <div class="presets" data-presets hidden>
+            <p class="field__hint" id="hint-presets">
+                <?= $e(t('A preset fills in all fourteen fields, the dark set and the light one. Nothing is saved until you press Save, and every field can still be changed afterwards.')) ?>
+                <?= $e(t('“Save as my palette” keeps what stands in the fields as your own palette, first in this row; saving it again replaces it.')) ?>
+                <?= $e(t('The page shows every change at once, before it is saved. “Reset” puts the saved colours back.')) ?>
+            </p>
+            <ul class="presets__list" role="list" aria-label="<?= $e(t('Presets')) ?>" aria-describedby="hint-presets">
+                <?php /* The admins' own palette stands first: it is theirs, and
+                         it is the one they will reach for. Everything else about
+                         it is a preset like the built-in ones. Corporate Blue
+                         follows, being the palette the stylesheet carries. */ ?>
+                <?php foreach (($ownPalette === null ? [] : ['own' => $ownPalette]) + Colors::PRESETS as $preset): ?>
+                    <?php
+                    // field name => value, for all fourteen fields at once.
+                    $fill = [];
+                    foreach ([true => 'dark', false => 'light'] as $isDark => $scheme) {
+                        foreach (Colors::AREAS as $area) {
+                            $fill[Colors::field($area, (bool) $isDark)] = $preset[$scheme][$area];
+                        }
+                    }
+                    ?>
+                    <li>
+                        <button type="button" class="preset" aria-pressed="false" data-preset="<?= $e((string) json_encode($fill)) ?>">
+                            <span class="preset__swatches" aria-hidden="true">
+                                <?php foreach (['dark', 'light'] as $scheme): $set = $preset[$scheme]; ?>
+                                    <span class="preset__scheme" style="background: <?= $e($set['background']) ?>; color: <?= $e($set['text']) ?>"><i style="background: <?= $e($set['accent']) ?>"></i><i style="background: <?= $e($set['secondary']) ?>"></i><i style="background: <?= $e($set['danger']) ?>"></i><b></b></span>
+                                <?php endforeach; ?>
+                            </span>
+                            <span class="preset__name"><?= $e($preset['name']) ?></span>
+                        </button>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+            <?php /* A second mutation on the same form: the button names its
+                     own address (formaction), so the fourteen fields travel to
+                     the route that keeps them instead of the one that applies
+                     them. Plain HTML, so it works without JavaScript; app.js
+                     honours formaction on the soft path as well. */ ?>
+            <p class="presets__keep">
+                <button type="submit" class="link-button" formaction="<?= $e(url('ui_palette_save')) ?>">
+                    <?= icon('check') ?><?= $e(t('Save as my palette')) ?>
+                </button>
+                <?php /* Puts the saved colours back into the fourteen fields and
+                         drops the preview, so the page shows what is actually
+                         stored again. Rendered hidden and shown by app.js:
+                         without JavaScript there is no preview to undo, and
+                         the fields already show what is saved. */ ?>
+                <button type="button" class="link-button" data-colour-revert hidden>
+                    <?= icon('undo') ?><?= $e(t('Reset')) ?>
+                </button>
+                <?php /* Only when there is one to delete. A mutation of its
+                         own, with its own address, and it carries no colours:
+                         the fields are untouched by it. */ ?>
+                <?php if ($ownPalette !== null): ?>
+                    <button type="submit" class="delete-button" formaction="<?= $e(url('ui_palette_delete')) ?>" formnovalidate>
+                        <?= icon('trash') ?><?= $e(t('Delete my palette')) ?>
+                    </button>
+                <?php endif; ?>
+            </p>
+        </div>
+
         <div class="tabbed tabbed--flush" data-tabs data-tabs-active="<?= $e($colorTab) ?>">
             <nav class="tabs" aria-label="<?= $e(t('Colours')) ?>">
                 <ul role="list">
@@ -119,7 +202,7 @@ $colorTab = !$schemeErrors[Theme::DARK] && $schemeErrors[Theme::LIGHT] ? Theme::
                 <p class="field__hint">
                     <?= $isDark
                         ? $e(t('The dark interface. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it.'))
-                        : $e(t('The light interface, for visitors who choose it. The same six areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above.')) ?>
+                        : $e(t('The light interface, for visitors who choose it. The same seven areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above.')) ?>
                     <?= $e(t('Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change – in the scheme the colour belongs to.')) ?>
                 </p>
                 <div class="field-pair">
@@ -166,17 +249,16 @@ $colorTab = !$schemeErrors[Theme::DARK] && $schemeErrors[Theme::LIGHT] ? Theme::
             <div class="field">
                 <label for="ui-theme"><?= $e(t('Visitors who have not chosen see')) ?></label>
                 <select id="ui-theme" name="theme" aria-describedby="hint-theme">
-                    <?php foreach ([
-                        Theme::DARK   => t('Dark'),
-                        Theme::LIGHT  => t('Light'),
-                        Theme::SYSTEM => t('Follow my device'),
-                    ] as $value => $label): ?>
+                    <?php /* The same order as the switch in the header
+                             (Theme::labels()): "Follow my device" first, it
+                             being what a visitor without a choice gets. */ ?>
+                    <?php foreach (Theme::labels() as $value => $label): ?>
                         <option value="<?= $e($value) ?>"<?= ($values['theme'] ?? Theme::FALLBACK) === $value ? ' selected' : '' ?>><?= $e($label) ?></option>
                     <?php endforeach; ?>
                 </select>
                 <p class="field__hint" id="hint-theme">
                     <?= $e(t('Everyone may switch for themselves in the header at any time; this is only the starting point. “Follow my device” takes the light or dark setting of the visitor\'s own system.')) ?>
-                    <?= $e(t('Default: {n}.', ['n' => t('Dark')])) ?>
+                    <?= $e(t('Default: {n}.', ['n' => t('Follow my device')])) ?>
                 </p>
             </div>
         </fieldset>
@@ -204,7 +286,7 @@ $colorTab = !$schemeErrors[Theme::DARK] && $schemeErrors[Theme::LIGHT] ? Theme::
         <?php endforeach; ?>
 
         <div class="panel__actions">
-            <button type="submit" class="wish-button"><?= icon('check') ?><?= $e(t('Save')) ?></button>
+            <button type="submit" class="wish-button wish-button--accent"><?= icon('check') ?><?= $e(t('Save')) ?></button>
         </div>
     </form>
 </div>

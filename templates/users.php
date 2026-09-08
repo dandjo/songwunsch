@@ -34,7 +34,7 @@ $current = url('users', ['q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
     </div>
 
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url('user_new', ['back' => $current])) ?>"><?= icon('plus') ?><?= $e(t('Add user')) ?></a>
+        <a class="link-button link-button--accent" href="<?= $e(url('user_new', ['back' => $current])) ?>"><?= icon('plus') ?><?= $e(t('Add user')) ?></a>
     </div>
 </div>
 
@@ -95,7 +95,7 @@ $current = url('users', ['q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
                 <td class="cell-action">
                     <div class="row-actions">
                         <div class="row-actions__pair">
-                            <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url('user_edit', ['id' => (int) $row['id'], 'back' => $current])) ?>">
+                            <a class="link-button link-button--accent icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url('user_edit', ['id' => (int) $row['id'], 'back' => $current])) ?>">
                                 <?= icon('pencil') ?>
                                 <span class="button__label"><?= $e(t('Edit')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['username']) ?></span>

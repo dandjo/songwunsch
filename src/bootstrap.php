@@ -215,6 +215,12 @@ function icon(string $name, int $size = 16, bool $trailing = false): string
         'star'   => '<path d="M8 1 9.95 5.95 15.2 6.3 11.1 9.65 12.45 14.8 8 12 3.55 14.8 4.9 9.65.8 6.3 6.05 5.95z" fill="currentColor" stroke="currentColor" stroke-width=".8" stroke-linejoin="round"/>',
         'check'  => '<path d="M3.3 8.4 6.7 11.8 12.7 4.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
         'cross'  => '<path d="M3.6 3.6l8.8 8.8M12.4 3.6l-8.8 8.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
+        // Undo: a ring travelled anti-clockwise, left open at the top where
+        // the arrow sets off, its head filled at that opening -- a circle
+        // that does not close is what makes it read as "back" rather than
+        // "reload", and a solid head stays legible at 16px where two thin
+        // strokes run together.
+        'undo'   => '<path d="M10.8 4.1A5.1 5.1 0 1 1 6.1 3.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M7.4 1.2 3.3 3.9l4.5 2.1z" fill="currentColor"/>',
         // Settings: a cog. Generated: 8 teeth on radius 5.3..7, hole 2.4.
         'gear'   => '<path fill-rule="evenodd" d="M13.2 7.0 L14.9 7.1 L14.9 8.9 L13.2 9.0 L12.4 11.0 L13.5 12.3 L12.3 13.5 L11.0 12.4 L9.0 13.2 L8.9 14.9 L7.1 14.9 L7.0 13.2 L5.0 12.4 L3.7 13.5 L2.5 12.3 L3.6 11.0 L2.8 9.0 L1.1 8.9 L1.1 7.1 L2.8 7.0 L3.6 5.0 L2.5 3.7 L3.7 2.5 L5.0 3.6 L7.0 2.8 L7.1 1.1 L8.9 1.1 L9.0 2.8 L11.0 3.6 L12.3 2.5 L13.5 3.7 L12.4 5.0z M8 5.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 1 0 0-4.8z" fill="currentColor"/>',
         // Guest view: an eye.

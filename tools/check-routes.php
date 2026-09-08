@@ -112,9 +112,33 @@ foreach ($routes->all() as $name => $route) {
 
 // Every route the access map names must exist: a typo there would silently
 // leave an address public.
-foreach (array_keys(require dirname(__DIR__) . '/config/access.php') as $name) {
+$access = require dirname(__DIR__) . '/config/access.php';
+foreach (array_keys($access) as $name) {
     if (!$routes->has((string) $name)) {
         printf("FAIL access.php names '%s', which is no route\n", $name);
+        $failures++;
+    }
+}
+
+// And the other direction, which is the one that bites: every route that
+// writes, and everything under /admin, has to be classified -- given a role
+// area, or marked AccessListener::OPEN. The runtime refuses an unclassified
+// one of those (AccessListener), so this does not decide whether an address
+// is reachable; it says so here, at the moment the route is added, instead of
+// leaving someone to find out from a 303 to the login.
+foreach ($routes->all() as $route) {
+    if (array_key_exists($route->name(), $access)) {
+        continue;
+    }
+    $writes = in_array('POST', $route->methods(), true);
+    $admin  = str_starts_with($route->path(), '/admin');
+    if ($writes || $admin) {
+        printf(
+            "FAIL %-20s %s is %s but is not in access.php -- give it a role area, or AccessListener::OPEN\n",
+            $route->name(),
+            $route->path(),
+            $writes ? 'a POST route' : 'under /admin',
+        );
         $failures++;
     }
 }

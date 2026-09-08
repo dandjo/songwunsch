@@ -160,7 +160,7 @@ $invalid = static fn (string $field, string $htmlId): string => isset($errors[$f
         </div>
 
         <div class="panel__actions">
-            <button type="submit" class="wish-button"><?= icon($isNew ? 'plus' : 'check') ?><?= $e($isNew ? t('Create') : t('Save')) ?></button>
+            <button type="submit" class="wish-button wish-button--accent"><?= icon($isNew ? 'plus' : 'check') ?><?= $e($isNew ? t('Create') : t('Save')) ?></button>
             <a class="link-button" href="<?= $e($back) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
         </div>
     </form>

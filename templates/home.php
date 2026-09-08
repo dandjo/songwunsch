@@ -8,6 +8,7 @@ use Songwunsch\SongRepository;
 
 /** @var SongRepository $repo */
 /** @var array<int,array<string,mixed>> $rows */
+/** @var array<int,bool> $wished  song id => true for the songs already on this room's wish list */
 /** @var int $total */
 /** @var string $q */
 /** @var string $sort */
@@ -77,7 +78,7 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                 <?= $e(t('Manage')) ?>
             </a>
         <?php elseif (!$isRoom && $security->can('songs')): ?>
-            <a class="link-button" href="<?= $e(url('song', ['id' => 'new', 'back' => $current])) ?>">
+            <a class="link-button link-button--accent" href="<?= $e(url('song', ['id' => 'new', 'back' => $current])) ?>">
                 <?= icon('plus') ?>
                 <?= $e(t('Add song')) ?>
             </a>
@@ -137,7 +138,12 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
             <?php foreach ($rows as $row): ?>
                 <?php $rowKey = (string) (int) $row['id']; ?>
                 <?php $rowLabel = t('{title} by {artist}', ['title' => (string) $row['title'], 'artist' => (string) $row['artist']]); ?>
-                <tr>
+                <?php /* Already on this room's wish list: the row is marked, and
+                         the wish button says so in its accessible name -- a
+                         colour alone would tell only those who see it. Wishing
+                         again is still allowed; it counts on the entry. */ ?>
+                <?php $isWished = isset($wished[(int) $row['id']]); ?>
+                <tr<?= $isWished ? ' class="is-wished"' : '' ?>>
                     <td class="cell-artist"><?= $e((string) $row['artist']) ?></td>
                     <td class="cell-title"><?= $e((string) $row['title']) ?></td>
                     <td class="cell-length"><?= $e(Format::length($row['length_sec'])) ?></td>
@@ -165,13 +171,13 @@ $th = static function (string $key, string $label) use ($sortable, $sort, $dir, 
                                             <input type="text" name="hp_url" tabindex="-1" autocomplete="off" value="">
                                         </div>
                                         <button type="submit" class="wish-button">
-                                            <?= icon('star') ?><?= $e(t('Wish')) ?><span class="sr-only">: <?= $e($rowLabel) ?></span>
+                                            <?= icon('star') ?><?= $e(t('Wish')) ?><span class="sr-only">: <?= $e($rowLabel) ?><?= $isWished ? ' – ' . $e(t('already on the wish list')) : '' ?></span>
                                         </button>
                                     </form>
                                 <?php endif; ?>
                                 <?php if ($security->can('songs')): ?>
                                     <div class="row-actions__pair">
-                                        <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>"
+                                        <a class="link-button link-button--accent icon-button" title="<?= $e(t('Edit')) ?>"
                                            href="<?= $e(url('song', ['id' => $rowKey, 'back' => $current])) ?>">
                                             <?= icon('pencil') ?>
                                             <span class="button__label"><?= $e(t('Edit')) ?></span>

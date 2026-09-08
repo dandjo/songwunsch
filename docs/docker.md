@@ -105,7 +105,7 @@ request.
 host (bind mount) and stays editable. It reads its values from environment
 variables, and `compose.yml` passes those in from the `.env`: the database
 credentials (`DB_HOST` is fixed to `db`, `DB_PORT` to `3306`), `AUTH_USER`,
-`AUTH_HASH`, `BASE_PATH`, `SHOW_ERRORS` and `TZ`. `TRUST_PROXY` is fixed to
+`AUTH_HASH`, `BASE_PATH`, `SHOW_ERRORS`, `SCHEMA_DDL` and `TZ`. `TRUST_PROXY` is fixed to
 `1`, because Traefik is the only way into the container and its
 `X-Forwarded-For` header can be trusted (see
 [Protecting the wishing](wish-protection.md)). After a change to the `.env`,
@@ -135,7 +135,8 @@ PhpStorm. It is not reachable from other machines.
 | `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` | Database name, application user and the two passwords |
 | `DB_PORT_HOST` | Host port for database clients, on `127.0.0.1` only (`3399`) |
 | `AUTH_USER`, `AUTH_HASH` | The first admin, see below |
-| `SHOW_ERRORS` | `1` shows technical error messages to everyone, `0` to signed-in users only |
+| `SHOW_ERRORS` | `0` (the default) shows technical error messages to signed-in users only, `1` to everyone |
+| `SCHEMA_DDL` | `1` lets a request create a missing table, `0` requires `tools/install.php` and needs no CREATE rights |
 | `TRAEFIK_HTTP_PORT`, `TRAEFIK_HTTPS_PORT`, `TRAEFIK_DASHBOARD_PORT` | Ports of the standalone Traefik (`80`, `443`, `8081`) |
 | `DEPLOY_HOST`, `DEPLOY_DIR` | Only for `tools/deploy.sh`, see [Deployment](installation.md#deployment) |
 

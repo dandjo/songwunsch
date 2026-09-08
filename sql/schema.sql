@@ -46,8 +46,10 @@ CREATE TABLE IF NOT EXISTS `song_wishes` (
     `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id, 0 = default room',
     `wished`     INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'how often the song was wished while this entry has been open',
     PRIMARY KEY (`id`),
+    -- One entry per song and room; a wish whose song was deleted keeps artist
+    -- and title with song_id NULL, and a unique index allows any number of NULLs.
+    UNIQUE KEY `uniq_room_song` (`room_id`, `song_id`),
     KEY `idx_created_at` (`created_at`),
-    KEY `idx_song_id` (`song_id`),
     KEY `idx_position` (`position`),
     KEY `idx_room_id` (`room_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -67,8 +69,9 @@ CREATE TABLE IF NOT EXISTS `song_suggestions` (
     `created_at` DATETIME     NOT NULL,
     `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id whose list the suggestion is on, 0 = main room; the adopted song joins that room',
     PRIMARY KEY (`id`),
+    -- One suggestion per song and room; it covers the lookup by artist and title.
+    UNIQUE KEY `uniq_room_artist_title` (`room_id`, `artist`, `title`),
     KEY `idx_created_at` (`created_at`),
-    KEY `idx_artist_title` (`artist`, `title`),
     KEY `idx_room_id` (`room_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

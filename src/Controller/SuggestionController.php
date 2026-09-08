@@ -109,6 +109,9 @@ final class SuggestionController extends Controller
             return $this->redirectTo($back);
         }
 
+        // Read here for the message a guest gets before typing further; the
+        // write below applies it again, which is the only moment at which a
+        // request running next to this one is visible.
         $maxOpen = $this->limits->get('suggestion_max_open');
         if ($maxOpen > 0 && $this->suggestions->count() >= $maxOpen) {
             $this->support->forms->remember($input, []);
@@ -139,8 +142,26 @@ final class SuggestionController extends Controller
         }
 
         // The suggestion goes onto the list of the room the guest is in:
-        // once adopted, the song is offered there right away.
-        $this->suggestions->add($checked['values'], $this->guestName->current());
+        // once adopted, the song is offered there right away. The two
+        // answers the write can give back -- already there, or full -- are
+        // the ones the checks above have already looked for; they are only
+        // reachable when another request came in between.
+        $result = $this->suggestions->add($checked['values'], $this->guestName->current(), $maxOpen);
+        if ($result['full']) {
+            $this->support->forms->remember($input, []);
+            $this->flash('error', t('The suggestion box is full – please try again later.'));
+
+            return $this->redirectTo($back);
+        }
+        if (!$result['added']) {
+            $this->flash('info', t('“{title}” by {artist} has already been suggested.', [
+                'title'  => $title,
+                'artist' => $artist,
+            ]));
+
+            return $this->redirectTo($back);
+        }
+
         $this->settings->increment(SuggestionRepository::REVISION_KEY);
         $this->support->security->markWish('suggestion');
 

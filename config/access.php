@@ -70,9 +70,13 @@ return [
     'logos'            => 'users',
     'logo_upload'      => 'users',
     'logo_activate'    => 'users',
+    'logo_light_inherit' => 'users',
     'logo_delete'      => 'users',
     'ui'               => 'users',
     'ui_save'          => 'users',
+    'ui_palette_save'  => 'users',
+    'ui_palette_delete' => 'users',
+    'ui_preview'       => 'users',
     'limits'           => 'users',
     'limits_save'      => 'users',
     'pages'            => 'users',
@@ -90,4 +94,20 @@ return [
     'languages_move'   => 'users',
     'languages_reorder' => 'users',
     'rooms_pause_all'  => 'users',
+
+    // Open to everyone on purpose. Written down because a POST route that
+    // nobody classified is refused (AccessListener::OPEN), so this list is
+    // the difference between "public" and "forgotten".
+    'wish'             => AccessListener::OPEN,   // a guest wishes a song
+    'suggest'          => AccessListener::OPEN,   // a guest suggests one
+    'room_switch'      => AccessListener::OPEN,   // which room this visitor is in
+    'name_save'        => AccessListener::OPEN,   // the name for the wish list
+    'name_skip'        => AccessListener::OPEN,   // ... or no name
+    'theme'            => AccessListener::OPEN,   // light or dark, per visitor
+    'login_submit'     => AccessListener::OPEN,   // the login itself
+    'logout'           => AccessListener::OPEN,
+    // Turning the guest view off has to work while it is on, and a user in
+    // guest view counts as no user (Security::user()); the controller checks
+    // the account itself.
+    'guest_view'       => AccessListener::OPEN,
 ];

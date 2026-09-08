@@ -24,49 +24,55 @@
 
 :root {
     /* Surfaces, stepped from dark to light */
-    --ink:          #0d1417;   /* page ground             */
-    --shell:        #141b1e;   /* shell around the content */
-    --panel:        #1a2124;   /* content surface         */
-    --surface:      #11181a;   /* recessed: table, input fields */
-    --base:         #141b1e;   /* text on accent surfaces */
+    --ink:          #111827;   /* page ground             */
+    --shell:        #181f2d;   /* shell around the content */
+    --panel:        #1e2533;   /* content surface         */
+    --surface:      #151b2a;   /* recessed: table, input fields */
+    --base:         #181f2d;   /* text on accent surfaces */
     --sunken:       rgba(0, 0, 0, .45); /* behind code and preformatted text */
 
-    --line:         #2c3335;
+    --line:         #303643;
 
-    /* Accents: a pale blue for actions, a lighter blue-grey as the secondary,
-       coral for danger, a leaf green for success. Every shade and tint below
-       derives from its base colour with the ratios src/Colors.php uses, so a
-       colour the admins set under Interface lands in the same family. */
-    --gold:         #93b9d2;
-    --gold-bright:  #b3cee0;
-    --gold-deep:    #536a78;
-    --gold-wash:        rgba(147, 185, 210, .06);  /* faint row highlight */
-    --gold-tint:        rgba(147, 185, 210, .12);  /* hover of accent-framed buttons */
-    --gold-tint-mid:    rgba(147, 185, 210, .14);  /* notices */
-    --gold-tint-strong: rgba(147, 185, 210, .22);  /* chips inside notices */
-    --violet:       #d4e3e5;
-    --violet-bright: #e1ebed;
-    --violet-soft:  rgba(212, 227, 229, .13);
-    --violet-line:  rgba(212, 227, 229, .32);
+    /* Accents: a light blue for actions, a fuller blue as the secondary, a
+       soft red for danger, a leaf green for success. Every shade and tint
+       below derives from its base colour with the ratios src/Colors.php
+       uses, so a colour the admins set under Interface lands in the same
+       family. */
+    --gold:         #93c5fd;
+    --gold-bright:  #b3d6fe;
+    --gold-deep:    #557296;
+    --gold-wash:        rgba(147, 197, 253, .06);  /* faint row highlight */
+    --gold-tint:        rgba(147, 197, 253, .12);  /* hover of accent-framed buttons */
+    --gold-tint-mid:    rgba(147, 197, 253, .14);  /* notices */
+    --gold-tint-strong: rgba(147, 197, 253, .22);  /* chips inside notices */
+    /* The chrome the actions sit in: the room switcher, the tabs that are
+       not the current page. Derived from the secondary colour. */
+    --steel:        #60a5fa;
 
-    --text:         #f6f8f8;
-    --text-muted:   #a0a4a5;
+    --violet:       #fbbf24;
+    --violet-bright: #fcd266;
+    --violet-wash:  rgba(251, 191, 36, .06);
+    --violet-soft:   rgba(251, 191, 36, .13);
+    --violet-line:   rgba(251, 191, 36, .32);
+
+    --text:         #f3f4f6;
+    --text-muted:   #9fa3a9;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
-    --danger:       #ff6f61;
-    --danger-bright: #ff9a90;
-    --danger-deep:  #a6483f;
-    --danger-line:  #6e3835;
-    --danger-tint:        rgba(255, 111, 97, .08);
-    --danger-tint-strong: rgba(255, 111, 97, .25);
-    --danger-glow:        rgba(255, 111, 97, .15);
-    --ok:           #7db22e;
+    --danger:       #f87171;
+    --danger-bright: #fa9c9c;
+    --danger-deep:  #a14949;
+    --danger-line:  #6d3c45;
+    --danger-tint:       rgba(248, 113, 113, .08);
+    --danger-tint-strong: rgba(248, 113, 113, .25);
+    --danger-glow:       rgba(248, 113, 113, .15);
+    --ok:           #4ade80;
 
     /* Neutral overlays: hover and pressed states on dark surfaces, the
        backdrop behind the name dialog. */
     --hover-soft:   rgba(255, 255, 255, .04);
     --hover:        rgba(255, 255, 255, .06);
     --hover-strong: rgba(255, 255, 255, .1);
-    --backdrop:     rgba(9, 14, 16, .72);
+    --backdrop:    rgba(12, 17, 27, .72);
 
     /* Rounding is functional, not decorative: buttons and fields 8px,
        surfaces 12px, the shell 16px. The pill shape is reserved for chips. */
@@ -82,7 +88,6 @@
        balloons and dialogs), where a whole shadow value will not do. */
     --shade:        rgba(0, 0, 0, .4);
     --shade-soft:   rgba(0, 0, 0, .3);
-    --glow-gold:    0 0 0 3px var(--gold-tint-strong);
 
     /* Side spacing shared by header and panel content, so the word mark and
        the page title sit on the same vertical line. */
@@ -107,58 +112,63 @@
    selector, so they win here as they do on the dark scheme -- see
    src/Colors.php. */
 :root[data-theme="light"] {
-    /* Surfaces: a near-white ground, the card lifted towards white, the shell
-       and the fields a step towards the ink. */
-    --ink:          #fbfcfe;   /* page ground             */
-    --shell:        #f2f3f5;   /* shell around the content */
-    --panel:        #fdfeff;   /* content surface         */
-    --surface:      #f5f6f8;   /* recessed: table, input fields */
-    --base:         #ffffff;   /* text on accent surfaces */
-    --sunken:       rgba(5, 8, 10, .05); /* behind code and preformatted text */
+    /* Surfaces: a light grey ground, the card lifted almost to white, the
+       shell and the fields a step towards the ink. */
+    --ink:          #f3f4f6;   /* page ground             */
+    --shell:        #eaebed;   /* shell around the content */
+    --panel:        #fafafb;   /* content surface         */
+    --surface:      #edeef0;   /* recessed: table, input fields */
+    --base:         #fefefe;   /* text on accent surfaces */
+    --sunken:     rgba(31, 41, 55, .05); /* behind code and preformatted text */
 
-    --line:         #d5d6d8;
+    --line:         #cfcfd1;
 
-    /* Accents: a slate blue for actions, a steel blue as the secondary, a
-       deep red for danger, a leaf green for success. Deep as ink, because
-       text has to read on white; the softness lives in the tints and the
-       pale frames. "Bright" is the hover state and darker. */
-    --gold:         #3c556d;
-    --gold-bright:  #2a3c4c;
-    --gold-deep:    #a5b1bd;
-    --gold-wash:        rgba(60, 85, 109, .05);  /* faint row highlight */
-    --gold-tint:        rgba(60, 85, 109, .09);  /* hover of accent-framed buttons */
-    --gold-tint-mid:    rgba(60, 85, 109, .12);  /* notices */
-    --gold-tint-strong: rgba(60, 85, 109, .18);  /* chips inside notices */
-    --violet:       #6487aa;
-    --violet-bright: #465e77;
-    --violet-soft:  rgba(100, 135, 170, .09);
-    --violet-line:  rgba(100, 135, 170, .24);
+    /* Accents: a deep blue for actions, a brighter blue as the secondary, a
+       deep red for danger, a leaf green for success. Deep, because text has
+       to read on a pale card; the softness lives in the tints and the pale
+       frames. "Bright" is the hover state and darker. */
+    --gold:         #1e40af;
+    --gold-bright:  #152d7b;
+    --gold-deep:    #93a3d6;
+    --gold-wash:        rgba(30, 64, 175, .05);  /* faint row highlight */
+    --gold-tint:        rgba(30, 64, 175, .09);  /* hover of accent-framed buttons */
+    --gold-tint-mid:    rgba(30, 64, 175, .12);  /* notices */
+    --gold-tint-strong: rgba(30, 64, 175, .18);  /* chips inside notices */
+    /* The chrome the actions sit in: the room switcher, the tabs that are
+       not the current page. Derived from the secondary colour. */
+    --steel:        #3b82f6;
 
-    --text:         #05080a;
-    --text-muted:   #3b3e40;
+    --violet:       #b45309;
+    --violet-bright: #7e3a06;
+    --violet-wash:  rgba(180, 83, 9, .05);
+    --violet-soft:     rgba(180, 83, 9, .09);
+    --violet-line:     rgba(180, 83, 9, .24);
+
+    --text:         #1f2937;
+    --text-muted:   #4e5661;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
-    --danger:       #973227;
-    --danger-bright: #6a231b;
-    --danger-deep:  #622019;
-    --danger-line:  #d3aba8;
-    --danger-tint:        rgba(151, 50, 39, .08);
-    --danger-tint-strong: rgba(151, 50, 39, .16);
-    --danger-glow:        rgba(151, 50, 39, .12);
-    --ok:           #7db22e;
+    --danger:       #b91c1c;
+    --danger-bright: #821414;
+    --danger-deep:  #781212;
+    --danger-line:  #dc9e9f;
+    --danger-tint:        rgba(185, 28, 28, .08);
+    --danger-tint-strong: rgba(185, 28, 28, .16);
+    --danger-glow:        rgba(185, 28, 28, .12);
+    --ok:           #15803d;
 
-    /* Neutral overlays: veils of the ink instead of light. */
-    --hover-soft:   rgba(5, 8, 10, .035);
-    --hover:        rgba(5, 8, 10, .06);
-    --hover-strong: rgba(5, 8, 10, .1);
-    --backdrop:     rgba(5, 8, 10, .45);
+    /* Neutral overlays: veils of the text colour instead of light. */
+    --hover-soft: rgba(31, 41, 55, .035);
+    --hover:      rgba(31, 41, 55, .06);
+    --hover-strong: rgba(31, 41, 55, .1);
+    --backdrop:   rgba(31, 41, 55, .45);
 
     /* Shadows carry much less on a pale ground; the same geometry, far less
        weight, or they read as dirt. */
-    --shadow-deep:  0 12px 32px rgba(5, 8, 10, .12);
-    --shadow-soft:  0 1px 2px rgba(5, 8, 10, .06);
-    --shadow-lift:  0 6px 18px rgba(5, 8, 10, .1);
-    --shade:        rgba(5, 8, 10, .16);
-    --shade-soft:   rgba(5, 8, 10, .09);
+    --shadow-deep: 0 12px 32px rgba(31, 41, 55, .12);
+    --shadow-soft: 0 1px 2px rgba(31, 41, 55, .06);
+    --shadow-lift: 0 6px 18px rgba(31, 41, 55, .1);
+    --shade:      rgba(31, 41, 55, .16);
+    --shade-soft: rgba(31, 41, 55, .09);
 }
 
 /* The same list once more, for the visitor who follows their device. CSS
@@ -169,58 +179,63 @@
    hand. */
 @media (prefers-color-scheme: light) {
 :root[data-theme="system"] {
-    /* Surfaces: a near-white ground, the card lifted towards white, the shell
-       and the fields a step towards the ink. */
-    --ink:          #fbfcfe;   /* page ground             */
-    --shell:        #f2f3f5;   /* shell around the content */
-    --panel:        #fdfeff;   /* content surface         */
-    --surface:      #f5f6f8;   /* recessed: table, input fields */
-    --base:         #ffffff;   /* text on accent surfaces */
-    --sunken:       rgba(5, 8, 10, .05); /* behind code and preformatted text */
+    /* Surfaces: a light grey ground, the card lifted almost to white, the
+       shell and the fields a step towards the ink. */
+    --ink:          #f3f4f6;   /* page ground             */
+    --shell:        #eaebed;   /* shell around the content */
+    --panel:        #fafafb;   /* content surface         */
+    --surface:      #edeef0;   /* recessed: table, input fields */
+    --base:         #fefefe;   /* text on accent surfaces */
+    --sunken:     rgba(31, 41, 55, .05); /* behind code and preformatted text */
 
-    --line:         #d5d6d8;
+    --line:         #cfcfd1;
 
-    /* Accents: a slate blue for actions, a steel blue as the secondary, a
-       deep red for danger, a leaf green for success. Deep as ink, because
-       text has to read on white; the softness lives in the tints and the
-       pale frames. "Bright" is the hover state and darker. */
-    --gold:         #3c556d;
-    --gold-bright:  #2a3c4c;
-    --gold-deep:    #a5b1bd;
-    --gold-wash:        rgba(60, 85, 109, .05);  /* faint row highlight */
-    --gold-tint:        rgba(60, 85, 109, .09);  /* hover of accent-framed buttons */
-    --gold-tint-mid:    rgba(60, 85, 109, .12);  /* notices */
-    --gold-tint-strong: rgba(60, 85, 109, .18);  /* chips inside notices */
-    --violet:       #6487aa;
-    --violet-bright: #465e77;
-    --violet-soft:  rgba(100, 135, 170, .09);
-    --violet-line:  rgba(100, 135, 170, .24);
+    /* Accents: a deep blue for actions, a brighter blue as the secondary, a
+       deep red for danger, a leaf green for success. Deep, because text has
+       to read on a pale card; the softness lives in the tints and the pale
+       frames. "Bright" is the hover state and darker. */
+    --gold:         #1e40af;
+    --gold-bright:  #152d7b;
+    --gold-deep:    #93a3d6;
+    --gold-wash:        rgba(30, 64, 175, .05);  /* faint row highlight */
+    --gold-tint:        rgba(30, 64, 175, .09);  /* hover of accent-framed buttons */
+    --gold-tint-mid:    rgba(30, 64, 175, .12);  /* notices */
+    --gold-tint-strong: rgba(30, 64, 175, .18);  /* chips inside notices */
+    /* The chrome the actions sit in: the room switcher, the tabs that are
+       not the current page. Derived from the secondary colour. */
+    --steel:        #3b82f6;
 
-    --text:         #05080a;
-    --text-muted:   #3b3e40;
+    --violet:       #b45309;
+    --violet-bright: #7e3a06;
+    --violet-wash:  rgba(180, 83, 9, .05);
+    --violet-soft:     rgba(180, 83, 9, .09);
+    --violet-line:     rgba(180, 83, 9, .24);
+
+    --text:         #1f2937;
+    --text-muted:   #4e5661;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
-    --danger:       #973227;
-    --danger-bright: #6a231b;
-    --danger-deep:  #622019;
-    --danger-line:  #d3aba8;
-    --danger-tint:        rgba(151, 50, 39, .08);
-    --danger-tint-strong: rgba(151, 50, 39, .16);
-    --danger-glow:        rgba(151, 50, 39, .12);
-    --ok:           #7db22e;
+    --danger:       #b91c1c;
+    --danger-bright: #821414;
+    --danger-deep:  #781212;
+    --danger-line:  #dc9e9f;
+    --danger-tint:        rgba(185, 28, 28, .08);
+    --danger-tint-strong: rgba(185, 28, 28, .16);
+    --danger-glow:        rgba(185, 28, 28, .12);
+    --ok:           #15803d;
 
-    /* Neutral overlays: veils of the ink instead of light. */
-    --hover-soft:   rgba(5, 8, 10, .035);
-    --hover:        rgba(5, 8, 10, .06);
-    --hover-strong: rgba(5, 8, 10, .1);
-    --backdrop:     rgba(5, 8, 10, .45);
+    /* Neutral overlays: veils of the text colour instead of light. */
+    --hover-soft: rgba(31, 41, 55, .035);
+    --hover:      rgba(31, 41, 55, .06);
+    --hover-strong: rgba(31, 41, 55, .1);
+    --backdrop:   rgba(31, 41, 55, .45);
 
     /* Shadows carry much less on a pale ground; the same geometry, far less
        weight, or they read as dirt. */
-    --shadow-deep:  0 12px 32px rgba(5, 8, 10, .12);
-    --shadow-soft:  0 1px 2px rgba(5, 8, 10, .06);
-    --shadow-lift:  0 6px 18px rgba(5, 8, 10, .1);
-    --shade:        rgba(5, 8, 10, .16);
-    --shade-soft:   rgba(5, 8, 10, .09);
+    --shadow-deep: 0 12px 32px rgba(31, 41, 55, .12);
+    --shadow-soft: 0 1px 2px rgba(31, 41, 55, .06);
+    --shadow-lift: 0 6px 18px rgba(31, 41, 55, .1);
+    --shade:      rgba(31, 41, 55, .16);
+    --shade-soft: rgba(31, 41, 55, .09);
 }
 }
 
@@ -373,7 +388,9 @@ code {
     text-decoration: none;
     color: var(--text);
 }
-.dome__brand span { color: var(--gold); }
+/* "wunsch" in the accent: the word mark is the one place the brand speaks,
+   and in the primary colour it read as one more button. */
+.dome__brand span { color: var(--violet-bright); }
 
 .dome__claim {
     margin: .15rem 0 0;
@@ -533,13 +550,15 @@ code {
     width: .45rem;
     height: .45rem;
     border-radius: 50%;
-    background: var(--gold);
+    /* In the accent, the colour of things worth noticing -- in the primary it
+       disappeared among the header's own controls. */
+    background: var(--violet);
     box-shadow: 0 0 0 2px var(--base);
 }
 /* Guest view: the dot becomes a ring -- signed in, but not acting as such. */
 .account__dot--guest {
     background: var(--base);
-    box-shadow: 0 0 0 2px var(--base), inset 0 0 0 1.5px var(--gold);
+    box-shadow: 0 0 0 2px var(--base), inset 0 0 0 1.5px var(--violet);
 }
 
 .lang__menu,
@@ -789,10 +808,17 @@ code {
     gap: .4rem;
     padding: .55rem .85rem;
     position: relative;
-    /* Framed like the room switcher, so every tab reads as a button. */
+    /* Framed like the room switcher, so every tab reads as a button, and
+       resting on a faint veil so the tabs that are not the current page lift
+       off the shell instead of being a line drawn on it. All of it from the
+       primary colour, the current page included: a row of tabs is one
+       component, and drawing the current one in another hue than its
+       neighbours made it two -- visible wherever a palette's secondary is
+       not a shade of its primary (Holiday Magic, Electric Neon). Which tab
+       is the current one is carried by the fill and the label, not by hue. */
     border: 1px solid var(--gold-deep);
     border-radius: var(--radius-sm);
-    background: transparent;
+    background: var(--gold-wash);
     color: var(--text-muted);
     text-decoration: none;
     font-weight: 600;
@@ -847,10 +873,13 @@ code {
     align-items: center;
     gap: .4rem;
     padding: .55rem .85rem;
-    border: 1px solid transparent;
+    /* The place marker of the menu, and therefore in the menu's colour:
+       framed in the primary, filled with its veil, and the name in the step
+       away from the ground so it reads on the shell in either scheme. */
+    border: 1px solid var(--gold);
     border-radius: var(--radius-sm);
     background: var(--gold-tint);
-    color: var(--gold);
+    color: var(--gold-bright);
     font-weight: 600;
     font-size: .82rem;
     cursor: pointer;
@@ -923,6 +952,7 @@ code {
     width: 100%;
     padding: .5rem .7rem;
     border: 0;
+    background: transparent;
     border-radius: var(--radius-sm);
     color: var(--text);
     font-size: .9rem;
@@ -956,7 +986,9 @@ code {
     margin: -.3rem 0;
     padding: 0 .4rem;
     border-radius: var(--radius-pill);
-    background: var(--violet);
+    /* The one place the secondary colour is used: a disc on a tab, a
+       supporting colour on a primary element and nothing else. */
+    background: var(--steel);
     color: var(--base);
     font-size: .8rem;
     font-weight: 700;
@@ -1134,11 +1166,24 @@ code {
     background: var(--surface);
 }
 .grid tbody tr:hover { background: var(--hover-soft); }
+/* A song that is already on the room's wish list: the accent veil and an
+   edge in the accent itself, so it can be seen before the row is pressed
+   rather than learned from the message afterwards. The wish button keeps
+   working -- wishing again counts on the entry that is there. */
+.grid tbody tr.is-wished { background: var(--violet-wash); box-shadow: inset 3px 0 0 var(--violet); }
+.grid tbody tr.is-wished:hover { background: var(--violet-soft); }
 
 /* A song card that wishes on click (app.js adds .is-clickable): the whole
-   card answers to the pointer -- gold frame and shadow on hover, the Wish
-   button lights up with it, the card presses down while clicked, and the
-   frame also shows when the Wish button has keyboard focus. */
+   card answers to the pointer -- a frame and shadow in the primary colour on
+   hover, the Wish button lights up with it, the card presses down while
+   clicked, and the frame also shows when the Wish button has *keyboard*
+   focus.
+   :has(:focus-visible) and not :focus-within, because a click leaves the
+   focus on the button it pressed: with :focus-within the card stayed lit
+   after every click, which read as a hover that would not go away. The row
+   is redrawn after a wish and app.js puts the focus back where it was, so
+   the two are indistinguishable to the eye -- until the mouse moves and the
+   lit card stays behind. */
 .grid tbody tr.is-clickable {
     cursor: pointer;
     transition: border-color .12s, box-shadow .12s, transform .08s;
@@ -1146,14 +1191,14 @@ code {
 }
 .grid tbody tr.is-clickable:hover,
 .grid tbody tr.is-clickable.is-pressed,
-.grid tbody tr.is-clickable:focus-within {
+.grid tbody tr.is-clickable:has(:focus-visible) {
     border-color: var(--gold);
     box-shadow: 0 0 0 1px var(--gold), var(--shadow-lift);
     background: var(--gold-wash);
 }
 .grid tbody tr.is-clickable:hover .wish-button,
 .grid tbody tr.is-clickable.is-pressed .wish-button,
-.grid tbody tr.is-clickable:focus-within .wish-button { background: var(--gold-bright); border-color: var(--gold-bright); }
+.grid tbody tr.is-clickable:has(:focus-visible) .wish-button { background: var(--gold-bright); border-color: var(--gold-bright); }
 .grid tbody tr.is-clickable:active,
 .grid tbody tr.is-clickable.is-pressed { transform: scale(.995); }
 
@@ -1372,8 +1417,9 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     align-items: center;
     justify-content: flex-end;
 }
-/* The count itself: a solid violet disc like the counter in the navigation,
-   but big enough to be read from the stage -- the audience sees it too. */
+/* The count itself: a solid disc in the secondary colour like the counter in
+   the navigation, but big enough to be read from the stage -- the audience
+   sees it too. */
 .wish-count {
     display: inline-flex;
     align-items: center;
@@ -1382,7 +1428,7 @@ button.room-link { background: none; border: 0; padding: 0; margin: 0; font: inh
     height: 2.1rem;
     padding: 0 .55rem;
     border-radius: var(--radius-pill);
-    background: var(--violet);
+    background: var(--steel);
     color: var(--base);
     font-size: 1.05rem;
     font-weight: 700;
@@ -1530,6 +1576,13 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 
 /* ---------- Buttons ---------- */
 
+/* Two kinds: the filled accent button for the one action a screen is about,
+   and the framed button for everything else. A framed button does not rest
+   on nothing: a thin frame alone barely lifts it off the panel, least of all
+   on the dark ground, so it sits on the same faint veil the row hover and
+   the move buttons use -- enough to read as a surface, too little to compete
+   with the filled button. The hover replaces the veil with the colour tint. */
+
 .wish-button,
 .delete-button,
 .danger-button,
@@ -1560,11 +1613,19 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 }
 .wish-button:hover { background: var(--gold-bright); border-color: var(--gold-bright); }
 .wish-button:active { transform: translateY(1px); }
+/* The same filled button in the accent, for the one that finishes an
+   editor's form: Save, and Create where the form makes something new. It
+   stays filled -- it is still the one action of its screen -- but it is the
+   editor's action, and the accent is what the lists already use for those
+   (see .link-button--accent). What a guest does keeps the primary colour:
+   Wish, Suggest, the name for the wish list. */
+.wish-button--accent { border-color: var(--violet); background: var(--violet); }
+.wish-button--accent:hover { background: var(--violet-bright); border-color: var(--violet-bright); }
 .wish-button--wide { width: 100%; padding: .55rem 1rem; margin-top: .5rem; }
 
 .delete-button {
     border: 1px solid var(--danger-line);
-    background: transparent;
+    background: var(--hover-soft);
     color: var(--danger);
 }
 .danger-button {
@@ -1582,7 +1643,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
 
 .link-button {
     border: 1px solid var(--gold-deep);
-    background: transparent;
+    background: var(--hover-soft);
     color: var(--gold);
     text-decoration: none;
 }
@@ -1591,6 +1652,15 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
    ("Open room" in the closed-room notice). */
 .link-button--danger { border-color: var(--danger-line); color: var(--danger); }
 .link-button--danger:hover { background: var(--danger-tint); color: var(--danger-bright); }
+/* And in the accent, for what an editor does: "Edit" beside Wish and Delete
+   in every list, and the "Add ..." above it. Telling those apart from the
+   audience's own buttons at a glance is worth a colour -- the primary is
+   what a guest acts on, the accent what an editor does -- "Adopt" on the
+   suggestions is one of them and looks like "Add song". The button that
+   finishes such a form stays filled, in the accent as well
+   (.wish-button--accent). */
+.link-button--accent { border-color: var(--violet-line); color: var(--violet-bright); }
+.link-button--accent:hover { background: var(--violet-soft); color: var(--violet-bright); border-color: var(--violet); }
 
 /* Leading icon of a text button (plus on "Add ...", pause/play on the pause
    switches): an SVG centres exactly, a text glyph would not. An icon button
@@ -1779,7 +1849,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     padding: 0;
     border: 1px solid var(--gold-deep);
     border-radius: var(--radius-sm);
-    background: transparent;
+    background: var(--hover-soft);   /* a framed button, see Buttons */
     color: var(--gold);
     font: inherit;
     font-size: 1.05rem;
@@ -1821,9 +1891,12 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     font-size: .85rem;
     white-space: nowrap;
 }
+/* The chip that is switched on says where the list stands; it is not
+   something to press. The accent separates it from the buttons, which all
+   carry the primary colour. */
 .sortbar__item.is-active {
-    background: var(--gold);
-    border-color: var(--gold-bright);
+    background: var(--violet);
+    border-color: var(--violet-bright);
     color: var(--base);
     font-weight: 700;
 }
@@ -1880,7 +1953,7 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     white-space: nowrap;
 }
 .sortbar__option:hover { background: var(--hover); }
-.sortbar__option.is-active { color: var(--gold); }
+.sortbar__option.is-active { color: var(--violet-bright); }
 .sortbar__option-label { flex: 1 1 auto; }
 @media (max-width: 560px) {
     .sortbar--switching .sortbar__chips { display: none; }
@@ -2213,6 +2286,47 @@ a.tag:hover { color: var(--gold-bright); border-color: var(--gold-bright); }
     cursor: pointer;
 }
 .colour__reset:hover { background: var(--hover); color: var(--text); }
+
+/* Presets on the Interface page: a row of buttons, each a pair of miniature
+   screens -- the dark set and the light one: the ground, three discs for
+   accent, secondary and danger, a bar in the text colour -- with the name
+   below. The colours are the preset's own (inline, from the template), not
+   the page's: a preset has to look like itself in either scheme. The
+   pressed one is the preset whose twelve values are in the fields. Rendered
+   hidden and shown by JavaScript, like the pickers. */
+.presets { margin: 0 0 1.1rem; }
+.presets__list { display: flex; flex-wrap: wrap; gap: .5rem; margin: .6rem 0 0; padding: 0; list-style: none; }
+.preset {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    padding: .4rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--hover-soft);
+    color: var(--text-muted);
+    font: inherit;
+    font-size: .8rem;
+    cursor: pointer;
+}
+.preset:hover { border-color: var(--gold-deep); color: var(--text); }
+.preset[aria-pressed="true"] { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); color: var(--text); }
+.preset__swatches { display: flex; gap: .25rem; }
+.preset__scheme {
+    display: flex;
+    align-items: center;
+    gap: .2rem;
+    width: 3.6rem;
+    height: 2rem;
+    padding: 0 .3rem;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+}
+.preset__scheme i { display: block; flex: 0 0 auto; width: .6rem; height: .6rem; border-radius: 50%; }
+.preset__scheme b { display: block; flex: 1 1 auto; height: .2rem; border-radius: 1px; background: currentColor; }
+.preset__name { text-align: center; }
+/* "Save as my palette" and "Reset" under the row they belong to. */
+.presets__keep { display: flex; flex-wrap: wrap; gap: .5rem; margin: .6rem 0 0; }
 /* A closing remark after the list stands off from it. */
 .field--group ul.field__hint + .field__hint { margin-top: .9rem; }
 /* An introduction to a whole group (the colours on the Interface page)
@@ -2481,7 +2595,7 @@ code.is-example { color: var(--text-muted); font-style: italic; }
     line-height: 1.5;
     resize: vertical;
 }
-.field--editor textarea:focus-visible { outline: none; border-color: var(--gold); box-shadow: var(--glow-gold); }
+.field--editor textarea:focus-visible { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-tint-strong); }
 .ck.ck-editor,
 .ck-body-wrapper {
     --ck-color-base-background: var(--surface);

@@ -225,11 +225,21 @@ final class AdminController extends Controller
         return $this->view('ui', t('Interface'), [
             // Two colour sets -- one per scheme, keyed by field name so they
             // cannot collide -- the default scheme, and the numbers.
-            'values' => $kept['values'] ?? Colors::fields($this->settings, true)
+            //
+            // What was kept from a failed or partial save lies *over* the
+            // stored values, field by field, rather than replacing the lot:
+            // "Save as my palette" hands back the fourteen colours and nothing
+            // else, and the numbers below them have to keep standing. They
+            // are required fields, so blanking them would leave a form that
+            // cannot be submitted at all.
+            'values' => ($kept['values'] ?? [])
+                + Colors::fields($this->settings, true)
                 + Colors::fields($this->settings, false)
                 + ['theme' => $this->theme->fallback()]
                 + array_map('strval', $this->ui->all()),
             'errors' => $kept['errors'] ?? [],
+            // The admins' own palette, offered above the built-in ones.
+            'ownPalette' => Colors::own($this->settings),
         ]);
     }
 
@@ -272,6 +282,96 @@ final class AdminController extends Controller
         $this->flash('ok', t('The interface settings have been saved.'));
 
         return $this->redirect('ui');
+    }
+
+    /**
+     * Keep what stands in the colour fields as the admins' own palette. The
+     * same form as saveUi(), reached through a button with an address of its
+     * own, so nothing is applied here -- the palette is offered at the top of
+     * the preset row and applied when it is clicked and saved. What was typed
+     * comes back into the fields either way, so a failed check does not lose
+     * it, and the interface itself does not change: no revision is raised.
+     */
+    public function saveUiPalette(Request $request): Response
+    {
+        $input = [];
+        foreach (Colors::AREAS as $area) {
+            foreach ([true, false] as $dark) {
+                $field         = Colors::field($area, $dark);
+                $input[$field] = $request->post($field);
+            }
+        }
+
+        $dark   = Colors::validate($input, true);
+        $light  = Colors::validate($input, false);
+        $errors = $dark['errors'] + $light['errors'];
+        if ($errors !== []) {
+            $this->support->forms->remember($input, $errors);
+            $this->notice('error', t('Please check the highlighted fields.'));
+
+            return $this->redirect('ui');
+        }
+
+        Colors::saveOwn($this->settings, $dark['values'] + $light['values']);
+        $this->support->forms->remember($dark['values'] + $light['values'], []);
+        $this->flash('ok', t('The colours have been kept as your own palette.'));
+
+        return $this->redirect('ui');
+    }
+
+    /**
+     * Drop the admins' own palette. The colours in the fields and the ones
+     * the site is drawn in are untouched: only the entry at the head of the
+     * preset row goes.
+     */
+    public function deleteUiPalette(Request $request): Response
+    {
+        if (Colors::own($this->settings) === null) {
+            $this->flash('error', t('There is no palette of your own to delete.'));
+
+            return $this->redirect('ui');
+        }
+
+        $this->settings->delete(Colors::OWN_KEY);
+        $this->flash('ok', t('Your own palette has been deleted.'));
+
+        return $this->redirect('ui');
+    }
+
+    /**
+     * The colour block the fourteen fields would produce, as CSS, so the
+     * Interface page can show a change before it is saved. Nothing is
+     * stored, and nothing is read from the settings: the answer is built
+     * from what was typed alone.
+     *
+     * The block carries every scheme's own selector, exactly as the saved
+     * one does, so the browser applies the one the page is drawn in and the
+     * switch in the header keeps working. An area left empty falls back to
+     * the built-in colour, or the preview would drop a colour the saved
+     * block still shows. A value that is not a colour is left out, which is
+     * what a half-typed "#1e4" is.
+     */
+    public function previewUi(Request $request): Response
+    {
+        $css = '';
+        foreach ([true, false] as $dark) {
+            $colors = [];
+            foreach (Colors::AREAS as $area) {
+                $typed = Colors::parse((string) $request->post(Colors::field($area, $dark)));
+                $colors[$area] = $typed === null ? Colors::defaults($dark)[$area] : Colors::hex($typed);
+            }
+            $css .= Colors::css($colors, $dark);
+            // The light values once more for a visitor following their device.
+            if (!$dark) {
+                $system = Colors::css($colors, false, Theme::SYSTEM);
+                $css .= $system === '' ? '' : '@media (prefers-color-scheme: light){' . $system . '}';
+            }
+        }
+
+        return new Response($css, 200, [
+            'Content-Type'  => 'text/css; charset=utf-8',
+            'Cache-Control' => 'no-store',
+        ]);
     }
 
     /** The limits on wishing and suggesting, for every room. */

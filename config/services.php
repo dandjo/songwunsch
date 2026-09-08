@@ -74,6 +74,15 @@ $container = new Container([
     'db'          => $config['db'],
     'auth'        => $config['auth'] ?? [],
     'trust_proxy' => (bool) ($config['trust_proxy'] ?? false),
+    // Whether a request may create a missing table. Off means the database
+    // account needs no DDL rights; the default stays on for the shared-host
+    // installation that is one upload and nothing else (src/Schema.php).
+    'schema_ddl'  => (bool) ($config['schema_ddl'] ?? true),
+    // Whether this request came in over https. Behind a proxy that is the
+    // only way in, X-Forwarded-Proto answers it; without one the header is
+    // just something a caller wrote, so it is not read at all. Decided once:
+    // the cookies' Secure flag and the absolute addresses have to agree.
+    'https' => Security::isHttps((bool) ($config['trust_proxy'] ?? false)),
     'show_errors' => ($config['show_errors'] ?? false) === true,
     'lang_dir'    => $root . '/lang',
     'templates'   => $root . '/templates',
@@ -94,6 +103,7 @@ $container->set(UrlGenerator::class, static fn (Container $c): UrlGenerator => n
     $c->get(RouteCollection::class),
     $c->get(RoomContext::class),
     base_path(),
+    (bool) $c->param('https'),
 ));
 
 // ---- The database and the schema -----------------------------------------
@@ -101,7 +111,10 @@ $container->set(UrlGenerator::class, static fn (Container $c): UrlGenerator => n
 // request; a request that needs neither does neither.
 
 $container->set(Database::class, static fn (Container $c): Database => new Database($c->param('db')));
-$container->set(Schema::class, static fn (Container $c): Schema => new Schema($c->get(Database::class)));
+$container->set(Schema::class, static fn (Container $c): Schema => new Schema(
+    $c->get(Database::class),
+    (bool) $c->param('schema_ddl'),
+));
 $container->set(Settings::class, static fn (Container $c): Settings => new Settings($c->get(Database::class)));
 
 // ---- Repositories ---------------------------------------------------------
@@ -144,19 +157,20 @@ $container->set(WishGuard::class, static fn (Container $c): WishGuard => $c->get
 $container->set(Security::class, static fn (Container $c): Security => new Security(
     $c->get(UserRepository::class),
     (string) $c->param('cookie_path'),
+    (bool) $c->param('trust_proxy'),
 ));
 $container->set(GuestName::class, static fn (Container $c): GuestName => new GuestName(
     (string) $c->param('cookie_path'),
-    Security::isHttps(),
+    (bool) $c->param('https'),
 ));
 $container->set(RoomMemory::class, static fn (Container $c): RoomMemory => new RoomMemory(
     (string) $c->param('cookie_path'),
-    Security::isHttps(),
+    (bool) $c->param('https'),
 ));
 $container->set(Theme::class, static fn (Container $c): Theme => new Theme(
     $c->get(Settings::class),
     (string) $c->param('cookie_path'),
-    Security::isHttps(),
+    (bool) $c->param('https'),
 ));
 
 // Which language this request speaks is decided here, on first use: an
@@ -242,16 +256,31 @@ $container->set(LanguageListener::class, static fn (Container $c): LanguageListe
     $c->get(Translator::class),
     $c->get(UrlGenerator::class),
     (string) $c->param('cookie_path'),
+    (bool) $c->param('https'),
 ));
 $container->set(CsrfListener::class, static fn (Container $c): CsrfListener => new CsrfListener(
     $c->get(Security::class),
     $c->get(UrlGenerator::class),
     $c->get(FlashBag::class),
 ));
-$container->set(AccessListener::class, static fn (Container $c): AccessListener => new AccessListener(
-    $c->get(Security::class),
-    require __DIR__ . '/access.php',
-));
+// Which routes may not be public by accident: everything that writes, and
+// everything behind /admin. The list comes off the route table itself, so a
+// new POST route is guarded the moment it is added and has to be classified
+// in access.php -- as a permission, or as AccessListener::OPEN.
+$container->set(AccessListener::class, static function (Container $c): AccessListener {
+    $guarded = [];
+    foreach ($c->get(RouteCollection::class)->all() as $route) {
+        if (in_array('POST', $route->methods(), true) || str_starts_with($route->path(), '/admin')) {
+            $guarded[] = $route->name();
+        }
+    }
+
+    return new AccessListener(
+        $c->get(Security::class),
+        require __DIR__ . '/access.php',
+        $guarded,
+    );
+});
 
 // ---- Controllers ----------------------------------------------------------
 

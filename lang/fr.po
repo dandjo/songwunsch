@@ -1468,8 +1468,6 @@ msgstr "Arrière-plan"
 msgid "Text"
 msgstr "Texte"
 
-msgid "The genre and role tags, the counters on the tabs and the edge of the info notices."
-msgstr "Les étiquettes de genre et de rôle, les compteurs des onglets et la bordure des avis d’information."
 
 msgid "Closed rooms, delete buttons, warnings and errors."
 msgstr "Salles fermées, boutons de suppression, avertissements et erreurs."
@@ -1778,8 +1776,6 @@ msgstr "Couleurs – sombre"
 msgid "Colours – light"
 msgstr "Couleurs – clair"
 
-msgid "The light interface, for visitors who choose it. The same six areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above."
-msgstr "L’interface claire, pour les visiteurs qui la choisissent. Les mêmes six zones, mais choisies sur le fond pâle – une couleur qui brille sur le noir est rarement lisible sur le blanc. Ce sont donc des valeurs propres et non une traduction de celles ci-dessus."
 
 msgid "Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change – in the scheme the colour belongs to."
 msgstr "Un champ vide conserve la couleur intégrée. Veillez à un contraste lisible avec l’arrière-plan et vérifiez après chaque modification avec les outils d’accessibilité du navigateur – dans le thème auquel la couleur appartient."
@@ -1876,11 +1872,78 @@ msgstr "Le thème clair affiche désormais le mot-symbole."
 
 # ---- Interface: hints without hue names ---------------------------------------
 
-msgid "Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the accent tags and notices."
-msgstr "Boutons, liens, l’onglet actif et les anneaux de focus, « wunsch » dans le mot-symbole, le nom de la salle dans l’en-tête, les étiquettes et avis en couleur d’accent."
 
-msgid "The page ground; shell, panels, fields and lines are steps away from it, and so is the text on accent buttons and counters."
-msgstr "Le fond de la page ; l’enveloppe, les panneaux, les champs et les lignes en sont des degrés écartés, de même que le texte sur les boutons et compteurs d’accent."
 
 msgid "The dark interface. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it."
 msgstr "L’interface sombre. Chaque zone a une couleur de base ; toutes les nuances et voiles nécessaires – survol, cadres, avis – en sont dérivés."
+
+# ---- Interface: presets --------------------------------------------------------
+
+msgid "Presets"
+msgstr "Préréglages"
+
+
+# ---- Interface: the admins' own palette ----------------------------------------
+
+msgid "My palette"
+msgstr "Ma palette"
+
+msgid "Save as my palette"
+msgstr "Enregistrer comme ma palette"
+
+msgid "The colours have been kept as your own palette."
+msgstr "Les couleurs ont été conservées comme votre propre palette."
+
+msgid "“Save as my palette” keeps what stands in the fields as your own palette, first in this row; saving it again replaces it."
+msgstr "« Enregistrer comme ma palette » conserve ce qui figure dans les champs comme votre propre palette, en tête de cette rangée ; un nouvel enregistrement la remplace."
+
+msgid "Reset"
+msgstr "Réinitialiser"
+
+msgid "The page shows every change at once, before it is saved. “Reset” puts the saved colours back."
+msgstr "La page montre chaque changement aussitôt, avant l’enregistrement. « Réinitialiser » rétablit les couleurs enregistrées."
+
+msgid "Delete my palette"
+msgstr "Supprimer ma palette"
+
+msgid "Your own palette has been deleted."
+msgstr "Votre propre palette a été supprimée."
+
+msgid "There is no palette of your own to delete."
+msgstr "Il n’y a pas de palette propre à supprimer."
+
+msgid "Table "{table}" is missing. Run tools/install.php or load sql/schema.sql."
+msgstr "La table « {table} » est absente. Exécutez tools/install.php ou chargez sql/schema.sql."
+
+# ---- Interface: the three voices -----------------------------------------------
+
+msgid "Primary"
+msgstr "Primaire"
+
+
+
+
+msgid "A preset fills in all fourteen fields, the dark set and the light one. Nothing is saved until you press Save, and every field can still be changed afterwards."
+msgstr "Un préréglage remplit les quatorze champs, le jeu sombre et le jeu clair. Rien n’est enregistré avant « Enregistrer », et chaque champ reste modifiable ensuite."
+
+msgid "The light interface, for visitors who choose it. The same seven areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above."
+msgstr "L’interface claire, pour les visiteurs qui la choisissent. Les mêmes sept zones, choisies pour le fond clair – une couleur qui brille sur du noir est rarement lisible sur du blanc, ce sont donc des valeurs propres et non une traduction de celles du dessus."
+
+
+
+msgid "The page ground; shell, panels, fields and lines are steps away from it, and so is the text on filled buttons and counters."
+msgstr "Le fond de la page ; l’enveloppe, les panneaux, les champs et les lignes en sont des degrés écartés, de même que le texte sur les boutons pleins et les compteurs."
+
+msgid "already on the wish list"
+msgstr "déjà sur la liste des souhaits"
+
+
+
+msgid "What stands out from both: “wunsch” in the word mark, the genre and role tags, what an editor does (“Edit”, “Add …”, “Save”), the sort chip that is switched on, the dot on the account menu and a song that is already on the wish list."
+msgstr "Ce qui se détache des deux : « wunsch » dans le logotype, les étiquettes de genre et de rôle, ce que fait un éditeur (« Modifier », « Ajouter … », « Enregistrer »), la puce de tri active, le point du menu de compte et un morceau déjà sur la liste des souhaits."
+
+msgid "The menu and what a visitor acts on: buttons, links, every tab and the room switcher, focus rings, the primary tags and notices."
+msgstr "Le menu et ce sur quoi le visiteur agit : boutons, liens, tous les onglets et le sélecteur de salle, anneaux de focus, les étiquettes et avis primaires."
+
+msgid "The counter discs on the tabs, and nothing else – a supporting colour on the menu."
+msgstr "Les pastilles de compteur des onglets, et rien d’autre – une couleur d’appoint sur le menu."

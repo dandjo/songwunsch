@@ -123,7 +123,7 @@ $invalid = static fn (string $field): string => isset($errors[$field])
         <?php endif; ?>
 
         <div class="panel__actions">
-            <button type="submit" class="wish-button"><?= icon($isNew && !$main ? 'plus' : 'check') ?><?= $e($isNew && !$main ? t('Create') : t('Save')) ?></button>
+            <button type="submit" class="wish-button wish-button--accent"><?= icon($isNew && !$main ? 'plus' : 'check') ?><?= $e($isNew && !$main ? t('Create') : t('Save')) ?></button>
             <a class="link-button" href="<?= $e($back) ?>"><?= icon('cross') ?><?= $e(t('Cancel')) ?></a>
         </div>
     </form>

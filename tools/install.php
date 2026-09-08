@@ -17,8 +17,10 @@ declare(strict_types=1);
  * is in place. Safe to run again at any time.
  */
 
+use Songwunsch\Colors;
 use Songwunsch\Database;
 use Songwunsch\Schema;
+use Songwunsch\Settings;
 use Songwunsch\UserRepository;
 
 if (PHP_SAPI !== 'cli') {
@@ -41,6 +43,14 @@ try {
     $db      = new Database($config['db']);
     $schema  = new Schema($db);
     $created = $schema->ensure();
+    // The unique keys on the wishes and the suggestions cannot go onto a
+    // table that still holds rows they would refuse, so the duplicates an
+    // older installation may carry are folded first -- the way the
+    // application has always meant them (Schema::foldDuplicates).
+    $folded  = $schema->foldDuplicates();
+    // `accent` used to mean what `primary` means now; move it before the
+    // name is read with its new meaning (Colors::migrateAccentToPrimary).
+    $movedColors = Colors::migrateAccentToPrimary(new Settings($db));
     $indexed = $schema->addIndexes();
     $seeded  = (new UserRepository($db))->ensureAdmin($config['auth']);
 } catch (Throwable $e) {
@@ -51,6 +61,12 @@ try {
 echo $created === []
     ? "All tables present.\n"
     : 'Created: ' . implode(', ', $created) . "\n";
+echo $movedColors === []
+    ? "Colour settings are current.\n"
+    : 'Moved to the new name: ' . implode(', ', $movedColors) . "\n";
+foreach ($folded as $table => $rows) {
+    printf("Folded %d duplicate row(s) in %s.\n", $rows, $table);
+}
 echo $indexed === []
     ? "All indexes present.\n"
     : 'Indexes added: ' . implode(', ', $indexed) . "\n";

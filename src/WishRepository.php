@@ -14,8 +14,10 @@ namespace Songwunsch;
  * GuestName); it stays with the wish and is deleted with it.
  *
  * A song wished again while it is still open gets no second row: `wished`
- * counts on the existing entry (wishAgain()), so the list stays one row per
- * song and the moderator still sees how popular it is.
+ * counts on the existing entry, so the list stays one row per song and the
+ * moderator still sees how popular it is. A unique key on (room_id, song_id)
+ * holds that rule in the database rather than in the caller's timing, and
+ * wish() is the one write that puts a song on the list.
  *
  * Every instance is bound to one room (room_id, 0 = default room): all
  * reading and writing stays inside that room's list.
@@ -90,6 +92,38 @@ final class WishRepository
         return (int) ($this->db->one('SELECT COUNT(*) AS c FROM ' . self::TABLE . ' WHERE room_id = ?', [$this->roomId])['c'] ?? 0);
     }
 
+    /**
+     * Which of these songs are on the room's list right now.
+     *
+     * One query for a whole page of the repertoire, so the list can show
+     * before it is pressed what the message would otherwise say afterwards.
+     * Answers an empty list for an empty question, which is what a page
+     * without songs asks.
+     *
+     * @param array<int,int> $songIds
+     * @return array<int,bool> song id => true, for the ones that are open
+     */
+    public function pendingAmong(array $songIds): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $songIds))));
+        if ($ids === []) {
+            return [];
+        }
+
+        $marks = implode(', ', array_fill(0, count($ids), '?'));
+        $rows  = $this->db->all(
+            'SELECT DISTINCT song_id FROM ' . self::TABLE . " WHERE room_id = ? AND song_id IN ({$marks})",
+            [$this->roomId, ...$ids],
+        );
+
+        $open = [];
+        foreach ($rows as $row) {
+            $open[(int) $row['song_id']] = true;
+        }
+
+        return $open;
+    }
+
     /** Is this song already on the list? */
     public function isPending(int $songId): bool
     {
@@ -100,46 +134,42 @@ final class WishRepository
     }
 
     /**
-     * The song is wished once more while it is already on the list: no new
-     * row, the existing one counts the wish. Should the song be on the list
-     * more than once (rows from before duplicates were folded), the count goes
-     * to the entry that is played first -- lowest position, then the oldest.
+     * Put a song on the wish list: a new entry, or one more count on the
+     * entry that is already there.
      *
-     * @return array<string,mixed>|null the updated row, null if the song is not open
-     */
-    public function wishAgain(int $songId): ?array
-    {
-        $row = $this->db->one(
-            'SELECT * FROM ' . self::TABLE . ' WHERE room_id = ? AND song_id = ? ORDER BY position ASC, id ASC LIMIT 1',
-            [$this->roomId, $songId],
-        );
-        if ($row === null) {
-            return null;
-        }
-
-        $this->db->exec('UPDATE ' . self::TABLE . ' SET wished = wished + 1 WHERE id = ?', [(int) $row['id']]);
-        $row['wished'] = (int) $row['wished'] + 1;
-
-        return $row;
-    }
-
-    /**
-     * Append a wish at the bottom of the list.
+     * One statement decides which of the two it is. The unique key on
+     * (room_id, song_id) makes a second row for the same song impossible,
+     * and ON DUPLICATE KEY UPDATE turns the attempt into the count-up the
+     * application means by it -- so two wishes for the same song arriving
+     * together end as one entry wished twice, whatever order they reach the
+     * database in. Looking first and writing afterwards could not promise
+     * that: between the look and the write another request fits.
+     *
+     * The wisher of the first wish stays; a repeat wish does not overwrite
+     * the name, exactly as counting up did before.
+     *
+     * $maxOpen is the cap on open entries, 0 for none. It applies to a new
+     * entry only -- a count-up adds no row -- and it is applied *after* the
+     * insert, by taking the row back out again when the list turned out to
+     * be full: a cap that is read before the insert can be passed by two
+     * requests at once, and locking the room's rows for every wish would
+     * trade that for deadlocks on the one path that has to stay quick.
      *
      * @param array<string,mixed> $song   row from SongRepository
      * @param string|null         $wisher the guest's name for the list, if given
-     * @return int the new wish's id
+     * @return array{added: bool, full: bool, id: int, wished: int}
      */
-    public function add(array $song, ?string $wisher = null): int
+    public function wish(array $song, ?string $wisher = null, int $maxOpen = 0): array
     {
         $table = self::TABLE;
 
         // Timestamp from PHP rather than NOW() on purpose: display and
         // "x minutes ago" then agree even when PHP and MySQL run in different
         // time zones (typical for separate containers).
-        $this->db->exec(
+        $affected = $this->db->exec(
             "INSERT INTO {$table} (song_id, artist, title, length_sec, genre, wisher, created_at, room_id, position, wished)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT * FROM (SELECT COALESCE(MAX(position), 0) + 1 FROM {$table} WHERE room_id = ?) AS next_pos), 1)",
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT * FROM (SELECT COALESCE(MAX(position), 0) + 1 FROM {$table} WHERE room_id = ?) AS next_pos), 1)
+             ON DUPLICATE KEY UPDATE wished = wished + 1",
             [
                 (int) $song['id'],
                 (string) $song['artist'],
@@ -153,7 +183,31 @@ final class WishRepository
             ],
         );
 
-        return (int) $this->db->pdo()->lastInsertId();
+        // MySQL answers 1 for a row it inserted and 2 for one it updated.
+        $added = $affected === 1;
+
+        if ($added && $maxOpen > 0 && $this->count() > $maxOpen) {
+            $this->db->exec("DELETE FROM {$table} WHERE id = ? LIMIT 1", [(int) $this->db->pdo()->lastInsertId()]);
+
+            return ['added' => false, 'full' => true, 'id' => 0, 'wished' => 0];
+        }
+
+        if ($added) {
+            return ['added' => true, 'full' => false, 'id' => (int) $this->db->pdo()->lastInsertId(), 'wished' => 1];
+        }
+
+        // Counted up: the row carries the new number.
+        $row = $this->db->one(
+            "SELECT id, wished FROM {$table} WHERE room_id = ? AND song_id = ? LIMIT 1",
+            [$this->roomId, (int) $song['id']],
+        );
+
+        return [
+            'added'  => false,
+            'full'   => false,
+            'id'     => (int) ($row['id'] ?? 0),
+            'wished' => (int) ($row['wished'] ?? 1),
+        ];
     }
 
     /**

@@ -13,8 +13,10 @@ namespace Songwunsch;
  * (`songwunsch_theme`, one year), like the language and the name for the
  * wish list, and nothing about it is stored on the server. Whoever never
  * touched the switch gets what the admins set under Administration ->
- * Interface (`ui.theme`), which is dark until they say otherwise -- the
- * interface the site has always had.
+ * Interface (`ui.theme`), which is `system` until they say otherwise: the
+ * device decides, so a visitor who keeps their phone dark sees the interface
+ * the site has always had, and one on a light phone is not handed a dark
+ * page first.
  *
  * `system` is a scheme like the other two, not the absence of one: it means
  * "ask the device", and the answer is given by the stylesheet's
@@ -39,7 +41,26 @@ final class Theme
     public const DEFAULT_KEY = 'ui.theme';
 
     /** And what that is until the admins change it. */
-    public const FALLBACK = self::DARK;
+    public const FALLBACK = self::SYSTEM;
+
+    /**
+     * What each scheme is called, in the order SCHEMES names -- the switch in
+     * the header and the Interface page offer them in the same one, and
+     * "ask the device" comes first because it is what a visitor without a
+     * choice already gets. Here rather than in either template, so the two
+     * cannot drift apart; a constant could not hold it, the labels are
+     * translated at call time.
+     *
+     * @return array<string,string> scheme => label
+     */
+    public static function labels(): array
+    {
+        return [
+            self::SYSTEM => t('Follow my device'),
+            self::LIGHT  => t('Light'),
+            self::DARK   => t('Dark'),
+        ];
+    }
 
     /**
      * @param string $cookiePath scope of the cookie, e.g. '/songliste/' --

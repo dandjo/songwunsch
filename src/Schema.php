@@ -16,10 +16,16 @@ use RuntimeException;
  * a missing table is created -- whether the application runs in the Docker
  * stack, on a shared host or locally. Existing tables are checked for the
  * expected columns; a missing column fails with a clear message instead of
- * an SQL error in the middle of operation.
+ * an SQL error in the middle of operation. It is one query per request,
+ * memoised, and no query at all for a request that touches no data.
  *
- * sql/schema.sql contains the same statements for installations where the
- * web user is not allowed to CREATE TABLE.
+ * Creating a table needs CREATE rights for the account PHP runs as, which is
+ * convenient on a shared host and more than a running site should hold.
+ * `$mayCreate` (config.php `schema_ddl`) says whether this instance is
+ * allowed to: with it off, a missing table is reported instead of created,
+ * and the database account needs no DDL rights at all. Run
+ * tools/install.php once with an account that has them, or load
+ * sql/schema.sql, which carries the same statements.
  */
 final class Schema
 {
@@ -79,8 +85,14 @@ final class Schema
                 `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id, 0 = default room',
                 `wished`     INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'how often the song was wished while this entry has been open',
                 PRIMARY KEY (`id`),
+                -- One entry per song and room, enforced here and not only by
+                -- the code that checks first and writes second: two wishes
+                -- arriving together used to be able to make two rows of the
+                -- same song. A wish whose song was deleted keeps artist and
+                -- title with song_id NULL, and MySQL allows any number of
+                -- NULLs in a unique index, so those rows are unaffected.
+                UNIQUE KEY `uniq_room_song` (`room_id`, `song_id`),
                 KEY `idx_created_at` (`created_at`),
-                KEY `idx_song_id` (`song_id`),
                 KEY `idx_position` (`position`),
                 KEY `idx_room_id` (`room_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -94,8 +106,12 @@ final class Schema
                 `created_at` DATETIME     NOT NULL,
                 `room_id`    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'rooms.id whose list the suggestion is on, 0 = main room; the adopted song joins that room',
                 PRIMARY KEY (`id`),
+                -- One suggestion per song and room, for the same reason the
+                -- wishes have one: the check-then-insert in the controller
+                -- cannot see a request that is being served next to it. The
+                -- key covers the lookup by artist and title as well.
+                UNIQUE KEY `uniq_room_artist_title` (`room_id`, `artist`, `title`),
                 KEY `idx_created_at` (`created_at`),
-                KEY `idx_artist_title` (`artist`, `title`),
                 KEY `idx_room_id` (`room_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             SQL,
@@ -193,8 +209,15 @@ final class Schema
     /** The answer of ensure(), kept for the rest of the request; null = not asked yet. */
     private ?array $ensured = null;
 
-    public function __construct(private readonly Database $db)
-    {
+    /**
+     * @param bool $mayCreate whether this instance may create a missing table.
+     *                        The tools pass true; a request passes what
+     *                        config.php `schema_ddl` says.
+     */
+    public function __construct(
+        private readonly Database $db,
+        private readonly bool $mayCreate = true,
+    ) {
     }
 
     /**
@@ -237,6 +260,12 @@ final class Schema
 
         foreach (self::COLUMNS as $table => $required) {
             if (!isset($present[$table])) {
+                if (!$this->mayCreate) {
+                    throw new RuntimeException(t(
+                        'Table "{table}" is missing. Run tools/install.php or load sql/schema.sql.',
+                        ['table' => $table],
+                    ));
+                }
                 $this->db->pdo()->exec(self::DDL[$table]);
                 $created[] = $table;
                 continue;
@@ -295,6 +324,67 @@ final class Schema
         }
 
         return $missing;
+    }
+
+    /**
+     * Fold the rows that the unique keys of song_wishes and song_suggestions
+     * would refuse, so those keys can be added to an installation that
+     * predates them.
+     *
+     * A song on a wish list twice is what the application has always called
+     * one wish, wished twice: the counts are added onto the oldest of the
+     * entries and the others go. The oldest and not the one with the lowest
+     * position, because a single UPDATE ... JOIN can name it (MIN(id)) and
+     * this runs once, on an installation that has duplicates at all. Two suggestions of
+     * the same song in one room are one suggestion; the oldest stays.
+     *
+     * Only ever called from tools/install.php, never during a request, and
+     * safe to run again: with the keys in place there is nothing to fold.
+     *
+     * @return array<string,int> table => rows removed
+     */
+    public function foldDuplicates(): array
+    {
+        $wishes      = self::WISHES;
+        $suggestions = self::SUGGESTIONS;
+
+        // The count of every duplicate lands on the row that is kept.
+        $this->db->exec(
+            "UPDATE {$wishes} AS keeper
+             JOIN (
+                 SELECT room_id, song_id, MIN(id) AS keep_id, SUM(wished) AS total
+                 FROM {$wishes}
+                 WHERE song_id IS NOT NULL
+                 GROUP BY room_id, song_id
+                 HAVING COUNT(*) > 1
+             ) AS dup ON dup.keep_id = keeper.id
+             SET keeper.wished = dup.total",
+        );
+        $removed = [
+            $wishes => $this->db->exec(
+                "DELETE victim FROM {$wishes} AS victim
+                 JOIN (
+                     SELECT room_id, song_id, MIN(id) AS keep_id
+                     FROM {$wishes}
+                     WHERE song_id IS NOT NULL
+                     GROUP BY room_id, song_id
+                     HAVING COUNT(*) > 1
+                 ) AS dup ON dup.room_id = victim.room_id AND dup.song_id = victim.song_id
+                 WHERE victim.id <> dup.keep_id",
+            ),
+            $suggestions => $this->db->exec(
+                "DELETE victim FROM {$suggestions} AS victim
+                 JOIN (
+                     SELECT room_id, artist, title, MIN(id) AS keep_id
+                     FROM {$suggestions}
+                     GROUP BY room_id, artist, title
+                     HAVING COUNT(*) > 1
+                 ) AS dup ON dup.room_id = victim.room_id AND dup.artist = victim.artist AND dup.title = victim.title
+                 WHERE victim.id <> dup.keep_id",
+            ),
+        ];
+
+        return array_filter($removed);
     }
 
     /**

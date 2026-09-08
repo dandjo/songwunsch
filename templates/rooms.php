@@ -77,7 +77,7 @@ $hasActions = $canPause || $canEdit;
                 </button>
             </form>
         <?php endif; ?>
-        <a class="link-button" href="<?= $e(url('room_new', ['back' => $listHere])) ?>"><?= icon('plus') ?><?= $e(t('Add room')) ?></a>
+        <a class="link-button link-button--accent" href="<?= $e(url('room_new', ['back' => $listHere])) ?>"><?= icon('plus') ?><?= $e(t('Add room')) ?></a>
     </div>
 </div>
 <?php endif; ?>
@@ -222,7 +222,7 @@ $hasActions = $canPause || $canEdit;
                         <?php if ($canEdit && $isMain): ?>
                             <?php /* The main room cannot be managed or deleted; Edit opens its
                                      name and its listed switch. */ ?>
-                            <a class="link-button" href="<?= $e(url('room_main_edit', ['back' => $listHere])) ?>">
+                            <a class="link-button link-button--accent" href="<?= $e(url('room_main_edit', ['back' => $listHere])) ?>">
                                 <?= icon('pencil') ?>
                                 <span class="button__label"><?= $e(t('Edit')) ?></span>
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
@@ -235,7 +235,7 @@ $hasActions = $canPause || $canEdit;
                                 <span class="sr-only">: <?= $e((string) $row['name']) ?></span>
                             </a>
                             <div class="row-actions__pair">
-                                <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url('room_edit', ['id' => (int) $row['id'], 'back' => $listHere])) ?>">
+                                <a class="link-button link-button--accent icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e(url('room_edit', ['id' => (int) $row['id'], 'back' => $listHere])) ?>">
                                     <?= icon('pencil') ?>
                                     <span class="button__label"><?= $e(t('Edit')) ?></span>
                                     <span class="sr-only">: <?= $e((string) $row['name']) ?></span>

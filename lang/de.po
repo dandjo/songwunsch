@@ -1472,8 +1472,6 @@ msgstr "Hintergrund"
 msgid "Text"
 msgstr "Text"
 
-msgid "The genre and role tags, the counters on the tabs and the edge of the info notices."
-msgstr "Die Genre- und Rollen-Tags, die Zähler an den Reitern und der Rand der Info-Hinweise."
 
 msgid "Closed rooms, delete buttons, warnings and errors."
 msgstr "Geschlossene Räume, Löschen-Buttons, Warnungen und Fehler."
@@ -1782,8 +1780,6 @@ msgstr "Farben – dunkel"
 msgid "Colours – light"
 msgstr "Farben – hell"
 
-msgid "The light interface, for visitors who choose it. The same six areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above."
-msgstr "Die helle Oberfläche, für Besucher, die sie wählen. Dieselben sechs Bereiche, aber gegen den hellen Grund gewählt – eine Farbe, die auf Schwarz leuchtet, ist auf Weiß selten lesbar. Es sind daher eigene Werte und keine Übersetzung der Farben oben."
 
 msgid "Leave a field empty to keep the built-in colour. Keep the contrast to the background readable and check with the accessibility tools of the browser after a change – in the scheme the colour belongs to."
 msgstr "Ein leeres Feld behält die eingebaute Farbe. Achten Sie auf lesbaren Kontrast zum Hintergrund und prüfen Sie nach einer Änderung mit den Barrierefreiheits-Werkzeugen des Browsers – und zwar in dem Schema, zu dem die Farbe gehört."
@@ -1880,11 +1876,78 @@ msgstr "Das helle Design zeigt jetzt das Wortzeichen."
 
 # ---- Interface: hints without hue names ---------------------------------------
 
-msgid "Buttons, links, the active tab and focus rings, “wunsch” in the word mark, the room name in the header, the accent tags and notices."
-msgstr "Schaltflächen, Links, der aktive Reiter und Fokusringe, „wunsch“ im Wortzeichen, der Raumname im Kopfbereich, die Akzent-Tags und Hinweise."
 
-msgid "The page ground; shell, panels, fields and lines are steps away from it, and so is the text on accent buttons and counters."
-msgstr "Der Seitengrund; Hülle, Flächen, Felder und Linien sind Stufen davon weg, ebenso der Text auf Akzent-Schaltflächen und Zählern."
 
 msgid "The dark interface. Every area has one base colour; the shades and tints it needs – hover, frames, notices – are derived from it."
 msgstr "Die dunkle Oberfläche. Jeder Bereich hat eine Grundfarbe; alle Abstufungen und Schleier, die daraus nötig sind – Hover, Rahmen, Hinweise – werden davon abgeleitet."
+
+# ---- Interface: presets --------------------------------------------------------
+
+msgid "Presets"
+msgstr "Presets"
+
+
+# ---- Interface: the admins' own palette ----------------------------------------
+
+msgid "My palette"
+msgstr "Meine Palette"
+
+msgid "Save as my palette"
+msgstr "Als meine Palette speichern"
+
+msgid "The colours have been kept as your own palette."
+msgstr "Die Farben wurden als eigene Palette gespeichert."
+
+msgid "“Save as my palette” keeps what stands in the fields as your own palette, first in this row; saving it again replaces it."
+msgstr "„Als meine Palette speichern“ übernimmt, was in den Feldern steht, als eigene Palette an den Anfang dieser Reihe; ein weiteres Speichern ersetzt sie."
+
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+msgid "The page shows every change at once, before it is saved. “Reset” puts the saved colours back."
+msgstr "Die Seite zeigt jede Änderung sofort, noch vor dem Speichern. „Zurücksetzen“ stellt die gespeicherten Farben wieder her."
+
+msgid "Delete my palette"
+msgstr "Meine Palette löschen"
+
+msgid "Your own palette has been deleted."
+msgstr "Die eigene Palette wurde gelöscht."
+
+msgid "There is no palette of your own to delete."
+msgstr "Es gibt keine eigene Palette zum Löschen."
+
+msgid "Table "{table}" is missing. Run tools/install.php or load sql/schema.sql."
+msgstr "Die Tabelle „{table}“ fehlt. Führen Sie tools/install.php aus oder laden Sie sql/schema.sql."
+
+# ---- Interface: the three voices -----------------------------------------------
+
+msgid "Primary"
+msgstr "Primär"
+
+
+
+
+msgid "A preset fills in all fourteen fields, the dark set and the light one. Nothing is saved until you press Save, and every field can still be changed afterwards."
+msgstr "Ein Preset füllt alle vierzehn Felder aus, den dunklen Satz und den hellen. Gespeichert wird erst mit „Speichern“, und jedes Feld lässt sich danach noch ändern."
+
+msgid "The light interface, for visitors who choose it. The same seven areas, picked against the pale ground – a colour that shines on black is rarely readable on white, so these are their own values and not a translation of the ones above."
+msgstr "Die helle Oberfläche, für Gäste, die sie wählen. Dieselben sieben Bereiche, gegen den hellen Grund gewählt – eine Farbe, die auf Schwarz leuchtet, ist auf Weiß selten lesbar, deshalb sind das eigene Werte und keine Übersetzung der oberen."
+
+
+
+msgid "The page ground; shell, panels, fields and lines are steps away from it, and so is the text on filled buttons and counters."
+msgstr "Der Seitengrund; Hülle, Flächen, Felder und Linien sind Stufen davon weg, ebenso der Text auf gefüllten Schaltflächen und Zählern."
+
+msgid "already on the wish list"
+msgstr "steht schon auf der Wunschliste"
+
+
+
+msgid "What stands out from both: “wunsch” in the word mark, the genre and role tags, what an editor does (“Edit”, “Add …”, “Save”), the sort chip that is switched on, the dot on the account menu and a song that is already on the wish list."
+msgstr "Was sich von beidem abhebt: „wunsch“ im Wortzeichen, die Genre- und Rollen-Tags, was Redakteure tun („Bearbeiten“, „… hinzufügen“, „Speichern“), der eingeschaltete Sortier-Chip, der Punkt am Konto-Menü und ein Song, der schon auf der Wunschliste steht."
+
+msgid "The menu and what a visitor acts on: buttons, links, every tab and the room switcher, focus rings, the primary tags and notices."
+msgstr "Das Menü und womit Gäste handeln: Schaltflächen, Links, alle Reiter und der Raumschalter, Fokusringe, die primären Tags und Hinweise."
+
+msgid "The counter discs on the tabs, and nothing else – a supporting colour on the menu."
+msgstr "Die Zählkreise an den Reitern, sonst nichts – eine Stützfarbe auf dem Menü."

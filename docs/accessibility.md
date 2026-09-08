@@ -38,9 +38,10 @@
   `lang` attribute.
 * **Light and dark.** A menu in the header offers a light design, a dark one
   and *Follow my device*, per visitor, kept in a cookie; `prefers-color-scheme`
-  is honoured for the third. Both built-in palettes are built to the contrast
-  WCAG 2.2 AA asks for: 4.5:1 for text and links against the surface they sit
-  on, 3:1 for the frames of buttons. `<html data-theme>` and
+  is honoured for the third. Both built-in palettes and every preset hold the
+  contrast WCAG 2.2 AA asks for on the surfaces the stylesheet puts them on –
+  4.5:1 for text, links and button labels, 3:1 for the number on a counter
+  disc – and `tools/check-colors.php` checks that. `<html data-theme>` and
   `<meta name="color-scheme">` say which one is in use, so the browser's own
   furniture follows.
 * **Motion and contrast modes.** `prefers-reduced-motion: reduce` switches
@@ -50,7 +51,7 @@
 ## What to check yourself
 
 * **Contrast.** Admins can change the colours under *Interface*, as two sets
-  of six – one per design. The form checks only that a value is a valid
+  of seven – one per design. The form checks only that a value is a valid
   `#rrggbb` colour, never its contrast, and nothing is corrected behind your
   back: a light set is yours to choose against the pale ground. **Check both
   sets before going live.** A colour that reads well on black is usually

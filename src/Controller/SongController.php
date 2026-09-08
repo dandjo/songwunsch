@@ -63,6 +63,9 @@ final class SongController extends Controller
         return $this->view('home', t('Repertoire'), [
             'repo'    => $this->songs,
             'rows'    => $result['rows'],
+            // Which of the songs on this page are already on the room's wish
+            // list: one query, so a row can say so before it is pressed.
+            'wished'  => $this->wishes->pendingAmong(array_column($result['rows'], 'id')),
             'total'   => $result['total'],
             'q'       => $q,
             'sort'    => array_key_exists($sort, $this->songs->sortableFields()) ? $sort : 'artist',
@@ -239,7 +242,7 @@ final class SongController extends Controller
         // it. A song that is open on that list already is counted once more
         // instead, like a guest's repeated wish.
         if ($adopted !== null) {
-            $this->wishFor($newId, $joinRoom, $adopted, $existing !== null, (string) $input['wish_position']);
+            $this->wishFor($newId, $joinRoom, $adopted, (string) $input['wish_position']);
         }
 
         $this->flash('ok', match (true) {
@@ -257,7 +260,7 @@ final class SongController extends Controller
      * @param array<string,mixed>|null $joinRoom
      * @param array<string,mixed>      $adopted
      */
-    private function wishFor(int $songId, ?array $joinRoom, array $adopted, bool $wasExisting, string $position): void
+    private function wishFor(int $songId, ?array $joinRoom, array $adopted, string $position): void
     {
         $wishRoomId = $joinRoom !== null ? (int) $joinRoom['id'] : RoomRepository::DEFAULT_ID;
         $newSong    = $this->songs->find($songId);
@@ -266,15 +269,15 @@ final class SongController extends Controller
         }
 
         $wishList = $wishRoomId === $this->room->id() ? $this->wishes : $this->roomServices->wishes($wishRoomId);
-        $counted  = $wasExisting ? $wishList->wishAgain($songId) : null;
-        if ($counted === null) {
-            $wishId = $wishList->add($newSong, (string) ($adopted['suggester'] ?? ''));
-            // add() appends, which is the bottom. The top is the default
-            // because the editor adopts a suggestion right when it comes up,
-            // and the audience should see it played soon.
-            if ($position === 'top') {
-                $wishList->moveToEnd($wishId, true);
-            }
+        // No cap here: an editor adopting a suggestion is not the audience
+        // wishing. Whether the song is already on the list no longer has to
+        // be established first -- the write counts it up if it is.
+        $wish = $wishList->wish($newSong, (string) ($adopted['suggester'] ?? ''));
+        // A new entry is appended, which is the bottom. The top is the
+        // default because the editor adopts a suggestion right when it comes
+        // up, and the audience should see it played soon.
+        if ($wish['added'] && $position === 'top') {
+            $wishList->moveToEnd($wish['id'], true);
         }
         $guard = $wishRoomId === $this->room->id() ? $this->guard : $this->roomServices->guard($wishRoomId);
         $guard->touch();

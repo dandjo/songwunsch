@@ -43,7 +43,7 @@ $current = url('pages', ['q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
     </div>
 
     <div class="panel__actions">
-        <a class="link-button" href="<?= $e(url('page_new', ['back' => $current])) ?>"><?= icon('plus') ?><?= $e(t('Add page')) ?></a>
+        <a class="link-button link-button--accent" href="<?= $e(url('page_new', ['back' => $current])) ?>"><?= icon('plus') ?><?= $e(t('Add page')) ?></a>
     </div>
 </div>
 
@@ -95,7 +95,7 @@ $current = url('pages', ['q' => $q, 'page' => $pageNo > 1 ? $pageNo : null]);
                 <td class="cell-action">
                     <div class="row-actions">
                         <div class="row-actions__pair">
-                            <a class="link-button icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e($editUrl) ?>">
+                            <a class="link-button link-button--accent icon-button" title="<?= $e(t('Edit')) ?>" href="<?= $e($editUrl) ?>">
                                 <?= icon('pencil') ?>
                                 <span class="button__label"><?= $e(t('Edit')) ?></span>
                                 <span class="sr-only">: <?= $e($rowTitle) ?></span>

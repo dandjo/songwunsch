@@ -100,13 +100,46 @@
 * Behind a reverse proxy, set `'trust_proxy' => true` only when the proxy is
   the only way in. The visitor's address is then taken from the last entry of
   `X-Forwarded-For`; otherwise senders could make up their address and bypass
-  the per-sender wish limit.
+  the per-sender wish limit. The same switch decides whether
+  `X-Forwarded-Proto` may say that a request arrived over https – it is a
+  header like any other, and it sets the `Secure` flag of the cookies and the
+  scheme of the absolute addresses the application builds, so without a
+  trusted proxy it is ignored and only the server's own `HTTPS` (or port 443)
+  counts.
+
+## Who may open an address
+
+* `config/access.php` maps a route to a role area. For a **POST route and
+  everything under `/admin`** an entry is required: a route of those classes
+  that nobody classified is refused, not served. Where such an address really
+  is meant for everyone – wishing, suggesting, the login, the theme switch –
+  it says `AccessListener::OPEN`, so "public" and "forgotten" cannot look the
+  same. `php tools/check-routes.php` fails on an unclassified one.
+* Public GET pages need no entry; the repertoire and the wish list are open by
+  design.
+
+## The database account
+
+* Schema changes belong to `tools/install.php` (or `sql/schema.sql`). Once the
+  tables exist, set `'schema_ddl' => false` and give the account the site runs
+  as `SELECT`, `INSERT`, `UPDATE` and `DELETE` only – no `CREATE`, no `ALTER`.
+  A missing table is then reported instead of created.
+* Uniqueness that carries meaning is a constraint and not only a check in the
+  controller: one wish per song and room, one suggestion per song and room.
+  Two requests arriving together therefore cannot produce two rows. The caps
+  on open wishes and suggestions are applied by the write as well. The wish
+  cooldown and the per-minute and per-sender limits stay best-effort: they
+  dampen a flood, and buying exactness for them would mean a lock on the one
+  path that has to stay quick.
 
 ## Errors
 
-* For production set `'show_errors' => false`. Technical details (table and
-  column names, SQL messages) are then shown only to signed-in users. Everyone
-  else sees a generic message, and the details go to the PHP error log.
+* `'show_errors' => false` is the default, and production should keep it.
+  Technical details (table and column names, SQL messages, file paths) then
+  reach signed-in users only; everyone else sees a generic sentence. The
+  detail goes to the PHP error log in either case, so switching the option on
+  buys nothing but exposure unless the installation is one nobody else can
+  reach.
 
 ## Data stored about guests
 

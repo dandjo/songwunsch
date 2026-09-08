@@ -27,17 +27,45 @@ final class AccessListener implements RequestListener
     /** Any signed-in user, whatever their roles: their own settings. */
     public const ANY = '*';
 
-    /** @param array<string,string> $map route name => role area, or ANY */
+    /**
+     * Deliberately open to everyone. Only meaningful for a route that would
+     * otherwise be refused -- a POST, or an address under /admin -- and it
+     * has to be written down, because for those two classes silence is a
+     * refusal and not a permission. A public GET page needs no entry.
+     */
+    public const OPEN = 'public';
+
+    /**
+     * @param array<string,string> $map     route name => role area, ANY or OPEN
+     * @param list<string>         $guarded names that have to appear in the map:
+     *                                      every POST route and everything under
+     *                                      /admin. A route of those classes that
+     *                                      nobody classified is refused rather
+     *                                      than served -- forgetting an entry
+     *                                      then closes an address instead of
+     *                                      opening it.
+     */
     public function __construct(
         private readonly Security $security,
         private readonly array $map,
+        private readonly array $guarded = [],
     ) {
     }
 
     public function handle(Request $request): ?Response
     {
-        $required = $this->map[$request->routeName()] ?? null;
+        $name     = $request->routeName();
+        $required = $this->map[$name] ?? null;
+        if ($required === self::OPEN) {
+            return null;
+        }
         if ($required === null) {
+            // Not classified: open, unless it is one of the classes that may
+            // not be open by accident.
+            if (in_array($name, $this->guarded, true)) {
+                throw AccessDeniedException::notLoggedIn();
+            }
+
             return null;
         }
 

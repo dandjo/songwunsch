@@ -143,18 +143,28 @@ final class SuggestionRepository
     }
 
     /**
-     * Add a suggestion to the room's list.
+     * Add a suggestion to the room's list, unless the same song is already
+     * suggested there or the list is full.
      *
      * @param array<string,string> $values    result of validate()
      * @param string|null          $suggester the guest's name, if given
-     * @return int id of the new suggestion
+     * @param int                  $maxOpen   cap on open suggestions, 0 for none
+     * @return array{added: bool, full: bool, id: int}
      */
-    public function add(array $values, ?string $suggester = null): int
+    public function add(array $values, ?string $suggester = null, int $maxOpen = 0): array
     {
         // Timestamp from PHP, like the wishes: display and "x minutes ago"
         // then agree even when PHP and MySQL run in different time zones.
-        $this->db->exec(
-            'INSERT INTO ' . self::TABLE . ' (artist, title, suggester, created_at, room_id) VALUES (?, ?, ?, ?, ?)',
+        //
+        // The unique key on (room_id, artist, title) says the same thing the
+        // caller's isPending() check says, but says it at the moment of the
+        // write: two guests suggesting the same song in the same second used
+        // to make two rows. "ON DUPLICATE KEY UPDATE id = id" is a write that
+        // changes nothing, so the second one is simply not added and MySQL
+        // reports no affected row.
+        $added = $this->db->exec(
+            'INSERT INTO ' . self::TABLE . ' (artist, title, suggester, created_at, room_id) VALUES (?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE id = id',
             [
                 $values['artist'],
                 $values['title'],
@@ -162,9 +172,24 @@ final class SuggestionRepository
                 date('Y-m-d H:i:s'),
                 $this->roomId,
             ],
-        );
+        ) === 1;
 
-        return (int) $this->db->pdo()->lastInsertId();
+        // The cap, applied after the fact for the reason WishRepository::wish
+        // gives: read before the insert it can be passed by two requests at
+        // once, and locking the room's rows for every suggestion would trade
+        // that for deadlocks.
+        if ($added && $maxOpen > 0 && $this->count() > $maxOpen) {
+            $id = (int) $this->db->pdo()->lastInsertId();
+            $this->db->exec('DELETE FROM ' . self::TABLE . ' WHERE id = ? LIMIT 1', [$id]);
+
+            return ['added' => false, 'full' => true, 'id' => 0];
+        }
+
+        return [
+            'added' => $added,
+            'full'  => false,
+            'id'    => $added ? (int) $this->db->pdo()->lastInsertId() : 0,
+        ];
     }
 
     /** Delete one suggestion, whatever room it was made in. */

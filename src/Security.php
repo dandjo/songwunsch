@@ -46,6 +46,7 @@ final class Security
     public function __construct(
         private readonly UserRepository $users,
         private readonly string $cookiePath = '/',
+        private readonly bool $trustProxy = false,
     ) {
     }
 
@@ -55,7 +56,7 @@ final class Security
             return;
         }
 
-        $https = self::isHttps();
+        $https = self::isHttps($this->trustProxy);
 
         session_name(self::SESSION_NAME);
         session_set_cookie_params([
@@ -70,13 +71,28 @@ final class Security
 
     /**
      * Detect HTTPS -- also behind a reverse proxy (Traefik, nginx) that
-     * terminates TLS. The value only controls the Secure flag of cookies.
+     * terminates TLS, but only where one is configured.
+     *
+     * X-Forwarded-Proto is a header, and a header is whatever the client
+     * wrote unless something in front rewrites it. Believing it without a
+     * trusted proxy lets a caller decide the Secure flag of the cookies and
+     * the scheme of the absolute addresses this application builds, so it is
+     * read only when `trust_proxy` says a proxy is the only way in -- the
+     * same switch that decides whether X-Forwarded-For may name the sender
+     * of a wish (config.example.php, docs/security.md).
      */
-    public static function isHttps(): bool
+    public static function isHttps(bool $trustProxy = false): bool
     {
         $direct = strtolower((string) ($_SERVER['HTTPS'] ?? ''));
         if ($direct !== '' && $direct !== 'off') {
             return true;
+        }
+        // Some setups pass the port through instead of the scheme.
+        if ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443) {
+            return true;
+        }
+        if (!$trustProxy) {
+            return false;
         }
 
         $forwarded = strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));

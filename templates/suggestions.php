@@ -199,8 +199,11 @@ $attrs = static function (string $field, int $max) use ($errors, $e): string {
                         <td class="cell-action">
                             <div class="row-actions">
                                 <?php /* Adopt leads to the song form with artist and
-                                         title filled in; the song is created there. */ ?>
-                                <a class="wish-button" href="<?= $e(url('song_adopt', ['id' => (int) $row['id'], 'back' => $current])) ?>">
+                                         title filled in; the song is created there.
+                                         In the accent and framed like "Add song",
+                                         because that is what it is: an editor
+                                         putting a song into the repertoire. */ ?>
+                                <a class="link-button link-button--accent" href="<?= $e(url('song_adopt', ['id' => (int) $row['id'], 'back' => $current])) ?>">
                                     <?= icon('plus') ?><?= $e(t('Adopt')) ?><span class="sr-only">: <?= $e($label) ?></span>
                                 </a>
                                 <form method="post" action="<?= $e(url('suggestion_delete', ['id' => (int) $row['id']])) ?>"<?php if ($settings->confirmsDelete((int) ($security->user()['id'] ?? 0), 'suggestions')): ?> data-confirm="<?= $e(t('Delete the suggestion “{title}”?', ['title' => (string) $row['title']])) ?>"<?php endif; ?>>
