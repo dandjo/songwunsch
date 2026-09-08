@@ -106,57 +106,62 @@
    selector, so they win here as they do on the dark scheme -- see
    src/Colors.php. */
 :root[data-theme="light"] {
-    /* Surfaces, stepped from light to dark */
-    --ink:          #f5f6f9;   /* page ground             */
-    --shell:        #ecedf3;   /* shell around the content */
+    /* Surfaces: pastel, not grey. The ground is a lavender-tinted white and
+       the chrome a shade of the same, so the white card lifts off it -- a
+       neutral grey ground would read as an unfinished dark scheme. */
+    --ink:          #f7f7fb;   /* page ground             */
+    --shell:        #eeeef7;   /* shell around the content */
     --panel:        #fff;      /* content surface         */
-    --surface:      #f0f1f6;   /* recessed: table, input fields */
-    --base:         #fffaf0;   /* text on gold surfaces   */
-    --sunken:       rgba(20, 22, 30, .05); /* behind code and preformatted text */
+    --surface:      #f3f3fa;   /* recessed: table, input fields */
+    --base:         #fffdf8;   /* text on gold surfaces   */
+    --sunken:       rgba(60, 55, 90, .05); /* behind code and preformatted text */
 
-    --line:         #d2d5e0;
+    --line:         #e2e1f0;
 
-    /* The accents, dark enough to be read on the pale ground (4.5:1 or
-       better); the "deep" shades stay frames, the "bright" ones are the
-       hover state and therefore darker still. */
-    --gold:         #8a5f0a;
-    --gold-bright:  #614207;
-    --gold-deep:    #9f7d3a;
-    --gold-wash:        rgba(138, 95, 10, .05);  /* faint row highlight */
-    --gold-tint:        rgba(138, 95, 10, .10);  /* hover of gold-framed buttons */
-    --gold-tint-mid:    rgba(138, 95, 10, .12);  /* notices */
-    --gold-tint-strong: rgba(138, 95, 10, .20);  /* chips inside notices */
-    --violet:       #5348bd;
-    --violet-bright: #3a3284;
-    --violet-soft:  rgba(83, 72, 189, .10);
-    --violet-line:  rgba(83, 72, 189, .30);
+    /* The accents carry the pastel in their tints, not in their ink: a veil
+       of colour over a pale ground is soft by itself, while the same colour
+       as text or a glyph has to be deep enough to read (4.5:1 or better).
+       So the base colours are deep, the tints faint, and the "deep" shades
+       -- frames around transparent buttons -- are the pastel of the family.
+       "Bright" is the hover state and therefore darker still. */
+    --gold:         #9a5a12;
+    --gold-bright:  #74400a;
+    --gold-deep:    #d9b283;                     /* soft apricot frame */
+    --gold-wash:        rgba(154, 90, 18, .05);  /* faint row highlight */
+    --gold-tint:        rgba(154, 90, 18, .09);  /* hover of gold-framed buttons */
+    --gold-tint-mid:    rgba(154, 90, 18, .12);  /* notices */
+    --gold-tint-strong: rgba(154, 90, 18, .18);  /* chips inside notices */
+    --violet:       #5b4bd6;
+    --violet-bright: #4235a8;
+    --violet-soft:  rgba(91, 75, 214, .09);
+    --violet-line:  rgba(91, 75, 214, .24);
 
-    --text:         #1a1c23;
-    --text-muted:   #5b6070;
+    --text:         #23212e;                     /* near-black with the ground's cast */
+    --text-muted:   #62607a;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
-    --danger:       #c01f36;
-    --danger-bright: #861626;
-    --danger-deep:  #7d1423;
-    --danger-line:  #e0a0ab;
-    --danger-tint:        rgba(192, 31, 54, .09);
-    --danger-tint-strong: rgba(192, 31, 54, .20);
-    --danger-glow:        rgba(192, 31, 54, .13);
-    --ok:           #0f7346;
+    --danger:       #c22a4c;
+    --danger-bright: #8e1b36;
+    --danger-deep:  #7c1730;
+    --danger-line:  #e8a8b8;                     /* soft rose frame */
+    --danger-tint:        rgba(194, 42, 76, .08);
+    --danger-tint-strong: rgba(194, 42, 76, .16);
+    --danger-glow:        rgba(194, 42, 76, .12);
+    --ok:           #157f5b;
 
-    /* Neutral overlays: the same steps as on the dark scheme, but veils of
-       ink instead of light. */
-    --hover-soft:   rgba(20, 22, 30, .03);
-    --hover:        rgba(20, 22, 30, .05);
-    --hover-strong: rgba(20, 22, 30, .09);
-    --backdrop:     rgba(20, 22, 30, .45);
+    /* Neutral overlays: veils of ink instead of light, and tinted like the
+       ground rather than plain black, which would grey the pastel out. */
+    --hover-soft:   rgba(60, 55, 90, .035);
+    --hover:        rgba(60, 55, 90, .06);
+    --hover-strong: rgba(60, 55, 90, .1);
+    --backdrop:     rgba(35, 33, 46, .4);
 
     /* Shadows carry much less on a pale ground; the same geometry, far less
        weight, or they read as dirt. */
-    --shadow-deep:  0 12px 32px rgba(20, 22, 30, .14);
-    --shadow-soft:  0 1px 2px rgba(20, 22, 30, .07);
-    --shadow-lift:  0 6px 18px rgba(20, 22, 30, .12);
-    --shade:        rgba(20, 22, 30, .18);
-    --shade-soft:   rgba(20, 22, 30, .10);
+    --shadow-deep:  0 12px 32px rgba(60, 55, 90, .12);
+    --shadow-soft:  0 1px 2px rgba(60, 55, 90, .06);
+    --shadow-lift:  0 6px 18px rgba(60, 55, 90, .1);
+    --shade:        rgba(60, 55, 90, .16);
+    --shade-soft:   rgba(60, 55, 90, .09);
 }
 
 /* The same list once more, for the visitor who follows their device. CSS
@@ -167,57 +172,62 @@
    hand. */
 @media (prefers-color-scheme: light) {
 :root[data-theme="system"] {
-    /* Surfaces, stepped from light to dark */
-    --ink:          #f5f6f9;   /* page ground             */
-    --shell:        #ecedf3;   /* shell around the content */
+    /* Surfaces: pastel, not grey. The ground is a lavender-tinted white and
+       the chrome a shade of the same, so the white card lifts off it -- a
+       neutral grey ground would read as an unfinished dark scheme. */
+    --ink:          #f7f7fb;   /* page ground             */
+    --shell:        #eeeef7;   /* shell around the content */
     --panel:        #fff;      /* content surface         */
-    --surface:      #f0f1f6;   /* recessed: table, input fields */
-    --base:         #fffaf0;   /* text on gold surfaces   */
-    --sunken:       rgba(20, 22, 30, .05); /* behind code and preformatted text */
+    --surface:      #f3f3fa;   /* recessed: table, input fields */
+    --base:         #fffdf8;   /* text on gold surfaces   */
+    --sunken:       rgba(60, 55, 90, .05); /* behind code and preformatted text */
 
-    --line:         #d2d5e0;
+    --line:         #e2e1f0;
 
-    /* The accents, dark enough to be read on the pale ground (4.5:1 or
-       better); the "deep" shades stay frames, the "bright" ones are the
-       hover state and therefore darker still. */
-    --gold:         #8a5f0a;
-    --gold-bright:  #614207;
-    --gold-deep:    #9f7d3a;
-    --gold-wash:        rgba(138, 95, 10, .05);  /* faint row highlight */
-    --gold-tint:        rgba(138, 95, 10, .10);  /* hover of gold-framed buttons */
-    --gold-tint-mid:    rgba(138, 95, 10, .12);  /* notices */
-    --gold-tint-strong: rgba(138, 95, 10, .20);  /* chips inside notices */
-    --violet:       #5348bd;
-    --violet-bright: #3a3284;
-    --violet-soft:  rgba(83, 72, 189, .10);
-    --violet-line:  rgba(83, 72, 189, .30);
+    /* The accents carry the pastel in their tints, not in their ink: a veil
+       of colour over a pale ground is soft by itself, while the same colour
+       as text or a glyph has to be deep enough to read (4.5:1 or better).
+       So the base colours are deep, the tints faint, and the "deep" shades
+       -- frames around transparent buttons -- are the pastel of the family.
+       "Bright" is the hover state and therefore darker still. */
+    --gold:         #9a5a12;
+    --gold-bright:  #74400a;
+    --gold-deep:    #d9b283;                     /* soft apricot frame */
+    --gold-wash:        rgba(154, 90, 18, .05);  /* faint row highlight */
+    --gold-tint:        rgba(154, 90, 18, .09);  /* hover of gold-framed buttons */
+    --gold-tint-mid:    rgba(154, 90, 18, .12);  /* notices */
+    --gold-tint-strong: rgba(154, 90, 18, .18);  /* chips inside notices */
+    --violet:       #5b4bd6;
+    --violet-bright: #4235a8;
+    --violet-soft:  rgba(91, 75, 214, .09);
+    --violet-line:  rgba(91, 75, 214, .24);
 
-    --text:         #1a1c23;
-    --text-muted:   #5b6070;
+    --text:         #23212e;                     /* near-black with the ground's cast */
+    --text-muted:   #62607a;
     --text-strong:  #fff;                        /* text on filled danger/hover surfaces */
-    --danger:       #c01f36;
-    --danger-bright: #861626;
-    --danger-deep:  #7d1423;
-    --danger-line:  #e0a0ab;
-    --danger-tint:        rgba(192, 31, 54, .09);
-    --danger-tint-strong: rgba(192, 31, 54, .20);
-    --danger-glow:        rgba(192, 31, 54, .13);
-    --ok:           #0f7346;
+    --danger:       #c22a4c;
+    --danger-bright: #8e1b36;
+    --danger-deep:  #7c1730;
+    --danger-line:  #e8a8b8;                     /* soft rose frame */
+    --danger-tint:        rgba(194, 42, 76, .08);
+    --danger-tint-strong: rgba(194, 42, 76, .16);
+    --danger-glow:        rgba(194, 42, 76, .12);
+    --ok:           #157f5b;
 
-    /* Neutral overlays: the same steps as on the dark scheme, but veils of
-       ink instead of light. */
-    --hover-soft:   rgba(20, 22, 30, .03);
-    --hover:        rgba(20, 22, 30, .05);
-    --hover-strong: rgba(20, 22, 30, .09);
-    --backdrop:     rgba(20, 22, 30, .45);
+    /* Neutral overlays: veils of ink instead of light, and tinted like the
+       ground rather than plain black, which would grey the pastel out. */
+    --hover-soft:   rgba(60, 55, 90, .035);
+    --hover:        rgba(60, 55, 90, .06);
+    --hover-strong: rgba(60, 55, 90, .1);
+    --backdrop:     rgba(35, 33, 46, .4);
 
     /* Shadows carry much less on a pale ground; the same geometry, far less
        weight, or they read as dirt. */
-    --shadow-deep:  0 12px 32px rgba(20, 22, 30, .14);
-    --shadow-soft:  0 1px 2px rgba(20, 22, 30, .07);
-    --shadow-lift:  0 6px 18px rgba(20, 22, 30, .12);
-    --shade:        rgba(20, 22, 30, .18);
-    --shade-soft:   rgba(20, 22, 30, .10);
+    --shadow-deep:  0 12px 32px rgba(60, 55, 90, .12);
+    --shadow-soft:  0 1px 2px rgba(60, 55, 90, .06);
+    --shadow-lift:  0 6px 18px rgba(60, 55, 90, .1);
+    --shade:        rgba(60, 55, 90, .16);
+    --shade-soft:   rgba(60, 55, 90, .09);
 }
 }
 
@@ -602,7 +612,7 @@ code {
     padding: 0 .45em;
     border-radius: var(--radius-sm);
     background: var(--hover-strong);
-    color: var(--text-strong);
+    color: var(--text);
     font-weight: 700;
 }
 /* The signed-in name heads the account menu, muted, with a hairline below. */
@@ -660,7 +670,7 @@ code {
     text-underline-offset: .2em;
 }
 .dome__notice a:hover,
-.dome__notice a:focus-visible { color: var(--text-strong); }
+.dome__notice a:focus-visible { color: var(--text); }
 /* Warning variant (default admin password): the danger colours. */
 .dome__notice--warn {
     border-color: var(--danger);
@@ -694,7 +704,7 @@ code {
     padding: 0 .45em;
     border-radius: var(--radius-sm);
     background: var(--gold-tint-strong);
-    color: var(--text-strong);
+    color: var(--text);
     font-weight: 700;
     /* A long name wraps with the sentence; every line keeps the tint's rounded ends. */
     overflow-wrap: anywhere;
@@ -1046,7 +1056,7 @@ code {
     height: 1.1rem;
     border-radius: 50%;
     background: var(--danger);
-    color: var(--text-strong);
+    color: var(--base);
     font-size: .75rem;
     font-weight: 700;
 }

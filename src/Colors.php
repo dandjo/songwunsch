@@ -50,12 +50,12 @@ final class Colors
 
     /** The stylesheet's light colours (assets/style.css, :root[data-theme="light"]). */
     public const DEFAULTS_LIGHT = [
-        'accent'     => '#8a5f0a',
-        'secondary'  => '#5348bd',
-        'danger'     => '#c01f36',
-        'success'    => '#0f7346',
-        'background' => '#f5f6f9',
-        'text'       => '#1a1c23',
+        'accent'     => '#9a5a12',
+        'secondary'  => '#5b4bd6',
+        'danger'     => '#c22a4c',
+        'success'    => '#157f5b',
+        'background' => '#f7f7fb',
+        'text'       => '#23212e',
     ];
 
     /**
@@ -218,15 +218,16 @@ final class Colors
         $away   = $dark ? $white : $black;
         $ground = $rgb['background'] ?? (array) self::parse(self::defaults($dark)['background']);
 
-        // A frame is the base colour moved towards the ground. How far
-        // differs per scheme: the contrast formula is not symmetric --
-        // against a near-black ground half the way still stands out, against
-        // a near-white one it has all but vanished. These two keep a framed
-        // button about equally visible on either scheme.
-        $frame = $dark ? .48 : .20;
+        // A frame is the base colour moved towards the ground. How far is a
+        // matter of each scheme's own idiom rather than one rule: on the dark
+        // one a frame is a muted version of the accent, on the light one it
+        // is the pastel of that family -- soft, because the button it frames
+        // carries readable text of its own. Both ratios land where the
+        // built-in palettes put their frames.
+        $frame = $dark ? .48 : .55;
         // The transparent tints are a shade weaker on the light scheme,
         // where a veil of colour over white reads stronger than over black.
-        $tints = $dark ? [.06, .12, .14, .22] : [.05, .10, .12, .20];
+        $tints = $dark ? [.06, .12, .14, .22] : [.05, .09, .12, .18];
 
         if (isset($rgb['accent'])) {
             $c = $rgb['accent'];
@@ -246,8 +247,8 @@ final class Colors
             $vars += [
                 '--violet'        => self::hex($c),
                 '--violet-bright' => self::hex(self::mix($c, $away, .30)),
-                '--violet-soft'   => self::rgba($c, $dark ? .13 : .10),
-                '--violet-line'   => self::rgba($c, $dark ? .32 : .30),
+                '--violet-soft'   => self::rgba($c, $dark ? .13 : .09),
+                '--violet-line'   => self::rgba($c, $dark ? .32 : .24),
             ];
         }
         if (isset($rgb['danger'])) {
@@ -259,9 +260,9 @@ final class Colors
                 // darker than the base on either scheme.
                 '--danger-deep'   => self::hex(self::mix($c, $black, .35)),
                 '--danger-line'   => self::hex(self::mix($c, $ground, .60)),
-                '--danger-tint'        => self::rgba($c, $dark ? .12 : .09),
-                '--danger-tint-strong' => self::rgba($c, $dark ? .25 : .20),
-                '--danger-glow'        => self::rgba($c, $dark ? .15 : .13),
+                '--danger-tint'        => self::rgba($c, $dark ? .12 : .08),
+                '--danger-tint-strong' => self::rgba($c, $dark ? .25 : .16),
+                '--danger-glow'        => self::rgba($c, $dark ? .15 : .12),
             ];
         }
         if (isset($rgb['success'])) {

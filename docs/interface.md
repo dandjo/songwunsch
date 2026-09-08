@@ -135,17 +135,28 @@ values:
 
 | Area | Light default |
 | --- | --- |
-| Accent | `#8a5f0a` |
-| Secondary | `#5348bd` |
-| Danger | `#c01f36` |
-| Success | `#0f7346` |
-| Background | `#f5f6f9` |
-| Text | `#1a1c23` |
+| Accent | `#9a5a12` |
+| Secondary | `#5b4bd6` |
+| Danger | `#c22a4c` |
+| Success | `#157f5b` |
+| Background | `#f7f7fb` |
+| Text | `#23212e` |
+
+The light design is a pastel one: the ground is a lavender-tinted white
+rather than grey, and the soft colour is in the tints – the veils behind
+notices, chips, row highlights and hover states – while the base colours
+themselves stay deep. That is not a matter of taste but of arithmetic: a
+veil of colour over a pale ground is soft by itself, and the same colour as
+text has to reach 4.5:1 to be read. A pastel *accent* would be a pastel
+nothing.
 
 They are separate on purpose. A colour picked against black is rarely
 readable on white – gold at `#e6b450` has a contrast of 10:1 on the dark
 ground and 1.9:1 on the light one – so the light set is chosen for its own
-ground, not derived from the dark one. Nothing corrects what is typed in
+ground, not derived from the dark one. The frames around transparent buttons
+are the exception the other way: on the light design they are the pastel of
+their colour family, soft rather than 3:1, because the button they frame
+carries readable text of its own. Nothing corrects what is typed in
 either set: **the contrast is the admins' to check, in both schemes.**
 
 What *is* derived per scheme are the shades around a base colour. "Brighter"
