@@ -283,7 +283,14 @@
                 reset.hidden = false;
                 reset.addEventListener('click', function () {
                     text.value = '';
-                    follow();
+                    // Through the same bubbling 'input' event typing would
+                    // cause, not by calling follow() here: the picker beside
+                    // the field is only one of the things that listen. The
+                    // live preview on the form and the mark on the presets
+                    // hang on that event as well, and emptying a field is a
+                    // change like any other -- without it the page would go
+                    // on showing the colour that has just been dropped.
+                    text.dispatchEvent(new Event('input', { bubbles: true }));
                     text.focus();
                 });
             }
